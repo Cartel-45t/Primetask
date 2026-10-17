@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050b18">
+<meta name="description" content="PrimeTask Workspace connects people with digital work opportunities, practical skills and professional growth.">
+<title>PrimeTask Workspace | Work, Earn & Grow</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#050b18;
+  --navy:#081426;
+  --blue:#367cff;
+  --blue-light:#79aaff;
+  --white:#fff;
+  --muted:#9ca9bd;
+  --ink:#111b2d;
+  --light:#f5f7fb;
+  --font:"DM Sans",sans-serif;
+  --heading:"Manrope",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:85px}
+body{font-family:var(--font);background:var(--light);color:var(--ink);line-height:1.65;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{font:inherit}
+img{display:block;width:100%;height:100%;object-fit:cover}
+.container{width:84%;max-width:1450px;margin:auto}
+.announcement{min-height:34px;background:#071225;color:#c6d5ed;display:flex;align-items:center;justify-content:center;gap:9px;padding:7px 12px;font-size:10px;text-align:center}
+.dot{width:7px;height:7px;background:#54dfaa;border-radius:50%;flex-shrink:0}
+header{height:78px;padding:0 6%;background:rgba(5,11,24,.97);border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between;gap:25px;position:sticky;top:0;z-index:1000}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;flex-shrink:0}
+.brand-icon{width:41px;height:41px;display:grid;place-items:center;border-radius:11px;background:linear-gradient(145deg,#4389ff,#1851c9);font-family:var(--heading);font-weight:800;font-size:15px;letter-spacing:-2px}
+.brand-icon span{color:#cce0ff}
+.brand-text{display:flex;flex-direction:column;line-height:1.2}
+.brand-text strong{font-family:var(--heading);font-size:17px;letter-spacing:-.6px}
+.brand-text small{font-size:8px;color:#8fa5c7;letter-spacing:2.3px;margin-top:4px}
+nav{display:flex;align-items:center;gap:25px}
+.nav-link{font-size:12px;color:#bdc8da;transition:.2s}
+.nav-link:hover,.nav-link.active{color:#fff}
+.header-actions{display:flex;align-items:center;gap:20px}
+.login-link{font-size:12px;color:#dbe5f5;font-weight:600}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:13px 18px;border-radius:8px;font-size:12px;font-weight:700;transition:.2s;cursor:pointer}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 8px 22px #367cff30}
+.btn-primary:hover{background:#2469ed}
+.btn-glass{background:#ffffff0c;border:1px solid #ffffff40;color:#fff;backdrop-filter:blur(12px)}
+.btn-outline{border:1px solid #ffffff35;color:white}
+.btn-large{min-height:50px;padding:0 21px}
+.menu-toggle,.mobile-auth{display:none}
+
+/* HERO */
+.hero{position:relative;min-height:720px;height:min(810px,calc(100vh - 112px));background:#050b18;color:#fff;display:flex;align-items:center;padding:70px 8%;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:url("https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=2200&q=85") center/cover no-repeat;transform:scale(1.02)}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(90deg,#030916f7 0%,#030916e8 38%,#03091688 70%,#03091670 100%),linear-gradient(0deg,#03091670,transparent 45%)}
+.hero-content{position:relative;z-index:2;width:58%;max-width:710px}
+.badge{display:inline-flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid #7ca9ff50;background:#163e7d40;color:#d0e0ff;border-radius:5px;font-size:9px;letter-spacing:1.4px;font-weight:700;margin-bottom:25px}
+.hero h1,.section h2,.cta h2{font-family:var(--heading);font-weight:800;letter-spacing:-2.2px;line-height:1.13}
+.hero h1{font-size:clamp(40px,4.7vw,67px);margin-bottom:22px}
+.hero h1 span,.cta h2 span{color:var(--blue-light)}
+.hero-description{color:#c2cde0;font-size:13px;line-height:2;max-width:470px;margin-bottom:27px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px}
+.hero-trust{display:flex;align-items:center;gap:12px;margin-top:35px}
+.trust-check{width:29px;height:29px;display:grid;place-items:center;border-radius:50%;color:#65e5b5;background:#46d2a320;border:1px solid #46d2a34d}
+.hero-trust strong,.hero-trust small{display:block}
+.hero-trust strong{font-size:11px}
+.hero-trust small{font-size:10px;color:#9daec8;margin-top:3px}
+
+/* TYPING DEMO */
+.typing-card{position:absolute;right:7%;top:50%;transform:translateY(-43%);z-index:3;width:340px;background:#091222f2;border:1px solid #ffffff26;border-radius:14px;padding:17px;box-shadow:0 30px 90px #0007;backdrop-filter:blur(20px)}
+.typing-head,.typing-title,.audio-row,.transcript-label,.typing-footer{display:flex;align-items:center;justify-content:space-between}
+.typing-title{justify-content:flex-start;gap:10px}
+.typing-icon{width:37px;height:37px;display:grid;place-items:center;border-radius:9px;background:#367cff26;color:#80adff;font-size:20px}
+.typing-title strong,.typing-title small{display:block}
+.typing-title strong{font-size:11px}
+.typing-title small{font-size:9px;color:#8293ad;margin-top:3px}
+.demo-status{display:flex;align-items:center;gap:5px;font-size:8px;letter-spacing:1px;color:#b3c3d8}
+.audio-panel{background:#101d32;border:1px solid #ffffff0e;border-radius:9px;padding:12px;margin-top:17px}
+.audio-row{font-size:9px;color:#9eacc1}
+.audio-row span:last-child{color:#d8e4f6;font-variant-numeric:tabular-nums}
+.waveform{height:43px;display:flex;align-items:center;justify-content:space-between;gap:3px;margin:9px 0;overflow:hidden}
+.waveform span{width:3px;min-width:2px;height:var(--h);background:#4888ff;border-radius:4px;opacity:.9}
+.waveform span:nth-child(3n){background:#76a9ff}
+.waveform span.playing{animation:wave .65s ease-in-out infinite alternate;animation-delay:var(--delay)}
+@keyframes wave{from{height:12%}to{height:var(--h)}}
+.audio-quality{color:#76a9ff;font-size:8px;letter-spacing:.5px}
+.transcript-panel{margin-top:15px;padding:12px;border:1px solid #ffffff12;border-radius:9px;min-height:148px}
+.transcript-label{font-size:8px;letter-spacing:1px;color:#93a5bf;margin-bottom:12px}
+.live-label{display:flex;align-items:center;gap:5px;color:#63dca9}
+.live-label .dot{width:5px;height:5px}
+#typingText{font-size:11px;line-height:1.9;color:#e0e9f8;min-height:68px}
+.cursor{display:inline-block;width:2px;height:12px;background:#70a5ff;margin-left:2px;vertical-align:-2px;animation:blink .8s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+.typing-footer{margin-top:8px;color:#8193ad;font-size:9px}
+.typing-bottom{display:flex;align-items:center;gap:8px;margin-top:13px;color:#a7b8d0;font-size:9px}
+.typing-bottom .trust-check{width:19px;height:19px;font-size:9px}
+.hero-scroll{position:absolute;bottom:23px;left:8%;z-index:2;display:flex;align-items:center;gap:10px;color:#a8b8cf;font-size:8px;letter-spacing:1.5px}
+.hero-scroll span{height:1px;width:25px;background:#6499f6}
+
+/* SHARED SECTIONS */
+.section{padding:100px 8%}
+.section-label{display:flex;align-items:center;gap:10px;color:#526780;font-size:10px;font-weight:800;letter-spacing:1.7px;margin-bottom:19px}
+.section-label>span{width:24px;height:2px;background:var(--blue)}
+.section h2,.cta h2{font-size:clamp(32px,3.4vw,46px)}
+.intro{background:#fff}
+.intro-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:65px;align-items:start}
+.intro h2 span,.services h2 span,.steps h2 span{color:var(--blue)}
+.intro-copy p{color:#647187;font-size:13px;line-height:2}
+.text-link,.card-link{display:inline-flex;align-items:center;gap:9px;color:#2365d6;font-size:11px;font-weight:800}
+.text-link{margin-top:19px}
+.intro-image{height:400px;margin-top:48px;position:relative;overflow:hidden;border-radius:13px;background:#17243b}
+.intro-image:after{content:"";position:absolute;inset:40% 0 0;background:linear-gradient(0deg,#030a18d9,transparent)}
+.image-caption{position:absolute;bottom:25px;left:27px;z-index:2;display:flex;align-items:center;gap:13px;color:#fff}
+.caption-mark{font-family:var(--heading);font-size:22px;font-weight:800;color:#83adff}
+.image-caption strong,.image-caption small{display:block}
+.image-caption strong{font-size:13px}
+.image-caption small{font-size:10px;color:#d2d9e6}
+.image-number{position:absolute;right:25px;bottom:32px;z-index:2;font-size:9px;letter-spacing:1.4px;color:#d8e3f4}
+
+/* SERVICES */
+.services{background:#f3f6fb}
+.services-heading{display:flex;justify-content:space-between;align-items:end;gap:25px;margin-bottom:38px}
+.services-heading .section-label{margin-bottom:16px}
+.service-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.service-card{background:#fff;border:1px solid #e8edf5;border-radius:11px;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.service-card:hover{transform:translateY(-5px);box-shadow:0 18px 45px #162c501a}
+.service-image{height:180px;position:relative;overflow:hidden;background:#dce5f2}
+.service-image img{transition:transform .5s}
+.service-card:hover img{transform:scale(1.05)}
+.service-number{position:absolute;top:12px;left:12px;color:white;background:#050b18bb;padding:5px 9px;border-radius:4px;font-size:10px}
+.service-content{padding:20px 17px 22px}
+.service-category{color:#4878bd;font-size:8px;letter-spacing:1px;font-weight:800}
+.service-content h3{font-family:var(--heading);font-size:18px;letter-spacing:-.5px;margin-top:8px}
+.service-content p{color:#69768b;font-size:11px;line-height:1.9;margin:10px 0 17px;min-height:63px}
+
+/* OPPORTUNITIES */
+.opportunities{background:#071225;color:white;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.opportunity-image{height:470px;position:relative;border-radius:12px;overflow:hidden;background:#17243b}
+.opportunity-image:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#040c1b40,transparent)}
+.image-tag{position:absolute;left:19px;bottom:19px;display:flex;align-items:center;gap:8px;padding:11px 13px;background:#050e1ee8;border:1px solid #ffffff24;border-radius:6px;color:#dce8fa;font-size:9px;letter-spacing:1px;z-index:2}
+.opportunities .section-label,.cta .section-label{color:#c0cee3}
+.opportunity-content h2{margin-bottom:20px}
+.opportunity-content h2 span{color:#79aaff}
+.opportunity-content>p,.cta-content>p{color:#aab9cf;font-size:12px;line-height:2;max-width:470px}
+.opportunity-list{margin:28px 0;display:flex;flex-direction:column;gap:19px}
+.opportunity-list>div{display:flex;align-items:flex-start;gap:13px}
+.list-check{width:23px;height:23px;display:grid;place-items:center;border:1px solid #679fff59;color:#80adff;background:#367cff1f;border-radius:6px;flex-shrink:0;font-size:11px}
+.opportunity-list strong,.opportunity-list small{display:block}
+.opportunity-list strong{font-size:12px}
+.opportunity-list small{color:#91a2ba;font-size:10px;margin-top:3px}
+
+/* STEPS */
+.steps{background:#fff}
+.center-heading{text-align:center;max-width:700px;margin:0 auto 48px}
+.center-heading .section-label{justify-content:center}
+.center-heading>p{color:#78859a;font-size:12px;margin-top:14px}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.step-card{padding:27px;border:1px solid #e7ecf4;border-radius:11px;position:relative}
+.step-number{position:absolute;right:23px;top:23px;font-family:var(--heading);font-size:12px;font-weight:800;color:#a9b8cf}
+.step-icon{width:48px;height:48px;border-radius:11px;display:grid;place-items:center;background:#edf3ff;color:#2769e3;font-size:22px;margin-bottom:25px}
+.step-card h3{font-family:var(--heading);font-size:16px;letter-spacing:-.5px}
+.step-card p{color:#6f7c91;font-size:11px;line-height:1.9;margin-top:10px}
+
+/* PHOTO GALLERY */
+.photo-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:#071225}
+.photo-item{height:260px;position:relative;overflow:hidden;background:#15243b}
+.photo-item:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(0deg,#040a16d9,transparent)}
+.photo-item img{transition:transform .5s}
+.photo-item:hover img{transform:scale(1.05)}
+.photo-item span{position:absolute;bottom:22px;left:25px;color:#fff;font-family:var(--heading);font-size:15px;font-weight:700;z-index:2}
+
+/* CTA */
+.cta{position:relative;min-height:430px;background:#071225;color:#fff;display:flex;align-items:center;overflow:hidden}
+.cta-bg{position:absolute;inset:0;background:url("https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1800&q=85") center/cover no-repeat}
+.cta-overlay{position:absolute;inset:0;background:linear-gradient(90deg,#030916f5,#030916b8)}
+.cta-content{position:relative;z-index:1;max-width:740px}
+.cta h2{margin-bottom:20px}
+.cta h2 span{color:#79aaff}
+.cta-content>p{margin-bottom:27px}
+
+/* FOOTER */
+footer{background:#030815;color:white;padding:58px 8% 0}
+.footer-main{display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr;gap:45px;padding-bottom:43px}
+.footer-brand>p{color:#92a1b7;font-size:11px;max-width:260px;margin-top:19px;line-height:1.9}
+.socials{display:flex;gap:9px;margin-top:22px}
+.socials a{width:31px;height:31px;display:grid;place-items:center;border:1px solid #ffffff26;border-radius:7px;color:#b7c8e1;font-size:10px;font-weight:700}
+.socials a:hover{background:#183e83;color:white}
+.footer-column{display:flex;flex-direction:column;align-items:flex-start;gap:13px}
+.footer-column h4{font-size:12px;margin-bottom:5px}
+.footer-column a{color:#96a5bb;font-size:10px}
+.footer-column a:hover{color:white}
+.footer-bottom{min-height:65px;border-top:1px solid #ffffff19;display:flex;align-items:center;justify-content:space-between;gap:20px;color:#718098;font-size:9px}
+
+/* RESPONSIVE */
+@media(min-width:1600px){
+ .hero{padding-left:max(8%,calc((100vw - 1500px)/2))}
+ .section,footer{padding-left:max(8%,calc((100vw - 1450px)/2));padding-right:max(8%,calc((100vw - 1450px)/2))}
+}
+@media(max-width:1200px){
+ header{padding:0 4%}
+ nav{gap:16px}
+ .hero{padding-left:5%;padding-right:5%}
+ .hero-content{width:55%}
+ .typing-card{right:4%;width:310px}
+ .service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .opportunities{gap:45px}
+ .section,footer{padding-left:5%;padding-right:5%}
+}
+@media(max-width:900px){
+ header{height:70px}
+ .menu-toggle{display:flex;flex-direction:column;justify-content:center;gap:5px;width:41px;height:41px;background:transparent;border:1px solid #ffffff30;border-radius:8px;padding:10px;cursor:pointer;order:3}
+ .menu-toggle span{height:2px;width:100%;background:#fff;border-radius:5px}
+ .header-actions{margin-left:auto}
+ nav{display:none;position:absolute;top:70px;left:0;right:0;padding:20px 5% 25px;background:#071225;border-bottom:1px solid #ffffff20;flex-direction:column;align-items:stretch;gap:0}
+ nav.open{display:flex}
+ .nav-link{padding:13px 0;border-bottom:1px solid #ffffff10}
+ .mobile-auth{display:flex;gap:12px;margin-top:18px}
+ .mobile-auth .btn{flex:1;text-align:center}
+ .hero{height:auto;min-height:980px;padding:70px 6% 100px;align-items:flex-start}
+ .hero-overlay{background:linear-gradient(180deg,#030916e8,#030916ed 40%,#030916fa)}
+ .hero-content{width:100%;max-width:650px}
+ .hero h1{font-size:clamp(43px,7vw,62px)}
+ .typing-card{top:auto;bottom:85px;left:6%;right:auto;width:min(400px,88%);transform:none}
+ .hero-scroll{left:6%;bottom:28px}
+ .section{padding:75px 6%}
+ .intro-grid{gap:30px}
+ .opportunities{grid-template-columns:1fr;gap:35px}
+ .opportunity-image{height:370px}
+ .footer-main{grid-template-columns:repeat(2,minmax(0,1fr));gap:35px}
+}
+@media(max-width:600px){
+ .announcement{font-size:9px}
+ header{padding:0 5%}
+ .brand-icon{width:36px;height:36px}
+ .brand-text strong{font-size:15px}
+ .brand-text small{font-size:8px}
+ .header-actions{display:none}
+ .hero{min-height:960px;padding:58px 5% 100px}
+ .badge{font-size:8px;letter-spacing:1px;margin-bottom:22px}
+ .hero h1{font-size:clamp(37px,10vw,48px);letter-spacing:-1.7px}
+ .hero-description{font-size:12px}
+ .hero-actions .btn{font-size:10px;padding:0 12px;gap:7px;min-height:47px}
+ .hero-trust{margin-top:25px}
+ .typing-card{left:5%;bottom:78px;width:90%;padding:13px}
+ .section h2,.cta h2{font-size:31px;letter-spacing:-1.3px}
+ .intro-grid{grid-template-columns:1fr;gap:20px}
+ .intro-image{height:280px;margin-top:30px}
+ .image-caption{left:15px;bottom:17px}
+ .image-number{display:none}
+ .services-heading{flex-direction:column;align-items:flex-start;gap:20px}
+ .service-grid{grid-template-columns:1fr;gap:17px}
+ .service-image{height:220px}
+ .service-content p{min-height:0}
+ .opportunity-image{height:280px}
+ .steps-grid{grid-template-columns:1fr}
+ .step-card{padding:23px}
+ .photo-strip{grid-template-columns:1fr;gap:3px}
+ .photo-item{height:220px}
+ .cta{min-height:440px}
+ footer{padding:45px 5% 0}
+ .footer-main{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 20px}
+ .footer-brand{grid-column:1/-1}
+ .footer-bottom{padding:18px 0;align-items:flex-start;flex-direction:column;gap:8px}
+}
+@media(max-width:360px){
+ .hero h1{font-size:35px}
+ .hero-actions{flex-direction:column}
+ .hero-actions .btn{width:100%}
+ .typing-card{padding:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+
+<body>
+
+<div class="announcement">
+  <span class="dot"></span>
+  A workspace for skills, opportunities and growth.
+</div>
+
+<header>
+  <a href="index.html" class="brand" aria-label="PrimeTask Workspace home">
+    <span class="brand-icon">P<span>T</span></span>
+    <span class="brand-text">
+      <strong>PrimeTask</strong>
+      <small>WORKSPACE</small>
+    </span>
+  </a>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="navMenu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <nav id="navMenu">
+    <a class="nav-link active" href="index.html">Home</a>
+    <a class="nav-link" href="services.html">Services</a>
+    <a class="nav-link" href="how-it-works.html">How It Works</a>
+    <a class="nav-link" href="about.html">About</a>
+    <a class="nav-link" href="pricing.html">Pricing</a>
+
+    <div class="mobile-auth">
+      <a href="auth/login.html" class="btn btn-outline">Log In</a>
+      <a href="auth/register.html" class="btn btn-primary">Get Started ↗</a>
+    </div>
+  </nav>
+
+  <div class="header-actions">
+    <a href="auth/login.html" class="login-link">Log in</a>
+    <a href="auth/register.html" class="btn btn-primary">Get Started ↗</a>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <div class="badge">✳ &nbsp; DIGITAL OPPORTUNITIES. REAL SKILLS.</div>
+
+    <h1>Your skills.<br>Your opportunities.<br><span>Your next chapter.</span></h1>
+
+    <p class="hero-description">
+      Discover opportunities, develop practical digital skills, and take
+      your next step with PrimeTask Workspace. Learn, work, earn and grow.
+    </p>
+
+    <div class="hero-actions">
+      <a href="services.html" class="btn btn-primary btn-large">Explore Our Services ↗</a>
+      <a href="auth/register.html" class="btn btn-glass btn-large">Create an Account →</a>
+    </div>
+
+    <div class="hero-trust">
+      <span class="trust-check">✓</span>
+      <div>
+        <strong>Built around opportunity</strong>
+        <small>Skills, services and professional growth</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="typing-card">
+    <div class="typing-head">
+      <div class="typing-title">
+        <span class="typing-icon">⌨</span>
+        <div>
+          <strong>Transcription workspace</strong>
+          <small>Interactive preview demonstration</small>
+        </div>
+      </div>
+      <span class="demo-status"><span class="dot"></span> DEMO</span>
+    </div>
+
+    <div class="audio-panel">
+      <div class="audio-row">
+        <span>Audio preview</span>
+        <span id="audioTime">00:00 / 00:24</span>
+      </div>
+      <div class="waveform" id="waveform" aria-hidden="true"></div>
+      <div class="audio-row">
+        <span>Sample meeting audio</span>
+        <span class="audio-quality">VOICE SAMPLE</span>
+      </div>
+    </div>
+
+    <div class="transcript-panel">
+      <div class="transcript-label">
+        <span>TRANSCRIPT PREVIEW</span>
+        <span class="live-label"><span class="dot"></span> TYPING</span>
+      </div>
+      <p id="typingText"></p>
+      <div class="typing-footer">
+        <span id="wordCount">0 words</span>
+        <span>English · Sample</span>
+      </div>
+    </div>
+
+    <div class="typing-bottom">
+      <span class="trust-check">✓</span>
+      Precision begins with attention to detail.
+    </div>
+  </div>
+
+  <div class="hero-scroll"><span></span> SCROLL TO EXPLORE</div>
+</section>
+
+<section class="section intro">
+  <div class="section-label"><span></span> WELCOME TO PRIMETASK</div>
+
+  <div class="intro-grid">
+    <div>
+      <h2>More than a workspace.<br><span>A place to move forward.</span></h2>
+    </div>
+    <div class="intro-copy">
+      <p>
+        Finding opportunities should not mean navigating a maze.
+        PrimeTask Workspace brings digital services, practical work
+        opportunities and skill development into one organized environment.
+      </p>
+      <a href="about.html" class="text-link">Discover our approach ↗</a>
+    </div>
+  </div>
+
+  <div class="intro-image">
+    <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1800&q=85" alt="Professionals collaborating around a table" loading="lazy">
+    <div class="image-caption">
+      <span class="caption-mark">PT.</span>
+      <div>
+        <strong>Skills meet opportunity.</strong>
+        <small>Progress starts with the next step.</small>
+      </div>
+    </div>
+    <div class="image-number">01 / OPPORTUNITY</div>
+  </div>
+</section>
+
+<section class="section services" id="services">
+  <div class="services-heading">
+    <div>
+      <div class="section-label"><span></span> WHAT WE DO</div>
+      <h2>Skills that create<br><span>possibilities.</span></h2>
+    </div>
+    <a href="services.html" class="btn btn-outline" style="color:#17243b;border-color:#d4dce8">All Services ↗</a>
+  </div>
+
+  <div class="service-grid">
+    <article class="service-card" id="transcription">
+      <div class="service-image">
+        <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=900&q=80" alt="Writing and transcription work" loading="lazy">
+        <span class="service-number">01</span>
+      </div>
+      <div class="service-content">
+        <span class="service-category">AUDIO TO TEXT</span>
+        <h3>Transcription</h3>
+        <p>Turn recorded conversations, interviews and other audio into accurate, readable text.</p>
+        <a href="services.html#transcription" class="card-link">Explore service ↗</a>
+      </div>
+    </article>
+
+    <article class="service-card" id="note-taking">
+      <div class="service-image">
+        <img src="https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&fit=crop&w=900&q=80" alt="Notes and organized documents" loading="lazy">
+        <span class="service-number">02</span>
+      </div>
+      <div class="service-content">
+        <span class="service-category">CAPTURE THE DETAILS</span>
+        <h3>Note-taking</h3>
+        <p>Organize important information from meetings, lectures and discussions into useful notes.</p>
+        <a href="services.html#note-taking" class="card-link">Explore service ↗</a>
+      </div>
+    </article>
+
+    <article class="service-card" id="data-entry">
+      <div class="service-image">
+        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80" alt="Digital data work on a laptop" loading="lazy">
+        <span class="service-number">03</span>
+      </div>
+      <div class="service-content">
+        <span class="service-category">ACCURACY MATTERS</span>
+        <h3>Data entry</h3>
+        <p>Support structured information processing, document organization and data management tasks.</p>
+        <a href="services.html#data-entry" class="card-link">Explore service ↗</a>
+      </div>
+    </article>
+
+    <article class="service-card" id="academic-writing">
+      <div class="service-image">
+        <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=900&q=80" alt="Academic study and writing materials" loading="lazy">
+        <span class="service-number">04</span>
+      </div>
+      <div class="service-content">
+        <span class="service-category">RESEARCH & WRITING</span>
+        <h3>Academic writing</h3>
+        <p>Access writing and research support for structured academic projects and documentation.</p>
+        <a href="services.html#academic-writing" class="card-link">Explore service ↗</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="section opportunities">
+  <div class="opportunity-image">
+    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85" alt="Professional working with digital tools" loading="lazy">
+    <div class="image-tag"><span class="dot"></span> SKILLS IN ACTION</div>
+  </div>
+
+  <div class="opportunity-content">
+    <div class="section-label"><span></span> YOUR NEXT STEP</div>
+    <h2>Turn what you know<br>into <span>what comes next.</span></h2>
+    <p>Explore a workspace designed around digital services, structured assignments and opportunities to develop practical experience.</p>
+
+    <div class="opportunity-list">
+      <div>
+        <span class="list-check">✓</span>
+        <div><strong>Discover opportunities</strong><small>Explore services and relevant assignments.</small></div>
+      </div>
+      <div>
+        <span class="list-check">✓</span>
+        <div><strong>Build practical skills</strong><small>Improve through learning and experience.</small></div>
+      </div>
+      <div>
+        <span class="list-check">✓</span>
+        <div><strong>Work with clear expectations</strong><small>Understand tasks, requirements and deadlines.</small></div>
+      </div>
+    </div>
+
+    <a href="how-it-works.html" class="btn btn-primary btn-large">How It Works ↗</a>
+  </div>
+</section>
+
+<section class="section steps">
+  <div class="center-heading">
+    <div class="section-label" style="justify-content:center"><span></span> SIMPLE BY DESIGN</div>
+    <h2>A clearer path to <span>getting started.</span></h2>
+    <p>Understand the process before you begin.</p>
+  </div>
+
+  <div class="steps-grid">
+    <article class="step-card">
+      <span class="step-number">01</span>
+      <div class="step-icon">↗</div>
+      <h3>Create your account</h3>
+      <p>Register and provide the information needed to set up your workspace.</p>
+    </article>
+    <article class="step-card">
+      <span class="step-number">02</span>
+      <div class="step-icon">⌕</div>
+      <h3>Explore opportunities</h3>
+      <p>Learn about available services, requirements and relevant assignments.</p>
+    </article>
+    <article class="step-card">
+      <span class="step-number">03</span>
+      <div class="step-icon">✓</div>
+      <h3>Complete your work</h3>
+      <p>Follow instructions, meet deadlines and submit work for review.</p>
+    </article>
+  </div>
+</section>
+
+<section class="photo-strip">
+  <div class="photo-item">
+    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=700&q=80" alt="Professional working with digital tools" loading="lazy">
+    <span>Work with purpose.</span>
+  </div>
+  <div class="photo-item">
+    <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=700&q=80" alt="Students collaborating on a project" loading="lazy">
+    <span>Learn through experience.</span>
+  </div>
+  <div class="photo-item">
+    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=700&q=80" alt="Digital professional using a computer" loading="lazy">
+    <span>Grow your capabilities.</span>
+  </div>
+</section>
+
+<section class="section cta">
+  <div class="cta-bg"></div>
+  <div class="cta-overlay"></div>
+  <div class="cta-content">
+    <div class="section-label"><span></span> TAKE THE NEXT STEP</div>
+    <h2>Your next opportunity<br>starts with <span>getting started.</span></h2>
+    <p>Explore PrimeTask Workspace and discover where your skills can take you.</p>
+    <div class="hero-actions">
+      <a href="auth/register.html" class="btn btn-primary btn-large">Get Started ↗</a>
+      <a href="services.html" class="btn btn-glass btn-large">Explore Services →</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-brand">
+      <a href="index.html" class="brand">
+        <span class="brand-icon">P<span>T</span></span>
+        <span class="brand-text"><strong>PrimeTask</strong><small>WORKSPACE</small></span>
+      </a>
+      <p>Creating Opportunities and Delivering Excellence.</p>
+      <div class="socials">
+        <a href="#" aria-label="Facebook">f</a>
+        <a href="#" aria-label="Instagram">ig</a>
+        <a href="#" aria-label="TikTok">tk</a>
+        <a href="#" aria-label="YouTube">yt</a>
+      </div>
+    </div>
+
+    <div class="footer-column">
+      <h4>Explore</h4>
+      <a href="services.html">Services</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="about.html">About Us</a>
+      <a href="pricing.html">Pricing</a>
+    </div>
+
+    <div class="footer-column">
+      <h4>Account</h4>
+      <a href="auth/login.html">Log In</a>
+      <a href="auth/register.html">Register</a>
+      <a href="faq.html">FAQs</a>
+      <a href="contact.html">Contact</a>
+    </div>
+
+    <div class="footer-column">
+      <h4>Legal</h4>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms & Conditions</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© <span id="year"></span> PrimeTask Workspace. All rights reserved.</p>
+    <p>Creating Opportunities and Delivering Excellence.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const toggle = document.getElementById("menuToggle");
+  const nav = document.getElementById("navMenu");
+
+  function closeMenu() {
+    nav.classList.remove("open");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "Open navigation");
+  }
+
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
+  });
+
+  nav.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  document.addEventListener("click", event => {
+    if (!nav.contains(event.target) && !toggle.contains(event.target)) {
+      closeMenu();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) closeMenu();
+  });
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  const phrases = [
+    "Welcome to today's meeting. We will begin by reviewing the project objectives and discussing the next steps.",
+    "Our team will review the latest updates, identify priorities and agree on the actions required.",
+    "Please ensure that all important details are recorded accurately before the final transcript is submitted."
+  ];
+
+  const output = document.getElementById("typingText");
+  const wordCount = document.getElementById("wordCount");
+  const waveform = document.getElementById("waveform");
+  const audioTime = document.getElementById("audioTime");
+
+  const cursor = document.createElement("span");
+  cursor.className = "cursor";
+  cursor.setAttribute("aria-hidden", "true");
+
+  let phraseIndex = 0;
+  let charIndex = 0;
+  let deleting = false;
+  let seconds = 0;
+
+  for (let i = 0; i < 48; i++) {
+    const bar = document.createElement("span");
+    const height = 18 + Math.random() * 80;
+    bar.style.setProperty("--h", height + "%");
+    bar.style.setProperty("--delay", Math.random() * .7 + "s");
+    waveform.appendChild(bar);
+  }
+
+  function updateTyping() {
+    const phrase = phrases[phraseIndex];
+
+    output.replaceChildren(
+      document.createTextNode(phrase.slice(0, charIndex)),
+      cursor
+    );
+
+    const visible = phrase.slice(0, charIndex).trim();
+    const words = visible ? visible.split(/\s+/).length : 0;
+
+    wordCount.textContent = words + " word" + (words === 1 ? "" : "s");
+  }
+
+  function type() {
+    const phrase = phrases[phraseIndex];
+
+    if (!deleting) {
+      charIndex++;
+      updateTyping();
+
+      if (charIndex >= phrase.length) {
+        deleting = true;
+        setTimeout(type, 2200);
+        return;
+      }
+
+      setTimeout(type, 36 + Math.random() * 28);
+    } else {
+      charIndex--;
+      updateTyping();
+
+      if (charIndex <= 0) {
+        deleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        setTimeout(type, 500);
+        return;
+      }
+
+      setTimeout(type, 17);
+    }
+  }
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    output.textContent = phrases[0];
+    wordCount.textContent = phrases[0].split(/\s+/).length + " words";
+  } else {
+    type();
+
+    setInterval(() => {
+      seconds = (seconds + 1) % 25;
+      audioTime.textContent = "00:" + String(seconds).padStart(2, "0") + " / 00:24";
+
+      [...waveform.children].forEach((bar, index) => {
+        bar.classList.toggle("playing", index < seconds * 2);
+      });
+    }, 1000);
+  }
+
+  document.querySelectorAll("img").forEach(img => {
+    img.addEventListener("error", () => {
+      img.style.opacity = "0";
+      img.parentElement.style.background = "#17243b";
+    }, { once: true });
+  });
+})();
+</script>
+
+</body>
+</html>

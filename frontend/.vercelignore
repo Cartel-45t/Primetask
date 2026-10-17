@@ -1,0 +1,14 @@
+**/*.before-*
+**/*.bak
+**/.gitignore
+
+# Never upload local secrets or deployment metadata
+.env*
+**/.env*
+.vercel
+.vercel/**
+**/.vercel/**
+.git
+**/.git/**
+node_modules
+**/node_modules/**

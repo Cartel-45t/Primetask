@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071426">
+<meta name="description" content="PrimeTask Workspace transcription - Transcription Dashboard">
+<title>Transcription Dashboard | PrimeTask Workspace</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="page-home">
+<div class="shell">
+<header class="topbar">
+<a class="brand" href="index.html">
+<span class="brand-mark">PT</span><span><span class="brand-name">PrimeTask Workspace</span><span class="brand-sub">Transcription workspace</span></span>
+</a>
+<div class="menu-wrap">
+<button class="menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="pageMenu">☰</button>
+<nav class="menu" id="pageMenu" aria-label="Transcription pages"><a href="index.html" class="active">Dashboard</a><a href="available-jobs.html" class="">Available jobs</a><a href="my-jobs.html" class="">My jobs / submissions</a><a href="purchase-minutes.html" class="">Purchase minutes</a><a href="wallet.html" class="">Wallet & withdrawals</a><a href="payouts.html" class="">My payouts</a></nav>
+</div>
+</header>
+<main>
+
+<section class="hero"><div class="hero-content">
+<div class="eyebrow">Your transcription workspace</div>
+<h1>Your next opportunity starts <span>here.</span></h1>
+<p>Manage your transcription work, review available opportunities, submit accurate transcripts and track your USD earnings from one workspace.</p>
+<div class="actions"><a class="btn gold" href="available-jobs.html">Available jobs ↗</a><a class="btn" href="my-jobs.html">My submissions</a></div>
+</div></section>
+
+<section class="section-head">
+  <div>
+    <h2>Welcome, <span id="memberName">loading account…</span></h2>
+    <p id="accountMessage" role="status" aria-live="polite">Checking your session…</p>
+  </div>
+  <span class="status" id="accountStatus">Connecting</span>
+</section>
+
+<section class="grid" aria-label="Wallet overview">
+  <article class="card">
+    <div class="card-icon">$</div>
+    <h2>Available balance</h2>
+    <div class="metric" id="availableBalance">USD —</div>
+    <p>Funds currently available in your wallet.</p>
+    <a class="btn gold" href="wallet.html">Open wallet →</a>
+  </article>
+  <article class="card">
+    <div class="card-icon">◷</div>
+    <h2>Pending earnings</h2>
+    <div class="metric" id="pendingEarnings">USD —</div>
+    <p>Earnings recorded as pending in your wallet.</p>
+    <a class="btn blue" href="payouts.html">View payouts →</a>
+  </article>
+  <article class="card">
+    <div class="card-icon">↗</div>
+    <h2>Total earnings</h2>
+    <div class="metric" id="totalEarnings">USD —</div>
+    <p>Total earnings recorded by the wallet API.</p>
+    <a class="btn orange" href="payouts.html">Earnings history →</a>
+  </article>
+</section>
+
+<div class="content-grid">
+  <section class="panel">
+    <h2>Get started</h2>
+    <p>Choose the next step in your transcription workflow.</p>
+    <a class="row-link" href="available-jobs.html"><span>Browse available jobs</span><span>→</span></a>
+    <a class="row-link" href="my-jobs.html"><span>Check submissions and revisions</span><span>→</span></a>
+    <a class="row-link" href="purchase-minutes.html"><span>Purchase transcription minutes</span><span>→</span></a>
+    <a class="row-link" href="wallet.html"><span>Wallet and withdrawals</span><span>→</span></a>
+  </section>
+  <section class="panel">
+    <h2>Workspace status</h2>
+    <span class="status" id="walletStatus">Wallet not loaded</span>
+    <p id="walletMessage">Your wallet information will appear here after your session is verified.</p>
+    <div class="notice">All displayed financial values use USD. Job counts and payout history will be connected when their service APIs are available.</div>
+    <button class="btn" id="retryDashboard" type="button">Refresh account data</button>
+  </section>
+</div>
+<footer>© <span data-year></span> PrimeTask Workspace · Creating Opportunities and delivering excellence. <br>Financial values on this page use USD.</footer>
+</main>
+</div>
+<script src="../../../assets/js/config.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

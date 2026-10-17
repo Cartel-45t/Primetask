@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#061225">
+<meta name="description" content="Create your PrimeTask Workspace account and explore opportunities in transcription, note-taking, data entry and academic writing support.">
+<title>Create Account | PrimeTask Workspace</title>
+
+<style>
+:root {
+  --bg:#040b18;
+  --panel:rgba(9,24,47,.91);
+  --panel2:#0b1c35;
+  --blue:#2379ee;
+  --blue2:#56a2ff;
+  --orange:#ff873d;
+  --text:#f3f7ff;
+  --muted:#9aacc5;
+  --border:rgba(151,181,222,.18);
+  --green:#38d9a9;
+  --danger:#ff6b79;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  background:var(--bg);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+button,input{font:inherit}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer}
+.page{
+  min-height:100vh;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(420px,520px);
+}
+.visual{
+  min-height:100vh;
+  position:relative;
+  display:flex;
+  align-items:flex-end;
+  padding:clamp(24px,5vw,70px);
+  overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(3,10,23,.1),rgba(3,10,23,.3) 30%,rgba(3,10,23,.97)),
+    linear-gradient(90deg,rgba(3,10,23,.35),transparent),
+    url("https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1800&q=85") center/cover;
+}
+.visual:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 20% 20%,rgba(35,121,238,.24),transparent 48%);
+  pointer-events:none;
+}
+.visual-content{position:relative;z-index:1;max-width:610px}
+.brand{
+  position:absolute;
+  top:32px;
+  left:clamp(24px,5vw,70px);
+  z-index:2;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.brand-mark{
+  width:44px;height:44px;
+  display:grid;place-items:center;
+  border-radius:14px;
+  background:linear-gradient(140deg,var(--blue),#1647a3);
+  box-shadow:0 10px 30px #0005;
+  font-size:22px;font-weight:900;
+}
+.brand-name{font-weight:850;letter-spacing:-.4px}
+.brand-name small{display:block;color:#c1d1e9;font-size:11px;font-weight:500;letter-spacing:.3px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 12px;border:1px solid #ffffff30;
+  background:#ffffff12;border-radius:30px;
+  color:#e1ecff;font-size:12px;font-weight:750;
+  backdrop-filter:blur(12px);
+}
+.dot{width:7px;height:7px;background:var(--orange);border-radius:50%}
+.visual h1{
+  font-size:clamp(38px,5vw,68px);
+  line-height:1.04;letter-spacing:-2.7px;
+  margin:22px 0 18px;max-width:650px;
+}
+.visual h1 span{
+  color:#ffad78;
+}
+.visual p{
+  color:#d0dcef;font-size:16px;line-height:1.85;
+  max-width:520px;margin:0;
+}
+.visual-bottom{
+  display:flex;gap:12px;flex-wrap:wrap;margin-top:28px;
+}
+.visual-chip{
+  padding:10px 13px;border-radius:12px;
+  border:1px solid #ffffff27;background:#0612258c;
+  color:#e7efff;font-size:12px;
+  backdrop-filter:blur(10px);
+}
+.form-side{
+  display:flex;align-items:center;justify-content:center;
+  padding:35px 26px;
+  background:
+    radial-gradient(ellipse at 90% 5%,#12366a55,transparent 40%),
+    #050d1c;
+}
+.form-wrap{width:100%;max-width:430px;animation:rise .65s ease both}
+.mobile-brand{display:none}
+.form-top{margin-bottom:25px}
+.form-top .mini{color:var(--orange);font-size:12px;font-weight:850;letter-spacing:1.7px;text-transform:uppercase}
+.form-top h2{font-size:32px;letter-spacing:-1.2px;margin:9px 0 8px}
+.form-top p{color:var(--muted);font-size:14px;line-height:1.7;margin:0}
+.progress{
+  display:flex;gap:6px;margin:20px 0 24px;
+}
+.progress span{
+  height:4px;flex:1;border-radius:20px;background:#1a2a43;
+  transition:background .3s;
+}
+.progress span.active{background:linear-gradient(90deg,var(--blue),var(--orange))}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.field{min-width:0}
+.field.full{grid-column:1/-1}
+label{display:block;font-size:12px;color:#dce6f6;font-weight:750;margin:0 0 8px}
+.input-wrap{position:relative}
+input{
+  width:100%;height:48px;padding:0 13px;
+  border-radius:12px;border:1px solid var(--border);
+  outline:none;background:#08172b;color:white;
+  transition:border .2s,box-shadow .2s,background .2s;
+}
+input::placeholder{color:#667d9c}
+input:focus{
+  border-color:var(--blue2);
+  box-shadow:0 0 0 3px #2379ee24;
+  background:#0a1b32;
+}
+input.invalid{border-color:var(--danger)}
+.password-input{padding-right:76px}
+.toggle{
+  position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  border:0;background:transparent;color:#8ebaff;
+  font-size:11px;font-weight:800;padding:8px;
+}
+.hint{font-size:11px;color:#8498b4;line-height:1.6;margin-top:6px}
+.strength{display:flex;gap:4px;margin-top:8px}
+.strength span{height:4px;flex:1;border-radius:10px;background:#1b2a40;transition:background .2s}
+.strength-text{font-size:11px;color:var(--muted);margin-top:5px}
+.checkline{
+  display:flex;align-items:flex-start;gap:10px;
+  margin:20px 0;color:var(--muted);
+  font-size:12px;line-height:1.7;
+}
+.checkline input{width:16px;height:16px;min-width:16px;margin-top:2px;accent-color:var(--blue)}
+.checkline label{font-weight:500;color:var(--muted);margin:0}
+.checkline a,.inline-link{color:#8bbaff;font-weight:750}
+.primary{
+  width:100%;min-height:50px;border:0;border-radius:13px;
+  color:white;font-weight:850;letter-spacing:.1px;
+  background:linear-gradient(115deg,#1769dc,#328cf5 65%,#ff873d);
+  box-shadow:0 12px 30px #1464d72a;
+  transition:transform .2s,filter .2s,box-shadow .2s;
+}
+.primary:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 16px 35px #1464d744}
+.primary:disabled{opacity:.65;cursor:wait;transform:none}
+.message{
+  display:none;padding:12px 13px;border-radius:11px;
+  margin:15px 0;font-size:12px;line-height:1.6;
+}
+.message.show{display:block;animation:rise .25s ease}
+.message.error{color:#ffc5cb;background:#451d2a;border:1px solid #803344}
+.message.success{color:#a7f5d9;background:#10392f;border:1px solid #1b765e}
+.divider{display:flex;align-items:center;gap:12px;color:#7186a4;font-size:11px;margin:22px 0}
+.divider:before,.divider:after{content:"";height:1px;background:var(--border);flex:1}
+.login-line{text-align:center;font-size:13px;color:var(--muted);line-height:1.7}
+.login-line a{color:#9bc4ff;font-weight:850}
+.security-note{
+  margin-top:23px;padding:13px;border-radius:12px;
+  background:#0a1729;border:1px solid var(--border);
+  color:#91a5c2;font-size:11px;line-height:1.7;
+}
+.security-note strong{color:#d8e7ff}
+.footer{text-align:center;margin-top:25px;color:#617792;font-size:10px;line-height:1.8}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:950px){
+  .page{grid-template-columns:1fr}
+  .visual{display:none}
+  .form-side{min-height:100vh;padding:28px 20px}
+  .form-wrap{max-width:500px}
+  .mobile-brand{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+  .mobile-brand .brand-mark{width:40px;height:40px}
+}
+@media(max-width:480px){
+  .form-side{padding:23px 17px}
+  .form-top h2{font-size:28px}
+  .form-grid{grid-template-columns:1fr;gap:14px}
+  .field.full{grid-column:auto}
+  input{height:49px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+  <section class="visual" aria-label="PrimeTask Workspace introduction">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">P</span>
+      <span class="brand-name">PrimeTask Workspace
+        <small>Creating Opportunities and Delivering Excellence.</small>
+      </span>
+    </a>
+
+    <div class="visual-content">
+      <div class="eyebrow"><span class="dot"></span> YOUR NEXT CHAPTER STARTS HERE</div>
+      <h1>Skills deserve a place to <span>grow.</span></h1>
+      <p>
+        Join a workspace built around digital tasks, skill development and
+        opportunities to contribute. Bring your focus, develop your craft
+        and take the next step in your professional journey.
+      </p>
+      <div class="visual-bottom">
+        <span class="visual-chip">✦ Transcription</span>
+        <span class="visual-chip">✦ Note-taking</span>
+        <span class="visual-chip">✦ Data entry</span>
+        <span class="visual-chip">✦ Academic writing support</span>
+      </div>
+    </div>
+  </section>
+
+  <main class="form-side">
+    <div class="form-wrap">
+
+      <a class="mobile-brand" href="../index.html">
+        <span class="brand-mark">P</span>
+        <span class="brand-name">PrimeTask Workspace
+          <small style="color:#91a5c2;font-size:10px">Work. Learn. Grow.</small>
+        </span>
+      </a>
+
+      <div class="form-top">
+        <div class="mini">Create your account</div>
+        <h2>Join the workspace.</h2>
+        <p>Enter your details below. Use information you can access later because account recovery is considerably harder when the email is fictional.</p>
+      </div>
+
+      <div class="progress" aria-hidden="true">
+        <span class="active"></span><span></span><span></span>
+      </div>
+
+      <div id="sponsorNotice" style="display:none;margin:-5px 0 20px;padding:13px 15px;border:1px solid #2379ee66;border-radius:12px;background:#0a1b32;color:#dbeaff;font-size:13px;line-height:1.6">
+        Referral sponsor: <strong id="sponsorName"></strong>
+      </div>
+
+      <form id="registerForm" novalidate>
+        <div class="form-grid">
+
+          <div class="field">
+            <label for="firstName">First name</label>
+            <input id="firstName" name="firstName" autocomplete="given-name" placeholder="Your first name" required maxlength="60">
+          </div>
+
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <input id="lastName" name="lastName" autocomplete="family-name" placeholder="Your last name" required maxlength="60">
+          </div>
+
+          <div class="field full">
+            <label for="username">Username</label>
+            <input id="username" name="username" autocomplete="username" placeholder="Choose a username" required minlength="3" maxlength="30" pattern="[A-Za-z0-9_]+">
+            <div class="hint">3–30 characters. Use lowercase or uppercase letters, numbers or underscores.</div>
+          </div>
+
+          <div class="field full">
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required maxlength="254">
+          </div>
+
+          <div class="field full">
+            <label for="phone">Phone number</label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="e.g. 0712345678" required maxlength="20">
+            <div class="hint">Use a number you control. Country-specific formatting can be validated by the server.</div>
+          </div>
+
+          <div class="field full">
+            <label for="password">Create password</label>
+            <div class="input-wrap">
+              <input class="password-input" id="password" name="password" type="password" autocomplete="new-password" placeholder="Create a strong password" required minlength="10" maxlength="128">
+              <button class="toggle" type="button" data-toggle="password">SHOW</button>
+            </div>
+            <div class="strength" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <div class="strength-text" id="strengthText">Use at least 10 characters.</div>
+          </div>
+
+          <div class="field full">
+            <label for="confirmPassword">Confirm password</label>
+            <div class="input-wrap">
+              <input class="password-input" id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Enter your password again" required minlength="10" maxlength="128">
+              <button class="toggle" type="button" data-toggle="confirmPassword">SHOW</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="checkline">
+          <input id="termsAccepted" name="termsAccepted" type="checkbox" required>
+          <label for="termsAccepted">
+            I have read and agree to the
+            <a href="../terms.html" target="_blank" rel="noopener">Terms of Service</a>
+            and
+            <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.
+          </label>
+        </div>
+
+        <div class="message" id="formMessage" role="status" aria-live="polite"></div>
+
+        <button class="primary" id="submitButton" type="submit">Create my account <span aria-hidden="true">→</span></button>
+      </form>
+
+      <div class="divider">ALREADY REGISTERED?</div>
+
+      <div class="login-line">
+        Return to your workspace.<br>
+        <a href="login.html">Log in to PrimeTask →</a>
+      </div>
+
+      <div class="security-note">
+        <strong>Account security matters.</strong><br>
+        Your password should be unique to this account. A real deployment must send it to a secure backend over HTTPS, hash it server-side and verify registration before activating an account.
+      </div>
+
+      <div class="footer">
+        © <span id="year"></span> PrimeTask Workspace.<br>
+        Creating Opportunities and Delivering Excellence.
+        <br><a href="../index.html">Home</a> ·
+        <a href="../contact.html">Contact</a> ·
+        <a href="../privacy.html">Privacy</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="../assets/js/config.js"></script>
+
+<script>
+(() => {
+  "use strict";
+
+  const form = document.getElementById("registerForm");
+  const password = document.getElementById("password");
+  const confirmPassword = document.getElementById("confirmPassword");
+  const message = document.getElementById("formMessage");
+  const submitButton = document.getElementById("submitButton");
+  const strengthBars = [...document.querySelectorAll(".strength span")];
+  const strengthText = document.getElementById("strengthText");
+
+  // Supports /register/USERNAME and the fallback ?ref=USERNAME format.
+  const sponsorUsername = (() => {
+    const pathMatch = window.location.pathname.match(
+      /\/register\/([a-z0-9_]{3,30})\/?$/i
+    );
+    const queryRef = new URLSearchParams(window.location.search).get("ref");
+    const candidate = (pathMatch ? pathMatch[1] : queryRef || "").trim();
+
+    return /^[a-z0-9_]{3,30}$/i.test(candidate)
+      ? candidate.toLowerCase()
+      : "";
+  })();
+
+  if (sponsorUsername) {
+    document.getElementById("sponsorName").textContent = sponsorUsername;
+    document.getElementById("sponsorNotice").style.display = "block";
+  }
+
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  document.querySelectorAll("[data-toggle]").forEach(button => {
+    button.addEventListener("click", () => {
+      const input = document.getElementById(button.dataset.toggle);
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      button.textContent = show ? "HIDE" : "SHOW";
+    });
+  });
+
+  function showMessage(text, type = "error") {
+    message.textContent = text;
+    message.className = "message show " + type;
+    message.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function passwordScore(value) {
+    let score = 0;
+    if (value.length >= 10) score++;
+    if (value.length >= 14) score++;
+    if (/[a-z]/.test(value) && /[A-Z]/.test(value)) score++;
+    if (/\d/.test(value) && /[^A-Za-z0-9]/.test(value)) score++;
+    return score;
+  }
+
+  password.addEventListener("input", () => {
+    const score = passwordScore(password.value);
+    const labels = ["Use at least 10 characters.", "Weak password", "Fair password", "Good password", "Strong password"];
+    strengthBars.forEach((bar, index) => {
+      bar.style.background = index < score
+        ? (score < 2 ? "#ff6577" : score < 4 ? "#ff873d" : "#38d9a9")
+        : "#1b2a40";
+    });
+    strengthText.textContent = labels[score];
+    if (confirmPassword.value) {
+      confirmPassword.setCustomValidity(
+        confirmPassword.value === password.value ? "" : "Passwords do not match."
+      );
+    }
+  });
+
+  confirmPassword.addEventListener("input", () => {
+    confirmPassword.setCustomValidity(
+      confirmPassword.value === password.value ? "" : "Passwords do not match."
+    );
+  });
+
+  form.querySelectorAll("input").forEach(input => {
+    input.addEventListener("input", () => input.classList.remove("invalid"));
+  });
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    message.className = "message";
+    confirmPassword.setCustomValidity(
+      confirmPassword.value === password.value ? "" : "Passwords do not match."
+    );
+
+    const required = [...form.querySelectorAll("[required]")];
+    let firstInvalid = null;
+
+    required.forEach(input => {
+      if (!input.checkValidity()) {
+        input.classList.add("invalid");
+        firstInvalid ||= input;
+      }
+    });
+
+    if (firstInvalid) {
+      showMessage(
+        firstInvalid.id === "termsAccepted"
+          ? "Please accept the Terms of Service and Privacy Policy to continue."
+          : firstInvalid.validationMessage || "Please check the highlighted fields."
+      );
+      firstInvalid.focus();
+      return;
+    }
+
+    if (password.value !== confirmPassword.value) {
+      showMessage("Your passwords do not match.");
+      confirmPassword.focus();
+      return;
+    }
+
+    /*
+      Registration API integration:
+      Set PTW_AUTH_API_REGISTER to the actual backend registration endpoint
+      before connecting this form to a production API.
+      Do not store passwords in localStorage or pretend a local form is a real account.
+    */
+    const endpoint = window.PTW_AUTH_API_REGISTER;
+
+    if (!endpoint) {
+      showMessage(
+        "Your details passed the browser checks, but registration is not connected to a server yet. No account has been created. Connect the registration API before accepting real users.",
+        "error"
+      );
+      return;
+    }
+
+    const payload = {
+      firstName: document.getElementById("firstName").value.trim(),
+      lastName: document.getElementById("lastName").value.trim(),
+      username: document.getElementById("username").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      password: password.value,
+      termsAccepted: document.getElementById("termsAccepted").checked,
+      sponsorUsername: sponsorUsername,
+      selectedService: new URLSearchParams(window.location.search).get("service") || ""
+    };
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Creating account…";
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(result.message || result.error || "Registration failed. Please review your details.");
+      }
+
+      form.reset();
+      strengthBars.forEach(bar => bar.style.background = "#1b2a40");
+      strengthText.textContent = "Use at least 10 characters.";
+      showMessage("Registration successful. Redirecting you to login…", "success");
+      window.setTimeout(() => {
+        window.location.replace("/auth/login.html");
+      }, 900);
+    } catch (error) {
+      showMessage(error.message || "Unable to reach the server. Please try again.");
+    } finally {
+      submitButton.disabled = false;
+      submitButton.innerHTML = 'Create my account <span aria-hidden="true">→</span>';
+    }
+  });
+})();
+</script>
+</body>
+</html>

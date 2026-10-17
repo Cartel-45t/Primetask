@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#061225">
+<meta name="description" content="Explore work services in PrimeTask Workspace.">
+<title>Services | PrimeTask Workspace</title>
+<script src="../assets/js/config.js"></script>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #050b18;
+  --panel: #0c1729;
+  --panel2: #10223a;
+  --blue: #3984ff;
+  --cyan: #49d9ff;
+  --text: #f5f8ff;
+  --muted: #aab8cd;
+  --border: rgba(255,255,255,.11);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.65 Arial, Helvetica, sans-serif;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; }
+.app { min-height: 100vh;  display:block;}
+.sidebar {
+  width: 245px;
+  flex-shrink: 0;
+  padding: 24px 15px;
+  background: #08101f;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 5px 8px 28px;
+  font-weight: 800;
+}
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: white;
+  background: linear-gradient(135deg, var(--blue), #1646a0);
+}
+.brand small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+.nav-label {
+  margin: 15px 10px 8px;
+  color: #7f93ad;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.nav-link {
+  display: block;
+  margin: 4px 0;
+  padding: 11px 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--muted);
+}
+.nav-link:hover, .nav-link.active {
+  color: white;
+  background: rgba(57,132,255,.13);
+  border-color: rgba(57,132,255,.25);
+}
+.nav-icon { display: inline-block; width: 28px; }
+.sidebar-note {
+  margin-top: auto;
+  padding: 15px 10px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.sidebar-note strong { display: block; color: white; }
+.main { flex: 1; min-width: 0; padding: 34px; }
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 28px;
+}
+.eyebrow {
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+h1 { margin: 5px 0; font-size: clamp(27px,4vw,38px); line-height: 1.2; }
+.muted { color: var(--muted); }
+.status { color: var(--muted); font-size: 12px; }
+.hero {
+  padding: clamp(24px,5vw,46px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background:
+    radial-gradient(ellipse at top right, rgba(57,132,255,.19), transparent 55%),
+    linear-gradient(145deg, var(--panel2), var(--panel));
+}
+.hero h2 { max-width: 650px; margin: 0 0 12px; font-size: clamp(25px,4vw,36px); line-height: 1.2; }
+.hero h2 span { color: var(--cyan); }
+.hero p { max-width: 650px; margin-bottom: 0; color: #c3d0e2; }
+.section-heading { margin: 35px 0 18px; }
+.section-heading h2 { margin: 0 0 5px; font-size: 22px; }
+.section-heading p { margin: 0; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
+.card {
+  padding: 23px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(145deg,var(--panel2),var(--panel));
+}
+.card-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 17px;
+  border: 1px solid rgba(73,217,255,.2);
+  border-radius: 13px;
+  background: rgba(73,217,255,.08);
+  font-size: 24px;
+}
+.card h3 { margin: 0 0 8px; font-size: 19px; }
+.card p { min-height: 50px; margin: 0 0 19px; color: var(--muted); }
+.tag {
+  display: inline-block;
+  margin-bottom: 15px;
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 15px;
+  border: 1px solid rgba(57,132,255,.35);
+  border-radius: 9px;
+  background: rgba(57,132,255,.14);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn:hover { background: rgba(57,132,255,.25); }
+.notice {
+  display: none;
+  margin-bottom: 20px;
+  padding: 12px 15px;
+  border: 1px solid rgba(255,190,80,.3);
+  border-radius: 10px;
+  background: rgba(255,190,80,.07);
+  color: #ffdc9c;
+}
+.footer {
+  margin-top: 38px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}
+@media(max-width:760px) {
+  .app { display: block; }
+  .sidebar { width: auto; padding: 12px; border-right: 0; border-bottom: 1px solid var(--border); }
+  .brand { padding: 2px 4px 12px; }
+  .brand-mark { width: 36px; height: 36px; }
+  .nav-label, .sidebar-note { display: none; }
+  .sidebar nav { display: flex; flex-wrap: wrap; gap: 4px; }
+  .nav-link { padding: 8px 10px; margin: 0; font-size: 12px; }
+  .nav-icon { width: auto; margin-right: 5px; }
+  .main { padding: 23px 15px; }
+  .grid { grid-template-columns: 1fr; }
+  .card p { min-height: 0; }
+}
+
+
+/* PrimeTask shared dropdown navigation */
+.ptw-menu-wrap {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  z-index: 9999;
+  font-family: inherit;
+}
+.ptw-menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid #29415f;
+  border-radius: 12px;
+  background: #0b1a30;
+  color: #e8eef8;
+  box-shadow: 0 5px 16px rgba(0,0,0,.18);
+  cursor: pointer;
+  font-size: 21px;
+}
+.ptw-menu-toggle:hover { background: #122642; }
+.ptw-menu-toggle:focus-visible,
+.ptw-menu-link:focus-visible,
+.ptw-signout:focus-visible {
+  outline: 3px solid #8ab4ff;
+  outline-offset: 2px;
+}
+.ptw-menu-panel {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  width: min(270px, calc(100vw - 32px));
+  max-height: min(75vh, 560px);
+  overflow-y: auto;
+  padding: 9px;
+  border: 1px solid #20334d;
+  border-radius: 15px;
+  background: #0b1a30;
+  box-shadow: 0 14px 38px rgba(0,0,0,.35);
+}
+.ptw-menu-panel[hidden] { display: none !important; }
+.ptw-menu-heading {
+  padding: 9px 11px 11px;
+  color: #9aacc4;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.ptw-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  margin: 2px 0;
+  border-radius: 9px;
+  color: #c5d2e4;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+.ptw-menu-icon {
+  display: inline-flex;
+  width: 23px;
+  justify-content: center;
+  color: #9aacc4;
+  font-size: 17px;
+}
+.ptw-menu-link:hover { background: #122642; }
+.ptw-menu-link[aria-current="page"] {
+  background: #17365d;
+  color: #8ab4ff;
+}
+.ptw-menu-link[aria-current="page"] .ptw-menu-icon { color: #8ab4ff; }
+.ptw-menu-divider { height: 1px; margin: 8px 4px; background: #20334d; }
+.ptw-signout {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #ffaaa4;
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ptw-signout:hover { background: #35212b; }
+@media(max-width: 480px) {
+  .ptw-menu-wrap { top: 12px; right: 12px; }
+  .ptw-menu-toggle { width: 40px; height: 40px; }
+  main.main { padding-top: 58px; }
+}
+</style>
+</head>
+<body>
+
+<div class="ptw-menu-wrap">
+  <button id="ptwMenuToggle" class="ptw-menu-toggle"
+          type="button" aria-label="Open navigation menu"
+          aria-controls="ptwMenuPanel" aria-expanded="false">
+    <span aria-hidden="true">☰</span>
+  </button>
+  <nav id="ptwMenuPanel" class="ptw-menu-panel"
+       aria-label="Main navigation" hidden>
+    <div class="ptw-menu-heading">PrimeTask Workspace</div>
+    <a class="ptw-menu-link" href="index.html"><span class="ptw-menu-icon" aria-hidden="true">⌂</span><span>Dashboard</span></a><a class="ptw-menu-link" href="services.html" aria-current="page"><span class="ptw-menu-icon" aria-hidden="true">▦</span><span>Services</span></a><a class="ptw-menu-link" href="wallet.html"><span class="ptw-menu-icon" aria-hidden="true">$</span><span>My Wallet</span></a><a class="ptw-menu-link" href="membership.html"><span class="ptw-menu-icon" aria-hidden="true">◇</span><span>Membership</span></a><a class="ptw-menu-link" href="transactions.html"><span class="ptw-menu-icon" aria-hidden="true">↔</span><span>Transactions</span></a><a class="ptw-menu-link" href="referrals.html"><span class="ptw-menu-icon" aria-hidden="true">♧</span><span>My Referrals</span></a><a class="ptw-menu-link" href="profile.html"><span class="ptw-menu-icon" aria-hidden="true">○</span><span>My Profile</span></a>
+    <div class="ptw-menu-divider"></div>
+    <button class="ptw-signout" id="logoutBtn" type="button">
+      ↪ Sign out
+    </button>
+  </nav>
+</div>
+
+<div class="app">
+<main class="main">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">PrimeTask Workspace</div>
+        <h1>Our Services</h1>
+        <div class="muted">Explore the work categories available in your workspace.</div>
+      </div>
+      <div class="status" id="connectionStatus">Checking session...</div>
+    </header>
+
+    <div class="notice" id="notice" role="status" aria-live="polite"></div>
+
+    <section class="hero">
+      <div class="eyebrow">Learn · Work · Grow</div>
+      <h2>Your skills have a place here. <span>Start with a service.</span></h2>
+      <p>Explore each work category, build your skills, and follow the instructions provided for available assignments. Access to assignments depends on the tools and opportunities currently enabled for your account.</p>
+    </section>
+
+    <section aria-labelledby="servicesHeading">
+      <div class="section-heading">
+        <h2 id="servicesHeading">Explore services</h2>
+        <p>Choose a category to continue.</p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <div class="card-icon">🎧</div>
+          <h3>Transcription</h3>
+          <span class="tag">Audio to text</span>
+          <p>Convert spoken audio into accurate, well-formatted written transcripts.</p>
+          <a class="btn" href="../services.html#transcription">Explore transcription ↗</a>
+        </article>
+        <article class="card">
+          <div class="card-icon">📝</div>
+          <h3>Note Taking</h3>
+          <span class="tag">Lectures and meetings</span>
+          <p>Turn lectures, meetings, and discussions into clear, organized notes.</p>
+          <a class="btn" href="../services.html#note-taking">Explore note taking ↗</a>
+        </article>
+        <article class="card">
+          <div class="card-icon">📊</div>
+          <h3>Data Entry</h3>
+          <span class="tag">Structured information</span>
+          <p>Organize, enter, and check information carefully against task instructions.</p>
+          <a class="btn" href="../services.html#data-entry">Explore data entry ↗</a>
+        </article>
+        <article class="card">
+          <div class="card-icon">✍️</div>
+          <h3>Academic Writing</h3>
+          <span class="tag">Writing support</span>
+          <p>Explore academic writing support, research organization, and document formatting.</p>
+          <a class="btn" href="../services.html#academic-writing">Explore academic support ↗</a>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      © <span id="year"></span> PrimeTask Workspace · Creating Opportunities and delivering excellence.
+    </footer>
+  </main>
+</div>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+function showNotice(message) {
+  $("notice").textContent = message;
+  $("notice").style.display = "block";
+}
+
+async function verifySession() {
+  if (typeof window.PTW_AUTH_API_ME !== "string") {
+    $("connectionStatus").textContent = "API not configured";
+    showNotice("Authentication API is not configured for this domain. Configure PTW_API_BASE before using this page.");
+    return;
+  }
+
+  try {
+    const response = await fetch(window.PTW_AUTH_API_ME, {
+      method: "GET",
+      credentials: "include",
+      headers: { Accept: "application/json" }
+    });
+
+    if (response.status === 401) {
+      window.location.replace("../auth/login.html");
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error("The server could not verify your session.");
+    }
+
+    const result = await response.json();
+    const user = result.user || result.data || result;
+    $("connectionStatus").textContent =
+      user.firstName ? "Signed in as " + user.firstName : "Session verified";
+    $("notice").style.display = "none";
+  } catch (error) {
+    $("connectionStatus").textContent = "Connection unavailable";
+    showNotice(error.message || "Unable to verify your session. Check your connection and reload.");
+  }
+}
+
+$("logoutBtn").addEventListener("click", async () => {
+  try {
+    if (typeof window.PTW_AUTH_API_LOGOUT === "string") {
+      await fetch(window.PTW_AUTH_API_LOGOUT, {
+        method: "POST",
+        credentials: "include",
+        headers: { Accept: "application/json" }
+      });
+    }
+  } catch (error) {
+    console.error("Sign-out request failed:", error);
+  } finally {
+    window.location.replace("../auth/login.html");
+  }
+});
+
+$("year").textContent = new Date().getFullYear();
+verifySession();
+</script>
+
+<script>
+
+(function () {
+  const toggle = document.getElementById("ptwMenuToggle");
+  const panel = document.getElementById("ptwMenuPanel");
+  if (!toggle || !panel) return;
+
+  function closeMenu() {
+    panel.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  toggle.addEventListener("click", function (event) {
+    event.stopPropagation();
+    const opening = panel.hidden;
+    panel.hidden = !opening;
+    toggle.setAttribute("aria-expanded", String(opening));
+  });
+
+  panel.addEventListener("click", function (event) {
+    const link = event.target.closest("a");
+    if (link) closeMenu();
+    event.stopPropagation();
+  });
+
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest(".ptw-menu-wrap")) closeMenu();
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeMenu();
+      toggle.focus();
+    }
+  });
+})();
+
+</script>
+</body>
+</html>

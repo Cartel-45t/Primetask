@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#061225">
+
+<meta name="description" content="Discover the story of PrimeTask Workspace, an initiative that began in October 2025 with a vision to connect skills, digital services and opportunities.">
+
+<title>Our Story | PrimeTask Workspace</title>
+
+<style>
+:root {
+  --bg: #050b18;
+  --bg2: #081426;
+  --panel: #0c1b30;
+  --panel2: #10243d;
+  --blue: #3984ff;
+  --cyan: #49d9ff;
+  --orange: #f2a65a;
+  --earth: #c96f43;
+  --cream: #f3e7d5;
+  --white: #f5f8ff;
+  --muted: #aab8cd;
+  --border: rgba(255,255,255,.11);
+  --green: #65d6a3;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+}
+
+.container {
+  width: min(1160px, 91%);
+  margin: auto;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5,11,24,.96);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+}
+
+.nav {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand {
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -.5px;
+  white-space: nowrap;
+}
+
+.brand span {
+  color: var(--cyan);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.nav-links a {
+  font-size: .89rem;
+  color: var(--muted);
+  transition: color .2s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--cyan);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--blue), #2563eb);
+  color: white;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform .2s, opacity .2s;
+  line-height: 1.4;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  opacity: .94;
+}
+
+.btn-outline {
+  background: rgba(255,255,255,.05);
+  border-color: rgba(255,255,255,.22);
+}
+
+.menu-btn {
+  display: none;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--panel);
+  color: white;
+  cursor: pointer;
+}
+
+/* AFRICAN-INSPIRED DECORATIVE PATTERN */
+
+.pattern-strip {
+  height: 10px;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--earth) 0 12px,
+    var(--orange) 12px 24px,
+    #142c49 24px 36px,
+    var(--cyan) 36px 40px,
+    #142c49 40px 52px
+  );
+}
+
+.pattern-mark {
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  opacity: .12;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent 0 12px,
+      var(--orange) 12px 14px,
+      transparent 14px 26px
+    );
+  border: 1px solid var(--orange);
+  transform: rotate(45deg);
+}
+
+/* HERO */
+
+.hero {
+  position: relative;
+  min-height: 650px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(3,9,21,.98) 0%,
+      rgba(3,9,21,.91) 43%,
+      rgba(3,9,21,.49) 100%
+    ),
+    url("https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=2000&q=85")
+    center/cover no-repeat;
+}
+
+.hero .pattern-mark {
+  right: 4%;
+  top: 15%;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 850px;
+  padding: 100px 0;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--orange);
+  text-transform: uppercase;
+  letter-spacing: 1.7px;
+  font-size: .79rem;
+  font-weight: 800;
+  margin-bottom: 21px;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 30px;
+  height: 3px;
+  background: var(--orange);
+}
+
+h1 {
+  font-size: clamp(2.8rem, 6vw, 5.3rem);
+  line-height: 1.07;
+  letter-spacing: -2px;
+  margin-bottom: 25px;
+}
+
+h1 span {
+  color: var(--orange);
+}
+
+.hero-content > p {
+  max-width: 740px;
+  font-size: 1.1rem;
+  color: #d3deed;
+  margin-bottom: 28px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 13px;
+}
+
+/* PAGE SECTIONS */
+
+.section {
+  padding: 88px 0;
+}
+
+.section-heading {
+  max-width: 800px;
+  margin-bottom: 40px;
+}
+
+.section-heading h2 {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.2;
+  letter-spacing: -1px;
+  margin-bottom: 18px;
+}
+
+.section-heading h2 span {
+  color: var(--cyan);
+}
+
+.section-heading p {
+  color: var(--muted);
+}
+
+.center {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.center .eyebrow {
+  justify-content: center;
+}
+
+/* INTRODUCTION */
+
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  align-items: start;
+  gap: 55px;
+}
+
+.prose p {
+  color: #c2cede;
+  margin-bottom: 20px;
+}
+
+.prose strong {
+  color: white;
+}
+
+.prose h3 {
+  font-size: 1.4rem;
+  margin: 28px 0 12px;
+}
+
+.intro-image {
+  position: sticky;
+  top: 105px;
+}
+
+.intro-image img {
+  width: 100%;
+  height: 470px;
+  object-fit: cover;
+  display: block;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.image-caption {
+  margin-top: 15px;
+  padding: 17px 19px;
+  border-left: 4px solid var(--orange);
+  background: var(--panel);
+  border-radius: 0 10px 10px 0;
+}
+
+.image-caption strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.image-caption p {
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+/* CORE IDEA */
+
+.principle-section {
+  background:
+    linear-gradient(rgba(8,19,35,.94), rgba(8,19,35,.97)),
+    url("https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1800&q=80")
+    center/cover;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.principle-box {
+  position: relative;
+  overflow: hidden;
+  padding: 50px;
+  border: 1px solid rgba(242,166,90,.3);
+  border-radius: 22px;
+  background: rgba(5,11,24,.63);
+}
+
+.principle-box::after {
+  content: "◇ ◆ ◇";
+  position: absolute;
+  right: 25px;
+  top: 10px;
+  font-size: 2rem;
+  letter-spacing: 8px;
+  color: var(--orange);
+  opacity: .5;
+}
+
+.principle-box h2 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1.2;
+  margin-bottom: 20px;
+  max-width: 850px;
+}
+
+.principle-box h2 span {
+  color: var(--orange);
+}
+
+.principle-box > p {
+  max-width: 850px;
+  color: #c5d1e0;
+  margin-bottom: 17px;
+}
+
+.principle-statement {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 13px 18px;
+  border-radius: 10px;
+  background: rgba(242,166,90,.1);
+  border: 1px solid rgba(242,166,90,.27);
+  color: var(--cream);
+  font-weight: 800;
+}
+
+/* TIMELINE */
+
+.timeline {
+  position: relative;
+  max-width: 930px;
+  margin: auto;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 25px;
+  top: 15px;
+  bottom: 20px;
+  width: 2px;
+  background: linear-gradient(var(--orange), var(--blue), var(--cyan));
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 75px;
+  padding-bottom: 38px;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 13px;
+  top: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 4px solid var(--orange);
+  box-shadow: 0 0 0 5px rgba(242,166,90,.08);
+}
+
+.timeline-content {
+  padding: 27px;
+  border-radius: 16px;
+  background: linear-gradient(145deg, var(--panel2), var(--panel));
+  border: 1px solid var(--border);
+}
+
+.timeline-date {
+  color: var(--orange);
+  font-size: .81rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 9px;
+}
+
+.timeline-content h3 {
+  font-size: 1.4rem;
+  margin-bottom: 11px;
+}
+
+.timeline-content p {
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.timeline-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* MISSION VISION */
+
+.mission-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 22px;
+}
+
+.mission-card {
+  position: relative;
+  overflow: hidden;
+  padding: 34px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(145deg, var(--panel2), var(--panel));
+}
+
+.mission-card::after {
+  content: "";
+  position: absolute;
+  right: -35px;
+  bottom: -45px;
+  width: 130px;
+  height: 130px;
+  border: 1px solid rgba(73,217,255,.22);
+  transform: rotate(45deg);
+}
+
+.mission-symbol {
+  width: 55px;
+  height: 55px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: rgba(73,217,255,.1);
+  border: 1px solid rgba(73,217,255,.25);
+  color: var(--cyan);
+  font-size: 1.5rem;
+  margin-bottom: 23px;
+}
+
+.mission-card h3 {
+  font-size: 1.55rem;
+  margin-bottom: 14px;
+}
+
+.mission-card p {
+  color: var(--muted);
+}
+
+.mission-card.vision .mission-symbol {
+  color: var(--orange);
+  background: rgba(242,166,90,.1);
+  border-color: rgba(242,166,90,.25);
+}
+
+/* VALUES */
+
+.values-section {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 19px;
+}
+
+.value-card {
+  padding: 27px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: rgba(255,255,255,.025);
+  transition: transform .2s, border-color .2s;
+}
+
+.value-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(73,217,255,.38);
+}
+
+.value-number {
+  color: var(--orange);
+  font-weight: 800;
+  font-size: .83rem;
+  letter-spacing: 1.5px;
+  margin-bottom: 16px;
+}
+
+.value-card h3 {
+  font-size: 1.15rem;
+  margin-bottom: 10px;
+}
+
+.value-card p {
+  color: var(--muted);
+  font-size: .93rem;
+}
+
+/* SERVICES */
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 19px;
+}
+
+.service-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 25px;
+  background: linear-gradient(145deg, var(--panel2), var(--panel));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.service-icon {
+  flex: 0 0 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  font-size: 1.55rem;
+  border-radius: 14px;
+  background: rgba(57,132,255,.14);
+}
+
+.service-card h3 {
+  margin-bottom: 8px;
+  font-size: 1.18rem;
+}
+
+.service-card p {
+  color: var(--muted);
+  font-size: .93rem;
+  margin-bottom: 12px;
+}
+
+.text-link {
+  color: var(--cyan);
+  font-weight: 700;
+  font-size: .9rem;
+}
+
+/* WHO IT SERVES */
+
+.audience-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 35px;
+  align-items: center;
+}
+
+.audience-image img {
+  width: 100%;
+  height: 460px;
+  object-fit: cover;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+.audience-list {
+  list-style: none;
+  display: grid;
+  gap: 18px;
+}
+
+.audience-list li {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.audience-check {
+  flex: 0 0 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: rgba(101,214,163,.1);
+  color: var(--green);
+  font-weight: 800;
+}
+
+.audience-list strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.audience-list p {
+  color: var(--muted);
+  font-size: .93rem;
+}
+
+/* FUTURE */
+
+.future-section {
+  background: #081323;
+  border-top: 1px solid var(--border);
+}
+
+.future-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 18px;
+}
+
+.future-card {
+  padding: 25px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: rgba(255,255,255,.025);
+}
+
+.future-card span {
+  display: block;
+  color: var(--orange);
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+
+.future-card h3 {
+  margin-bottom: 8px;
+}
+
+.future-card p {
+  color: var(--muted);
+  font-size: .93rem;
+}
+
+.future-note {
+  margin-top: 25px;
+  padding: 20px;
+  border-left: 4px solid var(--orange);
+  border-radius: 0 10px 10px 0;
+  background: rgba(242,166,90,.06);
+  color: #c7d3e2;
+  font-size: .92rem;
+}
+
+/* FAQ */
+
+.faq-list {
+  display: grid;
+  gap: 12px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.faq-question {
+  width: 100%;
+  padding: 20px;
+  background: transparent;
+  border: 0;
+  color: white;
+  text-align: left;
+  font: inherit;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: center;
+  cursor: pointer;
+}
+
+.faq-question span:last-child {
+  color: var(--cyan);
+  font-size: 1.3rem;
+}
+
+.faq-answer {
+  display: none;
+  padding: 0 20px 20px;
+  color: var(--muted);
+}
+
+.faq-item.open .faq-answer {
+  display: block;
+}
+
+.faq-item.open .faq-question span:last-child {
+  transform: rotate(45deg);
+}
+
+/* FINAL CTA */
+
+.cta {
+  padding: 75px 0;
+}
+
+.cta-box {
+  position: relative;
+  padding: 55px;
+  border: 1px solid rgba(73,217,255,.25);
+  border-radius: 22px;
+  overflow: hidden;
+  background:
+    linear-gradient(100deg, rgba(3,10,23,.96), rgba(5,20,40,.86)),
+    url("https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1800&q=85")
+    center/cover;
+}
+
+.cta-box h2 {
+  font-size: clamp(2rem,4vw,3.4rem);
+  line-height: 1.2;
+  max-width: 800px;
+  margin-bottom: 17px;
+}
+
+.cta-box h2 span {
+  color: var(--orange);
+}
+
+.cta-box p {
+  max-width: 760px;
+  color: #c7d3e2;
+  margin-bottom: 27px;
+}
+
+/* FOOTER */
+
+footer {
+  padding: 35px 0;
+  background: #030813;
+  border-top: 1px solid var(--border);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 25px;
+}
+
+.footer-inner p {
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 17px;
+}
+
+.footer-links a {
+  color: var(--muted);
+  font-size: .86rem;
+}
+
+.footer-links a:hover {
+  color: var(--cyan);
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 950px) {
+  .menu-btn {
+    display: block;
+  }
+
+  .nav-cta {
+    display: none;
+  }
+
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 76px;
+    left: 0;
+    right: 0;
+    padding: 15px 5%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    background: #07101f;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-links a {
+    padding: 12px 0;
+  }
+
+  .intro-grid,
+  .audience-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .intro-image {
+    position: relative;
+    top: auto;
+  }
+
+  .intro-image img,
+  .audience-image img {
+    height: 380px;
+  }
+
+  .values-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width: 650px) {
+  .hero {
+    min-height: 600px;
+    background-position: 60% center;
+  }
+
+  h1 {
+    letter-spacing: -1px;
+  }
+
+  .section {
+    padding: 65px 0;
+  }
+
+  .intro-grid {
+    gap: 30px;
+  }
+
+  .intro-image img,
+  .audience-image img {
+    height: 300px;
+  }
+
+  .principle-box {
+    padding: 30px 22px;
+  }
+
+  .principle-box::after {
+    display: none;
+  }
+
+  .timeline-item {
+    padding-left: 55px;
+  }
+
+  .timeline::before {
+    left: 15px;
+  }
+
+  .timeline-dot {
+    left: 3px;
+  }
+
+  .timeline-content {
+    padding: 21px;
+  }
+
+  .mission-grid,
+  .values-grid,
+  .services-grid,
+  .future-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mission-card {
+    padding: 27px;
+  }
+
+  .service-card {
+    padding: 20px;
+    gap: 14px;
+  }
+
+  .service-icon {
+    flex-basis: 45px;
+    height: 45px;
+    font-size: 1.25rem;
+  }
+
+  .cta-box {
+    padding: 32px 23px;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media(prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="index.html" class="brand">
+      PrimeTask <span>Workspace</span>
+    </a>
+
+    <button
+      class="menu-btn"
+      id="menuBtn"
+      aria-label="Open navigation"
+      aria-expanded="false">
+      ☰ Menu
+    </button>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="about.html" class="active">Our Story</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <a href="auth/register.html" class="btn nav-cta">
+      Join PrimeTask
+    </a>
+  </div>
+</header>
+
+<main>
+
+<!-- HERO -->
+
+<section class="hero">
+  <div class="pattern-mark"></div>
+
+  <div class="container">
+    <div class="hero-content">
+      <div class="eyebrow">OUR STORY · OUR PURPOSE · OUR FUTURE</div>
+
+      <h1>
+        An idea born in 2025.<br>
+        A vision for <span>what comes next.</span>
+      </h1>
+
+      <p>
+        PrimeTask Workspace began in October 2025 with a simple but ambitious
+        idea: create a space where skills could meet opportunity and where
+        people could participate in the growing world of digital work.
+        What began as a small project developed into a broader vision for
+        services, learning, collaboration and professional growth.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#our-story" class="btn">Read Our Story ↓</a>
+        <a href="services.html" class="btn btn-outline">Explore Our Services</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pattern-strip"></div>
+
+<!-- INTRODUCTION -->
+
+<section class="section" id="our-story">
+  <div class="container">
+
+    <div class="section-heading">
+      <div class="eyebrow">WHO WE ARE</div>
+      <h2>More than a website. <span>A growing workspace.</span></h2>
+      <p>
+        To understand PrimeTask Workspace, it helps to understand the problem
+        behind the idea, the purpose that shaped it and the future it is
+        working toward.
+      </p>
+    </div>
+
+    <div class="intro-grid">
+
+      <div class="prose">
+
+        <p>
+          <strong>PrimeTask Workspace is a digital services and work platform
+          built around skills, productivity, learning and opportunity.</strong>
+          Its purpose is to organise selected digital services into a
+          workspace where people can discover what the work involves, develop
+          relevant capabilities and participate in structured workflows.
+        </p>
+
+        <p>
+          The platform's story begins in October 2025. It did not begin as a
+          finished digital ecosystem with every feature already built.
+          It began as an idea that needed to be explored, tested, organised
+          and turned into something practical.
+        </p>
+
+        <p>
+          The original ambition was larger than simply creating a website
+          that displayed services. The intention was to build a foundation
+          for connecting people with useful work, helping them understand
+          what quality work requires and creating systems that could support
+          more services over time.
+        </p>
+
+        <h3>Why the idea matters</h3>
+
+        <p>
+          Talent exists in many places. People learn through school,
+          personal practice, online resources, work experience and
+          collaboration with others. Yet having a skill and finding a
+          practical way to use that skill are not always the same thing.
+        </p>
+
+        <p>
+          Someone may know how to transcribe an interview but still need
+          guidance on timestamps, speaker labels and transcript formatting.
+          Another person may be good at organising information but need a
+          clear data-entry workflow. A student may understand a subject but
+          need support with research structure, editing or referencing.
+        </p>
+
+        <p>
+          PrimeTask Workspace is being developed around this connection
+          between capability and execution. It aims to make the work more
+          understandable, the process more organised and the expectations
+          clearer for the people involved.
+        </p>
+
+        <h3>The meaning of a workspace</h3>
+
+        <p>
+          A workspace is not merely a collection of links. It is an
+          environment in which related activities can be organised around
+          common goals.
+        </p>
+
+        <p>
+          For PrimeTask, that means bringing service information, learning
+          resources, assignment workflows, submissions, review processes
+          and appropriate account features into a coherent experience.
+          As the platform develops, individual services can have specialised
+          tools suited to the work they handle.
+        </p>
+
+        <p>
+          The long-term idea is to make those services feel connected
+          without forcing every type of work into the same workflow.
+          Transcription, note-taking and data entry have different
+          requirements. A well-designed workspace should recognise those
+          differences instead of pretending one screen can do everything.
+        </p>
+
+        <h3>Built with a long-term outlook</h3>
+
+        <p>
+          PrimeTask Workspace is intended to grow through practical
+          development, service improvement, useful training materials
+          and responsible operations. That growth requires more than
+          ambition. It requires reliable technology, clear policies,
+          appropriate quality controls, honest communication and systems
+          that work as intended.
+        </p>
+
+        <p>
+          The journey is therefore both a business-building effort and a
+          continuing exercise in learning how to turn a broad idea into
+          a useful digital service.
+        </p>
+
+      </div>
+
+      <aside class="intro-image">
+        <img
+          src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=85"
+          alt="Students learning and collaborating in a shared environment"
+          loading="lazy">
+
+        <div class="image-caption">
+          <strong>Skills are a starting point.</strong>
+          <p>
+            Structure, practice, quality and access to relevant opportunities
+            help turn skills into practical work.
+          </p>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>
+
+<!-- CENTRAL PRINCIPLE -->
+
+<section class="section principle-section">
+  <div class="container">
+    <div class="principle-box">
+
+      <div class="eyebrow">THE IDEA BEHIND THE BRAND</div>
+
+      <h2>
+        Your effort should create <span>value.</span>
+      </h2>
+
+      <p>
+        Effort matters most when it is connected to learning, useful output,
+        reliability and continuous improvement. A completed assignment
+        should represent work done to a defined standard. A learning resource
+        should help someone understand a task more clearly. A digital tool
+        should make a process easier to manage.
+      </p>
+
+      <p>
+        This principle guides the way PrimeTask Workspace approaches its
+        services. It places importance on practical skills, clear
+        instructions, responsible delivery and systems that help people
+        understand the value of their contributions.
+      </p>
+
+      <p>
+        The aim is not to suggest that every effort automatically leads to
+        a paid assignment or a particular financial result. Digital work
+        depends on actual opportunities, client requirements, quality,
+        availability and the terms governing each task.
+      </p>
+
+      <p>
+        Instead, the principle is about building a foundation where effort
+        can be directed toward useful skills and meaningful work.
+      </p>
+
+      <div class="principle-statement">
+        Learn. Work. Earn. Grow.
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+
+<section class="section">
+  <div class="container">
+
+    <div class="section-heading center">
+      <div class="eyebrow">THE JOURNEY</div>
+      <h2>From the first idea to <span>a wider vision.</span></h2>
+      <p>
+        The story is about the evolution of an idea into a developing
+        digital platform. This timeline describes the direction of that
+        journey without pretending every planned feature is already live.
+      </p>
+    </div>
+
+    <div class="timeline">
+
+      <article class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+
+          <div class="timeline-date">October 2025 · The Beginning</div>
+
+          <h3>The idea takes shape</h3>
+
+          <p>
+            PrimeTask Workspace traces its beginning to October 2025,
+            when the idea of building a digital work and services platform
+            started taking shape.
+          </p>
+
+          <p>
+            The central question was how to bring useful digital services
+            and opportunities together in a more organised environment.
+            The early vision focused on turning an idea into something
+            that could serve real users rather than remaining a concept
+            on paper.
+          </p>
+
+          <p>
+            This stage established the foundation for the wider ambition:
+            build, learn, improve and develop a platform around practical
+            digital work.
+          </p>
+
+        </div>
+      </article>
+
+      <article class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+
+          <div class="timeline-date">Early Development · Defining the Purpose</div>
+
+          <h3>Moving from an idea to a business direction</h3>
+
+          <p>
+            As the concept developed, the focus expanded toward defining
+            the services the workspace could support, the people it could
+            serve and the systems required to organise the work.
+          </p>
+
+          <p>
+            This meant thinking about more than the public-facing website.
+            A practical platform also needs account management, clear
+            service descriptions, task instructions, submission processes,
+            review procedures and appropriate ways to communicate with users.
+          </p>
+
+          <p>
+            The direction became increasingly focused on building a
+            foundation that could support several related services rather
+            than a single isolated activity.
+          </p>
+
+        </div>
+      </article>
+
+      <article class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+
+          <div class="timeline-date">Service Development · Practical Skills</div>
+
+          <h3>Defining the work that the platform would support</h3>
+
+          <p>
+            The service vision came to include transcription, note-taking,
+            data entry and academic writing support. Each area addresses
+            a different kind of work, but all require clear instructions,
+            careful execution and quality control.
+          </p>
+
+          <p>
+            Transcription requires accurate listening and consistent
+            formatting. Note-taking requires selecting and organising
+            important information. Data entry requires careful handling
+            of records. Academic writing support requires attention to
+            structure, clarity, editing and appropriate academic standards.
+          </p>
+
+          <p>
+            Treating these as distinct services creates a basis for
+            specialised learning materials and workflows.
+          </p>
+
+        </div>
+      </article>
+
+      <article class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+
+          <div class="timeline-date">Building the Digital Foundation</div>
+
+          <h3>Developing the systems behind the experience</h3>
+
+          <p>
+            A digital workspace needs more than attractive pages. Its
+            underlying systems must support the activities the public
+            website describes.
+          </p>
+
+          <p>
+            The broader development direction includes dedicated service
+            interfaces, authentication, assignment management, submissions,
+            administrative review and appropriate account features.
+            Payment handling and other sensitive operations require
+            particular attention to security, verification and accurate records.
+          </p>
+
+          <p>
+            The aim is to develop these capabilities in a structured way,
+            testing each part before treating it as ready for users.
+          </p>
+
+        </div>
+      </article>
+
+      <article class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+
+          <div class="timeline-date">Learning and Community</div>
+
+          <h3>Helping people understand the work</h3>
+
+          <p>
+            A platform becomes more useful when people understand how to
+            perform its tasks. Training materials, examples, formatting
+            guides and practice activities can help make expectations clearer.
+          </p>
+
+          <p>
+            The wider PrimeTask direction includes developing educational
+            resources and practical guidance that help users improve their
+            skills and understand the standards expected in different
+            service areas.
+          </p>
+
+          <p>
+            Learning and service delivery are related, but they are not
+            identical. Training can prepare people for work; actual
+            assignments still depend on available tasks and their requirements.
+          </p>
+
+        </div>
+      </article>
+
+      <article class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+
+          <div class="timeline-date">The Next Chapter</div>
+
+          <h3>A more connected digital workspace</h3>
+
+          <p>
+            The long-term direction is to develop a more connected
+            environment in which users can discover services, learn
+            relevant skills and access the appropriate workflows.
+          </p>
+
+          <p>
+            This includes improving usability, building reliable service
+            systems, supporting professional communication and creating
+            a foundation for responsible growth into additional digital
+            services where there is a genuine need.
+          </p>
+
+          <p>
+            The future will be shaped by practical implementation, user
+            feedback, service quality and the ability to deliver what
+            the platform promises.
+          </p>
+
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- MISSION AND VISION -->
+
+<section class="section">
+  <div class="container">
+
+    <div class="section-heading center">
+      <div class="eyebrow">OUR DIRECTION</div>
+      <h2>What guides us. <span>Where we are going.</span></h2>
+      <p>
+        A clear purpose helps connect day-to-day service delivery with
+        the larger direction of the business.
+      </p>
+    </div>
+
+    <div class="mission-grid">
+
+      <article class="mission-card">
+        <div class="mission-symbol">◎</div>
+
+        <h3>Our Mission</h3>
+
+        <p>
+          To provide accessible, organised and dependable digital services
+          while creating an environment where people can develop practical
+          skills, understand professional expectations and participate in
+          relevant work opportunities.
+        </p>
+
+        <p style="margin-top:15px">
+          We aim to support this mission through clear workflows, useful
+          learning resources, responsible service delivery and continuous
+          improvement.
+        </p>
+      </article>
+
+      <article class="mission-card vision">
+        <div class="mission-symbol">◇</div>
+
+        <h3>Our Vision</h3>
+
+        <p>
+          To grow into a trusted digital workspace serving people and
+          organisations in Kenya, across Africa and beyond through
+          professional services, useful technology and opportunities
+          built around practical skills.
+        </p>
+
+        <p style="margin-top:15px">
+          The long-term vision is a connected ecosystem of specialised
+          services that remains useful, understandable and reliable
+          as it grows.
+        </p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+
+<section class="section values-section">
+  <div class="container">
+
+    <div class="section-heading center">
+      <div class="eyebrow">OUR VALUES</div>
+      <h2>The standards behind <span>the work.</span></h2>
+      <p>
+        These values describe the standards PrimeTask Workspace aims
+        to uphold as its services and systems develop.
+      </p>
+    </div>
+
+    <div class="values-grid">
+
+      <article class="value-card">
+        <div class="value-number">VALUE 01</div>
+        <h3>Professionalism</h3>
+        <p>
+          Treat clients, colleagues and users respectfully. Follow agreed
+          instructions, communicate clearly and take responsibilities seriously.
+        </p>
+      </article>
+
+      <article class="value-card">
+        <div class="value-number">VALUE 02</div>
+        <h3>Accuracy</h3>
+        <p>
+          Pay attention to detail, check completed work and aim for output
+          that meets the requirements of the assignment.
+        </p>
+      </article>
+
+      <article class="value-card">
+        <div class="value-number">VALUE 03</div>
+        <h3>Reliability</h3>
+        <p>
+          Build systems and working habits around clear expectations,
+          honest communication and consistent follow-through.
+        </p>
+      </article>
+
+      <article class="value-card">
+        <div class="value-number">VALUE 04</div>
+        <h3>Integrity</h3>
+        <p>
+          Represent services honestly, respect agreements and avoid
+          misleading claims about results, earnings or available work.
+        </p>
+      </article>
+
+      <article class="value-card">
+        <div class="value-number">VALUE 05</div>
+        <h3>Collaboration</h3>
+        <p>
+          Recognise the importance of clear communication and cooperation
+          between people involved in delivering and reviewing work.
+        </p>
+      </article>
+
+      <article class="value-card">
+        <div class="value-number">VALUE 06</div>
+        <h3>Growth</h3>
+        <p>
+          Improve through practice, feedback, learning and the continuous
+          refinement of services and technology.
+        </p>
+      </article>
+
+      <article class="value-card">
+        <div class="value-number">VALUE 07</div>
+        <h3>Confidentiality</h3>
+        <p>
+          Treat private information and client materials responsibly,
+          with appropriate access controls and respect for privacy.
+        </p>
+      </article>
+
+      <article class="value-card">
+        <div class="value-number">VALUE 08</div>
+        <h3>Accountability</h3>
+        <p>
+          Take responsibility for decisions, maintain clear records where
+          appropriate and address problems instead of hiding them.
+        </p>
+      </article>
+
+      <article class="value-card">
+        <div class="value-number">VALUE 09</div>
+        <h3>Opportunity</h3>
+        <p>
+          Support practical learning and fair access to relevant opportunities
+          without presenting participation as a guarantee of employment or income.
+        </p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+
+<section class="section">
+  <div class="container">
+
+    <div class="section-heading">
+      <div class="eyebrow">WHAT WE DO</div>
+      <h2>Four service areas. <span>A shared purpose.</span></h2>
+      <p>
+        PrimeTask Workspace brings together related digital services.
+        Each has its own requirements and needs an appropriate workflow.
+      </p>
+    </div>
+
+    <div class="services-grid">
+
+      <article class="service-card">
+        <div class="service-icon">🎧</div>
+        <div>
+          <h3>Transcription</h3>
+          <p>
+            Converting spoken content into written text, following
+            the required transcription style, speaker labels, timestamps
+            and formatting instructions.
+          </p>
+          <a class="text-link" href="services.html">Learn about transcription →</a>
+        </div>
+      </article>
+
+      <article class="service-card">
+        <div class="service-icon">📝</div>
+        <div>
+          <h3>Note-Taking</h3>
+          <p>
+            Organising information from lectures, meetings and other
+            spoken material into structured notes, summaries and
+            clearly presented key points.
+          </p>
+          <a class="text-link" href="services.html">Learn about note-taking →</a>
+        </div>
+      </article>
+
+      <article class="service-card">
+        <div class="service-icon">📊</div>
+        <div>
+          <h3>Data Entry</h3>
+          <p>
+            Entering, organising and checking information with attention
+            to consistency, accuracy, data handling instructions and
+            the format required by the client.
+          </p>
+          <a class="text-link" href="services.html">Learn about data entry →</a>
+        </div>
+      </article>
+
+      <article class="service-card">
+        <div class="service-icon">📚</div>
+        <div>
+          <h3>Academic Writing Support</h3>
+          <p>
+            Supporting research organisation, document structure, editing,
+            proofreading, referencing and presentation while respecting
+            academic integrity and institutional requirements.
+          </p>
+          <a class="text-link" href="services.html">Learn about academic support →</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- PEOPLE AND AUDIENCE -->
+
+<section class="section">
+  <div class="container audience-grid">
+
+    <div class="audience-image">
+      <img
+        src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=85"
+        alt="People learning and working together in an educational setting"
+        loading="lazy">
+    </div>
+
+    <div>
+      <div class="section-heading">
+        <div class="eyebrow">WHO WE AIM TO SERVE</div>
+
+        <h2>A workspace for <span>people who want to grow.</span></h2>
+
+        <p>
+          Different people may interact with PrimeTask Workspace in
+          different ways, depending on the service and the stage of
+          platform development.
+        </p>
+      </div>
+
+      <ul class="audience-list">
+
+        <li>
+          <span class="audience-check">✓</span>
+          <div>
+            <strong>People developing digital skills</strong>
+            <p>
+              Individuals interested in improving their transcription,
+              note-taking, data handling or writing-support capabilities.
+            </p>
+          </div>
+        </li>
+
+        <li>
+          <span class="audience-check">✓</span>
+          <div>
+            <strong>Students and learners</strong>
+            <p>
+              People seeking useful educational resources and appropriate
+              academic support.
+            </p>
+          </div>
+        </li>
+
+        <li>
+          <span class="audience-check">✓</span>
+          <div>
+            <strong>Clients and organisations</strong>
+            <p>
+              People and organisations that need selected digital services
+              delivered according to clear requirements.
+            </p>
+          </div>
+        </li>
+
+        <li>
+          <span class="audience-check">✓</span>
+          <div>
+            <strong>Independent digital workers</strong>
+            <p>
+              People interested in building experience and accessing
+              suitable assignments when opportunities are available.
+            </p>
+          </div>
+        </li>
+
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- AFRICAN ROOTS AND GLOBAL AMBITION -->
+
+<section class="section principle-section">
+  <div class="container">
+
+    <div class="section-heading">
+      <div class="eyebrow">OUR PERSPECTIVE</div>
+
+      <h2>Rooted in Africa. <span>Open to the world.</span></h2>
+
+      <p>
+        The ambition is to build from a Kenyan foundation while developing
+        services that can be useful to people and organisations in other
+        markets as the business grows.
+      </p>
+    </div>
+
+    <div class="prose">
+
+      <p>
+        Africa has a large and diverse population of learners, professionals,
+        entrepreneurs and organisations. Across the continent, people use
+        digital tools to study, communicate, organise information, build
+        businesses and deliver services.
+      </p>
+
+      <p>
+        PrimeTask Workspace wants to contribute to that digital landscape
+        by building practical services and useful systems. The focus is
+        not on suggesting that every community has the same needs or that
+        one platform can solve every challenge. It is on identifying
+        specific tasks that can be supported through clear processes,
+        appropriate technology and professional work.
+      </p>
+
+      <p>
+        A Kenyan starting point provides an important foundation for
+        understanding local users, connectivity realities, payment needs
+        and the practical challenges of building an online business.
+        As the platform develops, its systems can be evaluated for use
+        in other markets where the service requirements, laws and
+        operational arrangements can be met.
+      </p>
+
+      <p>
+        The broader ambition is to build something useful enough to earn
+        trust through its actual work. Geographic expansion and a larger
+        service range should follow sound operations, not simply appear
+        as impressive words on a website.
+      </p>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- FUTURE DIRECTION -->
+
+<section class="section future-section">
+  <div class="container">
+
+    <div class="section-heading">
+      <div class="eyebrow">LOOKING FORWARD</div>
+
+      <h2>Building the next chapter <span>one system at a time.</span></h2>
+
+      <p>
+        PrimeTask Workspace has a wider development ambition. These are
+        directions for growth, not a claim that every planned capability
+        is already available.
+      </p>
+    </div>
+
+    <div class="future-grid">
+
+      <article class="future-card">
+        <span>01 / DIGITAL SERVICES</span>
+        <h3>Specialised workspaces</h3>
+        <p>
+          Develop dedicated interfaces and workflows for different service
+          areas so each can support the actual requirements of its work.
+        </p>
+      </article>
+
+      <article class="future-card">
+        <span>02 / LEARNING</span>
+        <h3>Practical training resources</h3>
+        <p>
+          Expand guides, examples, practice activities and learning
+          materials that help users understand task requirements and
+          improve their work.
+        </p>
+      </article>
+
+      <article class="future-card">
+        <span>03 / TECHNOLOGY</span>
+        <h3>Reliable platform systems</h3>
+        <p>
+          Improve authentication, assignment handling, administrative
+          controls, recordkeeping and other systems needed for dependable
+          service delivery.
+        </p>
+      </article>
+
+      <article class="future-card">
+        <span>04 / TRUST</span>
+        <h3>Clearer operations</h3>
+        <p>
+          Strengthen communication, policies, security practices and
+          service standards so users can better understand how the
+          platform operates.
+        </p>
+      </article>
+
+      <article class="future-card">
+        <span>05 / COLLABORATION</span>
+        <h3>Useful working relationships</h3>
+        <p>
+          Explore relationships with suitable clients, educational
+          communities and service partners where there is a clear
+          mutual benefit.
+        </p>
+      </article>
+
+      <article class="future-card">
+        <span>06 / LONG-TERM GROWTH</span>
+        <h3>A connected ecosystem</h3>
+        <p>
+          Work toward a broader environment in which services, learning
+          resources and appropriate work tools can operate together
+          without losing their individual purpose.
+        </p>
+      </article>
+
+    </div>
+
+    <div class="future-note">
+      <strong>Our commitment:</strong>
+      Growth should be supported by working systems, responsible decisions,
+      useful services and honest communication. A feature is not complete
+      merely because it appears on a roadmap.
+    </div>
+
+  </div>
+</section>
+
+<!-- QUESTIONS -->
+
+<section class="section">
+  <div class="container">
+
+    <div class="section-heading center">
+      <div class="eyebrow">COMMON QUESTIONS</div>
+      <h2>Understanding <span>PrimeTask Workspace.</span></h2>
+      <p>
+        A few straightforward answers about the platform and its purpose.
+      </p>
+    </div>
+
+    <div class="faq-list">
+
+      <article class="faq-item open">
+        <button class="faq-question" aria-expanded="true">
+          <span>What is PrimeTask Workspace?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          PrimeTask Workspace is a developing digital services and work
+          platform focused on transcription, note-taking, data entry and
+          academic writing support, alongside a wider ambition to support
+          learning and organised digital work.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>When did PrimeTask Workspace begin?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          The origin of the idea is October 2025. The platform's development
+          is an ongoing process, and individual services and features may
+          become available at different stages.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>Does registration guarantee paid work?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          No. Registration does not guarantee assignments, employment or
+          income. Work depends on actual opportunities, service availability,
+          assignment requirements and the applicable terms.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>Which services does the platform focus on?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          The current service direction includes transcription, note-taking,
+          data entry and academic writing support. The availability of each
+          service depends on its actual implementation and operational status.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>Is PrimeTask Workspace intended only for Kenya?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          The business has a Kenyan foundation and a broader ambition to
+          serve people beyond Kenya. Access to specific services in other
+          countries depends on the relevant operational, technical and
+          legal requirements.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>How can someone prepare to participate?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          Start by exploring the service guides, understanding the skills
+          required and practising the relevant tasks. When assignments are
+          available, follow their specific instructions and quality standards.
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CALL TO ACTION -->
+
+<section class="cta">
+  <div class="container">
+    <div class="cta-box">
+
+      <div class="eyebrow">THE STORY CONTINUES</div>
+
+      <h2>
+        Creating opportunities.<br>
+        <span>Delivering excellence.</span>
+      </h2>
+
+      <p>
+        Since the idea began in October 2025, the ambition has been to
+        build a useful workspace around skills, services and opportunity.
+        The next chapter depends on the quality of the systems we build,
+        the services we deliver and the trust we earn.
+      </p>
+
+      <p>
+        Learn something useful. Approach work professionally. Keep improving.
+        Build toward something that creates real value.
+      </p>
+
+      <div class="hero-actions">
+        <a href="auth/register.html" class="btn">Get Started →</a>
+        <a href="services.html" class="btn btn-outline">Explore Services</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="container footer-inner">
+
+    <div>
+      <a href="index.html" class="brand">
+        PrimeTask <span>Workspace</span>
+      </a>
+
+      <p>Creating Opportunities and Delivering Excellence.</p>
+      <p>© <span id="year"></span> PrimeTask Workspace. All rights reserved.</p>
+    </div>
+
+    <nav class="footer-links" aria-label="Footer navigation">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+  </div>
+</footer>
+
+<script>
+const menuBtn = document.getElementById("menuBtn");
+const navLinks = document.getElementById("navLinks");
+
+menuBtn.addEventListener("click", () => {
+  const isOpen = navLinks.classList.toggle("open");
+  menuBtn.setAttribute("aria-expanded", String(isOpen));
+});
+
+navLinks.querySelectorAll("a").forEach(link => {
+  link.addEventListener("click", () => {
+    navLinks.classList.remove("open");
+    menuBtn.setAttribute("aria-expanded", "false");
+  });
+});
+
+document.querySelectorAll(".faq-question").forEach(button => {
+  button.addEventListener("click", () => {
+    const item = button.closest(".faq-item");
+    const willOpen = !item.classList.contains("open");
+
+    document.querySelectorAll(".faq-item").forEach(faq => {
+      faq.classList.remove("open");
+      faq.querySelector(".faq-question").setAttribute("aria-expanded", "false");
+    });
+
+    if (willOpen) {
+      item.classList.add("open");
+      button.setAttribute("aria-expanded", "true");
+    }
+  });
+});
+
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

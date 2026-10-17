@@ -1,0 +1,1429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#061225">
+<meta name="description" content="Manage your PrimeTask Workspace wallet and withdrawal requests.">
+<title>My Wallet | PrimeTask Workspace</title>
+<style>
+
+    :root {
+      --bg: #071426;
+      --panel: rgba(10, 24, 43, .90);
+      --panel-soft: rgba(17, 36, 60, .82);
+      --border: rgba(184, 204, 231, .13);
+      --text: #f4f7fb;
+      --muted: #a4b4c9;
+      --blue: #60a5fa;
+      --orange: #fb923c;
+      --green: #4ade80;
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        linear-gradient(120deg, rgba(4, 12, 25, .94), rgba(5, 17, 32, .79)),
+        url("https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2200&q=85")
+        center / cover fixed,
+        var(--bg);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, a { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; }
+
+    .app {
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 25px 17px;
+      display: flex;
+      flex-direction: column;
+      background: rgba(4, 13, 26, .94);
+      border-right: 1px solid var(--border);
+      backdrop-filter: blur(18px);
+      z-index: 5;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 4px 8px 25px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-mark {
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      color: white;
+      font-weight: 900;
+      font-size: 18px;
+      background: linear-gradient(145deg, #2563eb, #0e7490);
+      box-shadow: 0 8px 25px rgba(37, 99, 235, .22);
+    }
+
+    .brand-name { font-weight: 800; letter-spacing: -.4px; }
+    .brand-sub { color: var(--muted); font-size: 11px; margin-top: 3px; }
+
+    .nav-label {
+      padding: 25px 12px 10px;
+      color: #71849e;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px 13px;
+      margin: 3px 0;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: #b5c3d6;
+      background: transparent;
+      text-align: left;
+      font-size: 13px;
+      transition: background .2s, color .2s;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: white;
+      background: rgba(59, 130, 246, .14);
+      border-color: rgba(96, 165, 250, .15);
+    }
+
+    .nav-link.active { box-shadow: inset 3px 0 var(--blue); }
+    .nav-icon { width: 20px; text-align: center; font-size: 16px; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .sidebar-spacer { flex: 1; }
+
+    .sidebar-note {
+      margin-top: 18px;
+      padding: 15px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .035);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .sidebar-note strong { color: #f8fafc; display: block; }
+
+    .main { min-width: 0; padding: 28px clamp(16px, 3vw, 38px) 35px; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+
+    .eyebrow {
+      color: #a5c8f5;
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    h1 { margin: 7px 0 0; font-size: clamp(23px, 3vw, 32px); letter-spacing: -1px; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      background: rgba(6, 18, 33, .7);
+      color: #c8d7e8;
+      font-size: 11px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(74, 222, 128, .55);
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 39px;
+      height: 39px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #fb923c);
+      font-weight: 800;
+    }
+
+    .welcome {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      min-height: 245px;
+      padding: clamp(23px, 4vw, 39px);
+      display: flex;
+      align-items: center;
+      border: 1px solid rgba(205, 221, 242, .20);
+      border-radius: 24px;
+      background:
+        linear-gradient(90deg, rgba(5, 15, 29, .96) 0%, rgba(5, 15, 29, .79) 48%, rgba(5, 15, 29, .25) 100%),
+        url("https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1800&q=85")
+        center 48% / cover;
+      box-shadow: 0 22px 60px rgba(0, 0, 0, .20);
+    }
+
+    .welcome-content { position: relative; z-index: 1; max-width: 550px; }
+
+    .welcome-tag {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 11px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 30px;
+      background: rgba(255, 255, 255, .08);
+      color: #dceaff;
+      font-size: 11px;
+    }
+
+    .welcome h2 {
+      margin: 17px 0 10px;
+      font-size: clamp(26px, 4vw, 41px);
+      line-height: 1.13;
+      letter-spacing: -1.3px;
+    }
+
+    .welcome h2 span { color: #fdba74; }
+
+    .welcome p {
+      max-width: 430px;
+      margin: 0;
+      color: #c3d0df;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .welcome-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+
+    .btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 11px 16px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .btn-primary {
+      color: #111827;
+      background: linear-gradient(135deg, #fdba74, #fb923c);
+    }
+
+    .btn-secondary {
+      color: white;
+      background: rgba(255, 255, 255, .09);
+      border-color: rgba(255, 255, 255, .19);
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 15px;
+    }
+
+    .section-heading h3 { margin: 0; font-size: 16px; }
+    .section-heading p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
+
+    .muted-link { color: #93c5fd; font-size: 11px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      min-width: 0;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, .10);
+      backdrop-filter: blur(15px);
+    }
+
+    .stat-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+    .stat-label { color: var(--muted); font-size: 11px; }
+    .stat-icon {
+      display: grid;
+      place-items: center;
+      width: 37px;
+      height: 37px;
+      border-radius: 12px;
+      background: rgba(96, 165, 250, .12);
+      font-size: 17px;
+    }
+
+    .stat-value {
+      margin: 17px 0 5px;
+      font-size: clamp(22px, 3vw, 29px);
+      font-weight: 800;
+      letter-spacing: -.7px;
+      overflow-wrap: anywhere;
+    }
+
+    .stat-foot { color: #9aabc0; font-size: 10px; line-height: 1.6; }
+    .positive { color: var(--green); }
+
+    .lower-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(230px, .85fr);
+      gap: 15px;
+      margin-top: 17px;
+    }
+
+    .panel-title { margin: 0; font-size: 14px; }
+    .panel-subtitle { margin: 6px 0 0; color: var(--muted); font-size: 11px; }
+
+    .transaction-list { margin-top: 17px; }
+    .transaction {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .transaction:last-child { border-bottom: 0; }
+    .transaction-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .transaction-icon {
+      flex: 0 0 auto;
+      width: 37px;
+      height: 37px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .transaction-name { font-size: 12px; font-weight: 700; overflow-wrap: anywhere; }
+    .transaction-date { margin-top: 5px; color: var(--muted); font-size: 10px; }
+    .transaction-amount { text-align: right; font-size: 12px; font-weight: 800; }
+    .transaction-state { margin-top: 5px; color: var(--muted); font-size: 10px; text-transform: capitalize; }
+    .empty { padding: 25px 5px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+
+    .account-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+    }
+
+    .account-row:last-child { border-bottom: 0; }
+    .account-row span { color: var(--muted); }
+    .account-row strong { text-align: right; overflow-wrap: anywhere; }
+
+    .service-intro {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .service-card {
+      display: flex;
+      gap: 13px;
+      align-items: flex-start;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      background: var(--panel-soft);
+      transition: transform .2s, border-color .2s;
+    }
+
+    .service-card:hover { transform: translateY(-2px); border-color: rgba(96, 165, 250, .38); }
+    .service-emoji {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: rgba(96, 165, 250, .12);
+      font-size: 19px;
+    }
+
+    .service-card h4 { margin: 2px 0 6px; font-size: 12px; }
+    .service-card p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.65; }
+
+    .notice {
+      display: none;
+      margin: 0 0 18px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(251, 146, 60, .3);
+      background: rgba(124, 45, 18, .23);
+      color: #fed7aa;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .footer {
+      margin-top: 28px;
+      padding: 18px 4px 0;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-top: 1px solid var(--border);
+      color: #90a2b8;
+      font-size: 10px;
+    }
+
+    .footer-links { display: flex; flex-wrap: wrap; gap: 15px; }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 215px minmax(0, 1fr); }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .lower-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      body { background-attachment: scroll; }
+      .app { display: block; }
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        padding: 12px 13px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .brand { padding: 2px 4px 12px; border-bottom: 0; }
+      .brand-mark { width: 38px; height: 38px; }
+      .nav-label { padding: 11px 4px 6px; }
+      .sidebar nav { display: flex; flex-wrap: wrap; gap: 4px; }
+      .nav-link { width: auto; padding: 9px 10px; margin: 0; font-size: 11px; }
+      .nav-icon { width: auto; }
+      .sidebar-spacer, .sidebar-note { display: none; }
+      .main { padding: 22px 14px 25px; }
+      .topbar { margin-bottom: 18px; }
+      .status { display: none; }
+      .welcome { min-height: 270px; background-position: center; }
+      .stats { gap: 10px; }
+      .card { padding: 15px; }
+      .stat-value { font-size: 23px; }
+      .service-intro { grid-template-columns: 1fr; }
+      .section-heading { margin-top: 23px; }
+    }
+
+    @media (max-width: 370px) {
+      .stats { grid-template-columns: 1fr; }
+      .welcome h2 { font-size: 28px; }
+      .avatar { width: 34px; height: 34px; }
+    }
+
+    /* PrimeTask pocket wallet */
+    .wallet-pocket {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      min-height: 260px;
+      padding: 22px;
+      border-color: rgba(96, 165, 250, .34);
+      background:
+        radial-gradient(ellipse at 100% 0%, rgba(251, 146, 60, .25), transparent 43%),
+        radial-gradient(ellipse at 0% 100%, rgba(37, 99, 235, .25), transparent 48%),
+        linear-gradient(145deg, #0d2340, #071426 60%, #111d34);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, .22),
+                  inset 0 1px 0 rgba(255, 255, 255, .06);
+    }
+    .wallet-pocket::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      width: 175px;
+      height: 175px;
+      right: -72px;
+      bottom: -85px;
+      border: 1px solid rgba(251, 146, 60, .23);
+      border-radius: 50%;
+      box-shadow: 0 0 0 18px rgba(251, 146, 60, .035),
+                  0 0 0 38px rgba(96, 165, 250, .035);
+      pointer-events: none;
+    }
+    .pocket-topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+    .pocket-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #bfdbfe;
+      font-size: 10px;
+      font-weight: 850;
+      letter-spacing: 1.25px;
+    }
+    .pocket-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--orange);
+      box-shadow: 0 0 12px rgba(251, 146, 60, .65);
+    }
+    .pocket-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 9px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 9px;
+      background: rgba(2,6,23,.35);
+      color: #cbd5e1;
+      font-size: 10px;
+    }
+    .pocket-chip strong { color: #fdba74; font-size: 13px; }
+    .pocket-balance-label { margin-bottom: 8px; }
+    .wallet-pocket .stat-label { color: #b6c8df; }
+    .wallet-pocket .stat-icon {
+      color: #fdba74;
+      background: rgba(251,146,60,.13);
+      border: 1px solid rgba(251,146,60,.18);
+    }
+    .wallet-pocket .pocket-value {
+      margin: 0 0 7px;
+      color: #fff;
+      font-size: clamp(27px, 3vw, 36px);
+      letter-spacing: -1.2px;
+      overflow-wrap: anywhere;
+    }
+    .wallet-pocket .pocket-foot { color: #a8bdd7; }
+    .pocket-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 20px;
+    }
+    .pocket-action {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 7px;
+      min-height: 39px;
+      padding: 9px 13px;
+      border: 1px solid rgba(191,219,254,.2);
+      border-radius: 10px;
+      color: #eaf2ff;
+      background: rgba(255,255,255,.07);
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .pocket-action:hover {
+      border-color: rgba(251,146,60,.65);
+      background: rgba(251,146,60,.09);
+    }
+    .pocket-action-primary {
+      border-color: transparent;
+      color: #1b2433;
+      background: linear-gradient(135deg, #fed7aa, #fb923c);
+    }
+    .pocket-action-primary:hover {
+      background: linear-gradient(135deg, #ffedd5, #fb923c);
+    }
+    .pocket-note {
+      margin: 12px 0 0;
+      color: #94a9c4;
+      font-size: 10px;
+      line-height: 1.5;
+    }
+    @media (max-width: 760px) {
+      .wallet-pocket { min-height: 0; }
+      .wallet-pocket .pocket-value {
+        font-size: clamp(27px, 8vw, 35px);
+      }
+      .pocket-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .pocket-action { padding-inline: 8px; }
+    }
+
+
+.wallet-modal[hidden]{display:none!important}
+.wallet-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(0,0,0,.78);overflow:auto}
+.wallet-modal-card{box-sizing:border-box;width:min(100%,460px);max-height:calc(100vh - 28px);overflow:auto;padding:22px;border:1px solid #26364d;border-radius:16px;background:#08101f;color:#e5edf9;box-shadow:0 20px 60px #0008}
+.wallet-modal-head{display:flex;justify-content:space-between;gap:14px;margin-bottom:18px}
+.wallet-modal-head h2{margin:0 0 6px}
+.wallet-modal-head p,.wallet-help{color:#94a3b8;font-size:.88rem;line-height:1.5}
+.wallet-close{border:0;border-radius:8px;padding:6px 11px;background:#17243a;color:white;font-size:1.2rem;cursor:pointer}
+.wallet-form{display:grid;gap:14px}
+.wallet-form label{display:grid;gap:7px;color:#cbd5e1;font-size:.9rem}
+.wallet-form input{box-sizing:border-box;width:100%;padding:12px;border:1px solid #334155;border-radius:9px;background:#050b16;color:#fff;font:inherit}
+.wallet-submit{width:100%;padding:12px;border:0;border-radius:9px;background:#2563eb;color:white;font:inherit;font-weight:700;cursor:pointer}
+.wallet-submit:disabled{opacity:.6}
+.wallet-message{display:none;margin:0 0 14px;padding:11px;border-radius:9px;line-height:1.5;overflow-wrap:anywhere}
+.wallet-message.visible{display:block}
+.wallet-message.info{background:#172b46;color:#bfdbfe}
+.wallet-message.error{background:#451a1a;color:#fecaca}
+.wallet-message.success{background:#123524;color:#bbf7d0}
+.withdrawal-history{margin-top:20px}
+.withdrawal-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #263247}
+.withdrawal-row p{margin:5px 0;overflow-wrap:anywhere}
+.withdrawal-meta{color:#94a3b8;font-size:.82rem}
+.withdrawal-status{align-self:flex-start;padding:5px 8px;border-radius:20px;background:#17243a;color:#cbd5e1;font-size:.75rem}
+
+
+
+/* Standalone wallet navigation and responsive shell */
+.wallet-layout {
+  display:block;
+  min-height:100vh;
+}
+.wallet-sidebar {
+  padding:22px 14px;
+  background:#071326;
+  border-right:1px solid #20334d;
+}
+.wallet-brand {
+  color:#e8eef8;
+  font-size:18px;
+  font-weight:800;
+  margin:0 0 22px;
+}
+.wallet-brand small {
+  display:block;
+  color:#9aacc4;
+  font-size:12px;
+  font-weight:400;
+}
+.wallet-nav {display:grid;gap:6px}
+.wallet-nav a,.wallet-nav button {
+  display:block;
+  padding:10px 12px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  color:#a9bad0;
+  text-decoration:none;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+}
+.wallet-nav a.active,.wallet-nav a:hover,.wallet-nav button:hover {
+  background:#142944;
+  color:white;
+}
+
+.wallet-heading-actions {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  margin-left:auto;
+}
+.wallet-main .ptw-menu-wrap { position:relative; }
+.wallet-main .ptw-menu-toggle {
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  border:1px solid #263b56;
+  border-radius:13px;
+  color:#f1f5f9;
+  background:#0b1a2e;
+  font-size:23px;
+  line-height:1;
+  cursor:pointer;
+}
+.wallet-main .ptw-menu-toggle:hover,
+.wallet-main .ptw-menu-toggle[aria-expanded="true"] {
+  background:#142944;
+  border-color:#60a5fa;
+}
+.wallet-main .ptw-menu-panel {
+  position:absolute;
+  z-index:50;
+  top:calc(100% + 10px);
+  right:0;
+  width:min(290px, calc(100vw - 28px));
+  max-height:min(72vh, 560px);
+  overflow-y:auto;
+  padding:10px;
+  border:1px solid #263b56;
+  border-radius:17px;
+  background:#0a192d;
+  box-shadow:0 20px 55px rgba(0,0,0,.45);
+}
+.wallet-main .ptw-menu-panel[hidden] { display:none; }
+.wallet-main .ptw-menu-label {
+  padding:10px 11px 6px;
+  color:#8195b1;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.3px;
+  text-transform:uppercase;
+}
+.wallet-main .ptw-menu-link {
+  display:flex;
+  align-items:center;
+  gap:11px;
+  width:100%;
+  padding:11px;
+  border:1px solid transparent;
+  border-radius:10px;
+  color:#c5d2e3;
+  background:transparent;
+  text-align:left;
+  text-decoration:none;
+  font-size:13px;
+  cursor:pointer;
+}
+.wallet-main .ptw-menu-link:hover,
+.wallet-main .ptw-menu-link[aria-current="page"] {
+  color:white;
+  background:#142944;
+  border-color:#263b56;
+}
+.wallet-main .ptw-menu-link .nav-icon { width:20px;text-align:center; }
+.wallet-main .ptw-menu-divider {
+  height:1px;
+  margin:8px 4px;
+  background:#263b56;
+}
+.wallet-main .ptw-menu-link.menu-signout { color:#fca5a5; }
+.wallet-main .ptw-menu-link:focus-visible,
+.wallet-main .ptw-menu-toggle:focus-visible {
+  outline:2px solid #60a5fa;
+  outline-offset:3px;
+}
+@media(max-width:480px) {
+  .wallet-main { padding:15px; }
+  .wallet-page-heading { align-items:flex-start; }
+  .wallet-heading-actions { gap:7px; }
+}
+
+.wallet-main {padding:26px;min-width:0}
+.wallet-page-heading {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:22px;
+}
+.wallet-page-heading h1 {margin:0 0 5px}
+.wallet-page-heading p {margin:0;color:#9aacc4}
+.wallet-main .lower-grid {display:none}
+.wallet-main .service-intro {display:none}
+.wallet-main .welcome {display:none}
+.wallet-main .section-heading:first-of-type {margin-top:0}
+.wallet-main .wallet-pocket {min-width:0}
+.wallet-main .wallet-modal[hidden] {display:none!important}
+.wallet-main .wallet-modal {
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.72);
+  overflow-y:auto;
+}
+.wallet-main .wallet-modal-card {
+  width:min(100%,480px);
+  max-height:calc(100vh - 36px);
+  overflow-y:auto;
+  background:#0b1a30;
+  border:1px solid #29415f;
+  border-radius:16px;
+  padding:22px;
+}
+.wallet-main .wallet-modal-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+.wallet-main .wallet-close {
+  font-size:25px;
+  border:0;
+  background:transparent;
+  color:#e8eef8;
+  cursor:pointer;
+}
+.wallet-main .wallet-form {
+  display:grid;
+  gap:15px;
+  margin-top:16px;
+}
+.wallet-main .wallet-form label {
+  display:grid;
+  gap:7px;
+  color:#dce6f5;
+}
+.wallet-main .wallet-form input {
+  width:100%;
+  padding:12px;
+  color:#e8eef8;
+  background:#061225;
+  border:1px solid #29415f;
+  border-radius:9px;
+  font:inherit;
+}
+.wallet-main .wallet-submit {
+  padding:12px 15px;
+  border:0;
+  border-radius:9px;
+  background:#2563eb;
+  color:white;
+  font:inherit;
+  cursor:pointer;
+}
+.wallet-main .wallet-submit:disabled {opacity:.65;cursor:wait}
+.wallet-main .wallet-message {display:none}
+.wallet-main .wallet-message.visible {display:block;margin-top:14px}
+.wallet-main .wallet-help {color:#9aacc4;font-size:13px}
+.wallet-main .withdrawal-row {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  padding:14px 0;
+  border-bottom:1px solid #20334d;
+}
+.wallet-main .withdrawal-meta {color:#9aacc4;font-size:13px;margin:5px 0 0;overflow-wrap:anywhere}
+.wallet-main .withdrawal-status {white-space:nowrap;font-size:12px}
+.wallet-main .footer {margin-top:28px}
+@media(max-width:720px) {
+  .wallet-layout {grid-template-columns:1fr}
+  .wallet-sidebar {border-right:0;border-bottom:1px solid #20334d}
+  .wallet-nav {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .wallet-main {padding:17px}
+  .wallet-main .stats {grid-template-columns:1fr}
+  .wallet-main .withdrawal-row {flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="wallet-layout">
+<main class="wallet-main">
+  <div class="wallet-page-heading">
+    <div>
+      <h1>My Wallet</h1>
+      <p>Review your balance and manage wallet requests.</p>
+    </div>
+
+    <div class="wallet-heading-actions">
+      <button class="btn btn-secondary" id="refreshWallet" type="button">↻ Refresh wallet</button>
+      <div class="ptw-menu-wrap" id="menuWrap">
+        <button class="ptw-menu-toggle" id="menuToggle"
+          type="button" aria-label="Open navigation menu"
+          aria-controls="menuPanel" aria-expanded="false">
+          <span aria-hidden="true">☰</span>
+        </button>
+        <nav class="ptw-menu-panel" id="menuPanel"
+          aria-label="Workspace menu" hidden>
+          <div class="ptw-menu-label">Workspace</div>
+          <a class="ptw-menu-link" href="index.html"><span class="nav-icon">⌂</span>Dashboard</a>
+          <a class="ptw-menu-link" href="services.html"><span class="nav-icon">▦</span>Services</a>
+          <a class="ptw-menu-link" href="wallet.html" aria-current="page"><span class="nav-icon">◈</span>My Wallet</a>
+          <a class="ptw-menu-link" href="membership.html"><span class="nav-icon">▣</span>Membership</a>
+          <a class="ptw-menu-link" href="transactions.html"><span class="nav-icon">↕</span>Transactions</a>
+          <a class="ptw-menu-link" href="referrals.html"><span class="nav-icon">♧</span>My Referrals</a>
+          <a class="ptw-menu-link" href="profile.html"><span class="nav-icon">◉</span>My Profile</a>
+          <div class="ptw-menu-divider"></div>
+          <div class="ptw-menu-label">Account</div>
+          <a class="ptw-menu-link" href="../contact.html"><span class="nav-icon">✉</span>Support</a>
+          <a class="ptw-menu-link" href="../faq.html"><span class="nav-icon">?</span>Help Centre</a>
+          <a class="ptw-menu-link" href="../privacy.html"><span class="nav-icon">◇</span>Privacy</a>
+          <a class="ptw-menu-link" href="../terms.html"><span class="nav-icon">▤</span>Terms</a>
+          <button class="ptw-menu-link menu-signout" id="logoutBtn" type="button"><span class="nav-icon">↪</span>Sign Out</button>
+        </nav>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="notice" id="notice" role="status"></div>
+
+      <div class="section-heading">
+        <div>
+          <h3>Your wallet overview</h3>
+          <p>Financial information from your account.</p>
+        </div>
+
+      </div>
+
+      <section class="stats" id="wallet">
+        <article class="card wallet-pocket">
+          <div class="pocket-topline">
+            <span class="pocket-kicker"><span class="pocket-dot"></span> PRIME TASK POCKET</span>
+            <span class="pocket-chip">USD <strong>$</strong></span>
+          </div>
+          <div class="stat-top pocket-balance-label">
+            <span class="stat-label">Available balance</span>
+            <span class="stat-icon" aria-hidden="true">◈</span>
+          </div>
+          <div class="stat-value pocket-value" id="availableBalance">Loading...</div>
+          <div class="stat-foot pocket-foot">Funds currently available in your wallet</div>
+          <div class="pocket-actions">
+            <button class="pocket-action pocket-action-primary" id="addFundsAction" type="button">＋ Add funds</button>
+            <button class="pocket-action" id="withdrawAction" type="button">↗ Withdraw</button>
+          </div>
+          <p class="pocket-note">Payment and withdrawal features are being connected.</p>
+        </article>
+
+        <article class="card">
+          <div class="stat-top">
+            <span class="stat-label">Pending earnings</span>
+            <span class="stat-icon">◷</span>
+          </div>
+          <div class="stat-value" id="pendingEarnings">Loading...</div>
+          <div class="stat-foot">Earnings awaiting completion</div>
+        </article>
+
+        <article class="card">
+          <div class="stat-top">
+            <span class="stat-label">Total earnings</span>
+            <span class="stat-icon">↗</span>
+          </div>
+          <div class="stat-value" id="totalEarnings">Loading...</div>
+          <div class="stat-foot">Recorded earnings to date</div>
+        </article>
+      </section>
+
+
+      <section class="card withdrawal-history" id="withdrawalHistory">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <h2>Withdrawal history</h2>
+          <button class="pocket-action" id="refreshWithdrawals" type="button">Refresh</button>
+        </div>
+        <div id="withdrawalList" aria-live="polite">
+          <p class="wallet-help">Loading withdrawal history...</p>
+        </div>
+      </section>
+
+      <div class="wallet-modal" id="depositModal" hidden>
+        <section class="wallet-modal-card" role="dialog" aria-modal="true" aria-labelledby="depositTitle">
+          <div class="wallet-modal-head">
+            <div>
+              <h2 id="depositTitle">Add funds</h2>
+              <p>Deposit funds into your PrimeTask wallet.</p>
+            </div>
+            <button class="wallet-close" type="button" data-wallet-close="depositModal" aria-label="Close">×</button>
+          </div>
+          <div id="depositMessage" class="wallet-message" role="status" aria-live="polite"></div>
+          <form class="wallet-form" id="depositForm">
+            <label>Amount (USD)
+              <input id="depositAmount" type="number" min="0.10" step="0.10" max="10000" placeholder="5.00" required>
+            </label>
+            <label>M-Pesa phone number
+              <input id="depositPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="0712345678" required>
+            </label>
+            <p class="wallet-help">Deposits are temporarily unavailable while secure payment verification is completed. No M-Pesa prompt will be sent.</p>
+            <button class="wallet-submit" id="depositSubmit" type="submit">Check deposit availability</button>
+          </form>
+        </section>
+      </div>
+
+      <div class="wallet-modal" id="withdrawalModal" hidden>
+        <section class="wallet-modal-card" role="dialog" aria-modal="true" aria-labelledby="withdrawalTitle">
+          <div class="wallet-modal-head">
+            <div>
+              <h2 id="withdrawalTitle">Request withdrawal</h2>
+              <p>Submit your request for administrator review.</p>
+            </div>
+            <button class="wallet-close" type="button" data-wallet-close="withdrawalModal" aria-label="Close">×</button>
+          </div>
+          <div id="withdrawalMessage" class="wallet-message" role="status" aria-live="polite"></div>
+          <form class="wallet-form" id="withdrawalForm">
+            <label>Amount (USD)
+              <input id="withdrawalAmount" type="number" min="1" max="500" step="0.01" placeholder="5.00" required>
+            </label>
+            <label>M-Pesa phone number
+              <input id="withdrawalPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="0712345678" required>
+            </label>
+            <p class="wallet-help">Requests are reviewed by an administrator. Submitting a request does not send an M-Pesa payment immediately.</p>
+            <button class="wallet-submit" id="withdrawalSubmit" type="submit">Submit withdrawal request</button>
+          </form>
+        </section>
+      </div>
+
+
+
+<footer class="footer">
+  <span>© <span id="year"></span> PrimeTask Workspace</span>
+  <div class="footer-links">
+    <a href="../contact.html">Support</a>
+    <a href="../privacy.html">Privacy</a>
+    <a href="../terms.html">Terms</a>
+  </div>
+</footer>
+</main>
+</div>
+
+<script src="../assets/js/config.js"></script>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const money = (value) => new Intl.NumberFormat("en-US", {
+  style:"currency", currency:"USD"
+}).format(Number(value) || 0);
+$("year").textContent = new Date().getFullYear();
+
+    function showNotice(message) {
+      $("notice").textContent = message;
+      $("notice").style.display = "block";
+    }
+
+    function hideNotice() {
+      $("notice").textContent = "";
+      $("notice").style.display = "none";
+    }
+
+
+    function walletMessage(id, message, type) {
+      const el = $(id);
+      el.textContent = message;
+      el.className = "wallet-message visible " + type;
+    }
+
+    function clearWalletMessage(id) {
+      const el = $(id);
+      el.textContent = "";
+      el.className = "wallet-message";
+    }
+
+    function openWalletModal(id) {
+      hideNotice();
+      clearWalletMessage(id === "depositModal" ? "depositMessage" : "withdrawalMessage");
+      $(id).hidden = false;
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeWalletModal(id) {
+      $(id).hidden = true;
+      if ($("depositModal").hidden && $("withdrawalModal").hidden) {
+        document.body.style.overflow = "";
+      }
+    }
+
+    document.querySelectorAll("[data-wallet-close]").forEach((button) => {
+      button.addEventListener("click", () => closeWalletModal(button.dataset.walletClose));
+    });
+
+    ["depositModal", "withdrawalModal"].forEach((id) => {
+      $(id).addEventListener("click", (event) => {
+        if (event.target === $(id)) closeWalletModal(id);
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeWalletModal("depositModal");
+        closeWalletModal("withdrawalModal");
+      }
+    });
+
+    $("addFundsAction").addEventListener("click", () => openWalletModal("depositModal"));
+    $("withdrawAction").addEventListener("click", () => openWalletModal("withdrawalModal"));
+
+    $("depositForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const amount = $("depositAmount").value.trim();
+      const number = Number(amount);
+      const phoneNumber = $("depositPhone").value.trim();
+
+      if (!Number.isFinite(number) || number < 0.10 ||
+          Math.round(number * 100) % 10 !== 0) {
+        walletMessage("depositMessage", "Enter a valid amount in increments of $0.10.", "error");
+        return;
+      }
+
+      const root = apiRoot();
+      if (!root) {
+        walletMessage("depositMessage", "API configuration is unavailable. No payment was attempted.", "error");
+        return;
+      }
+
+      const button = $("depositSubmit");
+      button.disabled = true;
+      button.textContent = "Checking...";
+
+      try {
+        const key = window.crypto && window.crypto.randomUUID
+          ? window.crypto.randomUUID()
+          : "dp-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+
+        const data = await apiPost(root + "/wallet/deposits", { amount, phoneNumber }, {
+          "Idempotency-Key": key
+        });
+
+        const deposit = data.deposit || {};
+        const status = String(deposit.status || "").toLowerCase();
+
+        if (status === "completed" && deposit.receipt) {
+          walletMessage(
+            "depositMessage",
+            "Deposit is marked completed by the server. Receipt: " +
+              deposit.receipt + ". Refresh the wallet to verify the credited balance.",
+            "success"
+          );
+          await Promise.allSettled([loadWallet()]);
+        } else if (status === "pending") {
+          walletMessage(
+            "depositMessage",
+            (data.message || "Your deposit is pending verification.") +
+              " Do not submit another payment request while this one is unresolved.",
+            "info"
+          );
+        } else if (status === "failed") {
+          walletMessage(
+            "depositMessage",
+            data.message || deposit.resultDescription ||
+              "The deposit failed. Check its status before making another request.",
+            "error"
+          );
+        } else if (data.reused) {
+          walletMessage(
+            "depositMessage",
+            data.message || "This request already exists. Check its status before continuing.",
+            "info"
+          );
+        } else {
+          walletMessage(
+            "depositMessage",
+            data.message ||
+              "The server received a response, but payment completion has not been confirmed.",
+            "info"
+          );
+        }
+      } catch (error) {
+        if (error.status === 503) {
+          walletMessage(
+            "depositMessage",
+            "Deposits are temporarily unavailable. No M-Pesa prompt was sent and no deposit was created.",
+            "info"
+          );
+        } else {
+          walletMessage(
+            "depositMessage",
+            error.message || "Deposit request failed.",
+            "error"
+          );
+        }
+      } finally {
+        button.disabled = false;
+        button.textContent = "Check deposit availability";
+      }
+    });
+
+    function formatWalletDate(value) {
+      if (!value) return "Date unavailable";
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? "Date unavailable" : date.toLocaleString();
+    }
+
+    async function loadWithdrawalHistory() {
+      const list = $("withdrawalList");
+      const root = apiRoot();
+      if (!root) {
+        list.textContent = "API configuration is unavailable.";
+        return;
+      }
+
+      list.textContent = "Loading withdrawal history...";
+      try {
+        const data = await apiGet(root + "/wallet/withdrawals/mine");
+        const items = Array.isArray(data.withdrawals) ? data.withdrawals : [];
+        list.replaceChildren();
+
+        if (!items.length) {
+          const empty = document.createElement("p");
+          empty.className = "wallet-help";
+          empty.textContent = "You have not submitted any withdrawal requests.";
+          list.appendChild(empty);
+          return;
+        }
+
+        items.forEach((item) => {
+          const row = document.createElement("div");
+          row.className = "withdrawal-row";
+
+          const details = document.createElement("div");
+          const amount = document.createElement("strong");
+          const value = Number.isFinite(Number(item.amount))
+            ? Number(item.amount)
+            : (Number(item.amountCents) || 0) / 100;
+          amount.textContent = money(value);
+
+          const phone = document.createElement("p");
+          phone.textContent = item.phoneNumber || "Phone unavailable";
+
+          const date = document.createElement("p");
+          date.className = "withdrawal-meta";
+          date.textContent = formatWalletDate(item.createdAt);
+
+          details.append(amount, phone, date);
+
+          if (item.adminNote) {
+            const note = document.createElement("p");
+            note.className = "withdrawal-meta";
+            note.textContent = "Admin note: " + item.adminNote;
+            details.appendChild(note);
+          }
+
+          const status = document.createElement("span");
+          const rawStatus = String(item.status || "unknown").toLowerCase();
+          status.className = "withdrawal-status status-" + rawStatus.replace(/[^a-z0-9_-]/g, "");
+          status.textContent = rawStatus.replace(/[_-]+/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+          row.append(details, status);
+          list.appendChild(row);
+        });
+      } catch (error) {
+        list.textContent = error.message || "Could not load withdrawal history.";
+      }
+    }
+
+    $("refreshWithdrawals").addEventListener("click", loadWithdrawalHistory);
+
+    $("withdrawalForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const amount = $("withdrawalAmount").value.trim();
+      const number = Number(amount);
+      const phoneNumber = $("withdrawalPhone").value.trim();
+
+      if (!Number.isFinite(number) || number < 1 || number > 500) {
+        walletMessage("withdrawalMessage", "Enter an amount between $1.00 and $500.00.", "error");
+        return;
+      }
+
+      const root = apiRoot();
+      if (!root) {
+        walletMessage("withdrawalMessage", "API configuration is unavailable.", "error");
+        return;
+      }
+
+      const button = $("withdrawalSubmit");
+      button.disabled = true;
+      button.textContent = "Submitting...";
+      try {
+        const data = await apiPost(root + "/wallet/withdrawals", { amount, phoneNumber });
+        walletMessage(
+          "withdrawalMessage",
+          data.message || "Withdrawal submitted for admin review. No payment has been sent yet.",
+          "success"
+        );
+        $("withdrawalForm").reset();
+
+        await Promise.allSettled([
+          loadWallet(),
+          loadWithdrawalHistory()
+        ]);
+      } catch (error) {
+        walletMessage("withdrawalMessage", error.message || "Withdrawal request failed.", "error");
+      } finally {
+        button.disabled = false;
+        button.textContent = "Submit withdrawal request";
+      }
+    });
+
+
+
+    function apiRoot() {
+      if (typeof window.PTW_AUTH_API_ME !== "string") return null;
+      return window.PTW_AUTH_API_ME.replace(/\/auth\/me\/?$/, "");
+    }
+
+    async function apiGet(url) {
+      const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Accept": "application/json" }
+      });
+
+      if (response.status === 401) {
+        window.location.replace("../auth/login.html");
+        throw new Error("Your session has expired. Please sign in again.");
+      }
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.message || "The request could not be completed.");
+      return data;
+    }
+
+
+    async function apiPost(url, body, headers = {}) {
+      const response = await fetch(url, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          ...headers
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (response.status === 401) {
+        window.location.replace("../auth/login.html");
+        throw new Error("Your session has expired. Please sign in again.");
+      }
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error(data.message || "The request failed.");
+        error.status = response.status;
+        error.data = data;
+        throw error;
+      }
+      return data;
+    }
+
+
+
+    async function loadWallet() {
+      const root = apiRoot();
+      if (!root) {
+        ["availableBalance", "pendingEarnings", "totalEarnings"].forEach(id => $(id).textContent = "Unavailable");
+        showNotice("The API URL is not configured for this domain. Configure assets/js/config.js before using the dashboard.");
+        return;
+      }
+
+      try {
+        const result = await apiGet(`${root}/wallet`);
+        const wallet = result.wallet || result.data || result;
+
+        $("availableBalance").textContent = money(wallet.availableBalance);
+        $("pendingEarnings").textContent = money(wallet.pendingEarnings);
+        $("totalEarnings").textContent = money(wallet.totalEarnings);
+      } catch (error) {
+        ["availableBalance", "pendingEarnings", "totalEarnings"].forEach(id => $(id).textContent = "Unavailable");
+        showNotice(error.message || "Wallet details could not be loaded.");
+      }
+    }
+
+
+
+
+
+// Accessible hamburger dropdown.
+(() => {
+  const wrap = $("menuWrap");
+  const toggle = $("menuToggle");
+  const panel = $("menuPanel");
+  if (!wrap || !toggle || !panel) return;
+
+  const closeMenu = () => {
+    panel.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "Open navigation menu");
+  };
+
+  toggle.addEventListener("click", () => {
+    const opening = panel.hidden;
+    panel.hidden = !opening;
+    toggle.setAttribute("aria-expanded", String(opening));
+    toggle.setAttribute(
+      "aria-label",
+      opening ? "Close navigation menu" : "Open navigation menu"
+    );
+  });
+
+  document.addEventListener("click", event => {
+    if (!wrap.contains(event.target)) closeMenu();
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      closeMenu();
+      toggle.focus();
+    }
+  });
+
+  panel.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", closeMenu);
+  });
+})();
+
+$("refreshWallet").addEventListener("click", async () => {
+  await Promise.allSettled([loadWallet(), loadWithdrawalHistory()]);
+});
+
+$("logoutBtn").addEventListener("click", async () => {
+  const root = apiRoot();
+  try {
+    if (root && typeof window.PTW_AUTH_API_LOGOUT === "string") {
+      await fetch(window.PTW_AUTH_API_LOGOUT, {
+        method:"POST",
+        credentials:"include",
+        headers:{"Accept":"application/json"}
+      });
+    }
+  } catch (error) {
+    console.error("Sign-out request failed:", error);
+  } finally {
+    window.location.replace("../auth/login.html");
+  }
+});
+
+Promise.allSettled([loadWallet(), loadWithdrawalHistory()]);
+</script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#061225">
+<title>Transactions | PrimeTask Workspace</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#061225;color:#e8eef8;font:15px/1.5 system-ui,Arial,sans-serif}
+.layout{min-height:100vh;display:block}
+aside{padding:22px 14px;background:#071326;border-right:1px solid #20334d}
+.brand{font-size:18px;font-weight:800;margin:0 0 22px}
+.brand small{display:block;color:#9aacc4;font-size:12px;font-weight:400}
+nav{display:grid;gap:6px}
+nav a,nav button{display:block;padding:10px 12px;border:0;border-radius:9px;background:transparent;color:#a9bad0;text-decoration:none;text-align:left;font:inherit}
+nav a.active,nav a:hover,nav button:hover{background:#142944;color:white}
+main{padding:26px;min-width:0}
+h1{margin:0 0 5px;font-size:26px}
+h2{font-size:17px;margin:0 0 12px}
+.muted{color:#9aacc4}
+.card{margin-top:22px;padding:20px;background:#0b1a30;border:1px solid #20334d;border-radius:15px}
+button.action{padding:9px 14px;border:1px solid #29415f;border-radius:9px;background:#142944;color:white}
+.table-wrap{overflow-x:auto;margin-top:18px}
+table{width:100%;min-width:520px;border-collapse:collapse}
+th,td{text-align:left;padding:12px 9px;border-bottom:1px solid #20334d}
+th{font-size:12px;color:#9aacc4}
+.field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.field{padding:13px;border:1px solid #20334d;border-radius:10px;overflow-wrap:anywhere}
+.field small{display:block;color:#9aacc4;margin-bottom:5px}
+.error{color:#fca5a5}
+@media(max-width:720px){.layout{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid #20334d}nav{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:17px}.field-grid{grid-template-columns:1fr}}
+
+
+/* Transactions page: integrated icon-only navigation */
+.ptw-menu-wrap {
+  position: absolute;
+  top: 24px;
+  right: 26px;
+  z-index: 9999;
+  font-family: inherit;
+}
+.ptw-menu-toggle {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  padding: 0;
+  border: 1px solid #29415f;
+  border-radius: 10px;
+  background: #0b1a30;
+  color: #e8eef8;
+  box-shadow: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 21px;
+  line-height: 1;
+}
+.ptw-menu-toggle:hover {
+  background: #142944;
+  border-color: #45658b;
+}
+.ptw-menu-toggle:focus-visible,
+.ptw-menu-link:focus-visible,
+.ptw-signout:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 3px;
+}
+.ptw-menu-panel {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  width: min(270px, calc(100vw - 28px));
+  max-height: min(75vh, 560px);
+  overflow-y: auto;
+  padding: 9px;
+  border: 1px solid #20334d;
+  border-radius: 13px;
+  background: #0b1a30;
+  color: #e8eef8;
+  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+}
+.ptw-menu-panel[hidden] { display: none !important; }
+.ptw-menu-heading {
+  padding: 9px 11px 11px;
+  color: #9aacc4;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.ptw-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  margin: 2px 0;
+  border-radius: 9px;
+  color: #a9bad0;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+.ptw-menu-icon {
+  display: inline-flex;
+  width: 23px;
+  justify-content: center;
+  color: #9aacc4;
+  font-size: 17px;
+}
+.ptw-menu-link:hover {
+  background: #142944;
+  color: #fff;
+}
+.ptw-menu-link[aria-current="page"] {
+  background: #142944;
+  color: #93c5fd;
+}
+.ptw-menu-link[aria-current="page"] .ptw-menu-icon {
+  color: #93c5fd;
+}
+.ptw-menu-divider {
+  height: 1px;
+  margin: 8px 3px;
+  background: #20334d;
+}
+.ptw-signout {
+  display: block;
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #fca5a5;
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ptw-signout:hover { background: #292039; }
+@media(max-width:720px) {
+  .ptw-menu-wrap { top: 12px; right: 12px; }
+  main { padding-top: 64px; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="ptw-menu-wrap">
+  <button id="ptwMenuToggle" class="ptw-menu-toggle"
+          type="button" aria-label="Open navigation menu"
+          aria-controls="ptwMenuPanel" aria-expanded="false">
+    <span aria-hidden="true">☰</span>
+  </button>
+  <nav id="ptwMenuPanel" class="ptw-menu-panel"
+       aria-label="Main navigation" hidden>
+    <div class="ptw-menu-heading">PrimeTask Workspace</div>
+    <a class="ptw-menu-link" href="index.html"><span class="ptw-menu-icon" aria-hidden="true">⌂</span><span>Dashboard</span></a><a class="ptw-menu-link" href="services.html"><span class="ptw-menu-icon" aria-hidden="true">▦</span><span>Services</span></a><a class="ptw-menu-link" href="wallet.html"><span class="ptw-menu-icon" aria-hidden="true">$</span><span>My Wallet</span></a><a class="ptw-menu-link" href="membership.html"><span class="ptw-menu-icon" aria-hidden="true">◇</span><span>Membership</span></a><a class="ptw-menu-link" href="transactions.html" aria-current="page"><span class="ptw-menu-icon" aria-hidden="true">↔</span><span>Transactions</span></a><a class="ptw-menu-link" href="referrals.html"><span class="ptw-menu-icon" aria-hidden="true">♧</span><span>My Referrals</span></a><a class="ptw-menu-link" href="profile.html"><span class="ptw-menu-icon" aria-hidden="true">○</span><span>My Profile</span></a>
+    <div class="ptw-menu-divider"></div>
+    <button class="ptw-signout" id="signOut" type="button">
+      ↪ Sign out
+    </button>
+  </nav>
+</div>
+
+<div class="layout">
+<main style="position:relative">
+<h1 style="padding-right:54px">Transactions</h1>
+<p class="muted">Manage your PrimeTask Workspace account.</p>
+
+<section class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+<div><h2>Transaction history</h2><p class="muted">Amounts are displayed in USD.</p></div>
+<button class="action" id="refreshTransactions" type="button">Refresh</button>
+</div>
+<p id="message" role="status" style="margin-top:18px">Loading transactions...</p>
+<div class="table-wrap">
+<table><thead><tr><th>Description</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+<tbody id="transactionList"></tbody></table>
+</div>
+</section>
+
+</main>
+</div>
+<script src="../assets/js/config.js"></script>
+<script>
+function apiRoot() {
+  return (window.PTW_AUTH_API_ME || "").replace(/\/auth\/me\/?$/, "");
+}
+async function apiGet(url) {
+  const response = await fetch(url, {
+    credentials: "include",
+    headers: { "Accept": "application/json" }
+  });
+  if (response.status === 401) {
+    window.location.href = "../login.html";
+    throw new Error("Please sign in again.");
+  }
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.success === false) {
+    throw new Error(data.message || "Request failed.");
+  }
+  return data;
+}
+document.getElementById("signOut").addEventListener("click", async () => {
+  try {
+    if (window.PTW_AUTH_API_LOGOUT) {
+      await fetch(window.PTW_AUTH_API_LOGOUT, {
+        method: "POST", credentials: "include"
+      });
+    }
+  } catch (_) {}
+  window.location.href = "../login.html";
+});
+
+const list = document.getElementById("transactionList");
+const message = document.getElementById("message");
+const refresh = document.getElementById("refreshTransactions");
+const usd = value => new Intl.NumberFormat("en-US", {
+  style: "currency", currency: "USD"
+}).format((Number(value) || 0) / 100);
+
+async function loadTransactions() {
+  refresh.disabled = true;
+  list.replaceChildren();
+  message.className = "";
+  message.textContent = "Loading transactions...";
+  try {
+    const result = await apiGet(
+      `${apiRoot()}/wallet/transactions?limit=50&page=1`
+    );
+    const rows = result.transactions || result.data || [];
+    if (!Array.isArray(rows) || !rows.length) {
+      message.textContent = "No transactions found yet.";
+      return;
+    }
+    message.textContent = `${rows.length} transaction(s) loaded.`;
+    for (const item of rows) {
+      const row = document.createElement("tr");
+      const values = [
+        item.description || item.type || "Wallet transaction",
+        item.createdAt ? new Date(item.createdAt).toLocaleString() : "Date unavailable",
+        usd(item.amount),
+        item.status || "Recorded"
+      ];
+      for (const value of values) {
+        const cell = document.createElement("td");
+        cell.textContent = String(value);
+        row.appendChild(cell);
+      }
+      list.appendChild(row);
+    }
+  } catch (error) {
+    message.className = "error";
+    message.textContent = error.message || "Could not load transactions.";
+  } finally {
+    refresh.disabled = false;
+  }
+}
+refresh.addEventListener("click", loadTransactions);
+loadTransactions();
+
+</script>
+
+<script>
+
+(function () {
+  const toggle = document.getElementById("ptwMenuToggle");
+  const panel = document.getElementById("ptwMenuPanel");
+  if (!toggle || !panel) return;
+
+  function closeMenu() {
+    panel.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  toggle.addEventListener("click", function (event) {
+    event.stopPropagation();
+    const opening = panel.hidden;
+    panel.hidden = !opening;
+    toggle.setAttribute("aria-expanded", String(opening));
+  });
+
+  panel.addEventListener("click", function (event) {
+    const link = event.target.closest("a");
+    if (link) closeMenu();
+    event.stopPropagation();
+  });
+
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest(".ptw-menu-wrap")) closeMenu();
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeMenu();
+      toggle.focus();
+    }
+  });
+})();
+
+</script>
+</body>
+</html>

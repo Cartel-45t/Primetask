@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#061225">
+  <meta name="description" content="PrimeTask Workspace administration dashboard">
+  <title>Keith | PrimeTask Workspace Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050b16;
+      --panel: #0b1729;
+      --panel2: #0e1d33;
+      --border: #20334d;
+      --text: #edf4ff;
+      --muted: #94a8c4;
+      --blue: #60a5fa;
+      --cyan: #67e8f9;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --green: #4ade80;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      font-size: 14px;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .shell {
+      width: min(1440px, 100%);
+      margin: auto;
+      padding: 24px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .brand { font-size: 17px; font-weight: 800; letter-spacing: -.4px; }
+    .brand span { color: var(--cyan); }
+    .eyebrow { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 7px; }
+    h1 { margin: 0; font-size: clamp(25px, 4vw, 35px); letter-spacing: -1px; }
+    h2 { margin: 0; font-size: 16px; }
+    p { color: var(--muted); line-height: 1.6; }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .identity { text-align: right; }
+    .identity strong { display: block; font-size: 13px; }
+    .identity span { color: var(--muted); font-size: 12px; }
+
+    .button {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 13px;
+      background: var(--panel2);
+      color: var(--text);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .button:hover { border-color: var(--blue); }
+    .button.primary { background: #173b67; border-color: #28588c; }
+    .button:disabled { opacity: .5; cursor: wait; }
+
+    .notice {
+      display: none;
+      padding: 13px 15px;
+      margin: 18px 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .notice.error { display: block; color: #fecaca; border-color: #7f3030; }
+    .notice.show { display: block; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 24px 0;
+    }
+
+    .stat, .panel, .nav-card {
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+    }
+
+    .stat { padding: 19px; }
+    .stat-label { color: var(--muted); font-size: 12px; }
+    .stat-value { font-size: clamp(25px, 3vw, 32px); font-weight: 800; margin: 12px 0 5px; letter-spacing: -1px; }
+    .stat-note { color: var(--muted); font-size: 11px; }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin: 30px 0 14px;
+    }
+
+    .section-title p { margin: 5px 0 0; font-size: 12px; }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .nav-card { display: block; padding: 18px; transition: border-color .15s; }
+    .nav-card:hover { border-color: var(--blue); }
+    .nav-card .symbol { font-size: 21px; margin-bottom: 13px; }
+    .nav-card strong { display: block; margin-bottom: 7px; }
+    .nav-card p { font-size: 12px; margin: 0; }
+
+    .queue-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .panel { overflow: hidden; }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 17px 18px; border-bottom: 1px solid var(--border); }
+    .count { color: var(--cyan); font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .queue { padding: 0 18px; }
+    .queue-item { padding: 15px 0; border-bottom: 1px solid var(--border); }
+    .queue-item:last-child { border-bottom: 0; }
+    .item-top { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+    .item-title { font-weight: 600; overflow-wrap: anywhere; }
+    .item-sub { color: var(--muted); font-size: 12px; margin-top: 6px; overflow-wrap: anywhere; }
+    .item-amount { font-weight: 700; white-space: nowrap; }
+    .tag { display: inline-block; margin-top: 8px; border-radius: 6px; padding: 4px 7px; background: #342a13; color: var(--amber); font-size: 10px; font-weight: 700; }
+    .empty { color: var(--muted); padding: 20px 0; font-size: 13px; }
+    .foot { margin-top: 30px; padding-top: 17px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+    @media (max-width: 950px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .nav-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .queue-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 540px) {
+      .shell { padding: 16px; }
+      header { align-items: flex-start; flex-direction: column; }
+      .header-right { width: 100%; justify-content: space-between; }
+      .identity { text-align: left; }
+      .stat { padding: 15px; }
+      .nav-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .nav-card { padding: 14px; }
+      .item-top { flex-direction: column; gap: 7px; }
+    }
+
+    body {
+      background-color: #030914;
+      background-image:
+        linear-gradient(
+          180deg,
+          rgba(3, 9, 20, 0.76) 0%,
+          rgba(3, 9, 20, 0.88) 45%,
+          rgba(3, 9, 20, 0.96) 100%
+        ),
+        url("https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=2400&q=85");
+      background-position: center, center;
+      background-size: cover, cover;
+      background-attachment: fixed, fixed;
+      background-repeat: no-repeat;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image:
+        linear-gradient(
+          120deg,
+          rgba(4, 20, 28, 0.30),
+          rgba(3, 9, 20, 0.52)
+        ),
+        url("https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=2000&q=80");
+      background-position: center;
+      background-size: cover;
+      opacity: 0.42;
+    }
+
+    .stat,
+    .panel,
+    .nav-card {
+      background: rgba(7, 18, 34, 0.80);
+      border-color: rgba(148, 184, 210, 0.20);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
+    }
+
+    .panel-head {
+      background: rgba(12, 29, 49, 0.45);
+    }
+
+    .brand span {
+      color: #9be7d4;
+    }
+
+    .button.primary {
+      background: rgba(20, 75, 83, 0.78);
+      border-color: rgba(103, 232, 199, 0.4);
+    }
+
+    @media (max-width: 700px) {
+      body {
+        background-attachment: scroll, scroll;
+      }
+
+      body::before {
+        position: absolute;
+        min-height: 100%;
+      }
+    }
+
+
+    /* Integrated membership plan management */
+    .plan-form {
+      padding: 20px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .plan-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .plan-form label {
+      display: grid;
+      gap: 8px;
+      font-size: 0.91rem;
+      font-weight: 650;
+      min-width: 0;
+    }
+
+    .plan-form input:not([type="checkbox"]),
+    .plan-form textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 13px;
+      font: inherit;
+    }
+
+    .plan-form small,
+    .plan-help {
+      color: var(--forest-muted, #b2c9b8);
+      font-size: 0.82rem;
+      line-height: 1.55;
+      font-weight: 400;
+    }
+
+    .plan-fieldset {
+      border: 1px solid rgba(174, 230, 186, 0.2);
+      border-radius: 14px;
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .plan-fieldset legend {
+      padding: 0 8px;
+      color: var(--bamboo, #b9e4a2);
+      font-weight: 750;
+    }
+
+    .plan-service-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .plan-service-grid label,
+    .plan-toggle {
+      display: flex !important;
+      align-items: center;
+      gap: 10px !important;
+      font-weight: 500 !important;
+    }
+
+    .plan-service-grid input,
+    .plan-toggle input {
+      width: 17px;
+      height: 17px;
+      accent-color: #75d6a0;
+      flex: 0 0 auto;
+    }
+
+    .plan-commission-grid {
+      margin-top: 14px;
+    }
+
+    .plan-form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .plan-form-notice {
+      display: none;
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 10px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .plan-form-notice.show {
+      display: block;
+      background: rgba(89, 185, 117, 0.12);
+      border: 1px solid rgba(117, 214, 160, 0.3);
+      color: #d8ffe0;
+    }
+
+    .plan-form-notice.error {
+      background: rgba(190, 60, 60, 0.13);
+      border-color: rgba(255, 130, 130, 0.3);
+      color: #ffd3d3;
+    }
+
+    .plan-list-heading {
+      margin-top: 28px;
+    }
+
+    .membership-plans-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .membership-plan-card {
+      padding: 20px;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .membership-plan-card h3 {
+      margin: 0 0 7px;
+      font-size: 1.1rem;
+    }
+
+    .plan-card-top,
+    .plan-card-actions,
+    .plan-card-price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .plan-card-price {
+      color: #d8ffd9;
+      font-size: 1.65rem;
+      font-weight: 800;
+      margin: 14px 0 4px;
+    }
+
+    .plan-status {
+      border: 1px solid rgba(174, 230, 186, 0.25);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .plan-status.active {
+      color: #c8ffd2;
+      background: rgba(66, 170, 97, 0.12);
+    }
+
+    .plan-status.inactive {
+      color: #e1c8a2;
+      background: rgba(170, 128, 66, 0.12);
+    }
+
+    .plan-service-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin: 14px 0;
+    }
+
+    .plan-service-tag {
+      background: rgba(117, 214, 160, 0.09);
+      border: 1px solid rgba(117, 214, 160, 0.2);
+      color: #d8f8df;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 0.78rem;
+    }
+
+    .plan-card-meta {
+      color: var(--forest-muted, #b2c9b8);
+      font-size: 0.87rem;
+      line-height: 1.7;
+    }
+
+    .plan-card-actions {
+      justify-content: flex-start;
+      margin-top: 18px;
+    }
+
+    .plan-card-actions button {
+      padding: 9px 12px;
+    }
+
+    @media (max-width: 760px) {
+      .membership-plans-list {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .plan-fields,
+      .plan-service-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .plan-form {
+        padding: 14px;
+      }
+
+      .plan-fieldset {
+        padding: 12px;
+      }
+    }
+
+  </style>
+<link rel="stylesheet" href="/dashboard/admin/admin-forest.css" data-ptw-admin-forest="true">
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <div class="brand">PrimeTask <span>Workspace</span></div>
+        <div class="eyebrow" style="margin-top:8px">Administration console</div>
+      </div>
+      <div class="header-right">
+        <div class="identity">
+          <strong id="adminName">Checking session…</strong>
+          <span id="adminRole">Admin access</span>
+        </div>
+        <button class="button" id="refreshButton" type="button">↻ Refresh</button>
+      </div>
+    </header>
+
+    <div>
+      <div class="eyebrow">Operations</div>
+      <h1>Admin overview</h1>
+      <p style="margin:8px 0 0">A live snapshot of accounts, memberships and payment requests.</p>
+    </div>
+
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+    <section class="stats" aria-label="Platform statistics">
+      <article class="stat">
+        <div class="stat-label">Total users</div>
+        <div class="stat-value" id="totalUsers">—</div>
+        <div class="stat-note" id="userBreakdown">Waiting for API</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">Active memberships</div>
+        <div class="stat-value" id="activeMemberships">—</div>
+        <div class="stat-note">Membership records marked active</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">Payments to review</div>
+        <div class="stat-value" id="paymentQueue">—</div>
+        <div class="stat-note">Pending deposits and membership purchases</div>
+      </article>
+      <article class="stat">
+        <div class="stat-label">Withdrawals to review</div>
+        <div class="stat-value" id="pendingWithdrawals">—</div>
+        <div class="stat-note">Requests with pending_review status</div>
+      </article>
+    </section>
+
+    <section aria-labelledby="managementHeading">
+      <div class="section-title">
+        <div>
+          <h2 id="managementHeading">Management</h2>
+          <p>Shortcuts to existing workspace areas.</p>
+        </div>
+      </div>
+      <div class="nav-grid">
+        <a class="nav-card" href="#membershipPlansSection" id="plansLink">
+          <div class="symbol">◇</div>
+          <strong>Membership plans</strong>
+          <p id="planSummary">View and manage plan settings.</p>
+        </a>
+        <a class="nav-card" href="#deposits">
+          <div class="symbol">↗</div>
+          <strong>Deposit review</strong>
+          <p>See pending wallet deposit requests.</p>
+        </a>
+        <a class="nav-card" href="#purchases">
+          <div class="symbol">▤</div>
+          <strong>Membership payments</strong>
+          <p>Identify purchases awaiting verification.</p>
+        </a>
+        <a class="nav-card" href="#withdrawals">
+          <div class="symbol">↙</div>
+          <strong>Withdrawal review</strong>
+          <p>See withdrawal requests awaiting review.</p>
+        </a>
+        <a class="nav-card" href="/dashboard/admin/Keith/transcription.html">
+          <div class="symbol">♫</div>
+          <strong>Transcription operations</strong>
+          <p>Create audio jobs, review submissions, and process transcription withdrawals.</p>
+        </a>
+      </div>
+    </section>
+
+
+    <section id="membershipPlansSection" aria-labelledby="membershipPlansHeading">
+      <div class="section-title">
+        <div>
+          <h2 id="membershipPlansHeading">Membership plan management</h2>
+          <p>Create, edit and control plans directly from this admin console. All plan prices and commissions use USD.</p>
+        </div>
+        <button class="button" type="button" id="newPlanButton">+ New plan</button>
+      </div>
+
+      <div class="panel" id="planEditor">
+        <div class="panel-head">
+          <h2 id="planFormHeading">Create membership plan</h2>
+          <span class="count">USD pricing</span>
+        </div>
+
+        <form id="planForm" class="plan-form">
+          <input type="hidden" id="editingPlanId" value="">
+
+          <div class="plan-fields">
+            <label>
+              Plan key
+              <input id="planKey" name="key" required maxlength="60"
+                pattern="[a-zA-Z0-9_-]+" placeholder="starter-plan">
+              <small>Unique identifier. Use letters, numbers, underscores or hyphens.</small>
+            </label>
+
+            <label>
+              Display name
+              <input id="planName" name="name" required maxlength="100"
+                placeholder="Starter Membership">
+            </label>
+
+            <label>
+              Price (USD)
+              <input id="planPrice" name="price" type="number" required
+                min="0.01" max="90071992547409" step="0.01" placeholder="15.00">
+            </label>
+
+            <label>
+              M-Pesa price (KSh)
+              <input id="planMpesaAmountKes" name="mpesaAmountKes"
+                type="number" min="1" max="9007199254740991"
+                step="1" placeholder="e.g. 1500">
+              <small>Set the exact whole-KSh checkout amount manually. No USD conversion is performed. Required before activating the plan.</small>
+          </label>
+          <label>
+              Duration (days)
+              <input id="planDuration" name="durationDays" type="number"
+                required min="1" max="3660" step="1" value="30">
+            </label>
+          </div>
+
+          <label class="plan-description">
+            Description
+            <textarea id="planDescription" name="description" maxlength="1000"
+              rows="3" placeholder="Describe what members receive."></textarea>
+          </label>
+
+          <fieldset class="plan-fieldset">
+            <legend>Included services</legend>
+            <div class="plan-service-grid">
+              <label><input type="checkbox" name="planService" value="transcription"> Transcription</label>
+              <label><input type="checkbox" name="planService" value="note-taking"> Note-taking</label>
+              <label><input type="checkbox" name="planService" value="data-entry"> Data entry</label>
+              <label><input type="checkbox" name="planService" value="academic-writing"> Academic writing</label>
+            </div>
+          </fieldset>
+
+          <fieldset class="plan-fieldset">
+            <legend>Referral commissions (USD)</legend>
+            <p class="plan-help">Four fixed amounts, one for each referral level. When enabled, the total cannot exceed the plan price.</p>
+            <div class="plan-fields plan-commission-grid">
+              <label>Level 1 ($)
+                <input id="commission1" type="number" min="0" step="0.01" value="0">
+              </label>
+              <label>Level 2 ($)
+                <input id="commission2" type="number" min="0" step="0.01" value="0">
+              </label>
+              <label>Level 3 ($)
+                <input id="commission3" type="number" min="0" step="0.01" value="0">
+              </label>
+              <label>Level 4 ($)
+                <input id="commission4" type="number" min="0" step="0.01" value="0">
+              </label>
+            </div>
+            <label class="plan-toggle">
+              <input id="commissionEnabled" type="checkbox">
+              Enable referral commissions for this plan
+            </label>
+          </fieldset>
+
+          <label class="plan-toggle">
+            <input id="planActive" type="checkbox">
+            Make this plan active immediately
+          </label>
+
+          <div class="plan-form-actions">
+            <button class="button primary" id="savePlanButton" type="submit">Save membership plan</button>
+            <button class="button" id="cancelPlanButton" type="button">Clear form</button>
+          </div>
+          <p id="planFormNotice" class="plan-form-notice" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div class="section-title plan-list-heading">
+        <div>
+          <h2>Existing plans</h2>
+          <p>Review current pricing, included services and activation status.</p>
+        </div>
+        <button class="button" type="button" id="refreshPlansButton">↻ Refresh plans</button>
+      </div>
+
+      <div id="membershipPlansList" class="membership-plans-list">
+        <div class="panel"><div class="empty">Loading membership plans…</div></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="queuesHeading">
+      <div class="section-title">
+        <div>
+          <h2 id="queuesHeading">Review queues</h2>
+          <p>Oldest pending requests appear first. This page does not approve or reject payments.</p>
+        </div>
+      </div>
+
+      <div class="queue-grid">
+        <article class="panel" id="deposits">
+          <div class="panel-head">
+            <h2>Wallet deposits</h2>
+            <span class="count" id="depositCount">— pending</span>
+          </div>
+          <div class="queue" id="depositQueue"><div class="empty">Loading deposit requests…</div></div>
+        </article>
+
+        <article class="panel" id="purchases">
+          <div class="panel-head">
+            <h2>Membership purchases</h2>
+            <span class="count" id="purchaseCount">— pending</span>
+          </div>
+          <div class="queue" id="purchaseQueue"><div class="empty">Loading membership purchases…</div></div>
+        </article>
+
+        <article class="panel" id="membershipFulfilment">
+          <div class="panel-head">
+            <h2>Verified memberships awaiting fulfilment</h2>
+            <span class="count" id="fulfilmentCount">— awaiting fulfilment</span>
+          </div>
+          <div class="queue" id="fulfilmentQueue">
+            <div class="empty">Loading verified purchases…</div>
+          </div>
+        </article>
+
+        <article class="panel" id="withdrawals">
+          <div class="panel-head">
+            <h2>Withdrawals</h2>
+            <span class="count" id="withdrawalCount">— pending</span>
+          </div>
+          <div class="queue" id="withdrawalQueue"><div class="empty">Loading withdrawal requests…</div></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Account health</h2>
+            <span class="count">Live counts</span>
+          </div>
+          <div class="queue" id="accountHealth"><div class="empty">Loading account statistics…</div></div>
+        </article>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <span>PrimeTask Workspace · Admin console</span>
+      <span id="lastUpdated">Data has not been loaded yet.</span>
+    </footer>
+  </main>
+
+  <script src="../../../assets/js/config.js"></script>
+  <script>
+    "use strict";
+
+    const byId = id => document.getElementById(id);
+    const number = value => Number(value || 0).toLocaleString("en-US");
+    const usd = cents =>
+      new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+      }).format(Number(cents || 0) / 100);
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function userLabel(user) {
+      if (!user) return "User record unavailable";
+      const name = [user.firstName, user.lastName].filter(Boolean).join(" ");
+      return name || user.username || user.email || "Unnamed user";
+    }
+
+    function showNotice(message, isError = false) {
+      const node = byId("notice");
+      node.textContent = message;
+      node.className = "notice show" + (isError ? " error" : "");
+    }
+
+    function renderQueue(elementId, items, renderer, emptyMessage) {
+      const root = byId(elementId);
+      if (!Array.isArray(items) || items.length === 0) {
+        root.innerHTML = '<div class="empty">' + escapeHTML(emptyMessage) + '</div>';
+        return;
+      }
+      root.innerHTML = items.map(renderer).join("");
+    }
+
+    function formatDate(value) {
+      if (!value) return "Date unavailable";
+      const date = new Date(value);
+      return Number.isNaN(date.getTime())
+        ? "Date unavailable"
+        : date.toLocaleString();
+    }
+
+    function renderDeposit(item) {
+      return `
+        <div class="queue-item">
+          <div class="item-top">
+            <div>
+              <div class="item-title">${escapeHTML(userLabel(item.userId))}</div>
+              <div class="item-sub">${escapeHTML(item.requestId)} · ${escapeHTML(item.phoneNumber)}</div>
+            </div>
+            <div class="item-amount">${usd(item.amountCents)}</div>
+          </div>
+          <div class="item-sub">Expected Daraja payment: KSh ${number(item.expectedAmountKes)} · ${escapeHTML(formatDate(item.createdAt))}</div>
+          <span class="tag">PENDING DEPOSIT</span>
+        </div>`;
+    }
+
+    function renderPurchase(item) {
+      const state = item.paymentStatus === "verification_required"
+        ? "VERIFICATION REQUIRED" : "PENDING";
+      const purchaseId = String(item._id || "");
+      const checkoutId = String(item.checkoutRequestId || "");
+      return `
+        <div class="queue-item">
+          <div class="item-top">
+            <div>
+              <div class="item-title">${escapeHTML(userLabel(item.purchaserUserId))}</div>
+              <div class="item-sub">${escapeHTML(item.purchaseReference)} · Plan: ${escapeHTML(item.planKey)}</div>
+            </div>
+            <div class="item-amount">${usd(item.priceCents)}</div>
+          </div>
+          <div class="item-sub">Expected M-Pesa payment: KSh ${number(item.expectedAmountKes)} · ${escapeHTML(formatDate(item.createdAt))}</div>
+          <div class="item-sub">Checkout ID: ${escapeHTML(checkoutId || "Unavailable")}</div>
+          <span class="tag">${state}</span>
+          <div class="fulfil-action">
+            <button class="button verify-payment-button" type="button"
+              data-purchase-id="${escapeHTML(purchaseId)}"
+              data-checkout-id="${escapeHTML(checkoutId)}"
+              ${purchaseId && checkoutId ? "" : "disabled"}
+            >Verify payment</button>
+          </div>
+        </div>`;
+    }
+
+    async function loadReconciliationQueue() {
+      if (!window.PTW_API_BASE) {
+        showNotice("API URL is not configured.", true);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          window.PTW_API_BASE.replace(/\/+$/, "") + "/admin/membership-reconciliation?limit=50",
+          {
+            method: "GET",
+            credentials: "include",
+            headers: { "Accept": "application/json" }
+          }
+        );
+        const data = await response.json().catch(() => ({}));
+
+        if (response.status === 401) {
+          window.location.href = "../../auth/login.html";
+          return;
+        }
+        if (response.status === 403) {
+          showNotice("Administrator access is required to verify membership payments.", true);
+          return;
+        }
+        if (!response.ok || !data.success || !Array.isArray(data.data)) {
+          throw new Error(data.message || "Unable to load payment verification queue.");
+        }
+
+        byId("purchaseCount").textContent = number(data.data.length) + " awaiting verification";
+        renderQueue(
+          "purchaseQueue",
+          data.data,
+          renderPurchase,
+          "No membership purchases are awaiting payment verification."
+        );
+      } catch (error) {
+        showNotice(error.message || "Unable to load payment verification queue.", true);
+      }
+    }
+
+    async function verifyPurchase(button) {
+      const purchaseId = button.dataset.purchaseId;
+      const storedCheckoutId = button.dataset.checkoutId || "";
+      if (!purchaseId || !storedCheckoutId) {
+        showNotice("Purchase ID or stored checkout ID is missing. Refresh the queue.", true);
+        return;
+      }
+
+      const checkoutRequestId = window.prompt(
+        "Confirm the exact CheckoutRequestID shown in the Safaricom record.",
+        storedCheckoutId
+      );
+      if (checkoutRequestId === null || !checkoutRequestId.trim()) return;
+
+      const amountText = window.prompt(
+        "Enter the exact amount received in whole KSh. It must match the expected purchase amount.",
+        ""
+      );
+      if (amountText === null) return;
+      if (!/^[0-9]+$/.test(amountText.trim()) ||
+          !Number.isSafeInteger(Number(amountText)) || Number(amountText) < 1) {
+        showNotice("Enter a positive whole KSh amount.", true);
+        return;
+      }
+
+      const receipt = window.prompt("Enter the M-Pesa receipt code from the Safaricom record.", "");
+      if (receipt === null || !receipt.trim()) return;
+
+      const source = window.prompt(
+        "Evidence source: enter safaricom_portal or safaricom_statement.",
+        "safaricom_portal"
+      );
+      if (source === null) return;
+      if (!["safaricom_portal", "safaricom_statement"].includes(source.trim())) {
+        showNotice("Choose safaricom_portal or safaricom_statement.", true);
+        return;
+      }
+
+      const evidenceReference = window.prompt(
+        "Enter a reference identifying the portal record or statement entry.",
+        ""
+      );
+      if (evidenceReference === null || !evidenceReference.trim()) return;
+
+      const adminNote = window.prompt("Optional administrator note.", "");
+      if (adminNote === null) return;
+
+      if (!window.confirm(
+        "Verify against actual Safaricom evidence? The receipt will be recorded as used. This does not activate membership or credit commissions."
+      )) return;
+
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = "Verifying…";
+
+      try {
+        const response = await fetch(
+          window.PTW_API_BASE.replace(/\/+$/, "") +
+            "/admin/membership-reconciliation/" +
+            encodeURIComponent(purchaseId) + "/verify",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              checkoutRequestId: checkoutRequestId.trim(),
+              amountKes: Number(amountText),
+              mpesaReceipt: receipt.trim().toUpperCase(),
+              evidenceSource: source.trim(),
+              evidenceReference: evidenceReference.trim(),
+              adminNote: adminNote.trim()
+            })
+          }
+        );
+
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          window.location.href = "../../auth/login.html";
+          return;
+        }
+        if (response.status === 403) {
+          throw new Error("Administrator access is required to verify membership payments.");
+        }
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Payment verification failed.");
+        }
+
+        await loadOverview();
+        showNotice(data.message || "Payment verified. The purchase is awaiting membership fulfilment.");
+      } catch (error) {
+        showNotice(error.message || "Payment verification failed.", true);
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+
+    function renderFulfilmentPurchase(item) {
+      const purchaseId = String(item._id || "");
+
+      return `
+        <div class="queue-item">
+          <div class="item-top">
+            <div>
+              <div class="item-title">${escapeHTML(userLabel(item.purchaserUserId))}</div>
+              <div class="item-sub">${escapeHTML(item.purchaseReference)} · Plan: ${escapeHTML(item.planKey)}</div>
+            </div>
+            <div class="item-amount">${usd(item.priceCents)}</div>
+          </div>
+          <div class="item-sub">Verified payment evidence · Expected Daraja payment: KSh ${number(item.expectedAmountKes)}</div>
+          <div class="item-sub">Submitted ${escapeHTML(formatDate(item.createdAt))}</div>
+          <span class="tag success">PAYMENT VERIFIED</span>
+          <div class="fulfil-action">
+            <button
+              class="button fulfil-button"
+              type="button"
+              data-purchase-id="${escapeHTML(purchaseId)}"
+              ${purchaseId ? "" : "disabled"}
+            >Fulfil membership</button>
+          </div>
+        </div>`;
+    }
+
+    async function fulfilPurchase(button) {
+      const purchaseId = button.dataset.purchaseId;
+
+      if (!purchaseId) {
+        showNotice("This purchase is missing its ID. Refresh the queue.", true);
+        return;
+      }
+
+      if (!window.confirm(
+        "Fulfil this verified membership? This activates membership access and credits eligible referral commissions. This action cannot be undone from this screen."
+      )) {
+        return;
+      }
+
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = "Processing…";
+
+      try {
+        if (!window.PTW_API_BASE) {
+          throw new Error("API URL is not configured.");
+        }
+
+        const response = await fetch(
+          window.PTW_API_BASE.replace(/\/+$/, "") +
+            "/admin/membership-fulfilment/" +
+            encodeURIComponent(purchaseId) +
+            "/fulfil",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+          }
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (response.status === 401) {
+          window.location.href = "../../auth/login.html";
+          return;
+        }
+
+        if (response.status === 403) {
+          throw new Error("Administrator access is required to fulfil memberships.");
+        }
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Membership fulfilment failed.");
+        }
+
+        await loadOverview();
+
+        showNotice(
+          data.message ||
+            "Membership activated and eligible referral commissions credited."
+        );
+      } catch (error) {
+        showNotice(error.message || "Membership fulfilment failed.", true);
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    }
+
+    function renderWithdrawal(item) {
+      return `
+        <div class="queue-item">
+          <div class="item-top">
+            <div>
+              <div class="item-title">${escapeHTML(userLabel(item.userId))}</div>
+              <div class="item-sub">${escapeHTML(item.requestId)} · ${escapeHTML(item.phoneNumber)}</div>
+            </div>
+            <div class="item-amount">${usd(item.amountCents)}</div>
+          </div>
+          <div class="item-sub">Submitted ${escapeHTML(formatDate(item.createdAt))}</div>
+          <span class="tag">AWAITING REVIEW</span>
+        </div>`;
+    }
+
+    async function loadOverview() {
+      const button = byId("refreshButton");
+      button.disabled = true;
+      button.textContent = "Loading…";
+
+      try {
+        if (!window.PTW_API_BASE) {
+          throw new Error("API URL is not configured. Check the existing PTW_API_BASE or ptw-api-base setup.");
+        }
+
+        const response = await fetch(
+          window.PTW_API_BASE.replace(/\/+$/, "") + "/admin/overview",
+          {
+            method: "GET",
+            credentials: "include",
+            headers: { "Accept": "application/json" }
+          }
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (response.status === 401) {
+          window.location.href = "../../auth/login.html";
+          return;
+        }
+
+        if (response.status === 403) {
+          showNotice("Access denied. This account is not authorized to view the admin console.", true);
+          return;
+        }
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "Unable to load admin overview.");
+        }
+
+        const stats = data.stats;
+        const queues = data.queues;
+
+        byId("adminName").textContent = data.admin.name || data.admin.username || "Administrator";
+        byId("adminRole").textContent = String(data.admin.role || "admin").toUpperCase();
+
+        byId("totalUsers").textContent = number(stats.totalUsers);
+        byId("userBreakdown").textContent =
+          number(stats.activeUsers) + " active · " +
+          number(stats.suspendedUsers) + " suspended";
+        byId("activeMemberships").textContent = number(stats.activeMemberships);
+        byId("paymentQueue").textContent =
+          number(stats.pendingDeposits + stats.pendingPurchases);
+        byId("pendingWithdrawals").textContent = number(stats.withdrawalsAwaitingReview);
+
+        byId("depositCount").textContent = number(stats.pendingDeposits) + " pending";
+        byId("purchaseCount").textContent = number(stats.pendingPurchases) + " pending";
+        byId("fulfilmentCount").textContent =
+          number(stats.verifiedPurchasesAwaitingFulfilment) + " awaiting fulfilment";
+        byId("withdrawalCount").textContent =
+          number(stats.withdrawalsAwaitingReview) + " pending";
+
+        byId("planSummary").textContent =
+          number(stats.activeMembershipPlans) + " active of " +
+          number(stats.totalMembershipPlans) + " total plans";
+
+        renderQueue("depositQueue", queues.deposits, renderDeposit, "No pending deposits.");
+        renderQueue("purchaseQueue", queues.membershipPurchases, renderPurchase, "No pending membership purchases.");
+        await loadReconciliationQueue();
+        renderQueue(
+          "fulfilmentQueue",
+          queues.membershipPurchasesAwaitingFulfilment,
+          renderFulfilmentPurchase,
+          "No verified memberships awaiting fulfilment."
+        );
+        renderQueue("withdrawalQueue", queues.withdrawals, renderWithdrawal, "No withdrawals awaiting review.");
+
+        byId("accountHealth").innerHTML = `
+          <div class="queue-item">
+            <div class="item-top"><span>Administrator accounts</span><strong>${number(stats.adminUsers)}</strong></div>
+          </div>
+          <div class="queue-item">
+            <div class="item-top"><span>Suspended accounts</span><strong>${number(stats.suspendedUsers)}</strong></div>
+          </div>
+          <div class="queue-item">
+            <div class="item-top"><span>Active membership plans</span><strong>${number(stats.activeMembershipPlans)}</strong></div>
+          </div>`;
+
+        byId("lastUpdated").textContent =
+          "Updated " + new Date(data.generatedAt).toLocaleString();
+        byId("notice").className = "notice";
+        byId("notice").textContent = "";
+      } catch (error) {
+        showNotice(error.message || "An unexpected error occurred.", true);
+      } finally {
+        button.disabled = false;
+        button.textContent = "↻ Refresh";
+      }
+    }
+
+
+    const serviceNames = {
+      "transcription": "Transcription",
+      "note-taking": "Note-taking",
+      "data-entry": "Data entry",
+      "academic-writing": "Academic writing"
+    };
+
+    function showPlanNotice(message, isError = false) {
+      const node = byId("planFormNotice");
+      node.textContent = message;
+      node.className = "plan-form-notice show" + (isError ? " error" : "");
+    }
+
+    function clearPlanNotice() {
+      const node = byId("planFormNotice");
+      node.textContent = "";
+      node.className = "plan-form-notice";
+    }
+
+    function planUsd(amount) {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD"
+      }).format(Number(amount || 0));
+    }
+
+    function setPlanForm(plan = null) {
+      byId("planForm").reset();
+      byId("editingPlanId").value = plan ? plan.id : "";
+      byId("planFormHeading").textContent =
+        plan ? "Edit membership plan" : "Create membership plan";
+      byId("savePlanButton").textContent =
+        plan ? "Save plan changes" : "Save membership plan";
+      byId("planKey").readOnly = false;
+
+      if (plan) {
+        byId("planKey").value = plan.key || "";
+        byId("planName").value = plan.name || "";
+        byId("planDescription").value = plan.description || "";
+        byId("planPrice").value = Number(plan.price || 0).toFixed(2);
+        byId("planMpesaAmountKes").value =
+          Number.isSafeInteger(plan.mpesaAmountKes) ? String(plan.mpesaAmountKes) : "";
+        byId("planDuration").value = String(plan.durationDays || 30);
+        byId("commission1").value = Number(plan.commissionAmounts?.[0] || 0).toFixed(2);
+        byId("commission2").value = Number(plan.commissionAmounts?.[1] || 0).toFixed(2);
+        byId("commission3").value = Number(plan.commissionAmounts?.[2] || 0).toFixed(2);
+        byId("commission4").value = Number(plan.commissionAmounts?.[3] || 0).toFixed(2);
+        byId("commissionEnabled").checked = Boolean(plan.commissionEnabled);
+        byId("planActive").checked = Boolean(plan.active);
+
+        document.querySelectorAll('input[name="planService"]').forEach(input => {
+          input.checked = Array.isArray(plan.services) && plan.services.includes(input.value);
+        });
+      }
+
+      clearPlanNotice();
+    }
+
+    function renderPlanCard(plan) {
+      const serviceTags = (Array.isArray(plan.services) ? plan.services : [])
+        .map(service => '<span class="plan-service-tag">' +
+          escapeHTML(serviceNames[service] || service) + '</span>')
+        .join("");
+
+      const commissionAmounts = Array.isArray(plan.commissionAmounts)
+        ? plan.commissionAmounts
+        : [0, 0, 0, 0];
+
+      const commissionText = plan.commissionEnabled
+        ? commissionAmounts.map((amount, index) =>
+            "L" + (index + 1) + ": " + planUsd(amount)).join(" · ")
+        : "Referral commissions disabled";
+
+      return `
+        <article class="panel membership-plan-card">
+          <div class="plan-card-top">
+            <span class="plan-status ${plan.active ? "active" : "inactive"}">
+              ${plan.active ? "ACTIVE" : "INACTIVE"}
+            </span>
+            <span class="plan-card-meta">${escapeHTML(plan.key)}</span>
+          </div>
+          <div class="plan-card-price">${planUsd(plan.price)}</div>
+          <div class="plan-card-meta">M-Pesa checkout: ${
+            Number.isSafeInteger(plan.mpesaAmountKes) && plan.mpesaAmountKes > 0
+              ? "KSh " + number(plan.mpesaAmountKes)
+              : "Not configured; unavailable for purchase"
+          }</div>
+          <h3>${escapeHTML(plan.name)}</h3>
+          <p class="plan-card-meta">${escapeHTML(plan.description || "No description provided.")}</p>
+          <div class="plan-service-tags">
+            ${serviceTags || '<span class="plan-service-tag">No services selected</span>'}
+          </div>
+          <div class="plan-card-meta">
+            Duration: <strong>${number(plan.durationDays)} days</strong><br>
+            Commission: ${escapeHTML(commissionText)}
+          </div>
+          <div class="plan-card-actions">
+            <button class="button" type="button" data-plan-edit="${escapeHTML(plan.id)}">Edit plan</button>
+            <button class="button" type="button"
+              data-plan-active="${escapeHTML(plan.id)}"
+              data-active-next="${plan.active ? "false" : "true"}">
+              ${plan.active ? "Deactivate" : "Activate"}
+            </button>
+          </div>
+        </article>`;
+    }
+
+    async function adminPlanRequest(path, options = {}) {
+      if (!window.PTW_API_BASE) {
+        throw new Error("API URL is not configured. Check PTW_API_BASE.");
+      }
+
+      const response = await fetch(
+        window.PTW_API_BASE.replace(/\/+$/, "") + path,
+        {
+          credentials: "include",
+          headers: {
+            "Accept": "application/json",
+            ...(options.body ? { "Content-Type": "application/json" } : {}),
+            ...(options.headers || {})
+          },
+          ...options
+        }
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (response.status === 401) {
+        window.location.href = "../../auth/login.html";
+        throw new Error("Your session has expired. Sign in again.");
+      }
+
+      if (response.status === 403) {
+        throw new Error("Administrator access is required for membership management.");
+      }
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "The membership plan request failed.");
+      }
+
+      return data;
+    }
+
+    async function loadMembershipPlans() {
+      const root = byId("membershipPlansList");
+      root.innerHTML = '<div class="panel"><div class="empty">Loading membership plans…</div></div>';
+
+      try {
+        const data = await adminPlanRequest("/admin/membership-plans");
+        const plans = Array.isArray(data.plans) ? data.plans : [];
+
+        if (!plans.length) {
+          root.innerHTML = '<div class="panel"><div class="empty">No plans exist yet. Create your first plan above.</div></div>';
+          byId("planSummary").textContent = "No membership plans created yet.";
+          return;
+        }
+
+        root.innerHTML = plans.map(renderPlanCard).join("");
+        const activeCount = plans.filter(plan => plan.active).length;
+        byId("planSummary").textContent =
+          number(activeCount) + " active of " + number(plans.length) + " total plans";
+      } catch (error) {
+        root.innerHTML = '<div class="panel"><div class="empty">' +
+          escapeHTML(error.message || "Could not load membership plans.") + '</div></div>';
+        showPlanNotice(error.message || "Could not load membership plans.", true);
+      }
+    }
+
+    byId("planForm").addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const saveButton = byId("savePlanButton");
+      saveButton.disabled = true;
+
+      try {
+        const price = Number(byId("planPrice").value);
+        const mpesaRaw = byId("planMpesaAmountKes").value.trim();
+        const mpesaAmountKes = mpesaRaw === "" ? null : Number(mpesaRaw);
+        const commissions = [1, 2, 3, 4].map(level =>
+          Number(byId("commission" + level).value || 0)
+        );
+
+        if (!Number.isFinite(price) || price <= 0) {
+          throw new Error("Enter a valid membership price greater than zero USD.");
+        }
+
+        if (commissions.some(amount => !Number.isFinite(amount) || amount < 0)) {
+          throw new Error("Commission amounts must be valid non-negative USD amounts.");
+        }
+
+        if (
+          mpesaRaw !== "" &&
+          (!Number.isSafeInteger(mpesaAmountKes) || mpesaAmountKes < 1)
+        ) {
+          throw new Error("M-Pesa price must be a positive whole number of KSh.");
+        }
+
+        const services = Array.from(
+          document.querySelectorAll('input[name="planService"]:checked')
+        ).map(input => input.value);
+
+        const payload = {
+          key: byId("planKey").value.trim(),
+          name: byId("planName").value.trim(),
+          description: byId("planDescription").value.trim(),
+          price,
+          mpesaAmountKes,
+          durationDays: Number(byId("planDuration").value),
+          services,
+          commissionAmounts: commissions,
+          commissionEnabled: byId("commissionEnabled").checked,
+          active: byId("planActive").checked
+        };
+
+        if (
+          payload.commissionEnabled &&
+          commissions.reduce((sum, amount) => sum + Math.round(amount * 100), 0) >
+            Math.round(price * 100)
+        ) {
+          throw new Error("Enabled commissions cannot total more than the plan price.");
+        }
+
+        const id = byId("editingPlanId").value;
+        const data = await adminPlanRequest(
+          id ? "/admin/membership-plans/" + encodeURIComponent(id) : "/admin/membership-plans",
+          {
+            method: id ? "PATCH" : "POST",
+            body: JSON.stringify(payload)
+          }
+        );
+
+        showPlanNotice(data.message || "Membership plan saved.");
+        setPlanForm();
+        await loadMembershipPlans();
+        byId("membershipPlansSection").scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        showPlanNotice(error.message || "Could not save the membership plan.", true);
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
+
+    byId("membershipPlansList").addEventListener("click", async event => {
+      const editButton = event.target.closest("[data-plan-edit]");
+      const statusButton = event.target.closest("[data-plan-active]");
+
+      if (editButton) {
+        try {
+          const data = await adminPlanRequest("/admin/membership-plans");
+          const plan = (data.plans || []).find(item => item.id === editButton.dataset.planEdit);
+          if (!plan) throw new Error("This plan could not be found. Refresh the list.");
+          setPlanForm(plan);
+          byId("planEditor").scrollIntoView({ behavior: "smooth", block: "start" });
+        } catch (error) {
+          showPlanNotice(error.message, true);
+        }
+        return;
+      }
+
+      if (statusButton) {
+        const id = statusButton.dataset.planActive;
+        const active = statusButton.dataset.activeNext === "true";
+        statusButton.disabled = true;
+
+        try {
+          const data = await adminPlanRequest(
+            "/admin/membership-plans/" + encodeURIComponent(id) + "/status",
+            {
+              method: "PATCH",
+              body: JSON.stringify({ active })
+            }
+          );
+
+          showPlanNotice(data.message || "Plan status updated.");
+          await loadMembershipPlans();
+        } catch (error) {
+          showPlanNotice(error.message || "Could not change plan status.", true);
+        } finally {
+          statusButton.disabled = false;
+        }
+      }
+    });
+
+    byId("newPlanButton").addEventListener("click", () => {
+      setPlanForm();
+      byId("planEditor").scrollIntoView({ behavior: "smooth", block: "start" });
+      byId("planKey").focus();
+    });
+
+    byId("cancelPlanButton").addEventListener("click", () => setPlanForm());
+    byId("refreshPlansButton").addEventListener("click", loadMembershipPlans);
+    byId("plansLink").addEventListener("click", () => {
+      setTimeout(() => byId("membershipPlansSection").scrollIntoView({ behavior: "smooth" }), 0);
+    });
+
+        byId("fulfilmentQueue").addEventListener("click", event => {
+      const button = event.target.closest("button[data-purchase-id]");
+      if (button && !button.disabled) {
+        fulfilPurchase(button);
+      }
+    });
+
+    byId("purchaseQueue").addEventListener("click", event => {
+      const button = event.target.closest("button.verify-payment-button[data-purchase-id]");
+      if (button && !button.disabled) verifyPurchase(button);
+    });
+
+    byId("refreshButton").addEventListener("click", loadOverview);
+    loadOverview();
+    loadMembershipPlans();
+  </script>
+  <script src="/dashboard/admin/Keith/assets/admin-navigation.js" defer></script>
+</body>
+</html>

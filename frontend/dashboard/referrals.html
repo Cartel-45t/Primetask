@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#061225">
+<meta name="description" content="Manage your PrimeTask Workspace referral link and network.">
+<title>My Referrals | PrimeTask Workspace</title>
+<script src="../assets/js/config.js"></script>
+<style>
+:root{color-scheme:dark;--bg:#050b18;--panel:#0c1729;--blue:#3984ff;--text:#f5f8ff;--muted:#aab8cd;--border:rgba(255,255,255,.11)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 Arial,Helvetica,sans-serif}
+a{color:inherit;text-decoration:none}button,input{font:inherit}
+.app{min-height:100vh;display:block;}
+.sidebar{width:245px;flex-shrink:0;padding:24px 15px;background:#08101f;border-right:1px solid var(--border);display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:11px;padding:5px 8px 28px;font-weight:800}
+.brand-mark{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,#3984ff,#1646a0)}
+.brand-sub{font-size:10px;letter-spacing:2px;color:var(--muted)}
+.nav-label{margin:15px 10px 8px;color:#7f93ad;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.nav-link{display:block;margin:4px 0;padding:11px 12px;border:1px solid transparent;border-radius:9px;color:var(--muted);text-align:left;width:100%;background:transparent;cursor:pointer}
+.nav-link:hover,.nav-link.active{color:white;background:rgba(57,132,255,.13);border-color:rgba(57,132,255,.25)}
+.nav-icon{display:inline-block;width:28px}
+.sidebar-note{margin-top:auto;padding:15px 10px 0;color:var(--muted);font-size:12px}
+.sidebar-note strong{display:block;color:white}
+.main{flex:1;min-width:0;padding:34px;max-width:1400px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:28px}
+.eyebrow{color:#93c5fd;font-size:12px;text-transform:uppercase;letter-spacing:1.5px}
+h1{margin:5px 0;font-size:clamp(25px,4vw,34px)}
+h2,h3,p{margin-top:0}
+.muted{color:var(--muted)}
+.avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#1e3a5f;color:#bfdbfe;font-weight:800}
+.card{padding:22px;margin-bottom:22px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(145deg,#0c1729,#091323)}
+.panel-title{margin:0 0 5px;font-size:19px}
+.panel-subtitle{margin:0;color:var(--muted);font-size:13px}
+.referral-header{display:flex;justify-content:space-between;gap:12px}
+.referral-mark{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:#1e3a5f;color:#bfdbfe;font-size:23px}
+.referral-link-row{display:flex;gap:10px;margin-top:18px}
+.referral-link-row input{width:100%;min-width:0;padding:12px;border:1px solid #334155;border-radius:10px;background:#050b16;color:#dbeafe}
+.btn{padding:11px 15px;border:0;border-radius:9px;background:#2563eb;color:white;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.feedback{min-height:22px;margin:9px 0 0;color:#93c5fd;font-size:13px;overflow-wrap:anywhere}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.stat{padding:16px;border:1px solid var(--border);border-radius:12px;background:#0b1424}
+.stat-label,.stat-foot{display:block;color:var(--muted);font-size:12px}
+.stat strong{display:block;margin:8px 0;font-size:23px;overflow-wrap:anywhere}
+.disclaimer{margin:16px 0 0;color:#94a3b8;font-size:12px}
+.level-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0}
+.level-btn{padding:12px 6px;border:1px solid var(--border);border-radius:12px;background:#0b1424;color:#cbd5e1;cursor:pointer}
+.level-btn strong{display:block;margin-top:5px;font-size:18px;color:white}
+.level-btn[aria-pressed="true"]{border-color:#60a5fa;background:#1e3a5f;color:#bfdbfe}
+.network-status{color:#93c5fd;font-size:13px}
+.network-list{display:grid;gap:10px}
+.member{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--border);border-radius:12px;background:#0b1424}
+.member-name{font-weight:700;overflow-wrap:anywhere}
+.member-meta{margin-top:4px;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.member-status{flex-shrink:0;padding:4px 8px;border-radius:99px;background:#263449;color:#cbd5e1;font-size:11px;text-transform:capitalize}
+.member-status.active{background:#123524;color:#86efac}
+.warning{color:#fbbf24;font-size:12px}
+.notice{margin-bottom:18px;color:#fca5a5;font-size:13px}
+[hidden]{display:none!important}
+@media(max-width:760px){.app{display:block}.sidebar{width:100%;padding:12px;border-right:0;border-bottom:1px solid var(--border)}.brand{padding-bottom:10px}.sidebar nav{display:flex;flex-wrap:wrap;gap:4px}.nav-label,.sidebar-note{display:none}.nav-link{width:auto;margin:0;padding:9px;font-size:12px}.nav-icon{width:auto;margin-right:5px}.main{padding:20px 14px}.card{padding:17px}}
+@media(max-width:420px){.referral-link-row{flex-direction:column}.referral-link-row .btn{width:100%}.level-tabs{gap:5px}.level-btn{font-size:11px;padding:10px 3px}.level-btn strong{font-size:16px}.member{align-items:flex-start}.stats{grid-template-columns:1fr}}
+
+
+/* PrimeTask shared dropdown navigation */
+.ptw-menu-wrap {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  z-index: 9999;
+  font-family: inherit;
+}
+.ptw-menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid #29415f;
+  border-radius: 12px;
+  background: #0b1a30;
+  color: #e8eef8;
+  box-shadow: 0 5px 16px rgba(0,0,0,.18);
+  cursor: pointer;
+  font-size: 21px;
+}
+.ptw-menu-toggle:hover { background: #122642; }
+.ptw-menu-toggle:focus-visible,
+.ptw-menu-link:focus-visible,
+.ptw-signout:focus-visible {
+  outline: 3px solid #8ab4ff;
+  outline-offset: 2px;
+}
+.ptw-menu-panel {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  width: min(270px, calc(100vw - 32px));
+  max-height: min(75vh, 560px);
+  overflow-y: auto;
+  padding: 9px;
+  border: 1px solid #20334d;
+  border-radius: 15px;
+  background: #0b1a30;
+  box-shadow: 0 14px 38px rgba(0,0,0,.35);
+}
+.ptw-menu-panel[hidden] { display: none !important; }
+.ptw-menu-heading {
+  padding: 9px 11px 11px;
+  color: #9aacc4;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.ptw-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  margin: 2px 0;
+  border-radius: 9px;
+  color: #c5d2e4;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+.ptw-menu-icon {
+  display: inline-flex;
+  width: 23px;
+  justify-content: center;
+  color: #9aacc4;
+  font-size: 17px;
+}
+.ptw-menu-link:hover { background: #122642; }
+.ptw-menu-link[aria-current="page"] {
+  background: #17365d;
+  color: #8ab4ff;
+}
+.ptw-menu-link[aria-current="page"] .ptw-menu-icon {
+  color: #8ab4ff;
+}
+.ptw-menu-divider {
+  height: 1px;
+  margin: 8px 4px;
+  background: #20334d;
+}
+.ptw-signout {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #ffaaa4;
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ptw-signout:hover { background: #35212b; }
+@media(max-width:480px) {
+  .ptw-menu-wrap { top: 10px; right: 10px; }
+  .ptw-menu-toggle { width: 40px; height: 40px; }
+}
+</style>
+</head>
+<body>
+
+<div class="ptw-menu-wrap">
+  <button id="ptwMenuToggle" class="ptw-menu-toggle"
+          type="button" aria-label="Open navigation menu"
+          aria-controls="ptwMenuPanel" aria-expanded="false">
+    <span aria-hidden="true">☰</span>
+  </button>
+  <nav id="ptwMenuPanel" class="ptw-menu-panel"
+       aria-label="Main navigation" hidden>
+    <div class="ptw-menu-heading">PrimeTask Workspace</div>
+    <a class="ptw-menu-link" href="index.html"><span class="ptw-menu-icon" aria-hidden="true">⌂</span><span>Dashboard</span></a><a class="ptw-menu-link" href="services.html"><span class="ptw-menu-icon" aria-hidden="true">▦</span><span>Services</span></a><a class="ptw-menu-link" href="wallet.html"><span class="ptw-menu-icon" aria-hidden="true">$</span><span>My Wallet</span></a><a class="ptw-menu-link" href="membership.html"><span class="ptw-menu-icon" aria-hidden="true">◇</span><span>Membership</span></a><a class="ptw-menu-link" href="transactions.html"><span class="ptw-menu-icon" aria-hidden="true">↔</span><span>Transactions</span></a><a class="ptw-menu-link" href="referrals.html" aria-current="page"><span class="ptw-menu-icon" aria-hidden="true">♧</span><span>My Referrals</span></a><a class="ptw-menu-link" href="profile.html"><span class="ptw-menu-icon" aria-hidden="true">○</span><span>My Profile</span></a>
+    <div class="ptw-menu-divider"></div>
+    <button class="ptw-signout" id="logoutBtn" type="button">
+      ↪ Sign out
+    </button>
+  </nav>
+</div>
+
+<div class="app">
+<main class="main">
+  <header class="topbar">
+    <div><div class="eyebrow">PrimeTask Workspace</div><h1>My Referrals</h1><p class="muted">Share your link and keep track of your referral network.</p></div>
+    <div class="avatar" id="userAvatar">P</div>
+  </header>
+  <div class="notice" id="notice" role="status"></div>
+
+  <section class="card" aria-labelledby="referralTitle">
+    <div class="referral-header">
+      <div><h2 class="panel-title" id="referralTitle">Your personal referral link</h2><p class="panel-subtitle">Your username identifies you as the sponsor.</p></div>
+      <div class="referral-mark" aria-hidden="true">♧</div>
+    </div>
+    <div class="referral-link-row">
+      <label for="referralLink" hidden>Your referral link</label>
+      <input id="referralLink" type="text" readonly placeholder="Loading your referral link..." autocomplete="off">
+      <button class="btn" id="copyReferralLink" type="button" disabled>Copy link</button>
+    </div>
+    <p class="feedback" id="referralFeedback" role="status">Loading your referral information...</p>
+    <div class="stats">
+      <div class="stat"><span class="stat-label">Direct referrals</span><strong id="directReferralCount">—</strong><span class="stat-foot">Accounts directly sponsored by you</span></div>
+      <div class="stat"><span class="stat-label">Your sponsor</span><strong id="referralSponsor">—</strong><span class="stat-foot">The member who referred you</span></div>
+    </div>
+    <p class="disclaimer">Referral counts are not commission earnings. Eligible purchases, approved rates and payout limits determine any future commissions.</p>
+  </section>
+
+  <section class="card" aria-labelledby="networkTitle">
+    <h2 class="panel-title" id="networkTitle">My four-level network</h2>
+    <p class="panel-subtitle">Explore the members connected to you through your referral chain.</p>
+    <div class="level-tabs" role="group" aria-label="Filter network by level">
+      <button class="level-btn" type="button" data-network-level="1" aria-pressed="true">Level 1<strong id="networkCount1">—</strong></button>
+      <button class="level-btn" type="button" data-network-level="2" aria-pressed="false">Level 2<strong id="networkCount2">—</strong></button>
+      <button class="level-btn" type="button" data-network-level="3" aria-pressed="false">Level 3<strong id="networkCount3">—</strong></button>
+      <button class="level-btn" type="button" data-network-level="4" aria-pressed="false">Level 4<strong id="networkCount4">—</strong></button>
+    </div>
+    <p class="network-status" id="networkStatus" role="status" aria-live="polite">Loading your network...</p>
+    <p class="warning" id="networkWarning" hidden></p>
+    <div class="network-list" id="networkMembers"><div class="muted">Loading network members...</div></div>
+  </section>
+</main>
+</div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+
+function apiRoot() {
+  if (typeof window.PTW_AUTH_API_ME !== "string") return null;
+  return window.PTW_AUTH_API_ME.replace(/\/auth\/me\/?$/, "");
+}
+
+async function apiGet(url) {
+  const response = await fetch(url, {
+    method: "GET",
+    credentials: "include",
+    headers: { Accept: "application/json" }
+  });
+  if (response.status === 401) {
+    window.location.replace("../auth/login.html");
+    throw new Error("Your session has expired. Please sign in again.");
+  }
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "The request could not be completed.");
+  return data;
+}
+
+async function loadProfile() {
+  if (typeof window.PTW_AUTH_API_ME !== "string") {
+    $("notice").textContent = "The authentication API is not configured for this domain.";
+    return;
+  }
+  try {
+    const result = await apiGet(window.PTW_AUTH_API_ME);
+    const user = result.user || result.data || result;
+    const name = [user.firstName, user.lastName].filter(Boolean).join(" ");
+    $("userAvatar").textContent = (name || user.username || "P").charAt(0).toUpperCase();
+  } catch (error) {
+    if (!String(error.message).includes("session has expired")) {
+      $("notice").textContent = error.message || "Account details could not be loaded.";
+    }
+  }
+}
+
+async function loadReferral() {
+  const feedback = $("referralFeedback");
+  if (typeof window.PTW_REFERRAL_API_ME !== "string") {
+    feedback.textContent = "Referral information is unavailable because the API is not configured.";
+    $("directReferralCount").textContent = "Unavailable";
+    $("referralSponsor").textContent = "Unavailable";
+    return;
+  }
+  try {
+    const result = await apiGet(window.PTW_REFERRAL_API_ME);
+    const referral = result.referral || result.data || {};
+    if (typeof referral.referralLink !== "string" || !referral.referralLink) {
+      throw new Error("The server did not return a referral link.");
+    }
+    $("referralLink").value = referral.referralLink;
+    $("copyReferralLink").disabled = false;
+    $("directReferralCount").textContent =
+      Number.isFinite(Number(referral.directReferrals)) ? String(Number(referral.directReferrals)) : "0";
+    $("referralSponsor").textContent = referral.sponsor
+      ? "@" + (referral.sponsor.username || "unknown")
+      : "No sponsor";
+    feedback.textContent = "Your referral link is ready to share.";
+  } catch (error) {
+    if (String(error.message).includes("session has expired")) return;
+    feedback.textContent = error.message || "Could not load referral information.";
+    $("directReferralCount").textContent = "Unavailable";
+    $("referralSponsor").textContent = "Unavailable";
+  }
+}
+
+let selectedNetworkLevel = 1;
+let referralNetworkLevels = [];
+
+function renderNetworkLevel(level) {
+  selectedNetworkLevel = level;
+  document.querySelectorAll("[data-network-level]").forEach(button => {
+    button.setAttribute("aria-pressed", String(Number(button.dataset.networkLevel) === level));
+  });
+  const list = $("networkMembers");
+  const status = $("networkStatus");
+  const warning = $("networkWarning");
+  const entry = referralNetworkLevels.find(item => item.level === level);
+  list.replaceChildren();
+  warning.hidden = true;
+  warning.textContent = "";
+
+  if (!entry || entry.unavailable) {
+    status.textContent = "This level could not be fully calculated because the network scan limit was reached.";
+    return;
+  }
+  status.textContent = `Level ${level}: ${entry.total} member${entry.total === 1 ? "" : "s"} in your network. Showing ${entry.returned}.`;
+  if (entry.truncated) {
+    warning.textContent = "Only the first 50 members are displayed. The total count includes all members at this level.";
+    warning.hidden = false;
+  }
+  if (!entry.members || entry.members.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "muted";
+    empty.textContent = entry.total === 0 ? "No members at this level yet." : "No member records are available to display.";
+    list.appendChild(empty);
+    return;
+  }
+  entry.members.forEach(member => {
+    const row = document.createElement("article");
+    row.className = "member";
+    const main = document.createElement("div");
+    main.className = "member-main";
+    const name = document.createElement("div");
+    name.className = "member-name";
+    name.textContent = [member.firstName, member.lastName].filter(Boolean).join(" ") || member.username || "PrimeTask member";
+    const meta = document.createElement("div");
+    meta.className = "member-meta";
+    const joined = member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : "Date unavailable";
+    meta.textContent = `@${member.username || "unknown"} · Joined ${joined}`;
+    const state = document.createElement("span");
+    state.className = "member-status";
+    const memberStatus = String(member.status || "unknown").toLowerCase();
+    state.textContent = memberStatus;
+    if (memberStatus === "active") state.classList.add("active");
+    main.append(name, meta);
+    row.append(main, state);
+    list.appendChild(row);
+  });
+}
+
+async function loadReferralNetwork() {
+  const root = apiRoot();
+  const status = $("networkStatus");
+  if (!root) {
+    status.textContent = "The API is not configured for this domain.";
+    return;
+  }
+  status.textContent = "Loading your four-level network...";
+  $("networkWarning").hidden = true;
+  try {
+    const result = await apiGet(`${root}/referrals/network`);
+    const network = result.network || {};
+    const levels = Array.isArray(network.levels) ? network.levels : [];
+    referralNetworkLevels = levels;
+    [1, 2, 3, 4].forEach(level => {
+      const entry = levels.find(item => item.level === level);
+      $(`networkCount${level}`).textContent =
+        !entry || entry.total === null || entry.total === undefined ? "—" : Number(entry.total).toLocaleString();
+    });
+    if (result.success !== true || levels.length !== 4) {
+      throw new Error(result.message || "The network response was incomplete.");
+    }
+    renderNetworkLevel(selectedNetworkLevel);
+    if (network.traversalLimited) {
+      $("networkWarning").textContent = "The network scan limit was reached. Some deeper-level counts are unavailable.";
+      $("networkWarning").hidden = false;
+    }
+  } catch (error) {
+    if (String(error.message).includes("session has expired")) return;
+    status.textContent = error.message || "Your network could not be loaded.";
+    $("networkMembers").replaceChildren();
+    [1, 2, 3, 4].forEach(level => { $(`networkCount${level}`).textContent = "—"; });
+  }
+}
+
+async function copyReferralLink() {
+  const input = $("referralLink");
+  const feedback = $("referralFeedback");
+  if (!input.value) {
+    feedback.textContent = "Your referral link has not loaded yet.";
+    return;
+  }
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(input.value);
+    } else {
+      input.focus();
+      input.select();
+      if (!document.execCommand("copy")) throw new Error("Copy was blocked.");
+    }
+    feedback.textContent = "Referral link copied. Share it with your invitee.";
+  } catch {
+    input.focus();
+    input.select();
+    feedback.textContent = "Copy was blocked. Select the link above and copy it manually.";
+  }
+}
+
+document.querySelectorAll("[data-network-level]").forEach(button => {
+  button.addEventListener("click", () => renderNetworkLevel(Number(button.dataset.networkLevel)));
+});
+$("copyReferralLink").addEventListener("click", copyReferralLink);
+$("logoutBtn").addEventListener("click", async () => {
+  const root = apiRoot();
+  try {
+    if (root && typeof window.PTW_AUTH_API_LOGOUT === "string") {
+      await fetch(window.PTW_AUTH_API_LOGOUT, {
+        method: "POST", credentials: "include", headers: { Accept: "application/json" }
+      });
+    }
+  } catch (error) {
+    console.error("Sign-out request failed:", error);
+  } finally {
+    window.location.replace("../auth/login.html");
+  }
+});
+
+async function init() {
+  await loadProfile();
+  await Promise.allSettled([loadReferral(), loadReferralNetwork()]);
+}
+init();
+</script>
+
+<script>
+
+(function () {
+  const toggle = document.getElementById("ptwMenuToggle");
+  const panel = document.getElementById("ptwMenuPanel");
+  if (!toggle || !panel) return;
+
+  function closeMenu() {
+    panel.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  toggle.addEventListener("click", function (event) {
+    event.stopPropagation();
+    const opening = panel.hidden;
+    panel.hidden = !opening;
+    toggle.setAttribute("aria-expanded", String(opening));
+  });
+
+  panel.addEventListener("click", function (event) {
+    const link = event.target.closest("a");
+    if (link) closeMenu();
+    event.stopPropagation();
+  });
+
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest(".ptw-menu-wrap")) closeMenu();
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeMenu();
+      toggle.focus();
+    }
+  });
+})();
+
+</script>
+</body>
+</html>

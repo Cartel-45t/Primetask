@@ -1,0 +1,33 @@
+# Dependencies and generated files
+node_modules/
+coverage/
+.checks/
+.vercel/
+__pycache__/
+*.pyc
+*.log
+.DS_Store
+
+# Environment files and secrets
+.env
+**/.env
+**/.env.*
+!**/.env.example
+
+# Local backups and patch helpers
+backups/
+*.before-*
+*.backup
+*.backup-*
+*.bak
+*.pre-*
+.ptw-*.py
+
+# Local Daraja credentials
+backend/.env.transcription
+
+# Known accidental temporary file
+nwnsnnsjshsbs
+*.bak-*
+patch-admin-config.py
+patch-transcription-admin.py

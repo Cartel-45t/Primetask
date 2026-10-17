@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#061225">
+<title>Users Management | PrimeTask Workspace</title>
+<style>
+:root{color-scheme:dark;--bg:#030914;--panel:#0b1729;--panel2:#101f34;--line:#20334d;--text:#edf4ff;--muted:#94a8c4;--blue:#60a5fa;--cyan:#67e8f9;--green:#4ade80;--red:#f87171;--amber:#fbbf24}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px Inter,system-ui,sans-serif}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.layout{display:grid;grid-template-columns:225px minmax(0,1fr);min-height:100vh}
+.sidebar{background:#071120;border-right:1px solid var(--line);padding:24px 15px}
+.brand{font-weight:800;font-size:17px;padding:5px 10px 25px}
+.brand span{color:var(--cyan)}
+.side-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1.5px;padding:12px 10px}
+.nav{display:block;padding:12px 10px;border-radius:9px;color:var(--muted);margin:3px 0}
+.nav:hover,.nav.active{background:#132a46;color:var(--text)}
+main{min-width:0;padding:26px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.eyebrow{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+h1{font-size:clamp(25px,4vw,34px);margin:0;letter-spacing:-.8px}
+h2{font-size:17px;margin:0}
+p{color:var(--muted);line-height:1.5}
+.btn{border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);padding:10px 13px;font-weight:600}
+.btn.primary{background:#173b67;border-color:#28588c}
+.btn.danger{border-color:#74333a;color:#fecaca}
+.btn:disabled{opacity:.5;cursor:wait}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:24px 0}
+.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;min-width:0}
+.card{padding:17px}
+.label{font-size:12px;color:var(--muted)}
+.value{font-size:27px;font-weight:800;margin-top:12px;overflow-wrap:anywhere}
+.panel{overflow:hidden;margin-top:18px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.controls{display:flex;gap:9px;flex-wrap:wrap;padding:15px 17px}
+input,select,textarea{background:#06101f;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px;width:100%;min-width:0}
+.controls input{flex:1;min-width:200px}
+.controls select{width:auto;min-width:140px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:1000px}
+th,td{text-align:left;padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+td{font-size:12px}
+tbody tr:hover{background:#0d1c30}
+.person{font-weight:700;font-size:13px}
+.sub{color:var(--muted);margin-top:5px;overflow-wrap:anywhere}
+.tag{display:inline-block;border-radius:6px;padding:5px 7px;font-size:10px;font-weight:700;background:#342a13;color:var(--amber)}
+.tag.active{background:#103b2a;color:var(--green)}
+.tag.suspended{background:#482026;color:#fecaca}
+.row-actions{display:flex;gap:6px;flex-wrap:wrap}
+.small{padding:7px 9px;font-size:11px}
+.notice{display:none;padding:12px 14px;border-radius:10px;margin-top:15px;overflow-wrap:anywhere}
+.notice.show{display:block;background:#10243a;border:1px solid var(--line)}
+.notice.error{display:block;background:#36181f;border-color:#74333a;color:#fecaca}
+.notice.success{display:block;background:#103323;border-color:#216544;color:#bbf7d0}
+.empty{padding:25px;color:var(--muted);text-align:center}
+.pagination{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:15px 17px;color:var(--muted);flex-wrap:wrap}
+.modal{position:fixed;inset:0;z-index:10;background:#000b;display:none;align-items:flex-start;justify-content:center;padding:22px;overflow:auto}
+.modal.open{display:flex}
+.dialog{width:min(900px,100%);background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:auto}
+.dialog-head{padding:18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dialog-body{padding:18px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.field{display:grid;gap:7px;color:var(--muted);font-size:12px}
+.field.full{grid-column:1/-1}
+.section{margin:22px 0 12px;font-size:14px}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.metric{padding:13px;background:#071120;border:1px solid var(--line);border-radius:10px;overflow-wrap:anywhere}
+.metric strong{display:block;font-size:18px;margin-top:8px}
+.list{border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:250px}
+.list-item{padding:12px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.list-item:last-child{border-bottom:0}
+.dialog-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}
+
+.admin-menu{position:relative;margin-top:4px}
+.admin-menu summary{display:block;width:100%;text-align:left;cursor:pointer;list-style:none}
+.admin-menu summary::-webkit-details-marker{display:none}
+.admin-menu .navs{display:flex;flex-direction:column;gap:3px;overflow:visible;margin-top:10px}
+.admin-menu .nav{display:block;white-space:normal;margin:0}
+.admin-menu[open] summary{border-color:#28588c}
+@media(min-width:901px){
+  .admin-menu .navs{max-height:65vh;overflow-y:auto}
+}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{padding:12px;border-right:0;border-bottom:1px solid var(--line)}.brand{padding:7px 5px 12px}.side-label{display:none}.navs{display:flex;gap:6px;overflow:auto}.nav{white-space:nowrap;padding:10px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:17px}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.metrics{grid-template-columns:1fr}.stats .value{font-size:23px}.modal{padding:8px}.controls input{min-width:100%}}
+</style>
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">PrimeTask <span>Workspace</span></div>
+    <div class="side-label">Administration</div>
+    <details class="admin-menu">
+      <summary class="btn">☰ Admin navigation</summary>
+      <nav class="navs" aria-label="Admin navigation">
+        <a class="nav" href="./keith.html">Overview</a>
+        <a class="nav active" href="./users.html" aria-current="page">Users / Members</a>
+        <a class="nav" href="./memberships.html">Membership management</a>
+        <a class="nav" href="./transactions.html">Transactions</a>
+        <a class="nav" href="./deposits.html">Deposits</a>
+        <a class="nav" href="./withdrawals.html">Withdrawals</a>
+        <a class="nav" href="./platform-revenue.html">Platform revenue</a>
+        <a class="nav" href="./commissions.html">Commissions</a>
+        <a class="nav" href="./referrals.html">Referrals</a>
+        <a class="nav" href="./audit-logs.html">Audit logs</a>
+        <a class="nav" href="./settings.html">Settings</a>
+      </nav>
+    </details>
+  </aside>
+
+  <main>
+    <div class="top">
+      <div>
+        <div class="eyebrow">Administration / Accounts</div>
+        <h1>Users management</h1>
+        <p>Review accounts, membership records, financial activity and account settings.</p>
+      </div>
+      <button class="btn" id="refreshBtn">↻ Refresh users</button>
+    </div>
+
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+    <section class="stats">
+      <div class="card"><div class="label">Users on this page</div><div class="value" id="statUsers">—</div></div>
+      <div class="card"><div class="label">Active accounts</div><div class="value" id="statActive">—</div></div>
+      <div class="card"><div class="label">Suspended accounts</div><div class="value" id="statSuspended">—</div></div>
+      <div class="card"><div class="label">Total matching records</div><div class="value" id="statTotal">—</div></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Account directory</h2><span class="label">Financial values displayed in USD</span></div>
+      <div class="controls">
+        <input id="search" type="search" placeholder="Search name, username, email or phone">
+        <select id="statusFilter" aria-label="Filter by account status">
+          <option value="">All account statuses</option>
+          <option value="active">Active accounts</option>
+          <option value="suspended">Suspended accounts</option>
+        </select>
+        <button class="btn" id="searchBtn">Search</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>User</th><th>Sponsor / Upline</th><th>Phone</th><th>Balance</th>
+            <th>Total earnings</th><th>Withdrawals</th><th>Membership</th><th>Joined</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="usersBody"><tr><td colspan="9" class="empty">Loading users…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span id="pageInfo">Waiting for API</span>
+        <div class="row-actions">
+          <button class="btn small" id="prevBtn">← Previous</button>
+          <button class="btn small" id="nextBtn">Next →</button>
+        </div>
+      </div>
+    </section>
+    <p style="font-size:11px">Wallet adjustments and profile edits require administrator access. Every change should include an audit reason.</p>
+  </main>
+</div>
+
+<div class="modal" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+  <div class="dialog">
+    <div class="dialog-head"><div><div class="eyebrow">Account record</div><h2 id="profileTitle">User profile</h2></div><button class="btn" id="closeProfile">Close ×</button></div>
+    <div class="dialog-body" id="profileContent"><p>Loading profile…</p></div>
+  </div>
+</div>
+
+<div class="modal" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+  <div class="dialog">
+    <div class="dialog-head"><h2 id="editTitle">Edit account</h2><button class="btn" id="closeEdit">Close ×</button></div>
+    <div class="dialog-body">
+      <form id="editForm" class="grid">
+        <input type="hidden" id="editId">
+        <label class="field">First name<input id="editFirst" maxlength="80" required></label>
+        <label class="field">Last name<input id="editLast" maxlength="80" required></label>
+        <label class="field">Email<input id="editEmail" type="email" required></label>
+        <label class="field">Phone<input id="editPhone" maxlength="40"></label>
+        <label class="field">Selected service<input id="editService" maxlength="80"></label>
+        <label class="field full">Sponsor / upline
+          <input id="editSponsor" maxlength="254" placeholder="Username, email, user ID, or blank to clear">
+          <small>Changes future referral relationships only. Historical commissions remain unchanged.</small>
+        </label>
+        <label class="field">Account status<select id="editStatus"><option value="active">Active</option><option value="suspended">Suspended</option></select></label>
+        <label class="field full">Reason for change<textarea id="editReason" rows="2" required maxlength="500" placeholder="Explain why this account is being updated"></textarea></label>
+        <div class="field full"><button class="btn primary" type="submit">Save account changes</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="walletModal" role="dialog" aria-modal="true" aria-labelledby="walletTitle">
+  <div class="dialog">
+    <div class="dialog-head"><h2 id="walletTitle">Wallet adjustment</h2><button class="btn" id="closeWallet">Close ×</button></div>
+    <div class="dialog-body">
+      <p>Use only for a verified correction. This creates a financial ledger entry and an audit record.</p>
+      <form id="walletForm" class="grid">
+        <input type="hidden" id="walletUserId">
+        <label class="field">Adjustment type<select id="walletDirection"><option value="credit">Credit wallet</option><option value="debit">Debit wallet</option></select></label>
+        <label class="field">Amount (USD)<input id="walletAmount" type="number" min="0.01" max="10000000" step="0.01" required></label>
+        <label class="field full">Reason<textarea id="walletReason" rows="3" required maxlength="500" placeholder="Required audit reason"></textarea></label>
+        <div class="field full"><button class="btn primary" type="submit">Submit audited adjustment</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="earningsModal" role="dialog" aria-modal="true" aria-labelledby="earningsTitle">
+  <div class="dialog">
+    <div class="dialog-head"><h2 id="earningsTitle">Adjust total earnings</h2><button class="btn" id="closeEarnings">Close ×</button></div>
+    <div class="dialog-body">
+      <p>This changes total earnings only, not available wallet balance. The change is recorded in the financial ledger and audit history.</p>
+      <form id="earningsForm" class="grid">
+        <input type="hidden" id="earningsUserId">
+        <label class="field">Action<select id="earningsDirection"><option value="credit">Increase earnings</option><option value="debit">Decrease earnings</option></select></label>
+        <label class="field">Amount (USD)<input id="earningsAmount" type="number" min="0.01" max="10000000" step="0.01" required></label>
+        <label class="field full">Audit reason<textarea id="earningsReason" rows="3" minlength="5" maxlength="500" required></textarea></label>
+        <div class="field full"><button class="btn primary" type="submit">Submit earnings adjustment</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="awardModal" role="dialog" aria-modal="true" aria-labelledby="awardTitle">
+  <div class="dialog">
+    <div class="dialog-head"><h2 id="awardTitle">Award membership</h2><button class="btn" id="closeAward">Close ×</button></div>
+    <div class="dialog-body">
+      <p>This grants membership without creating a purchase or referral commission.</p>
+      <form id="awardForm" class="grid">
+        <input type="hidden" id="awardUserId">
+        <label class="field full">Active membership plan<select id="awardPlan" required><option value="">Load plans</option></select></label>
+        <label class="field full">Audit reason<textarea id="awardReason" rows="3" minlength="5" maxlength="500" required></textarea></label>
+        <div class="field full"><button class="btn primary" type="submit">Award membership</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="../../../assets/js/config.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const API_BASE = (window.PTW_API_BASE || "").replace(/\/+$/, "");
+  const $ = id => document.getElementById(id);
+  let page = 1;
+  const limit = 20;
+  let total = 0;
+  let currentUsers = [];
+  let selectedProfile = null;
+
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, ch => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[ch]);
+  }
+
+  function money(value) {
+    const n = Number(value ?? 0);
+    return "USD " + (Number.isFinite(n) ? n : 0).toLocaleString("en-US", {
+      minimumFractionDigits: 2, maximumFractionDigits: 2
+    });
+  }
+
+  function date(value) {
+    if (!value) return "—";
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString();
+  }
+
+  function fullName(u) {
+    return [u.firstName, u.lastName].filter(Boolean).join(" ") || u.fullName || "Unnamed user";
+  }
+
+  function getId(u) {
+    return u._id || u.id || u.userId || "";
+  }
+
+  function amount(u, ...keys) {
+    for (const key of keys) if (u[key] !== undefined && u[key] !== null) return Number(u[key]) || 0;
+    return 0;
+  }
+
+  function showNotice(message, type = "") {
+    $("notice").textContent = message;
+    $("notice").className = "notice show " + type;
+  }
+
+  function clearNotice() {
+    $("notice").className = "notice";
+    $("notice").textContent = "";
+  }
+
+  async function request(path, options = {}) {
+    if (!API_BASE) {
+      throw new Error("API URL is not configured. Set PTW_API_BASE before using the admin Users page.");
+    }
+    const response = await fetch(API_BASE + path, {
+      credentials: "include",
+      ...options,
+      headers: {
+        ...(options.body ? {"Content-Type":"application/json"} : {}),
+        ...(options.headers || {})
+      }
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.success === false) {
+      throw new Error(data.message || ("Request failed (" + response.status + ")"));
+    }
+    return data;
+  }
+
+  function membershipLabel(u) {
+    const m = u.membership || u.latestMembership || u.currentMembership || {};
+    const status = String(m.status || u.membershipStatus || "inactive").toLowerCase();
+    const active = status === "active";
+    const label = m.planKey || m.planName || m.name || status;
+    return '<span class="tag ' + (active ? "active" : "") + '">' +
+      escapeHtml(label || (active ? "Active" : "Inactive")) + "</span>";
+  }
+
+  function sponsorLabel(u) {
+    const s = u.sponsor || u.upline || u.referredByUser || u.referredBy;
+    if (!s) return "—";
+    if (typeof s === "string") return escapeHtml(s);
+    return escapeHtml(s.username || s.fullName || [s.firstName,s.lastName].filter(Boolean).join(" ") || s.email || "—");
+  }
+
+  function renderUsers(users) {
+    currentUsers = users;
+    $("statUsers").textContent = users.length;
+    $("statActive").textContent = users.filter(u => String(u.status).toLowerCase() === "active").length;
+    $("statSuspended").textContent = users.filter(u => String(u.status).toLowerCase() === "suspended").length;
+    $("statTotal").textContent = total;
+
+    if (!users.length) {
+      $("usersBody").innerHTML = '<tr><td colspan="9" class="empty">No users matched these filters.</td></tr>';
+      return;
+    }
+
+    $("usersBody").innerHTML = users.map(u => {
+      const id = escapeHtml(getId(u));
+      const status = String(u.status || "unknown").toLowerCase();
+      const wallet = u.wallet || {};
+      const balance = amount(u, "availableBalance", "availableBalanceUsd", "balanceUsd", "walletBalance") ||
+        amount(wallet, "availableBalance", "availableBalanceUsd", "balanceUsd");
+      const earnings = amount(u, "totalEarnings", "totalEarningsUsd", "earningsUsd") ||
+        amount(wallet, "totalEarnings", "totalEarningsUsd", "earningsUsd");
+      const withdrawals = amount(u, "totalWithdrawals", "totalWithdrawalsUsd", "withdrawalsUsd") ||
+        amount(wallet, "totalWithdrawals", "totalWithdrawalsUsd", "withdrawalsUsd");
+      return '<tr>' +
+        '<td><div class="person">' + escapeHtml(fullName(u)) + '</div><div class="sub">@' + escapeHtml(u.username || "—") + '</div><div class="sub">' + escapeHtml(u.email || "—") + '</div><span class="tag ' + (status === "active" ? "active" : status === "suspended" ? "suspended" : "") + '">' + escapeHtml(status) + '</span></td>' +
+        '<td>' + sponsorLabel(u) + '</td>' +
+        '<td>' + escapeHtml(u.phone || "—") + '</td>' +
+        '<td>' + money(balance) + '</td><td>' + money(earnings) + '</td><td>' + money(withdrawals) + '</td>' +
+        '<td>' + membershipLabel(u) + '</td><td>' + date(u.createdAt || u.joinedAt) + '</td>' +
+        '<td><div class="row-actions"><button class="btn small" data-action="view" data-id="' + id + '">Profile</button><button class="btn small" data-action="edit" data-id="' + id + '">Edit</button><button class="btn small" data-action="wallet" data-id="' + id + '">Wallet</button></div></td>' +
+      '</tr>';
+    }).join("");
+  }
+
+  async function loadUsers() {
+    clearNotice();
+    $("refreshBtn").disabled = true;
+    $("usersBody").innerHTML = '<tr><td colspan="9" class="empty">Loading accounts…</td></tr>';
+    try {
+      const params = new URLSearchParams({page:String(page),limit:String(limit)});
+      const q = $("search").value.trim();
+      const status = $("statusFilter").value;
+      if (q) params.set("q", q);
+      if (status) params.set("status", status);
+
+      const data = await request("/admin/users?" + params.toString());
+      const users = Array.isArray(data.data) ? data.data :
+        Array.isArray(data.users) ? data.users :
+        Array.isArray(data.data?.users) ? data.data.users : [];
+      const pagination = data.pagination || data.data?.pagination || {};
+      total = Number(pagination.total ?? data.total ?? users.length);
+      page = Number(pagination.page ?? page);
+      renderUsers(users);
+      const pages = Number(pagination.pages ?? Math.max(1, Math.ceil(total / limit)));
+      $("pageInfo").textContent = "Page " + page + " of " + pages + " · " + total + " matching users";
+      $("prevBtn").disabled = page <= 1;
+      $("nextBtn").disabled = page >= pages;
+    } catch (error) {
+      $("usersBody").innerHTML = '<tr><td colspan="9" class="empty">Could not load users.</td></tr>';
+      showNotice(error.message + " Check your admin session and API configuration.", "error");
+    } finally {
+      $("refreshBtn").disabled = false;
+    }
+  }
+
+  function openModal(id) { $(id).classList.add("open"); }
+  function closeModal(id) { $(id).classList.remove("open"); }
+
+  async function viewProfile(id) {
+    openModal("profileModal");
+    $("profileContent").innerHTML = "<p>Loading full profile and activity…</p>";
+    try {
+      const data = await request("/admin/users/" + encodeURIComponent(id));
+      const payload = data.data && typeof data.data === "object" ? data.data : data;
+      const u = payload.user || data.user || data.profile || payload;
+      selectedProfile = u;
+      const wallet = payload.wallet || u.wallet || {};
+      const memberships = payload.memberships || u.memberships || [];
+      const transactions = payload.transactions || payload.walletTransactions ||
+        u.walletTransactions || u.transactions || [];
+      const withdrawals = payload.withdrawals || u.withdrawals || [];
+      const audit = payload.auditLogs || payload.activity || u.auditLogs || u.activity || [];
+      const balance = amount(wallet, "availableBalance", "availableBalanceUsd") ||
+        amount(u, "availableBalance", "availableBalanceUsd", "balanceUsd");
+      const earnings = amount(wallet, "totalEarnings", "totalEarningsUsd") ||
+        amount(u, "totalEarnings", "totalEarningsUsd");
+      const withdrawn = amount(wallet, "totalWithdrawals", "totalWithdrawalsUsd") ||
+        amount(u, "totalWithdrawals", "totalWithdrawalsUsd");
+
+      const list = (items, formatter, emptyText) => {
+        if (!Array.isArray(items) || !items.length) return '<div class="list-item">' + escapeHtml(emptyText) + '</div>';
+        return items.slice(0,30).map(formatter).join("");
+      };
+
+      $("profileTitle").textContent = fullName(u);
+      $("profileContent").innerHTML =
+        '<div class="metrics">' +
+          '<div class="metric"><span class="label">Available balance</span><strong>' + money(balance) + '</strong></div>' +
+          '<div class="metric"><span class="label">Total earnings</span><strong>' + money(earnings) + '</strong></div>' +
+          '<div class="metric"><span class="label">Total withdrawals</span><strong>' + money(withdrawn) + '</strong></div>' +
+        '</div>' +
+        '<h3 class="section">Account details</h3><div class="grid">' +
+          '<div><div class="label">Full name</div><p>' + escapeHtml(fullName(u)) + '</p></div>' +
+          '<div><div class="label">Username</div><p>' + escapeHtml(u.username || "—") + '</p></div>' +
+          '<div><div class="label">Email</div><p>' + escapeHtml(u.email || "—") + '</p></div>' +
+          '<div><div class="label">Phone</div><p>' + escapeHtml(u.phone || "—") + '</p></div>' +
+          '<div><div class="label">Sponsor / upline</div><p>' + sponsorLabel(u) + '</p></div>' +
+          '<div><div class="label">Account status</div><p>' + escapeHtml(u.status || "—") + '</p></div>' +
+          '<div><div class="label">Joined</div><p>' + date(u.createdAt || u.joinedAt) + '</p></div>' +
+          '<div><div class="label">Last recorded login</div><p>' + (u.lastLoginAt ? escapeHtml(new Date(u.lastLoginAt).toLocaleString()) : "No recorded login") + '</p></div>' +
+        '</div>' +
+        '<h3 class="section">Membership history</h3><div class="list">' +
+          list(memberships, m => '<div class="list-item"><strong>' + escapeHtml(m.planKey || m.planName || m.name || "Membership") + '</strong><div class="sub">Status: ' + escapeHtml(m.status || "unknown") + ' · Price: ' + money(m.priceCents != null ? Number(m.priceCents)/100 : m.priceUsd || 0) + '</div><div class="sub">Started: ' + date(m.startsAt || m.createdAt) + ' · Expires: ' + date(m.expiresAt) + '</div></div>', "No membership records returned.") +
+        '</div>' +
+        '<h3 class="section">Wallet transactions</h3><div class="list">' +
+          list(transactions, t => '<div class="list-item"><strong>' + escapeHtml(t.type || "Transaction") + ' · ' + money(t.amountCents != null ? Number(t.amountCents)/100 : t.amountUsd || t.amount || 0) + '</strong><div class="sub">' + escapeHtml(t.status || "unknown") + ' · ' + escapeHtml(t.description || t.reference || "") + ' · ' + date(t.createdAt) + '</div></div>', "No wallet transactions returned.") +
+        '</div>' +
+        '<h3 class="section">Withdrawals</h3><div class="list">' +
+          list(withdrawals, w => '<div class="list-item"><strong>' + money(w.amountCents != null ? Number(w.amountCents)/100 : w.amountUsd || w.amount || 0) + '</strong><div class="sub">' + escapeHtml(w.status || "unknown") + ' · ' + date(w.createdAt) + '</div></div>', "No withdrawals returned.") +
+        '</div>' +
+        '<h3 class="section">Administrative audit history</h3><div class="list">' +
+          list(audit, a => '<div class="list-item"><strong>' + escapeHtml(a.action || "Admin activity") + '</strong><div class="sub">' + escapeHtml(a.reason || "") + ' · ' + date(a.createdAt) + '</div></div>', "No audit records returned.") +
+        '</div>' +
+        '<div class="dialog-actions"><button class="btn primary" id="profileEditBtn">Edit account</button><button class="btn" id="profileStatusBtn">' + (String(u.status).toLowerCase() === "suspended" ? "Reactivate account" : "Suspend account") + '</button><button class="btn" id="profileWalletBtn">Adjust wallet</button><button class="btn" id="profileEarningsBtn">Adjust earnings</button><button class="btn" id="profileAwardBtn">Award membership</button></div>';
+
+      $("profileEditBtn").addEventListener("click", () => { closeModal("profileModal"); openEdit(u); });
+      $("profileStatusBtn").addEventListener("click", () => changeAccountStatus(u));
+      $("profileWalletBtn").addEventListener("click", () => { closeModal("profileModal"); openWallet(u); });
+      $("profileEarningsBtn").addEventListener("click", () => { closeModal("profileModal"); openEarnings(u); });
+      $("profileAwardBtn").addEventListener("click", () => { closeModal("profileModal"); openAward(u); });
+    } catch (error) {
+      $("profileContent").innerHTML = '<div class="notice error">' + escapeHtml(error.message) + '</div>';
+    }
+  }
+
+  async function changeAccountStatus(u) {
+    const id = getId(u);
+    const currentStatus = String(u.status || "").toLowerCase();
+    const nextStatus = currentStatus === "suspended" ? "active" : "suspended";
+    const action = nextStatus === "suspended" ? "suspend" : "reactivate";
+
+    if (!window.confirm("Are you sure you want to " + action + " this account?")) {
+      return;
+    }
+
+    const enteredReason = window.prompt(
+      "Enter the reason for this account status change (5 to 500 characters):",
+      ""
+    );
+
+    if (enteredReason === null) return;
+
+    const reason = enteredReason.trim();
+
+    if (reason.length < 5 || reason.length > 500) {
+      showNotice("The audit reason must contain 5 to 500 characters.", "error");
+      return;
+    }
+
+    const button = $("profileStatusBtn");
+    if (button) button.disabled = true;
+
+    try {
+      await request("/admin/users/" + encodeURIComponent(id), {
+        method: "PATCH",
+        body: JSON.stringify({
+          status: nextStatus,
+          reason: reason
+        })
+      });
+
+      showNotice(
+        nextStatus === "suspended"
+          ? "Account suspended successfully."
+          : "Account reactivated successfully.",
+        "success"
+      );
+
+      await loadUsers();
+      await viewProfile(id);
+    } catch (error) {
+      showNotice(error.message, "error");
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  function openEdit(u) {
+    $("editId").value = getId(u);
+    $("editFirst").value = u.firstName || "";
+    $("editLast").value = u.lastName || "";
+    $("editEmail").value = u.email || "";
+    $("editPhone").value = u.phone || "";
+    $("editService").value = u.selectedService || "";
+    $("editSponsor").value = u.sponsor ? (u.sponsor.username || u.sponsor.id || "") : "";
+    $("editStatus").value = u.status === "suspended" ? "suspended" : "active";
+    $("editReason").value = "";
+    openModal("editModal");
+  }
+
+  function openWallet(u) {
+    $("walletUserId").value = getId(u);
+    $("walletAmount").value = "";
+    $("walletReason").value = "";
+    openModal("walletModal");
+  }
+
+  $("usersBody").addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const u = currentUsers.find(item => String(getId(item)) === button.dataset.id);
+    if (!u) return;
+    if (button.dataset.action === "view") viewProfile(button.dataset.id);
+    if (button.dataset.action === "edit") openEdit(u);
+    if (button.dataset.action === "wallet") openWallet(u);
+  });
+
+  $("editForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const id = $("editId").value;
+    const button = event.submitter;
+    button.disabled = true;
+    try {
+      await request("/admin/users/" + encodeURIComponent(id), {
+        method:"PATCH",
+        body:JSON.stringify({
+          firstName:$("editFirst").value.trim(),
+          lastName:$("editLast").value.trim(),
+          email:$("editEmail").value.trim(),
+          phone:$("editPhone").value.trim(),
+          selectedService:$("editService").value.trim(),
+          sponsorIdentifier:$("editSponsor").value.trim(),
+          status:$("editStatus").value,
+          reason:$("editReason").value.trim()
+        })
+      });
+      closeModal("editModal");
+      showNotice("Account updated successfully.", "success");
+      await loadUsers();
+      await viewProfile(id);
+    } catch (error) {
+      showNotice(error.message, "error");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  $("walletForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const button = event.submitter;
+    button.disabled = true;
+
+    const payload = {
+      direction: $("walletDirection").value,
+      amount: Number($("walletAmount").value),
+      reason: $("walletReason").value.trim()
+    };
+    const userId = $("walletUserId").value;
+    const fingerprint = JSON.stringify({ userId, ...payload });
+    const form = $("walletForm");
+
+    try {
+      if (
+        !form.dataset.idempotencyKey ||
+        form.dataset.idempotencyFingerprint !== fingerprint
+      ) {
+        form.dataset.idempotencyKey =
+          globalThis.crypto?.randomUUID?.() ||
+          ("ptw-" + Date.now() + "-" +
+            Math.random().toString(36).slice(2) +
+            Math.random().toString(36).slice(2));
+        form.dataset.idempotencyFingerprint = fingerprint;
+      }
+
+      await request("/admin/users/" + encodeURIComponent(userId) + "/wallet-adjustment", {
+        method: "POST",
+        headers: {
+          "Idempotency-Key": form.dataset.idempotencyKey
+        },
+        body: JSON.stringify(payload)
+      });
+
+      // Clear only after the server confirms success.
+      // Failed requests keep their key for safe retries.
+      delete form.dataset.idempotencyKey;
+      delete form.dataset.idempotencyFingerprint;
+
+      closeModal("walletModal");
+      showNotice("Wallet adjustment submitted successfully.", "success");
+      await loadUsers();
+      await viewProfile(userId);
+    } catch (error) {
+      showNotice(error.message, "error");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  function idempotencyKey(form, fingerprint) {
+    if (!form.dataset.idempotencyKey ||
+        form.dataset.idempotencyFingerprint !== fingerprint) {
+      form.dataset.idempotencyKey = globalThis.crypto?.randomUUID?.() ||
+        ("ptw-" + Date.now() + "-" + Math.random().toString(36).slice(2) +
+         Math.random().toString(36).slice(2));
+      form.dataset.idempotencyFingerprint = fingerprint;
+    }
+    return form.dataset.idempotencyKey;
+  }
+
+  function clearIdempotency(form) {
+    delete form.dataset.idempotencyKey;
+    delete form.dataset.idempotencyFingerprint;
+  }
+
+  function openEarnings(u) {
+    $("earningsUserId").value = getId(u);
+    $("earningsAmount").value = "";
+    $("earningsReason").value = "";
+    openModal("earningsModal");
+  }
+
+  async function openAward(u) {
+    $("awardUserId").value = getId(u);
+    $("awardReason").value = "";
+    const select = $("awardPlan");
+    select.replaceChildren(new Option("Loading active plans…", ""));
+    openModal("awardModal");
+    try {
+      const data = await request("/admin/membership-plans");
+      const plans = Array.isArray(data.plans) ? data.plans :
+        Array.isArray(data.data) ? data.data : [];
+      const active = plans.filter(p => p.active === true && Number(p.mpesaAmountKes) > 0);
+      select.replaceChildren(new Option("Select a plan", ""));
+      active.forEach(p => {
+        const id = p.id || p._id;
+        if (id) select.add(new Option(
+          (p.name || p.key || "Membership") + " · " + money(p.price) +
+          " · " + Number(p.durationDays || 0) + " days", String(id)
+        ));
+      });
+      if (!active.length) {
+        select.replaceChildren(new Option("No eligible active plans", ""));
+        showNotice("No active, payment-configured plans are available to award.", "error");
+      }
+    } catch (error) {
+      select.replaceChildren(new Option("Could not load plans", ""));
+      showNotice("Could not load plans: " + error.message, "error");
+    }
+  }
+
+  $("earningsForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const form = $("earningsForm");
+    const button = event.submitter;
+    const userId = $("earningsUserId").value;
+    const payload = {
+      direction: $("earningsDirection").value,
+      amount: Number($("earningsAmount").value),
+      reason: $("earningsReason").value.trim()
+    };
+    if (!userId || !Number.isFinite(payload.amount) || payload.amount <= 0 ||
+        payload.reason.length < 5) {
+      showNotice("Enter a valid amount and an audit reason of at least 5 characters.", "error");
+      return;
+    }
+    const fingerprint = JSON.stringify({userId, ...payload});
+    const key = idempotencyKey(form, fingerprint);
+    button.disabled = true;
+    try {
+      await request("/admin/users/" + encodeURIComponent(userId) + "/earnings-adjustment", {
+        method: "POST",
+        headers: {"Idempotency-Key": key},
+        body: JSON.stringify(payload)
+      });
+      clearIdempotency(form);
+      closeModal("earningsModal");
+      showNotice("Total earnings adjustment recorded.", "success");
+      await loadUsers();
+      await viewProfile(userId);
+    } catch (error) {
+      showNotice(error.message, "error");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  $("awardForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const form = $("awardForm");
+    const button = event.submitter;
+    const userId = $("awardUserId").value;
+    const payload = {
+      planId: $("awardPlan").value,
+      reason: $("awardReason").value.trim()
+    };
+    if (!userId || !payload.planId || payload.reason.length < 5) {
+      showNotice("Select a plan and enter an audit reason of at least 5 characters.", "error");
+      return;
+    }
+    const fingerprint = JSON.stringify({userId, ...payload});
+    const key = idempotencyKey(form, fingerprint);
+    button.disabled = true;
+    try {
+      await request("/admin/users/" + encodeURIComponent(userId) + "/membership-award", {
+        method: "POST",
+        headers: {"Idempotency-Key": key},
+        body: JSON.stringify(payload)
+      });
+      clearIdempotency(form);
+      closeModal("awardModal");
+      showNotice("Membership awarded. No purchase or referral commission was created.", "success");
+      await loadUsers();
+      await viewProfile(userId);
+    } catch (error) {
+      showNotice(error.message, "error");
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  $("refreshBtn").addEventListener("click", loadUsers);
+  $("searchBtn").addEventListener("click", () => { page = 1; loadUsers(); });
+  $("search").addEventListener("keydown", e => { if (e.key === "Enter") { page = 1; loadUsers(); } });
+  $("statusFilter").addEventListener("change", () => { page = 1; loadUsers(); });
+  $("prevBtn").addEventListener("click", () => { if (page > 1) { page--; loadUsers(); } });
+  $("nextBtn").addEventListener("click", () => { page++; loadUsers(); });
+  $("closeProfile").addEventListener("click", () => closeModal("profileModal"));
+  $("closeEdit").addEventListener("click", () => closeModal("editModal"));
+  $("closeWallet").addEventListener("click", () => closeModal("walletModal"));
+  $("closeEarnings").addEventListener("click", () => closeModal("earningsModal"));
+  $("closeAward").addEventListener("click", () => closeModal("awardModal"));
+  document.querySelectorAll(".modal").forEach(modal => modal.addEventListener("click", e => {
+    if (e.target === modal) modal.classList.remove("open");
+  }));
+
+  loadUsers();
+})();
+</script>
+  <script src="/dashboard/admin/Keith/assets/admin-navigation.js" defer></script>
+</body>
+</html>

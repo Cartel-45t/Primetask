@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#061225">
+<title>Membership | PrimeTask Workspace</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#061225;color:#e8eef8;font:15px/1.55 system-ui,Arial,sans-serif}
+.layout{min-height:100vh;display:block;}
+aside{padding:22px 14px;background:#071326;border-right:1px solid #20334d}
+.brand{font-size:18px;font-weight:800;margin:0 0 22px}
+.brand small{display:block;color:#9aacc4;font-size:12px;font-weight:400}
+nav{display:grid;gap:6px}
+nav a,nav button{display:block;padding:10px 12px;border:0;border-radius:9px;background:transparent;color:#a9bad0;text-decoration:none;text-align:left;font:inherit;cursor:pointer}
+nav a.active,nav a:hover,nav button:hover{background:#142944;color:white}
+main{padding:28px;min-width:0;max-width:1200px;width:100%}
+h1{margin:0 0 5px;font-size:28px}
+h2{font-size:18px;margin:0 0 12px}
+p{margin:7px 0}
+.muted{color:#9aacc4}
+.card{margin-top:20px;padding:20px;background:#0b1a30;border:1px solid #20334d;border-radius:15px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:15px}
+.plan{padding:17px;background:#081426;border:1px solid #29415f;border-radius:12px;min-width:0}
+.price{font-size:25px;font-weight:800;margin:10px 0}
+.tag{display:inline-block;padding:4px 9px;border-radius:20px;background:#142944;color:#bfdbfe;font-size:12px}
+.list{padding-left:20px;color:#cbd7e8}
+.notice{margin-top:14px;color:#93c5fd;overflow-wrap:anywhere}
+.notice.error{color:#fca5a5}
+.notice.success{color:#86efac}
+.row{padding:13px 0;border-bottom:1px solid #20334d;overflow-wrap:anywhere}
+.row:last-child{border-bottom:0}
+button{padding:9px 13px;border:1px solid #29415f;border-radius:9px;background:#142944;color:white;font:inherit;cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}
+[hidden]{display:none!important}
+@media(max-width:720px){.layout{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid #20334d}nav{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:17px}.grid{grid-template-columns:1fr}}
+
+
+/* PrimeTask shared dropdown navigation */
+.ptw-menu-wrap {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  z-index: 9999;
+  font-family: inherit;
+}
+.ptw-menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid #29415f;
+  border-radius: 12px;
+  background: #0b1a30;
+  color: #e8eef8;
+  box-shadow: 0 5px 16px rgba(0,0,0,.18);
+  cursor: pointer;
+  font-size: 21px;
+}
+.ptw-menu-toggle:hover { background: #122642; }
+.ptw-menu-toggle:focus-visible,
+.ptw-menu-link:focus-visible,
+.ptw-signout:focus-visible {
+  outline: 3px solid #8ab4ff;
+  outline-offset: 2px;
+}
+.ptw-menu-panel {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  width: min(270px, calc(100vw - 32px));
+  max-height: min(75vh, 560px);
+  overflow-y: auto;
+  padding: 9px;
+  border: 1px solid #20334d;
+  border-radius: 15px;
+  background: #0b1a30;
+  box-shadow: 0 14px 38px rgba(0,0,0,.35);
+}
+.ptw-menu-panel[hidden] { display: none !important; }
+.ptw-menu-heading {
+  padding: 9px 11px 11px;
+  color: #9aacc4;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.ptw-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  margin: 2px 0;
+  border-radius: 9px;
+  color: #c5d2e4;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+.ptw-menu-icon {
+  display: inline-flex;
+  width: 23px;
+  justify-content: center;
+  color: #9aacc4;
+  font-size: 17px;
+}
+.ptw-menu-link:hover { background: #122642; }
+.ptw-menu-link[aria-current="page"] {
+  background: #17365d;
+  color: #8ab4ff;
+}
+.ptw-menu-link[aria-current="page"] .ptw-menu-icon {
+  color: #8ab4ff;
+}
+.ptw-menu-divider {
+  height: 1px;
+  margin: 8px 4px;
+  background: #20334d;
+}
+.ptw-signout {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #ffaaa4;
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ptw-signout:hover { background: #35212b; }
+@media(max-width:480px) {
+  .ptw-menu-wrap { top: 10px; right: 10px; }
+  .ptw-menu-toggle { width: 40px; height: 40px; }
+  main { padding-top: 64px; }
+}
+</style>
+</head>
+<body>
+
+<div class="ptw-menu-wrap">
+  <button id="ptwMenuToggle" class="ptw-menu-toggle"
+          type="button" aria-label="Open navigation menu"
+          aria-controls="ptwMenuPanel" aria-expanded="false">
+    <span aria-hidden="true">☰</span>
+  </button>
+  <nav id="ptwMenuPanel" class="ptw-menu-panel"
+       aria-label="Main navigation" hidden>
+    <div class="ptw-menu-heading">PrimeTask Workspace</div>
+    <a class="ptw-menu-link" href="index.html"><span class="ptw-menu-icon" aria-hidden="true">⌂</span><span>Dashboard</span></a><a class="ptw-menu-link" href="services.html"><span class="ptw-menu-icon" aria-hidden="true">▦</span><span>Services</span></a><a class="ptw-menu-link" href="wallet.html"><span class="ptw-menu-icon" aria-hidden="true">$</span><span>My Wallet</span></a><a class="ptw-menu-link" href="membership.html" aria-current="page"><span class="ptw-menu-icon" aria-hidden="true">◇</span><span>Membership</span></a><a class="ptw-menu-link" href="transactions.html"><span class="ptw-menu-icon" aria-hidden="true">↔</span><span>Transactions</span></a><a class="ptw-menu-link" href="referrals.html"><span class="ptw-menu-icon" aria-hidden="true">♧</span><span>My Referrals</span></a><a class="ptw-menu-link" href="profile.html"><span class="ptw-menu-icon" aria-hidden="true">○</span><span>My Profile</span></a>
+    <div class="ptw-menu-divider"></div>
+    <button class="ptw-signout" id="signOut" type="button">
+      ↪ Sign out
+    </button>
+  </nav>
+</div>
+
+<div class="layout">
+<main>
+<h1>Membership</h1>
+<p class="muted">Review available plans and check the status of your membership.</p>
+
+<div id="pageMessage" class="notice" role="status" aria-live="polite">Loading membership details...</div>
+
+<section class="card" aria-labelledby="currentHeading">
+<h2 id="currentHeading">Your current membership</h2>
+<div id="currentMembership" class="muted">Loading your membership...</div>
+</section>
+
+<section class="card" aria-labelledby="plansHeading">
+<h2 id="plansHeading">Available plans</h2>
+<p class="muted">Plan details are displayed from the membership service.</p>
+<div id="plans" class="plan-grid">
+<p class="muted">Loading plans...</p>
+</div>
+<p class="notice">A payment prompt is not proof of payment. Membership activates only after payment verification and fulfilment.</p>
+</section>
+
+<section class="card" aria-labelledby="historyHeading">
+<h2 id="historyHeading">Membership history</h2>
+<div id="history" class="muted">Loading history...</div>
+</section>
+</main>
+</div>
+
+<script src="../assets/js/config.js"></script>
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const message = $("pageMessage");
+
+function apiRoot() {
+  const me = window.PTW_AUTH_API_ME;
+  if (typeof me !== "string" || !me.trim()) {
+    throw new Error("API URL is not configured for this domain.");
+  }
+  return me.replace(/\/auth\/me\/?$/, "").replace(/\/$/, "");
+}
+
+async function request(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    method: options.method || "GET",
+    credentials: "include",
+    headers: {
+      Accept: "application/json",
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...(options.headers || {})
+    }
+  });
+
+  if (response.status === 401) {
+    window.location.replace("../auth/login.html");
+    throw new Error("Your session has expired. Please sign in again.");
+  }
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(data.message || "The request could not be completed.");
+    error.code = data.code || "REQUEST_FAILED";
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+}
+
+function safeText(value, fallback = "Not available") {
+  return value === undefined || value === null || value === "" ? fallback : String(value);
+}
+
+function formatDate(value) {
+  if (!value) return "Not available";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "Not available" : date.toLocaleString();
+}
+
+function formatPrice(price, currency) {
+  const amount = Number(price);
+  if (!Number.isFinite(amount)) return "Price unavailable";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency || "USD"
+  }).format(amount);
+}
+
+function addTextElement(parent, tag, text, className = "") {
+  const element = document.createElement(tag);
+  element.textContent = text;
+  if (className) element.className = className;
+  parent.appendChild(element);
+  return element;
+}
+
+function showCurrent(data) {
+  const container = $("currentMembership");
+  container.replaceChildren();
+
+  const membership = data.membership || data.currentMembership || data.current || null;
+  if (!membership) {
+    addTextElement(container, "p", "You do not currently have an active membership.");
+    return;
+  }
+
+  addTextElement(container, "p", safeText(membership.planKey, "Membership plan"), "tag");
+  addTextElement(container, "p", safeText(membership.status, "Status unavailable"));
+  const grantSource = membership.grantSource || "purchase";
+  addTextElement(container, "p",
+    grantSource === "admin_award" ? "Source: Awarded by administrator" : "Source: Membership purchase");
+  if (grantSource === "admin_award" && membership.grantReason) {
+    addTextElement(container, "p", "Award reason: " + membership.grantReason, "muted");
+  }
+  addTextElement(container, "p", "Price: " + formatPrice(membership.price, membership.currency));
+  addTextElement(container, "p", "Starts: " + formatDate(membership.startsAt));
+  addTextElement(container, "p", "Expires: " + formatDate(membership.expiresAt));
+
+  if (Array.isArray(membership.services) && membership.services.length) {
+    addTextElement(container, "h3", "Included services");
+    const list = document.createElement("ul");
+    list.className = "list";
+    membership.services.forEach(service => addTextElement(list, "li", String(service)));
+    container.appendChild(list);
+  }
+}
+
+function showPlans(data) {
+  const container = $("plans");
+  container.replaceChildren();
+
+  const plans = Array.isArray(data.plans) ? data.plans :
+    Array.isArray(data.data) ? data.data : [];
+
+  if (!plans.length) {
+    addTextElement(container, "p", "No active membership plans are currently available.", "muted");
+    return;
+  }
+
+  plans.forEach(plan => {
+    const planId = String(plan.id || plan._id || "");
+    const card = document.createElement("article");
+    card.className = "plan";
+
+    addTextElement(card, "h3", safeText(plan.name, "Membership plan"));
+    addTextElement(card, "p", safeText(plan.description, "Plan description not provided."), "muted");
+    addTextElement(card, "p", formatPrice(plan.price, plan.currency || "USD"), "price");
+    addTextElement(card, "p", safeText(plan.durationDays, "Duration unavailable") +
+      (plan.durationDays ? " days" : ""));
+
+    const kes = Number(plan.mpesaAmountKes);
+    addTextElement(card, "p",
+      Number.isSafeInteger(kes) && kes > 0
+        ? "M-Pesa payment: KSh " + kes.toLocaleString("en-KE")
+        : "M-Pesa amount is not configured. This plan cannot be purchased."
+    );
+
+    if (Array.isArray(plan.services) && plan.services.length) {
+      addTextElement(card, "h4", "Included services");
+      const list = document.createElement("ul");
+      list.className = "list";
+      plan.services.forEach(service => addTextElement(list, "li", String(service)));
+      card.appendChild(list);
+    }
+
+    const form = document.createElement("form");
+    form.className = "membership-checkout";
+    form.dataset.planId = planId;
+
+    const label = addTextElement(form, "label", "M-Pesa phone number");
+    const phone = document.createElement("input");
+    phone.type = "tel";
+    phone.name = "phoneNumber";
+    phone.autocomplete = "tel";
+    phone.inputMode = "tel";
+    phone.placeholder = "0712345678";
+    phone.required = true;
+    phone.pattern = "(?:0[17][0-9]{8}|\\+?254[17][0-9]{8})";
+    phone.setAttribute("aria-label", "M-Pesa phone number");
+    label.htmlFor = "membership-phone-" + (planId || "unavailable");
+    phone.id = label.htmlFor;
+    form.appendChild(phone);
+
+    const button = document.createElement("button");
+    button.type = "submit";
+    button.textContent = "Purchase membership";
+    button.disabled = !planId || !(Number.isSafeInteger(kes) && kes > 0);
+    form.appendChild(button);
+
+    const status = addTextElement(form, "p", "", "notice");
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      purchaseMembership(form, button, status);
+    });
+
+    card.appendChild(form);
+    container.appendChild(card);
+  });
+}
+
+function createIdempotencyKey() {
+  const randomPart = typeof crypto !== "undefined" &&
+    typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : Date.now().toString(36) + "-" + Math.random().toString(36).slice(2);
+  return "membership-" + randomPart;
+}
+
+async function purchaseMembership(form, button, status) {
+  const planId = form.dataset.planId;
+  if (!planId || !form.reportValidity()) return;
+
+  const phoneNumber = form.elements.phoneNumber.value.trim();
+  if (!form.dataset.idempotencyKey) {
+    form.dataset.idempotencyKey = createIdempotencyKey();
+  }
+
+  button.disabled = true;
+  button.textContent = "Requesting payment...";
+  status.className = "notice";
+  status.textContent = "Contacting the payment service. Do not submit another purchase.";
+
+  try {
+    const result = await request(apiRoot() + "/membership/purchases", {
+      method: "POST",
+      headers: { "Idempotency-Key": form.dataset.idempotencyKey },
+      body: JSON.stringify({ planId, phoneNumber })
+    });
+
+    const purchase = result.purchase || {};
+    const state = purchase.paymentStatus || "pending";
+    status.className = "notice success";
+
+    if (state === "verification_required") {
+      status.textContent = "Payment outcome needs reconciliation. Do not start another purchase. Reference: " +
+        safeText(purchase.purchaseReference, "not available") + ".";
+    } else {
+      status.textContent = (result.message || "Purchase request received.") +
+        " Membership activates only after payment verification and fulfilment. Reference: " +
+        safeText(purchase.purchaseReference, "not available") + ".";
+    }
+
+    button.textContent = "Request submitted";
+  } catch (error) {
+    status.textContent = error.message || "Purchase could not be started.";
+    status.className = "notice error";
+    button.textContent = error.code === "DARAJA_DISABLED"
+      ? "Payments unavailable"
+      : "Retry purchase";
+
+    if (error.code !== "DARAJA_DISABLED") {
+      button.disabled = false;
+    }
+  } finally {
+    if (button.textContent !== "Request submitted" &&
+        button.textContent !== "Payments unavailable") {
+      button.disabled = false;
+    }
+  }
+}
+
+function showHistory(data) {
+  const container = $("history");
+  container.replaceChildren();
+
+  const history = Array.isArray(data.history) ? data.history :
+    Array.isArray(data.memberships) ? data.memberships : [];
+
+  if (!history.length) {
+    addTextElement(container, "p", "No membership history found.", "muted");
+    return;
+  }
+
+  history.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "row";
+    addTextElement(row, "strong", safeText(item.planKey, "Membership plan"));
+    addTextElement(row, "p", "Status: " + safeText(item.status));
+    addTextElement(row, "p",
+      (item.grantSource || "purchase") === "admin_award"
+        ? "Source: Awarded by administrator"
+        : "Source: Membership purchase");
+    if ((item.grantSource || "purchase") === "admin_award" && item.grantReason) {
+      addTextElement(row, "p", "Award reason: " + item.grantReason, "muted");
+    }
+    addTextElement(row, "p", "Price: " + formatPrice(item.price, item.currency));
+    addTextElement(row, "p", "Period: " + formatDate(item.startsAt) + " to " + formatDate(item.expiresAt));
+    container.appendChild(row);
+  });
+}
+
+async function init() {
+  try {
+    const root = apiRoot();
+    await request(`${root}/auth/me`);
+
+    const results = await Promise.allSettled([
+      request(`${root}/membership/plans`),
+      request(`${root}/membership`)
+    ]);
+
+    const planResult = results[0];
+    const membershipResult = results[1];
+    let errors = [];
+
+    if (planResult.status === "fulfilled") {
+      showPlans(planResult.value);
+    } else {
+      $("plans").replaceChildren();
+      addTextElement($("plans"), "p", planResult.reason.message || "Plans could not be loaded.", "notice error");
+      errors.push("Plans could not be loaded.");
+    }
+
+    if (membershipResult.status === "fulfilled") {
+      showCurrent(membershipResult.value);
+      showHistory(membershipResult.value);
+    } else {
+      $("currentMembership").textContent = "Membership status could not be loaded.";
+      $("history").textContent = "Membership history could not be loaded.";
+      errors.push("Membership details could not be loaded.");
+    }
+
+    message.textContent = errors.length ? errors.join(" ") : "Membership information loaded.";
+    message.className = errors.length ? "notice error" : "notice success";
+  } catch (error) {
+    message.textContent = error.message || "Membership page could not be loaded.";
+    message.className = "notice error";
+  }
+}
+
+$("signOut").addEventListener("click", async () => {
+  try {
+    if (typeof window.PTW_AUTH_API_LOGOUT === "string") {
+      await fetch(window.PTW_AUTH_API_LOGOUT, {
+        method: "POST",
+        credentials: "include",
+        headers: { Accept: "application/json" }
+      });
+    }
+  } catch (error) {
+    console.error("Sign-out request failed:", error);
+  } finally {
+    window.location.replace("../auth/login.html");
+  }
+});
+
+init();
+</script>
+
+<script>
+
+(function () {
+  const toggle = document.getElementById("ptwMenuToggle");
+  const panel = document.getElementById("ptwMenuPanel");
+  if (!toggle || !panel) return;
+
+  function closeMenu() {
+    panel.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  toggle.addEventListener("click", function (event) {
+    event.stopPropagation();
+    const opening = panel.hidden;
+    panel.hidden = !opening;
+    toggle.setAttribute("aria-expanded", String(opening));
+  });
+
+  panel.addEventListener("click", function (event) {
+    const link = event.target.closest("a");
+    if (link) closeMenu();
+    event.stopPropagation();
+  });
+
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest(".ptw-menu-wrap")) closeMenu();
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeMenu();
+      toggle.focus();
+    }
+  });
+})();
+
+</script>
+</body>
+</html>

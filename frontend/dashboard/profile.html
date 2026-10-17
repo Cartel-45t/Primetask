@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#061225">
+<title>My Profile | PrimeTask Workspace</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#061225;color:#e8eef8;font:15px/1.5 system-ui,Arial,sans-serif}
+.layout{min-height:100vh;display:block;}
+aside{padding:22px 14px;background:#071326;border-right:1px solid #20334d}
+.brand{font-size:18px;font-weight:800;margin:0 0 22px}
+.brand small{display:block;color:#9aacc4;font-size:12px;font-weight:400}
+nav{display:grid;gap:6px}
+nav a,nav button{display:block;padding:10px 12px;border:0;border-radius:9px;background:transparent;color:#a9bad0;text-decoration:none;text-align:left;font:inherit;cursor:pointer}
+nav a.active,nav a:hover,nav button:hover{background:#142944;color:white}
+main{padding:26px;min-width:0}
+h1{margin:0 0 5px;font-size:26px}
+h2{font-size:17px;margin:0 0 12px}
+.muted{color:#9aacc4}
+.card{margin-top:22px;padding:20px;background:#0b1a30;border:1px solid #20334d;border-radius:15px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+button.action{padding:10px 14px;border:1px solid #29415f;border-radius:9px;background:#142944;color:white;cursor:pointer;font:inherit}
+button.primary{background:#2563eb;border-color:#2563eb}
+button:disabled{opacity:.6;cursor:not-allowed}
+.field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.field{padding:13px;border:1px solid #20334d;border-radius:10px;overflow-wrap:anywhere;min-width:0}
+.field small{display:block;color:#9aacc4;margin-bottom:5px}
+.field strong{overflow-wrap:anywhere}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+label{display:grid;gap:6px;color:#c8d5e8;font-size:13px}
+input{width:100%;min-width:0;padding:12px;border:1px solid #29415f;border-radius:9px;background:#061225;color:#f8fafc;font:inherit}
+input:focus{outline:2px solid #3b82f6;outline-offset:1px}
+.notice{margin-top:16px;min-height:24px;color:#93c5fd}
+.notice.error{color:#fca5a5}
+.notice.success{color:#86efac}
+[hidden]{display:none!important}
+@media(max-width:720px){.layout{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid #20334d}nav{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:17px}.field-grid,.form-grid{grid-template-columns:1fr}}
+
+.picture-card{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:0 0 22px;padding:20px;border:1px solid #1e3352;border-radius:16px;background:#081426}
+.picture-preview{width:104px;height:104px;flex:0 0 104px;border-radius:50%;object-fit:cover;border:2px solid #29466b;background:#0b1b31}
+.picture-placeholder{display:flex;align-items:center;justify-content:center;color:#9db3d1;font-size:34px}
+.picture-copy{flex:1;min-width:180px}.picture-copy h2{margin:0 0 6px;font-size:18px;color:#f2f6ff}.picture-copy p{margin:0 0 12px;color:#a9bad2;font-size:13px;line-height:1.5}
+.picture-actions{display:flex;gap:8px;flex-wrap:wrap}.picture-actions button{border:1px solid #31527d;border-radius:9px;padding:9px 13px;background:#122746;color:#eef5ff;font:inherit;cursor:pointer}.picture-actions button:disabled{opacity:.55;cursor:not-allowed}.picture-actions .danger{border-color:#713b4b;background:#321b29}.picture-status{margin-top:9px;font-size:13px;color:#a9bad2}.picture-status.error{color:#ff9aa9}.picture-status.success{color:#8ee5b1}
+
+
+
+/* PrimeTask shared dropdown navigation */
+.ptw-menu-wrap {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  z-index: 9999;
+  font-family: inherit;
+}
+.ptw-menu-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid #29415f;
+  border-radius: 12px;
+  background: #0b1a30;
+  color: #e8eef8;
+  box-shadow: 0 5px 16px rgba(0,0,0,.18);
+  cursor: pointer;
+  font-size: 21px;
+}
+.ptw-menu-toggle:hover { background: #122642; }
+.ptw-menu-toggle:focus-visible,
+.ptw-menu-link:focus-visible,
+.ptw-signout:focus-visible {
+  outline: 3px solid #8ab4ff;
+  outline-offset: 2px;
+}
+.ptw-menu-panel {
+  position: absolute;
+  top: calc(100% + 9px);
+  right: 0;
+  width: min(270px, calc(100vw - 32px));
+  max-height: min(75vh, 560px);
+  overflow-y: auto;
+  padding: 9px;
+  border: 1px solid #20334d;
+  border-radius: 15px;
+  background: #0b1a30;
+  box-shadow: 0 14px 38px rgba(0,0,0,.35);
+}
+.ptw-menu-panel[hidden] { display: none !important; }
+.ptw-menu-heading {
+  padding: 9px 11px 11px;
+  color: #9aacc4;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.ptw-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  margin: 2px 0;
+  border-radius: 9px;
+  color: #c5d2e4;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+.ptw-menu-icon {
+  display: inline-flex;
+  width: 23px;
+  justify-content: center;
+  color: #9aacc4;
+  font-size: 17px;
+}
+.ptw-menu-link:hover { background: #122642; }
+.ptw-menu-link[aria-current="page"] {
+  background: #17365d;
+  color: #8ab4ff;
+}
+.ptw-menu-link[aria-current="page"] .ptw-menu-icon {
+  color: #8ab4ff;
+}
+.ptw-menu-divider {
+  height: 1px;
+  margin: 8px 4px;
+  background: #20334d;
+}
+.ptw-signout {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #ffaaa4;
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ptw-signout:hover { background: #35212b; }
+@media(max-width:480px) {
+  .ptw-menu-wrap { top: 10px; right: 10px; }
+  .ptw-menu-toggle { width: 40px; height: 40px; }
+  main { padding-top: 64px; }
+}
+</style>
+</head>
+<body>
+
+<div class="ptw-menu-wrap">
+  <button id="ptwMenuToggle" class="ptw-menu-toggle"
+          type="button" aria-label="Open navigation menu"
+          aria-controls="ptwMenuPanel" aria-expanded="false">
+    <span aria-hidden="true">☰</span>
+  </button>
+  <nav id="ptwMenuPanel" class="ptw-menu-panel"
+       aria-label="Main navigation" hidden>
+    <div class="ptw-menu-heading">PrimeTask Workspace</div>
+    <a class="ptw-menu-link" href="index.html"><span class="ptw-menu-icon" aria-hidden="true">⌂</span><span>Dashboard</span></a><a class="ptw-menu-link" href="services.html"><span class="ptw-menu-icon" aria-hidden="true">▦</span><span>Services</span></a><a class="ptw-menu-link" href="wallet.html"><span class="ptw-menu-icon" aria-hidden="true">$</span><span>My Wallet</span></a><a class="ptw-menu-link" href="membership.html"><span class="ptw-menu-icon" aria-hidden="true">◇</span><span>Membership</span></a><a class="ptw-menu-link" href="transactions.html"><span class="ptw-menu-icon" aria-hidden="true">↔</span><span>Transactions</span></a><a class="ptw-menu-link" href="referrals.html"><span class="ptw-menu-icon" aria-hidden="true">♧</span><span>My Referrals</span></a><a class="ptw-menu-link" href="profile.html" aria-current="page"><span class="ptw-menu-icon" aria-hidden="true">○</span><span>My Profile</span></a>
+    <div class="ptw-menu-divider"></div>
+    <button class="ptw-signout" id="signOut" type="button">
+      ↪ Sign out
+    </button>
+  </nav>
+</div>
+
+<div class="layout">
+<main>
+<h1>My Profile</h1>
+<p class="muted">Manage your PrimeTask Workspace account.</p>
+
+<section class="card">
+<h2>Profile information</h2>
+<p class="muted">Review your account details, selected service and sponsor.</p>
+
+
+<section class="picture-card" aria-labelledby="pictureHeading">
+  <img id="picturePreview" class="picture-preview" alt="Profile picture" hidden>
+  <div id="picturePlaceholder" class="picture-preview picture-placeholder" aria-hidden="true">👤</div>
+  <div class="picture-copy">
+    <h2 id="pictureHeading">Profile picture</h2>
+    <p>JPG, PNG, or WebP. Maximum size: 3 MB.</p>
+    <form id="pictureForm" class="picture-actions">
+      <input id="pictureFile" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+      <button id="choosePictureButton" type="button">Choose image</button>
+      <button id="uploadPictureButton" type="submit" disabled>Upload picture</button>
+      <button id="removePictureButton" class="danger" type="button" hidden>Remove picture</button>
+    </form>
+    <div id="pictureStatus" class="picture-status" role="status" aria-live="polite"></div>
+  </div>
+</section>
+
+<div id="profileGrid" class="field-grid"></div>
+
+<div class="actions">
+<button id="editButton" class="action primary" type="button" hidden>
+Edit profile
+</button>
+</div>
+
+<form id="profileForm" hidden>
+<div class="form-grid">
+<label for="firstName">First name
+<input id="firstName" name="firstName" autocomplete="given-name"
+  maxlength="60" required>
+</label>
+<label for="lastName">Last name
+<input id="lastName" name="lastName" autocomplete="family-name"
+  maxlength="60" required>
+</label>
+<label for="phone">Phone number
+<input id="phone" name="phone" type="tel" autocomplete="tel"
+  minlength="7" maxlength="25" required>
+</label>
+</div>
+<div class="actions">
+<button id="saveButton" class="action primary" type="submit">
+Save changes
+</button>
+<button id="cancelButton" class="action" type="button">
+Cancel
+</button>
+</div>
+</form>
+
+<p id="profileMessage" class="notice" role="status" aria-live="polite">
+Loading profile...
+</p>
+</section>
+</main>
+</div>
+
+<script src="../assets/js/config.js"></script>
+<script>
+"use strict";
+
+const grid = document.getElementById("profileGrid");
+const message = document.getElementById("profileMessage");
+const form = document.getElementById("profileForm");
+const editButton = document.getElementById("editButton");
+const saveButton = document.getElementById("saveButton");
+const cancelButton = document.getElementById("cancelButton");
+
+let currentUser = null;
+let saving = false;
+
+function apiRoot() {
+  const me = window.PTW_AUTH_API_ME;
+  if (typeof me !== "string" || !me.trim()) {
+    throw new Error("API URL is not configured for this domain.");
+  }
+  return me.replace(/\/auth\/me\/?$/, "").replace(/\/$/, "");
+}
+
+async function request(url, options = {}) {
+  const response = await fetch(url, {
+    credentials: "include",
+    ...options,
+    headers: {
+      Accept: "application/json",
+      ...(options.body ? {"Content-Type": "application/json"} : {}),
+      ...(options.headers || {})
+    }
+  });
+
+  if (response.status === 401) {
+    window.location.href = "../login.html";
+    throw new Error("Your session expired. Please sign in again.");
+  }
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.success === false) {
+    throw new Error(data.message || "The request failed.");
+  }
+  return data;
+}
+
+function setMessage(text, type = "") {
+  message.textContent = text;
+  message.className = "notice" + (type ? " " + type : "");
+}
+
+function addField(label, value) {
+  const field = document.createElement("div");
+  field.className = "field";
+
+  const caption = document.createElement("small");
+  caption.textContent = label;
+
+  const content = document.createElement("strong");
+  content.textContent =
+    value === null || value === undefined || value === ""
+      ? "Not provided"
+      : String(value);
+
+  field.append(caption, content);
+  grid.appendChild(field);
+}
+
+function formatDate(value) {
+  if (!value) return "Not provided";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "Not provided"
+    : date.toLocaleDateString(undefined, {
+        year: "numeric", month: "short", day: "numeric"
+      });
+}
+
+function displayService(value) {
+  const labels = {
+    transcription: "Transcription",
+    "note-taking": "Note-taking",
+    "data-entry": "Data entry",
+    "academic-writing": "Academic writing"
+  };
+  return labels[value] || value || "Not selected";
+}
+
+function renderProfile(user) {
+  grid.replaceChildren();
+
+  addField("First name", user.firstName);
+  addField("Last name", user.lastName);
+  addField("Username", user.username ? "@" + user.username : "");
+  addField("Email address", user.email);
+  addField("Phone number", user.phone);
+  addField("Sponsor", user.sponsor?.username
+    ? "@" + user.sponsor.username
+    : "No sponsor assigned");
+  addField("Selected service", displayService(user.selectedService));
+  addField("Account status", user.status || "Unknown");
+  addField("Account role", user.role || "Member");
+  addField("Email verification", user.emailVerified ? "Verified" : "Not verified");
+  addField("Date joined", formatDate(user.createdAt));
+  addField("Display currency", "USD");
+}
+
+function startEditing() {
+  if (!currentUser || saving) return;
+
+  form.elements.firstName.value = currentUser.firstName || "";
+  form.elements.lastName.value = currentUser.lastName || "";
+  form.elements.phone.value = currentUser.phone || "";
+
+  form.hidden = false;
+  editButton.hidden = true;
+  setMessage("Edit your details and save when finished.");
+}
+
+function stopEditing() {
+  if (saving) return;
+  form.reset();
+  form.hidden = true;
+  editButton.hidden = false;
+  setMessage("Changes cancelled.");
+}
+
+
+const pictureForm = document.getElementById("pictureForm");
+const pictureFile = document.getElementById("pictureFile");
+const picturePreview = document.getElementById("picturePreview");
+const picturePlaceholder = document.getElementById("picturePlaceholder");
+const choosePictureButton = document.getElementById("choosePictureButton");
+const uploadPictureButton = document.getElementById("uploadPictureButton");
+const removePictureButton = document.getElementById("removePictureButton");
+const pictureStatus = document.getElementById("pictureStatus");
+let selectedPicture = null;
+let pictureBusy = false;
+
+function setPictureStatus(message, type = "") {
+  pictureStatus.textContent = message;
+  pictureStatus.className = "picture-status" + (type ? " " + type : "");
+}
+
+function renderPicture(user) {
+  const url = user && typeof user.profilePictureUrl === "string"
+    ? user.profilePictureUrl : "";
+  let safeUrl = "";
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "https:" &&
+        parsed.hostname === "res.cloudinary.com") safeUrl = parsed.href;
+  } catch (_) {}
+
+  if (safeUrl) {
+    picturePreview.src = safeUrl;
+    picturePreview.hidden = false;
+    picturePlaceholder.hidden = true;
+    removePictureButton.hidden = false;
+  } else {
+    picturePreview.removeAttribute("src");
+    picturePreview.hidden = true;
+    picturePlaceholder.hidden = false;
+    removePictureButton.hidden = true;
+  }
+}
+
+choosePictureButton.addEventListener("click", () => {
+  if (!pictureBusy) pictureFile.click();
+});
+
+pictureFile.addEventListener("change", () => {
+  selectedPicture = pictureFile.files && pictureFile.files[0]
+    ? pictureFile.files[0] : null;
+
+  if (!selectedPicture) {
+    uploadPictureButton.disabled = true;
+    setPictureStatus("");
+    return;
+  }
+
+  const allowed = ["image/jpeg", "image/png", "image/webp"];
+  if (!allowed.includes(selectedPicture.type) ||
+      selectedPicture.size > 3 * 1024 * 1024) {
+    selectedPicture = null;
+    pictureFile.value = "";
+    uploadPictureButton.disabled = true;
+    setPictureStatus("Choose JPG, PNG, or WebP up to 3 MB.", "error");
+    return;
+  }
+
+  uploadPictureButton.disabled = pictureBusy;
+  setPictureStatus("Selected: " + selectedPicture.name);
+});
+
+pictureForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (!selectedPicture || pictureBusy) return;
+
+  pictureBusy = true;
+  uploadPictureButton.disabled = true;
+  choosePictureButton.disabled = true;
+  removePictureButton.disabled = true;
+  setPictureStatus("Uploading picture...");
+
+  try {
+    const body = new FormData();
+    body.append("picture", selectedPicture);
+
+    const response = await fetch(apiRoot() + "/profile/picture", {
+      method: "POST",
+      credentials: "include",
+      body
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(result.message || result.error || "Picture upload failed.");
+    }
+
+    currentUser = result.user || result.data || currentUser || {};
+    if (result.profilePictureUrl) {
+      currentUser.profilePictureUrl = result.profilePictureUrl;
+    }
+    renderPicture(currentUser);
+    selectedPicture = null;
+    pictureFile.value = "";
+    setPictureStatus(result.message || "Profile picture updated.", "success");
+  } catch (error) {
+    setPictureStatus(error.message || "Upload failed.", "error");
+  } finally {
+    pictureBusy = false;
+    choosePictureButton.disabled = false;
+    removePictureButton.disabled = false;
+    uploadPictureButton.disabled = !selectedPicture;
+  }
+});
+
+removePictureButton.addEventListener("click", async () => {
+  if (pictureBusy || !currentUser || !currentUser.profilePictureUrl) return;
+
+  pictureBusy = true;
+  choosePictureButton.disabled = true;
+  uploadPictureButton.disabled = true;
+  removePictureButton.disabled = true;
+  setPictureStatus("Removing picture...");
+
+  try {
+    const response = await fetch(apiRoot() + "/profile/picture", {
+      method: "DELETE",
+      credentials: "include"
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(result.message || result.error || "Picture removal failed.");
+    }
+
+    currentUser = result.user || result.data || currentUser || {};
+    currentUser.profilePictureUrl = null;
+    renderPicture(currentUser);
+    setPictureStatus(result.message || "Profile picture removed.", "success");
+  } catch (error) {
+    setPictureStatus(error.message || "Removal failed.", "error");
+  } finally {
+    pictureBusy = false;
+    choosePictureButton.disabled = false;
+    removePictureButton.disabled = false;
+    uploadPictureButton.disabled = !selectedPicture;
+  }
+});
+
+async function loadProfile(showMessage = true) {
+  try {
+    const result = await request(apiRoot() + "/profile");
+    currentUser = result.user || result.data || result;
+
+    renderProfile(currentUser);
+    renderPicture(currentUser);
+
+    editButton.hidden = false;
+    if (showMessage) setMessage("Profile loaded successfully.");
+  } catch (error) {
+    setMessage(error.message || "Could not load your profile.", "error");
+  }
+}
+
+form.addEventListener("submit", async event => {
+  event.preventDefault();
+  if (saving) return;
+
+  const firstName = form.elements.firstName.value.trim();
+  const lastName = form.elements.lastName.value.trim();
+  const phone = form.elements.phone.value.trim();
+
+  if (!firstName || !lastName || phone.length < 7) {
+    setMessage("Enter both names and a valid phone number.", "error");
+    return;
+  }
+
+  if (firstName.length > 60 || lastName.length > 60 || phone.length > 25) {
+    setMessage("One or more fields exceed the allowed length.", "error");
+    return;
+  }
+
+  saving = true;
+  saveButton.disabled = true;
+  cancelButton.disabled = true;
+  saveButton.textContent = "Saving...";
+  setMessage("Saving your profile...");
+
+  try {
+    const result = await request(apiRoot() + "/profile", {
+      method: "PATCH",
+      body: JSON.stringify({firstName, lastName, phone})
+    });
+
+    currentUser = result.user || currentUser;
+    renderProfile(currentUser);
+    renderPicture(currentUser);
+    form.hidden = true;
+    editButton.hidden = false;
+    form.reset();
+    setMessage(result.message || "Profile updated successfully.", "success");
+  } catch (error) {
+    setMessage(error.message || "Could not save your profile.", "error");
+  } finally {
+    saving = false;
+    saveButton.disabled = false;
+    cancelButton.disabled = false;
+    saveButton.textContent = "Save changes";
+  }
+});
+
+editButton.addEventListener("click", startEditing);
+cancelButton.addEventListener("click", stopEditing);
+
+document.getElementById("signOut").addEventListener("click", async () => {
+  try {
+    if (typeof window.PTW_AUTH_API_LOGOUT === "string") {
+      await fetch(window.PTW_AUTH_API_LOGOUT, {
+        method: "POST",
+        credentials: "include"
+      });
+    }
+  } catch (_) {}
+  window.location.href = "../login.html";
+});
+
+loadProfile();
+</script>
+
+<script>
+
+(function () {
+  const toggle = document.getElementById("ptwMenuToggle");
+  const panel = document.getElementById("ptwMenuPanel");
+  if (!toggle || !panel) return;
+
+  function closeMenu() {
+    panel.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+  }
+
+  toggle.addEventListener("click", function (event) {
+    event.stopPropagation();
+    const opening = panel.hidden;
+    panel.hidden = !opening;
+    toggle.setAttribute("aria-expanded", String(opening));
+  });
+
+  panel.addEventListener("click", function (event) {
+    const link = event.target.closest("a");
+    if (link) closeMenu();
+    event.stopPropagation();
+  });
+
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest(".ptw-menu-wrap")) closeMenu();
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeMenu();
+      toggle.focus();
+    }
+  });
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#061225">
+<meta name="description" content="Understand PrimeTask Workspace minutes, bids, memberships, purchases, access rules and the purpose of each platform utility.">
+<title>Minutes, Bids & Memberships | PrimeTask Workspace</title>
+
+<style>
+:root {
+  --bg: #050b18;
+  --bg2: #081426;
+  --panel: #0c1b30;
+  --panel2: #10243d;
+  --blue: #3984ff;
+  --cyan: #49d9ff;
+  --orange: #f2a65a;
+  --earth: #c96f43;
+  --cream: #f3e7d5;
+  --white: #f5f8ff;
+  --muted: #aab8cd;
+  --border: rgba(255,255,255,.11);
+  --green: #65d6a3;
+  --red: #ff8585;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+.container {
+  width: min(1160px, 91%);
+  margin: auto;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5,11,24,.96);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+}
+
+.nav {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand {
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -.5px;
+  white-space: nowrap;
+}
+
+.brand span {
+  color: var(--cyan);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 21px;
+}
+
+.nav-links a {
+  color: var(--muted);
+  font-size: .88rem;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--cyan);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--blue), #2563eb);
+  color: white;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: transform .2s, opacity .2s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  opacity: .94;
+}
+
+.btn-outline {
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.22);
+}
+
+.menu-btn {
+  display: none;
+  padding: 9px 12px;
+  background: var(--panel);
+  color: white;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--orange);
+  text-transform: uppercase;
+  letter-spacing: 1.6px;
+  font-size: .79rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 3px;
+  background: var(--orange);
+}
+
+.pattern-strip {
+  height: 10px;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--earth) 0 12px,
+    var(--orange) 12px 24px,
+    #142c49 24px 36px,
+    var(--cyan) 36px 40px,
+    #142c49 40px 52px
+  );
+}
+
+/* HERO */
+
+.hero {
+  position: relative;
+  min-height: 640px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(3,9,21,.98) 0%,
+      rgba(3,9,21,.91) 45%,
+      rgba(3,9,21,.43) 100%
+    ),
+    url("https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=2000&q=85")
+    center/cover no-repeat;
+}
+
+.hero::after {
+  content: "◇ ◆ ◇";
+  position: absolute;
+  right: 5%;
+  top: 12%;
+  color: var(--orange);
+  font-size: 3rem;
+  letter-spacing: 15px;
+  opacity: .4;
+  transform: rotate(-12deg);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 850px;
+  padding: 100px 0;
+}
+
+h1 {
+  font-size: clamp(2.7rem, 6vw, 5rem);
+  line-height: 1.08;
+  letter-spacing: -2px;
+  margin-bottom: 25px;
+}
+
+h1 span {
+  color: var(--orange);
+}
+
+.hero-content > p {
+  max-width: 740px;
+  color: #d2ddec;
+  font-size: 1.08rem;
+  margin-bottom: 28px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* GENERAL SECTIONS */
+
+.section {
+  padding: 85px 0;
+}
+
+.section-heading {
+  max-width: 820px;
+  margin-bottom: 40px;
+}
+
+.section-heading h2 {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.2;
+  letter-spacing: -1px;
+  margin-bottom: 17px;
+}
+
+.section-heading h2 span {
+  color: var(--cyan);
+}
+
+.section-heading p {
+  color: var(--muted);
+}
+
+.center {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.center .eyebrow {
+  justify-content: center;
+}
+
+/* INTRODUCTION */
+
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1.05fr .95fr;
+  gap: 50px;
+  align-items: center;
+}
+
+.prose p {
+  color: #c4d0df;
+  margin-bottom: 19px;
+}
+
+.prose strong {
+  color: white;
+}
+
+.intro-image img {
+  width: 100%;
+  height: 440px;
+  object-fit: cover;
+  display: block;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.image-caption {
+  margin-top: 15px;
+  padding: 17px 19px;
+  border-left: 4px solid var(--orange);
+  border-radius: 0 10px 10px 0;
+  background: var(--panel);
+}
+
+.image-caption strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.image-caption p {
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+/* THREE UTILITIES */
+
+.utility-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 20px;
+}
+
+.utility-card {
+  position: relative;
+  overflow: hidden;
+  padding: 30px 25px;
+  border-radius: 17px;
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg, var(--panel2), var(--panel));
+}
+
+.utility-card::after {
+  content: "";
+  position: absolute;
+  right: -32px;
+  bottom: -40px;
+  width: 110px;
+  height: 110px;
+  border: 1px solid rgba(242,166,90,.25);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.utility-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: rgba(57,132,255,.14);
+  border: 1px solid rgba(73,217,255,.18);
+  font-size: 1.7rem;
+  margin-bottom: 22px;
+}
+
+.utility-card:nth-child(2) .utility-icon,
+.utility-card:nth-child(2) .utility-label {
+  background: rgba(242,166,90,.1);
+  border-color: rgba(242,166,90,.25);
+}
+
+.utility-card:nth-child(3) .utility-icon {
+  background: rgba(101,214,163,.1);
+  border-color: rgba(101,214,163,.2);
+}
+
+.utility-label {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--orange);
+  padding: 5px 9px;
+  border: 1px solid rgba(242,166,90,.2);
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.utility-card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+}
+
+.utility-card > p {
+  color: var(--muted);
+  font-size: .94rem;
+  margin-bottom: 20px;
+}
+
+.utility-card ul {
+  list-style: none;
+  display: grid;
+  gap: 9px;
+}
+
+.utility-card li {
+  color: #d8e3f1;
+  font-size: .9rem;
+}
+
+.utility-card li::before {
+  content: "✓";
+  color: var(--cyan);
+  margin-right: 9px;
+  font-weight: 800;
+}
+
+/* MINUTES */
+
+.detail-section {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: .85fr 1.15fr;
+  align-items: start;
+  gap: 45px;
+}
+
+.detail-aside {
+  position: sticky;
+  top: 105px;
+  padding: 30px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(rgba(7,19,36,.92), rgba(7,19,36,.97)),
+    url("https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1000&q=80")
+    center/cover;
+}
+
+.detail-aside h3 {
+  font-size: 1.7rem;
+  line-height: 1.25;
+  margin-bottom: 14px;
+}
+
+.detail-aside h3 span {
+  color: var(--cyan);
+}
+
+.detail-aside p {
+  color: var(--muted);
+  font-size: .94rem;
+  margin-bottom: 18px;
+}
+
+.detail-aside .big-symbol {
+  font-size: 3.1rem;
+  margin-bottom: 20px;
+}
+
+.detail-content h3 {
+  font-size: 1.35rem;
+  margin: 28px 0 10px;
+}
+
+.detail-content h3:first-child {
+  margin-top: 0;
+}
+
+.detail-content p {
+  color: #c4d0df;
+  margin-bottom: 17px;
+}
+
+.detail-content ul {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.detail-content li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  color: #d7e2ef;
+}
+
+.list-check {
+  flex: 0 0 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: rgba(73,217,255,.1);
+  color: var(--cyan);
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+.info-box {
+  padding: 21px;
+  border-radius: 12px;
+  border: 1px solid rgba(73,217,255,.2);
+  background: rgba(73,217,255,.045);
+  margin: 22px 0;
+}
+
+.info-box strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.info-box p {
+  margin-bottom: 0;
+  font-size: .93rem;
+}
+
+.warning-box {
+  border-color: rgba(242,166,90,.27);
+  background: rgba(242,166,90,.055);
+}
+
+/* FLOW */
+
+.flow-grid {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 16px;
+}
+
+.flow-card {
+  padding: 24px 20px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+
+.flow-number {
+  color: var(--orange);
+  font-weight: 800;
+  font-size: .82rem;
+  letter-spacing: 1.3px;
+  margin-bottom: 13px;
+}
+
+.flow-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: 9px;
+}
+
+.flow-card p {
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+/* BIDS */
+
+.bids-section {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(5,11,24,.96), rgba(5,11,24,.96)),
+    url("https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1800&q=80")
+    center/cover;
+}
+
+.bid-callout {
+  padding: 32px;
+  border-radius: 18px;
+  border: 1px solid rgba(242,166,90,.25);
+  background: rgba(242,166,90,.055);
+  margin-top: 28px;
+}
+
+.bid-callout h3 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+
+.bid-callout p {
+  color: #c4d0df;
+}
+
+/* MEMBERSHIP */
+
+.membership-section {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.membership-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 19px;
+}
+
+.membership-card {
+  padding: 28px 24px;
+  border-radius: 17px;
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg,var(--panel2),var(--panel));
+}
+
+.membership-card.featured {
+  border-color: rgba(73,217,255,.4);
+  box-shadow: inset 0 3px 0 var(--cyan);
+}
+
+.membership-card h3 {
+  font-size: 1.35rem;
+  margin-bottom: 11px;
+}
+
+.membership-card > p {
+  color: var(--muted);
+  font-size: .93rem;
+  margin-bottom: 18px;
+}
+
+.membership-card ul {
+  list-style: none;
+  display: grid;
+  gap: 11px;
+}
+
+.membership-card li {
+  color: #d7e2ef;
+  font-size: .9rem;
+}
+
+.membership-card li::before {
+  content: "✓";
+  color: var(--cyan);
+  font-weight: 800;
+  margin-right: 9px;
+}
+
+.membership-note {
+  margin-top: 24px;
+  padding: 23px;
+  border-left: 4px solid var(--orange);
+  border-radius: 0 12px 12px 0;
+  background: rgba(242,166,90,.055);
+}
+
+.membership-note p {
+  color: #c4d0df;
+  font-size: .94rem;
+}
+
+/* COMPARISON TABLE */
+
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 650px;
+  background: var(--panel);
+}
+
+th, td {
+  padding: 17px 19px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  color: var(--cyan);
+  background: #10223a;
+  font-size: .9rem;
+}
+
+td {
+  color: #d4deec;
+  font-size: .92rem;
+}
+
+td:first-child {
+  color: white;
+  font-weight: 700;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* PURCHASE FLOW */
+
+.purchase-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 19px;
+}
+
+.purchase-card {
+  padding: 26px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255,255,255,.025);
+}
+
+.purchase-card .number {
+  width: 43px;
+  height: 43px;
+  display: grid;
+  place-items: center;
+  background: rgba(242,166,90,.1);
+  border: 1px solid rgba(242,166,90,.25);
+  color: var(--orange);
+  border-radius: 12px;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+
+.purchase-card h3 {
+  font-size: 1.12rem;
+  margin-bottom: 9px;
+}
+
+.purchase-card p {
+  color: var(--muted);
+  font-size: .92rem;
+}
+
+/* RESPONSIBLE FINANCE */
+
+.finance-panel {
+  padding: 35px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: linear-gradient(145deg,var(--panel2),var(--panel));
+}
+
+.finance-panel h3 {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+
+.finance-panel > p {
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.finance-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 15px;
+}
+
+.finance-item {
+  padding: 20px;
+  background: rgba(0,0,0,.15);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.finance-item strong {
+  display: block;
+  margin-bottom: 7px;
+}
+
+.finance-item p {
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+/* FAQ */
+
+.faq-list {
+  display: grid;
+  gap: 12px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.faq-item {
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 20px;
+  background: transparent;
+  color: white;
+  border: 0;
+  text-align: left;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.faq-question span:last-child {
+  color: var(--cyan);
+  font-size: 1.4rem;
+}
+
+.faq-answer {
+  display: none;
+  padding: 0 20px 20px;
+  color: var(--muted);
+  font-size: .94rem;
+}
+
+.faq-item.open .faq-answer {
+  display: block;
+}
+
+.faq-item.open .faq-question span:last-child {
+  transform: rotate(45deg);
+}
+
+/* CTA */
+
+.cta {
+  padding: 75px 0;
+}
+
+.cta-box {
+  padding: 50px;
+  border-radius: 22px;
+  border: 1px solid rgba(73,217,255,.24);
+  background:
+    linear-gradient(100deg,rgba(3,10,23,.97),rgba(5,20,40,.86)),
+    url("https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1800&q=85")
+    center/cover;
+}
+
+.cta-box h2 {
+  max-width: 800px;
+  font-size: clamp(2rem,4vw,3.3rem);
+  line-height: 1.2;
+  margin-bottom: 17px;
+}
+
+.cta-box h2 span {
+  color: var(--orange);
+}
+
+.cta-box p {
+  max-width: 760px;
+  color: #c4d0df;
+  margin-bottom: 25px;
+}
+
+/* FOOTER */
+
+footer {
+  padding: 34px 0;
+  background: #030813;
+  border-top: 1px solid var(--border);
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 25px;
+}
+
+.footer-inner p {
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.footer-links {
+  display: flex;
+  gap: 17px;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: var(--muted);
+  font-size: .86rem;
+}
+
+.footer-links a:hover {
+  color: var(--cyan);
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 980px) {
+  .menu-btn {
+    display: block;
+  }
+
+  .nav-cta {
+    display: none;
+  }
+
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 76px;
+    left: 0;
+    right: 0;
+    padding: 15px 5%;
+    background: #07101f;
+    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-links a {
+    padding: 12px 0;
+  }
+
+  .intro-grid,
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-aside {
+    position: relative;
+    top: auto;
+  }
+
+  .utility-grid,
+  .membership-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .flow-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width: 650px) {
+  .hero {
+    min-height: 570px;
+    background-position: 60% center;
+  }
+
+  .hero::after {
+    font-size: 1.7rem;
+  }
+
+  h1 {
+    letter-spacing: -1px;
+  }
+
+  .section {
+    padding: 62px 0;
+  }
+
+  .intro-image img {
+    height: 300px;
+  }
+
+  .utility-grid,
+  .membership-grid,
+  .flow-grid,
+  .purchase-grid,
+  .finance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-aside,
+  .finance-panel {
+    padding: 25px;
+  }
+
+  .cta-box {
+    padding: 30px 23px;
+  }
+
+  .footer-inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media(prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="index.html" class="brand">
+      PrimeTask <span>Workspace</span>
+    </a>
+
+    <button
+      class="menu-btn"
+      id="menuBtn"
+      aria-label="Open navigation"
+      aria-expanded="false">
+      ☰ Menu
+    </button>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="about.html">Our Story</a>
+      <a href="pricing.html" class="active">Platform Utilities</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <a href="auth/register.html" class="btn nav-cta">Get Started</a>
+  </div>
+</header>
+
+<main>
+
+<!-- HERO -->
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="eyebrow">UNDERSTANDING THE WORKSPACE</div>
+
+      <h1>
+        Three utilities.<br>
+        Three purposes.<br>
+        <span>One organised system.</span>
+      </h1>
+
+      <p>
+        Minutes support transcription workflows. Bids support participation
+        in eligible job opportunities. Memberships define a user's access
+        to specified platform benefits. Understanding the difference helps
+        everyone use PrimeTask Workspace responsibly.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#three-utilities" class="btn">Explore the Utilities ↓</a>
+        <a href="#purchase-process" class="btn btn-outline">How Purchases Work</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pattern-strip"></div>
+
+<!-- INTRODUCTION -->
+
+<section class="section">
+  <div class="container intro-grid">
+
+    <div class="prose">
+      <div class="eyebrow">THE LOGIC BEHIND THE SYSTEM</div>
+
+      <div class="section-heading">
+        <h2>Why does a digital workspace need <span>utilities?</span></h2>
+      </div>
+
+      <p>
+        PrimeTask Workspace is intended to support several kinds of digital
+        work. Different activities require different resources, permissions
+        and workflows. A person handling transcription does not necessarily
+        need the same resources as a person applying for a client assignment.
+        Someone with a membership may also have access to features that are
+        separate from both of those activities.
+      </p>
+
+      <p>
+        This is why the platform distinguishes between <strong>minutes,
+        bids and memberships</strong>. Each has a specific purpose, and each
+        should be explained before a user makes a purchase.
+      </p>
+
+      <p>
+        The goal is to make the platform easier to understand. Users should
+        be able to see what they are buying, what the purchase allows them
+        to do, which rules apply and what the purchase does not guarantee.
+      </p>
+
+      <p>
+        These utilities must also be managed carefully behind the scenes.
+        A displayed balance is not enough by itself. The system needs reliable
+        records of purchases, usage, access, changes and relevant transactions.
+      </p>
+
+      <p>
+        In PrimeTask Workspace, the intended approach is to keep these
+        resources distinct so that a minute balance cannot accidentally
+        become a bid balance, a membership cannot be mistaken for cash,
+        and a payment cannot be treated as successful merely because a
+        browser displayed a success message.
+      </p>
+    </div>
+
+    <div class="intro-image">
+      <img
+        src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=85"
+        alt="Professionals collaborating in a shared working environment"
+        loading="lazy">
+
+      <div class="image-caption">
+        <strong>Clear purpose. Clear records. Clear expectations.</strong>
+        <p>
+          Every utility should have a defined role in the user experience
+          and a reliable record of how it is used.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- THREE UTILITIES -->
+
+<section class="section detail-section" id="three-utilities">
+  <div class="container">
+
+    <div class="section-heading center">
+      <div class="eyebrow">THE THREE CATEGORIES</div>
+      <h2>Understand what each utility <span>actually does.</span></h2>
+      <p>
+        These categories have different functions. Buying one should never
+        silently increase the balance or access rights of another.
+      </p>
+    </div>
+
+    <div class="utility-grid">
+
+      <article class="utility-card">
+        <div class="utility-icon">🎧</div>
+        <div class="utility-label">SERVICE CAPACITY</div>
+        <h3>Transcription Minutes</h3>
+        <p>
+          Minutes measure eligible audio time available within the
+          transcription workflow. They are service units, not cash.
+        </p>
+        <ul>
+          <li>Support eligible audio assignments</li>
+          <li>Help track audio capacity and usage</li>
+          <li>Make usage easier to measure</li>
+          <li>Keep service consumption separate from earnings</li>
+        </ul>
+      </article>
+
+      <article class="utility-card">
+        <div class="utility-icon">🎯</div>
+        <div class="utility-label">JOB PARTICIPATION</div>
+        <h3>Bids</h3>
+        <p>
+          Bids are intended to support eligible job applications or
+          proposals where the platform uses a bidding workflow.
+        </p>
+        <ul>
+          <li>Support participation in eligible opportunities</li>
+          <li>Help manage application activity</li>
+          <li>Make bidding usage measurable</li>
+          <li>Do not guarantee job awards or income</li>
+        </ul>
+      </article>
+
+      <article class="utility-card">
+        <div class="utility-icon">🛡️</div>
+        <div class="utility-label">ACCESS AND BENEFITS</div>
+        <h3>Memberships</h3>
+        <p>
+          Memberships define a set of access rights and benefits for
+          a specified plan and period, where applicable.
+        </p>
+        <ul>
+          <li>Define eligible platform features</li>
+          <li>Organise access levels and service permissions</li>
+          <li>Make plan conditions visible</li>
+          <li>Remain separate from cash and utility balances</li>
+        </ul>
+      </article>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- MINUTES DEEP DIVE -->
+
+<section class="section" id="minutes">
+  <div class="container detail-grid">
+
+    <aside class="detail-aside">
+      <div class="big-symbol">🎧</div>
+      <div class="eyebrow">UTILITY 01</div>
+
+      <h3>Minutes measure <span>audio capacity.</span></h3>
+
+      <p>
+        A minute balance tells the system how much eligible transcription
+        capacity is available under the applicable rules.
+      </p>
+
+      <a href="services.html" class="btn">Explore Transcription</a>
+    </aside>
+
+    <div class="detail-content">
+
+      <div class="section-heading">
+        <h2>Why does PrimeTask use <span>minutes?</span></h2>
+        <p>
+          Audio has a measurable duration, and transcription workflows
+          need a consistent way to account for the audio being processed.
+        </p>
+      </div>
+
+      <h3>1. Minutes represent a measurable service unit</h3>
+
+      <p>
+        A recording can be measured in minutes and seconds. Using audio
+        duration as a service unit makes it easier to understand how much
+        material a transcription workflow involves.
+      </p>
+
+      <p>
+        A minute balance is therefore intended to represent eligible
+        transcription capacity. It is not a financial balance, an earnings
+        balance or a promise that a particular assignment will be available.
+      </p>
+
+      <h3>2. Minutes help manage service usage</h3>
+
+      <p>
+        When a transcription workflow involves audio, the platform needs
+        a reliable way to determine whether the required capacity is
+        available. A properly implemented minute wallet can support those
+        checks before an eligible assignment is accepted or processed.
+      </p>
+
+      <ul>
+        <li>
+          <span class="list-check">✓</span>
+          <span>Check whether the required minute balance is available.</span>
+        </li>
+        <li>
+          <span class="list-check">✓</span>
+          <span>Record the minutes associated with a specific assignment.</span>
+        </li>
+        <li>
+          <span class="list-check">✓</span>
+          <span>Prevent the same available minutes from being used twice.</span>
+        </li>
+        <li>
+          <span class="list-check">✓</span>
+          <span>Show the user a clear record of relevant usage and changes.</span>
+        </li>
+      </ul>
+
+      <h3>3. What happens when an assignment uses minutes?</h3>
+
+      <p>
+        A robust workflow should distinguish between reserving minutes,
+        consuming minutes and releasing a reservation. These are different
+        events and should not be treated as if they were identical.
+      </p>
+
+      <div class="info-box">
+        <strong>Example of an assignment workflow</strong>
+        <p>
+          When an eligible assignment is accepted, the required minutes
+          can be reserved so that they are not allocated elsewhere.
+          If the work is approved under the applicable rules, the reserved
+          minutes can be consumed. If the work is rejected and the rules
+          provide for release, the reservation can be returned to the
+          available balance.
+        </p>
+      </div>
+
+      <p>
+        This separation helps prevent accidental double-use and gives the
+        platform a clearer record of what happened to the balance.
+        The precise treatment must follow the published service rules and
+        the actual implementation.
+      </p>
+
+      <h3>4. Why buy minutes?</h3>
+
+      <p>
+        Purchasing minutes is intended for users who need additional
+        transcription capacity beyond what is otherwise available to them.
+        The purchase should clearly identify the number of minutes being
+        acquired, the applicable price and any restrictions or expiry
+        conditions before payment is confirmed.
+      </p>
+
+      <p>
+        The purpose is to make the service unit visible and measurable.
+        A user should not have to guess how much audio capacity a package
+        contains or discover important conditions only after purchasing it.
+      </p>
+
+      <h3>5. What minutes do not mean</h3>
+
+      <ul>
+        <li>
+          <span class="list-check">!</span>
+          <span>Minutes are not cash and cannot automatically be treated as money.</span>
+        </li>
+        <li>
+          <span class="list-check">!</span>
+          <span>Buying minutes does not guarantee that a client will award a job.</span>
+        </li>
+        <li>
+          <span class="list-check">!</span>
+          <span>Minutes do not automatically represent worker earnings.</span>
+        </li>
+        <li>
+          <span class="list-check">!</span>
+          <span>A membership should not silently create minute credits unless its published benefits explicitly provide for them.</span>
+        </li>
+      </ul>
+
+      <div class="info-box warning-box">
+        <strong>Important distinction</strong>
+        <p>
+          Audio duration, the amount a user pays for service capacity and
+          the compensation a worker may earn are separate concepts.
+          They must be defined independently rather than treated as the
+          same calculation.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- BIDS DEEP DIVE -->
+
+<section class="section bids-section" id="bids">
+  <div class="container detail-grid">
+
+    <aside class="detail-aside">
+      <div class="big-symbol">🎯</div>
+      <div class="eyebrow">UTILITY 02</div>
+
+      <h3>Bids support <span>job participation.</span></h3>
+
+      <p>
+        Where a service uses a bidding system, bids provide a defined
+        resource for submitting eligible applications or proposals.
+      </p>
+
+      <a href="services.html" class="btn">Explore Services</a>
+    </aside>
+
+    <div class="detail-content">
+
+      <div class="section-heading">
+        <h2>Why does a platform need <span>bids?</span></h2>
+        <p>
+          When clients publish work and workers apply for it, the platform
+          needs a clear process for handling applications.
+        </p>
+      </div>
+
+      <h3>1. Bids are connected to participation</h3>
+
+      <p>
+        In a bidding-based workflow, an eligible worker may submit a proposal
+        or express interest in a listed assignment. A bid unit can be used
+        to regulate or measure that activity, depending on the rules of
+        the particular service.
+      </p>
+
+      <p>
+        This is different from transcription minutes. Minutes measure audio
+        capacity. Bids are intended to support participation in eligible
+        job opportunities.
+      </p>
+
+      <h3>2. Bids help structure job applications</h3>
+
+      <p>
+        A defined bidding system can help the platform manage application
+        activity and apply consistent rules. For example, the system may
+        require an eligible user to have sufficient bid units before
+        submitting a proposal to a job that uses bidding.
+      </p>
+
+      <p>
+        The platform must explain which jobs require bids, how many units
+        an application uses, whether a bid can be withdrawn, and whether
+        any return or refund conditions apply. Those rules should be
+        visible before the user confirms an action.
+      </p>
+
+      <h3>3. Why purchase bids?</h3>
+
+      <p>
+        A bid purchase is intended for users who need additional
+        participation capacity under an eligible bidding workflow.
+        The purchase should identify the quantity, price, applicable
+        conditions and any limits on use.
+      </p>
+
+      <p>
+        Bid purchases should not be presented as payments for guaranteed
+        work. They are intended to support participation, not determine
+        whether a client selects a particular applicant.
+      </p>
+
+      <h3>4. A bid is not a job award</h3>
+
+      <ul>
+        <li>
+          <span class="list-check">✓</span>
+          <span>A bid may allow a user to submit an eligible proposal.</span>
+        </li>
+        <li>
+          <span class="list-check">✓</span>
+          <span>A client or authorised reviewer may still need to evaluate applications.</span>
+        </li>
+        <li>
+          <span class="list-check">✓</span>
+          <span>Assignment selection should follow the relevant job rules.</span>
+        </li>
+        <li>
+          <span class="list-check">!</span>
+          <span>Purchasing more bids does not guarantee selection, earnings or a minimum number of assignments.</span>
+        </li>
+      </ul>
+
+      <div class="bid-callout">
+        <h3>Why this distinction matters</h3>
+        <p>
+          A user should understand that they are purchasing participation
+          capacity, not purchasing a client's decision. Job availability,
+          requirements, competition and selection criteria remain separate
+          from the number of bid units held by an applicant.
+        </p>
+      </div>
+
+      <h3>5. Bids should have their own records</h3>
+
+      <p>
+        Bid purchases and usage should be recorded independently from
+        minutes and membership status. If a proposal uses a bid, the
+        platform should record that event and the relevant job or
+        application reference.
+      </p>
+
+      <p>
+        This makes it easier to explain balance changes, investigate
+        disputes and prevent duplicate deductions. It also helps the
+        platform distinguish a payment that successfully purchased bids
+        from a proposal that was actually submitted.
+      </p>
+
+    </div>
+  </div>
+</section>
+
+<!-- MEMBERSHIPS DEEP DIVE -->
+
+<section class="section membership-section" id="memberships">
+  <div class="container">
+
+    <div class="section-heading">
+      <div class="eyebrow">UTILITY 03</div>
+      <h2>Memberships define <span>access and benefits.</span></h2>
+      <p>
+        A membership is a plan that determines which specified features
+        or services a user is entitled to access under its published
+        conditions. It is not the same thing as buying a consumable utility.
+      </p>
+    </div>
+
+    <div class="detail-content">
+
+      <h3>1. Why have memberships?</h3>
+
+      <p>
+        A growing digital platform may offer different service levels,
+        tools or support arrangements. Memberships can organise those
+        entitlements into understandable plans so that users know what
+        is included and what remains separate.
+      </p>
+
+      <p>
+        For example, a plan could define access to particular platform
+        features, learning materials, support channels or service
+        categories. The exact benefits depend on the actual plan
+        approved by PrimeTask Workspace.
+      </p>
+
+      <h3>2. Memberships are about entitlement</h3>
+
+      <p>
+        A membership should answer a basic question: <strong>what is this
+        user entitled to access under this plan?</strong>
+      </p>
+
+      <p>
+        That entitlement might be limited by the plan, the service,
+        an activation date, an expiry date or other clearly published
+        conditions. The platform should show the user the plan name,
+        its price, the included benefits, its duration where applicable,
+        and how renewal or cancellation works.
+      </p>
+
+      <h3>3. Why separate memberships from minutes and bids?</h3>
+
+      <p>
+        Because access rights and usage balances solve different problems.
+        A membership may permit access to a service, while minutes measure
+        transcription capacity and bids support eligible job applications.
+      </p>
+
+      <p>
+        Keeping them separate makes it possible to explain exactly what
+        was purchased. If a plan includes a specific quantity of minutes
+        or bids, that benefit should be explicitly stated and credited
+        according to the plan's rules. It should not be assumed.
+      </p>
+
+      <h3>4. Memberships must have clear boundaries</h3>
+
+      <ul>
+        <li>
+          <span class="list-check">✓</span>
+          <span>List the features and services included in the plan.</span>
+        </li>
+        <li>
+          <span class="list-check">✓</span>
+          <span>Explain the activation period and expiry conditions where applicable.</span>
+        </li>
+        <li>
+          <span class="list-check">✓</span>
+          <span>Show renewal, cancellation and refund rules before purchase.</span>
+        </li>
+        <li>
+          <span class="list-check">✓</span>
+          <span>Explain which benefits require a separate purchase.</span>
+        </li>
+        <li>
+          <span class="list-check">!</span>
+          <span>Do not imply that membership automatically guarantees a job, a client or an income.</span>
+        </li>
+      </ul>
+
+    </div>
+
+    <div class="section-heading" style="margin-top:60px">
+      <h2>Understanding membership <span>levels.</span></h2>
+      <p>
+        The following cards explain possible ways to organise access.
+        They are illustrative categories, not a published price list
+        or a claim that these specific plans are currently available.
+      </p>
+    </div>
+
+    <div class="membership-grid">
+
+      <article class="membership-card">
+        <div class="utility-label">ACCESS LEVEL A</div>
+        <h3>Essential Access</h3>
+        <p>
+          A plan designed around a defined set of basic features and
+          resources available to eligible members.
+        </p>
+        <ul>
+          <li>Clearly listed account features</li>
+          <li>Access to specified resources</li>
+          <li>Published eligibility conditions</li>
+          <li>Visible plan status and duration</li>
+        </ul>
+      </article>
+
+      <article class="membership-card featured">
+        <div class="utility-label">ACCESS LEVEL B</div>
+        <h3>Expanded Access</h3>
+        <p>
+          A plan that may include additional tools or service access
+          beyond the benefits of a basic plan.
+        </p>
+        <ul>
+          <li>Benefits listed before checkout</li>
+          <li>Clearly defined service permissions</li>
+          <li>Transparent limits and conditions</li>
+          <li>Separate tracking of purchased utilities</li>
+        </ul>
+      </article>
+
+      <article class="membership-card">
+        <div class="utility-label">ACCESS LEVEL C</div>
+        <h3>Specialised Access</h3>
+        <p>
+          A plan organised around specific tools, services or support
+          arrangements for eligible users.
+        </p>
+        <ul>
+          <li>Defined specialised features</li>
+          <li>Explicit eligibility requirements</li>
+          <li>Clear activation and expiry rules</li>
+          <li>No implied guarantee of paid work</li>
+        </ul>
+      </article>
+
+    </div>
+
+    <div class="membership-note">
+      <p>
+        <strong>Important:</strong> Membership levels only have meaning
+        when their benefits are defined and implemented. A higher price
+        should correspond to clearly stated additional value, not vague
+        promises about future earnings or guaranteed access to work.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- COMPARISON -->
+
+<section class="section">
+  <div class="container">
+
+    <div class="section-heading center">
+      <div class="eyebrow">SIDE-BY-SIDE COMPARISON</div>
+      <h2>Minutes vs bids vs <span>memberships.</span></h2>
+      <p>
+        Three different functions, three different records and three
+        different reasons for purchasing.
+      </p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Minutes</th>
+            <th>Bids</th>
+            <th>Memberships</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            <td>Main purpose</td>
+            <td>Measure eligible transcription audio capacity.</td>
+            <td>Support participation in eligible bidding workflows.</td>
+            <td>Define specified access rights and plan benefits.</td>
+          </tr>
+
+          <tr>
+            <td>What is purchased?</td>
+            <td>A defined quantity of service minutes.</td>
+            <td>A defined quantity of bid units.</td>
+            <td>A defined plan or membership entitlement.</td>
+          </tr>
+
+          <tr>
+            <td>How is it used?</td>
+            <td>According to the relevant transcription rules.</td>
+            <td>According to the relevant job application rules.</td>
+            <td>By accessing the features included in the plan.</td>
+          </tr>
+
+          <tr>
+            <td>Can it represent cash?</td>
+            <td>No. It is a service unit.</td>
+            <td>No. It is a participation unit.</td>
+            <td>No. It represents access under a plan.</td>
+          </tr>
+
+          <tr>
+            <td>Does it guarantee a job?</td>
+            <td>No.</td>
+            <td>No.</td>
+            <td>No.</td>
+          </tr>
+
+          <tr>
+            <td>How should it be recorded?</td>
+            <td>Separate minute balance and usage ledger.</td>
+            <td>Separate bid balance and application records.</td>
+            <td>Membership status, plan, activation and expiry records.</td>
+          </tr>
+
+          <tr>
+            <td>Can benefits overlap?</td>
+            <td>Only if a published plan or rule explicitly grants minutes.</td>
+            <td>Only if a published plan or rule explicitly grants bids.</td>
+            <td>A plan may include specified benefits, but they must be stated.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<!-- PURCHASE FLOW -->
+
+<section class="section detail-section" id="purchase-process">
+  <div class="container">
+
+    <div class="section-heading center">
+      <div class="eyebrow">THE PURCHASE PROCESS</div>
+      <h2>From selecting a package to <span>confirmed access.</span></h2>
+      <p>
+        A purchase should be a traceable process, not a disappearing
+        button followed by a mysterious balance change.
+      </p>
+    </div>
+
+    <div class="purchase-grid">
+
+      <article class="purchase-card">
+        <div class="number">01</div>
+        <h3>Select the product</h3>
+        <p>
+          Choose minutes, bids or a membership. The platform should
+          display the selected product, quantity or benefits, price,
+          and applicable conditions.
+        </p>
+      </article>
+
+      <article class="purchase-card">
+        <div class="number">02</div>
+        <h3>Review and pay</h3>
+        <p>
+          Confirm the order and use the available payment method.
+          The displayed order should match the product and amount
+          actually submitted for payment.
+        </p>
+      </article>
+
+      <article class="purchase-card">
+        <div class="number">03</div>
+        <h3>Verify the payment</h3>
+        <p>
+          The backend must verify the payment result before treating
+          the order as paid. A browser redirect alone is not sufficient
+          proof of payment.
+        </p>
+      </article>
+
+      <article class="purchase-card">
+        <div class="number">04</div>
+        <h3>Apply the correct benefit</h3>
+        <p>
+          Credit the purchased utility or activate the purchased
+          membership according to the verified order and its rules.
+        </p>
+      </article>
+
+      <article class="purchase-card">
+        <div class="number">05</div>
+        <h3>Record the transaction</h3>
+        <p>
+          Save the order reference, payment reference, product,
+          amount, status and resulting balance or membership change.
+        </p>
+      </article>
+
+      <article class="purchase-card">
+        <div class="number">06</div>
+        <h3>Show confirmation</h3>
+        <p>
+          Display a clear receipt or transaction status so the user
+          can understand what was purchased and whether it has been
+          successfully applied.
+        </p>
+      </article>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- FINANCIAL SEPARATION -->
+
+<section class="section">
+  <div class="container">
+
+    <div class="section-heading">
+      <div class="eyebrow">FINANCIAL CLARITY</div>
+      <h2>Purchased utilities are not <span>earnings.</span></h2>
+      <p>
+        A trustworthy platform must distinguish between a user buying
+        something, a worker completing an assignment and a payment
+        becoming eligible for withdrawal.
+      </p>
+    </div>
+
+    <div class="finance-panel">
+      <h3>Four records that should never be confused</h3>
+
+      <p>
+        PrimeTask Workspace should maintain appropriate, separate records
+        for financial transactions, purchased utilities, membership
+        entitlements and work-related earnings.
+      </p>
+
+      <div class="finance-grid">
+
+        <article class="finance-item">
+          <strong>1. Purchase record</strong>
+          <p>
+            Records the user's order, the product selected, the amount
+            charged and the verified payment result.
+          </p>
+        </article>
+
+        <article class="finance-item">
+          <strong>2. Utility balance</strong>
+          <p>
+            Records minutes or bids acquired, used, reserved, released
+            or otherwise adjusted under the applicable rules.
+          </p>
+        </article>
+
+        <article class="finance-item">
+          <strong>3. Membership record</strong>
+          <p>
+            Records the plan, included benefits, activation status
+            and relevant start or expiry dates.
+          </p>
+        </article>
+
+        <article class="finance-item">
+          <strong>4. Earnings record</strong>
+          <p>
+            Records eligible compensation for work under the relevant
+            assignment and approval rules. Earnings should not be
+            created merely because a user purchased a utility.
+          </p>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="info-box warning-box" style="margin-top:24px">
+      <strong>Payments must be confirmed by the server.</strong>
+      <p>
+        A reliable payment integration verifies payment notifications,
+        protects against duplicate processing and updates the correct
+        record. The platform should not credit minutes, bids or membership
+        benefits solely because a client-side page says a transaction
+        succeeded.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- REFUNDS AND CONDITIONS -->
+
+<section class="section detail-section">
+  <div class="container">
+
+    <div class="section-heading">
+      <div class="eyebrow">BEFORE YOU PURCHASE</div>
+      <h2>Understand the conditions <span>first.</span></h2>
+      <p>
+        The terms should be visible before payment, not hidden behind
+        an argument after a user discovers a restriction.
+      </p>
+    </div>
+
+    <div class="utility-grid">
+
+      <article class="utility-card">
+        <div class="utility-icon">🔎</div>
+        <h3>Product details</h3>
+        <p>
+          Review the quantity of minutes or bids, or the exact benefits
+          and duration of a membership, before confirming the order.
+        </p>
+      </article>
+
+      <article class="utility-card">
+        <div class="utility-icon">📅</div>
+        <h3>Validity and expiry</h3>
+        <p>
+          Any expiry date, validity period or usage restriction should
+          be stated clearly. Users should not have to guess whether
+          a purchased balance expires.
+        </p>
+      </article>
+
+      <article class="utility-card">
+        <div class="utility-icon">↩️</div>
+        <h3>Refunds and corrections</h3>
+        <p>
+          Explain the applicable refund and correction policy, including
+          how duplicate payments, failed purchases and incorrect credits
+          are handled.
+        </p>
+      </article>
+
+    </div>
+
+    <div class="membership-note">
+      <p>
+        <strong>Policy note:</strong> The actual refund, expiry, transfer
+        and cancellation rules must be defined in the applicable PrimeTask
+        Workspace terms. This information page does not invent a blanket
+        refund guarantee or an expiry period that has not been established.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- FAQ -->
+
+<section class="section">
+  <div class="container">
+
+    <div class="section-heading center">
+      <div class="eyebrow">COMMON QUESTIONS</div>
+      <h2>Questions about <span>platform utilities.</span></h2>
+      <p>
+        Straightforward answers about the purpose and limits of
+        purchases on PrimeTask Workspace.
+      </p>
+    </div>
+
+    <div class="faq-list">
+
+      <article class="faq-item open">
+        <button class="faq-question" aria-expanded="true">
+          <span>Are minutes, bids and memberships the same thing?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          No. Minutes measure eligible transcription capacity. Bids support
+          participation in eligible bidding workflows. Memberships define
+          access to specified features and benefits. Each should have its
+          own rules and records.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>Does buying minutes guarantee transcription work?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          No. Minutes are a service unit, not a job award. Assignment
+          availability and access depend on the relevant service rules
+          and actual opportunities.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>Does purchasing bids guarantee that a client will select me?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          No. Bids are intended to support participation in eligible
+          application workflows. Selection depends on the job requirements,
+          the client's decision and the applicable review process.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>Does a membership guarantee income?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          No. A membership provides only the benefits stated in its plan.
+          It does not automatically guarantee employment, job awards,
+          client demand or a particular income.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>Can a membership include minutes or bids?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          It can only do so if the relevant published membership plan
+          explicitly includes those benefits. The quantity, conditions
+          and method of crediting must be stated before purchase.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>When should a purchased utility appear in my account?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          After the payment has been verified and the backend has
+          successfully applied the purchase according to the order.
+          If a payment is pending or unsuccessful, the platform should
+          show the appropriate status rather than falsely confirming
+          that the utility has been credited.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>Are purchased utilities the same as worker earnings?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          No. A purchase is a transaction made by a user. Earnings are
+          compensation associated with eligible work under the relevant
+          approval rules. They should be tracked separately.
+        </div>
+      </article>
+
+      <article class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          <span>Where can I see the current price of a package?</span>
+          <span>+</span>
+        </button>
+        <div class="faq-answer">
+          The purchase interface should display the current approved price,
+          quantity or benefits, and applicable conditions before checkout.
+          This explanatory page does not publish fixed package prices
+          because those values must match the actual configured products.
+        </div>
+      </article>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+
+<section class="cta">
+  <div class="container">
+    <div class="cta-box">
+
+      <div class="eyebrow">MAKE INFORMED DECISIONS</div>
+
+      <h2>
+        Understand the utility.<br>
+        <span>Understand the value.</span>
+      </h2>
+
+      <p>
+        Minutes, bids and memberships each have a specific role.
+        Understanding those roles helps users select the right product,
+        understand its limitations and make informed purchasing decisions.
+      </p>
+
+      <div class="hero-actions">
+        <a href="services.html" class="btn">Explore Services</a>
+        <a href="faq.html" class="btn btn-outline">Visit FAQ</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <div>
+      <a href="index.html" class="brand">
+        PrimeTask <span>Workspace</span>
+      </a>
+      <p>Creating Opportunities and Delivering Excellence.</p>
+      <p>© <span id="year"></span> PrimeTask Workspace. All rights reserved.</p>
+    </div>
+
+    <nav class="footer-links" aria-label="Footer navigation">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="about.html">Our Story</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+const menuBtn = document.getElementById("menuBtn");
+const navLinks = document.getElementById("navLinks");
+
+menuBtn.addEventListener("click", () => {
+  const isOpen = navLinks.classList.toggle("open");
+  menuBtn.setAttribute("aria-expanded", String(isOpen));
+});
+
+navLinks.querySelectorAll("a").forEach(link => {
+  link.addEventListener("click", () => {
+    navLinks.classList.remove("open");
+    menuBtn.setAttribute("aria-expanded", "false");
+  });
+});
+
+document.querySelectorAll(".faq-question").forEach(button => {
+  button.addEventListener("click", () => {
+    const item = button.closest(".faq-item");
+    const willOpen = !item.classList.contains("open");
+
+    document.querySelectorAll(".faq-item").forEach(faq => {
+      faq.classList.remove("open");
+      faq.querySelector(".faq-question").setAttribute("aria-expanded", "false");
+    });
+
+    if (willOpen) {
+      item.classList.add("open");
+      button.setAttribute("aria-expanded", "true");
+    }
+  });
+});
+
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08111f">
+  <meta name="description" content="Choose a package and follow the payment instructions. Minutes are allocated only after payment verification.">
+  <title>Minute packages | PrimeTask Transcription</title>
+  <link rel="stylesheet" href="../assets/transcription.css">
+  <script src="../assets/transcription.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html">
+    <span class="brand-mark">≋</span>
+    <span>PrimeTask<small>TRANSCRIPTION</small></span>
+  </a>
+  <div class="menu-wrap">
+    <button class="menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="main-menu">☰</button>
+    <nav class="menu-panel" id="main-menu" aria-label="Transcription navigation">
+      <div class="menu-label">YOUR WORKSPACE</div>
+      <a href="dashboard.html">Dashboard</a>
+<a href="available-work.html">Available work</a>
+<a href="job-details.html">Job details</a>
+<a href="awarded-jobs.html">Awarded jobs</a>
+<a href="submissions.html">Submissions</a>
+<a href="wallet.html">Wallet</a>
+<a href="minute-packages.html" aria-current="page">Minute packages</a>
+<a href="withdrawals.html">Withdrawals</a>
+      <div class="menu-label">SERVICE</div>
+      <a href="../index.html">Service home</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="page-head">
+    <div><div class="eyebrow">◷ / TRANSCRIPTION WORKSPACE</div><h1>Purchase transcription minutes</h1><p>Choose a package and follow the payment instructions. Minutes are allocated only after payment verification.</p></div>
+  </div>
+
+        <section class="grid">
+          <article class="card"><h2>Available packages</h2><p>Package prices and minute allocations will be loaded from the backend.</p></article>
+          <article class="card"><h2>M-Pesa payment</h2><p>Payments are recorded in KSh. Your minutes are credited only after trusted verification.</p></article>
+        </section>
+        <section class="card section"><h2>Payment receipt</h2>
+          <form id="receipt-form">
+            <div class="field"><label for="package-id">Package</label><select id="package-id" name="packageId" required><option value="">Select an available package</option></select></div>
+            <div class="field"><label for="mpesa-code">M-Pesa receipt code</label><input id="mpesa-code" name="receiptCode" maxlength="40" autocomplete="off" required placeholder="Enter the receipt code"></div>
+            <div class="field"><label for="payment-phone">M-Pesa phone number</label><input id="payment-phone" name="phoneNumber" autocomplete="tel" required placeholder="2547XXXXXXXX"></div>
+            <div class="field"><label for="payment-amount">Amount paid (KSh)</label><input id="payment-amount" name="amountKes" type="number" min="1" step="1" required></div>
+            <button class="primary" type="submit" disabled>Receipt submission unavailable until API is connected</button>
+          </form>
+          <p>Receipt submission will be enabled after backend verification and duplicate-receipt protection are implemented.</p>
+        </section>
+
+</main>
+<footer>PrimeTask Workspace · Transcription Service · Local development</footer>
+</body>
+</html>

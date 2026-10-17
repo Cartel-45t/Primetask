@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071426">
+  <meta name="description" content="PrimeTask Workspace transcription job creation, submission review and withdrawal operations.">
+  <title>Transcription Operations | PrimeTask Workspace</title>
+
+  <link rel="stylesheet" href="/dashboard/admin/admin-forest.css">
+  <link rel="stylesheet" href="/dashboard/admin/network-admin.css">
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-page.css">
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/transcription-admin.css">
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+</head>
+
+<body class="network-admin ptw-admin-page" data-admin-page="transcription-admin">
+  <div class="na-layout ptw-transcription-layout">
+    <aside class="na-sidebar">
+      <div class="na-brand">
+        <strong>PrimeTask Workspace</strong>
+        <span>Admin Operations</span>
+      </div>
+
+      <nav class="na-nav" aria-label="Admin navigation">
+        <a href="/dashboard/admin/Keith/keith.html">Overview</a>
+        <a href="/dashboard/admin/Keith/users.html">Members</a>
+        <a href="/dashboard/admin/Keith/memberships.html">Memberships</a>
+        <a href="/dashboard/admin/Keith/platform-revenue.html">Platform revenue</a>
+        <a href="/dashboard/admin/Keith/commissions.html">Commissions</a>
+        <a href="/dashboard/admin/Keith/referrals.html">Referrals</a>
+        <a href="/dashboard/admin/Keith/transactions.html">Transactions</a>
+        <a href="/dashboard/admin/Keith/deposits.html">Deposits</a>
+        <a href="/dashboard/admin/Keith/withdrawals.html">Withdrawals</a>
+        <a href="/dashboard/admin/Keith/transcription.html" aria-current="page">Transcription</a>
+        <a href="/dashboard/admin/Keith/audit-logs.html">Audit logs</a>
+        <a href="/dashboard/admin/Keith/settings.html">Settings</a>
+      </nav>
+    </aside>
+
+    <main class="na-main ptw-transcription-main">
+      <header class="ptw-transcription-hero">
+        <div class="ptw-transcription-hero-shade"></div>
+        <div class="ptw-transcription-hero-content">
+          <span class="ptw-transcription-eyebrow">PRIMETASK WORKSPACE / OPERATIONS</span>
+          <h1>Transcription Operations</h1>
+          <p>Create audio jobs, review transcript submissions and manage payout requests.</p>
+          <div class="ptw-transcription-hero-tags">
+            <span>Audio jobs</span>
+            <span>Submission review</span>
+            <span>USD ledger</span>
+          </div>
+        </div>
+      </header>
+
+      <div id="transcriptionStatus" class="ptw-admin-status ptw-transcription-status"
+           role="status" aria-live="polite">Connecting to the admin API…</div>
+
+      <section class="ptw-transcription-section" aria-labelledby="transcriptionSettingsHeading">
+        <div class="ptw-transcription-section-heading">
+          <div>
+            <span class="ptw-transcription-kicker">01 / CONFIGURATION</span>
+            <h2 id="transcriptionSettingsHeading">Transcription settings</h2>
+            <p>Set the default job title and the whole-dollar USD reward for each audio-duration range.</p>
+          </div>
+        </div>
+
+        <form id="transcriptionSettingsForm" class="ptw-transcription-card">
+          <label class="ptw-admin-field">
+            <span>Default audio job title</span>
+            <input id="defaultAudioTitle" name="defaultAudioTitle" maxlength="180" required>
+          </label>
+
+          <div class="ptw-transcription-config-heading">
+            <h3>Duration and reward rules</h3>
+            <button id="addRewardRangeButton" class="ptw-admin-button" type="button">Add range</button>
+          </div>
+          <p class="ptw-transcription-muted">
+            Minimum and maximum minutes are inclusive. Rewards must be whole USD amounts.
+            Ranges cannot overlap. Any gaps will leave those durations without a matching reward.
+          </p>
+          <div id="rewardRangesEditor" class="ptw-transcription-config-list"></div>
+
+          <div class="ptw-transcription-form-footer">
+            <span id="settingsSaveStatus" class="ptw-transcription-muted" aria-live="polite">Loading settings…</span>
+            <button id="saveTranscriptionSettingsButton"
+                    class="ptw-admin-button ptw-admin-button-primary" type="submit">Save settings</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="ptw-transcription-section" aria-labelledby="minutePackagesHeading">
+        <div class="ptw-transcription-section-heading">
+          <div>
+            <span class="ptw-transcription-kicker">02 / MINUTE PACKAGES</span>
+            <h2 id="minutePackagesHeading">Minute package management</h2>
+            <p>Configure minutes, a whole-dollar USD reference price, a separate M-Pesa price in KSh, and availability. The two prices are entered independently.</p>
+          </div>
+        </div>
+
+        <form id="minutePackageForm" class="ptw-transcription-card">
+          <h3>Create a minute package</h3>
+          <div class="ptw-transcription-form-grid">
+            <label class="ptw-admin-field">
+              <span>Package name</span>
+              <input name="name" maxlength="120" required placeholder="e.g. Starter Minutes">
+            </label>
+            <label class="ptw-admin-field">
+              <span>Minutes</span>
+              <input name="minutes" type="number" min="1" max="10000000" step="1" required>
+            </label>
+            <label class="ptw-admin-field">
+              <span>Price (USD, whole dollars)</span>
+              <input name="price" type="number" min="1" max="1000000" step="1" required>
+            </label>
+            <label class="ptw-admin-field">
+              <span>M-Pesa price (KSh)</span>
+              <input name="priceKes" type="number" min="1" max="1000000000" step="1" required>
+            </label>
+          </div>
+          <div class="ptw-transcription-form-footer">
+            <span id="packageCreateStatus" class="ptw-transcription-muted" aria-live="polite"></span>
+            <button id="createMinutePackageButton"
+                    class="ptw-admin-button ptw-admin-button-primary" type="submit">Create package</button>
+          </div>
+        </form>
+
+        <div class="ptw-transcription-config-heading">
+          <h3>Existing packages</h3>
+          <button id="reloadMinutePackagesButton" class="ptw-admin-button" type="button">Reload packages</button>
+        </div>
+        <div id="minutePackagesList" class="ptw-transcription-config-list" aria-live="polite">
+          Loading packages…
+        </div>
+      </section>
+
+      <section class="ptw-transcription-section" aria-labelledby="createJobHeading">
+        <div class="ptw-transcription-section-heading">
+          <div>
+            <span class="ptw-transcription-kicker">01 / JOB MANAGEMENT</span>
+            <h2 id="createJobHeading">Create an audio job</h2>
+            <p>Upload the audio to protected Cloudinary storage before publishing the job.</p>
+          </div>
+          <span class="ptw-transcription-pill">Rewards in USD</span>
+        </div>
+
+        <form id="transcriptionJobForm" class="ptw-transcription-card">
+          <div class="ptw-transcription-form-grid">
+            <label class="ptw-admin-field">
+              <span>Job title</span>
+              <input name="title" maxlength="180"
+                     placeholder="Leave blank to use the configured default title">
+            </label>
+
+            <label class="ptw-admin-field ptw-transcription-wide">
+              <span>Description</span>
+              <textarea name="description" rows="3" maxlength="10000" required
+                        placeholder="Describe the recording and the task."></textarea>
+            </label>
+
+            <label class="ptw-admin-field">
+              <span>Due date (optional)</span>
+              <input name="dueAt" type="datetime-local">
+            </label>
+
+            <label class="ptw-admin-field ptw-transcription-wide">
+              <span>Transcription instructions</span>
+              <textarea name="instructions" rows="4" maxlength="10000" required
+                        placeholder="Speaker labels, punctuation, mathematical notation, formatting rules…"></textarea>
+            </label>
+
+            <label class="ptw-admin-field ptw-transcription-wide">
+              <span>Audio file</span>
+              <input id="transcriptionAudioFile" name="audio" type="file"
+                     accept=".mp3,.wav,.m4a,.ogg,.flac,.webm,audio/*" required>
+              <small>Maximum 100 MB. Accepted formats include MP3, WAV, M4A, OGG, FLAC and WebM.</small>
+            </label>
+          </div>
+
+          <p id="audioRewardPreview" class="ptw-transcription-muted"
+             aria-live="polite">Audio duration and reward will be verified after upload.</p>
+
+          <div class="ptw-transcription-form-footer">
+            <span id="audioUploadState" class="ptw-transcription-muted">
+              The audio will be uploaded as an authenticated asset.
+            </span>
+            <button id="createTranscriptionJobButton"
+                    class="ptw-admin-button ptw-admin-button-primary"
+                    type="submit">Upload audio &amp; create job</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="ptw-transcription-section" aria-labelledby="submissionHeading">
+        <div class="ptw-transcription-section-heading">
+          <div>
+            <span class="ptw-transcription-kicker">02 / QUALITY CONTROL</span>
+            <h2 id="submissionHeading">Submission review</h2>
+            <p>Inspect available transcript text before approving or rejecting a submission.</p>
+          </div>
+          <label class="ptw-transcription-filter">
+            <span>Submission status</span>
+            <select id="submissionStatusFilter">
+              <option value="submitted">Awaiting review</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </label>
+        </div>
+        <div id="submissionQueue" class="ptw-transcription-queue" aria-live="polite">
+          Loading submissions…
+        </div>
+      </section>
+
+      <section class="ptw-transcription-section" aria-labelledby="withdrawalHeading">
+        <div class="ptw-transcription-section-heading">
+          <div>
+            <span class="ptw-transcription-kicker">03 / PAYOUT CONTROL</span>
+            <h2 id="withdrawalHeading">Transcription withdrawals</h2>
+            <p>Record completed manual payments or reject requests with a reason.</p>
+          </div>
+          <label class="ptw-transcription-filter">
+            <span>Withdrawal status</span>
+            <select id="withdrawalStatusFilter">
+              <option value="pending_review">Pending review</option>
+              <option value="paid">Paid</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </label>
+        </div>
+        <div class="ptw-transcription-warning">
+          <strong>Manual payment only:</strong> marking a request as paid records a payment
+          that has already been completed. It does not initiate a Daraja or M-Pesa transfer.
+          The actual M-Pesa receipt reference is required.
+        </div>
+        <div id="withdrawalQueue" class="ptw-transcription-queue" aria-live="polite">
+          Loading withdrawals…
+        </div>
+      </section>
+
+      <footer class="na-footer">
+        PrimeTask Workspace · Transcription operations · Financial amounts displayed in USD
+      </footer>
+    </main>
+  </div>
+
+  <script src="/assets/js/config.js" defer></script>
+  <script src="/dashboard/admin/network-admin.js" defer></script>
+  <script src="/dashboard/admin/Keith/assets/transcription-admin.js" defer></script>
+  <script src="/dashboard/admin/Keith/assets/admin-navigation.js" defer></script>
+</body>
+</html>

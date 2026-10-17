@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#061225">
+<meta name="description" content="Contact PrimeTask Workspace for help with transcription, note-taking, data entry, academic writing, accounts, and platform support.">
+<title>Contact Us | PrimeTask Workspace</title>
+
+<style>
+:root{
+  --bg:#061225;
+  --panel:#0c1d35;
+  --panel2:#102744;
+  --blue:#2477e8;
+  --blue2:#55a3ff;
+  --orange:#ff8738;
+  --text:#f5f8ff;
+  --muted:#aabbd1;
+  --border:rgba(255,255,255,.12);
+  --green:#45d6a0;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  line-height:1.7;
+}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.container{width:min(1160px,92%);margin:auto}
+.topbar{
+  background:#030b17;
+  border-bottom:1px solid var(--border);
+  padding:10px 0;
+  font-size:12px;
+  color:var(--muted);
+}
+.topbar .container{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:rgba(6,18,37,.95);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+}
+.nav{
+  min-height:76px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+.brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:17px}
+.logo{
+  display:grid;place-items:center;
+  width:44px;height:44px;border-radius:14px;
+  background:linear-gradient(135deg,var(--blue),#113e8a);
+  box-shadow:0 8px 25px #2477e833;
+  font-weight:900;font-size:19px;
+}
+.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.5px}
+.navlinks{display:flex;align-items:center;gap:20px;font-size:13px;color:var(--muted)}
+.navlinks a:hover{color:white}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;padding:12px 18px;border:0;border-radius:11px;
+  background:var(--blue);color:white;font-weight:800;
+  transition:.2s;box-shadow:0 7px 22px #2477e82b;
+}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.btn-orange{background:var(--orange);color:#1a0c03}
+.btn-outline{background:transparent;border:1px solid var(--border);box-shadow:none}
+.menu-btn{display:none;background:var(--panel);border:1px solid var(--border);color:white;padding:9px 12px;border-radius:9px}
+.hero{
+  position:relative;isolation:isolate;overflow:hidden;
+  min-height:500px;display:flex;align-items:center;
+  background:
+  linear-gradient(90deg,rgba(3,11,24,.97) 0%,rgba(3,11,24,.82) 48%,rgba(3,11,24,.45) 100%),
+  url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=2000&q=85') center/cover;
+}
+.hero:after{
+  content:"";position:absolute;z-index:-1;right:-100px;bottom:-180px;
+  width:430px;height:430px;border:1px solid #ffffff16;border-radius:50%;
+  box-shadow:0 0 0 45px #ffffff08,0 0 0 90px #ffffff05;
+}
+.hero-content{padding:90px 0;max-width:760px}
+.eyebrow{
+  display:inline-flex;gap:9px;align-items:center;
+  color:#ffd0ac;background:#ff87381b;border:1px solid #ff87384d;
+  padding:7px 12px;border-radius:30px;font-size:12px;font-weight:800;
+  text-transform:uppercase;letter-spacing:1.5px;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--orange)}
+h1{font-size:clamp(38px,6vw,68px);line-height:1.08;letter-spacing:-2px;margin:22px 0}
+h1 span{color:var(--orange)}
+.hero p{max-width:650px;color:#d1deef;font-size:17px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.hero-meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:30px;color:#d0dced;font-size:12px}
+.hero-meta span:before{content:"✓";color:var(--green);font-weight:bold;margin-right:7px}
+section{padding:78px 0}
+.section-head{max-width:750px;margin-bottom:32px}
+.kicker{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--blue2);font-weight:900}
+h2{font-size:clamp(29px,4vw,43px);line-height:1.2;letter-spacing:-1px;margin:10px 0 14px}
+.section-head p,.muted{color:var(--muted)}
+.contact-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:24px;align-items:start}
+.panel{
+  background:linear-gradient(145deg,#10233e,#09172b);
+  border:1px solid var(--border);border-radius:20px;padding:27px;
+  box-shadow:0 20px 50px #00000017;
+}
+.panel h3{margin:0 0 8px;font-size:21px}
+.panel-intro{color:var(--muted);font-size:14px;margin-top:0}
+.contact-item{
+  display:flex;gap:15px;align-items:flex-start;
+  padding:18px 0;border-bottom:1px solid var(--border);
+}
+.contact-item:last-child{border-bottom:0}
+.icon{
+  width:44px;height:44px;flex-shrink:0;display:grid;place-items:center;
+  border-radius:13px;background:#2477e81c;color:#80b7ff;font-size:20px;
+}
+.contact-item strong{display:block;margin-bottom:3px}
+.contact-item p{margin:0;color:var(--muted);font-size:13px}
+.contact-item a{color:#8dbdff;overflow-wrap:anywhere}
+.contact-item a:hover{color:var(--orange)}
+.small-note{
+  margin-top:20px;padding:15px;border-radius:12px;
+  background:#2477e810;border:1px solid #2477e82c;
+  color:#c4d8f5;font-size:12px;
+}
+form{display:grid;gap:17px;margin-top:22px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+label{display:block;font-size:12px;font-weight:800;margin-bottom:7px;color:#d8e5f6}
+input,select,textarea{
+  width:100%;padding:13px 14px;border:1px solid #ffffff1c;
+  border-radius:10px;background:#061225;color:white;outline:none;
+  transition:border .2s,box-shadow .2s;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--blue2);box-shadow:0 0 0 3px #2477e82b;
+}
+input::placeholder,textarea::placeholder{color:#71849e}
+textarea{min-height:150px;resize:vertical}
+select option{background:#061225}
+.checkbox{display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:12px}
+.checkbox input{width:auto;margin-top:5px}
+.form-help{font-size:11px;color:var(--muted);margin-top:-8px}
+.form-status{display:none;padding:13px;border-radius:10px;font-size:13px}
+.form-status.error{display:block;background:#ff4d4d18;border:1px solid #ff4d4d55;color:#ffc2c2}
+.form-status.success{display:block;background:#45d6a018;border:1px solid #45d6a055;color:#aaf5d8}
+.trust-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+.trust-card{padding:20px;background:#0a192d;border:1px solid var(--border);border-radius:15px}
+.trust-card strong{display:block;margin-bottom:7px}
+.trust-card p{font-size:12px;color:var(--muted);margin:0}
+.services-section{background:#08162a;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.service-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.service-card{
+  padding:22px;background:#0c1e35;border:1px solid var(--border);
+  border-radius:16px;transition:.25s;
+}
+.service-card:hover{transform:translateY(-5px);border-color:#2477e899}
+.service-card .symbol{font-size:25px;margin-bottom:15px}
+.service-card h3{font-size:17px;margin:0 0 8px}
+.service-card p{font-size:13px;color:var(--muted);margin:0 0 15px}
+.service-card a{color:#8ebeff;font-size:12px;font-weight:bold}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.step{padding:24px;border-radius:16px;border:1px solid var(--border);background:var(--panel)}
+.step-number{font-size:12px;font-weight:900;color:var(--orange);letter-spacing:2px}
+.step h3{margin:10px 0}
+.step p{font-size:13px;color:var(--muted)}
+.faq-list{max-width:850px}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-question{
+  display:flex;justify-content:space-between;gap:20px;width:100%;
+  padding:20px 0;background:transparent;border:0;color:white;
+  text-align:left;font-weight:800;font-size:15px;
+}
+.faq-question span:last-child{color:var(--orange);font-size:21px;transition:transform .2s}
+.faq-answer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s}
+.faq-answer>div{overflow:hidden;color:var(--muted);font-size:14px}
+.faq-item.open .faq-answer{grid-template-rows:1fr}
+.faq-item.open .faq-answer>div{padding:0 0 20px}
+.faq-item.open .faq-question span:last-child{transform:rotate(45deg)}
+.cta{
+  padding:45px;border-radius:23px;position:relative;overflow:hidden;
+  background:linear-gradient(120deg,#123b76,#0b2445 65%,#102038);
+  border:1px solid #65a9ff33;
+}
+.cta:after{
+  content:"";position:absolute;right:-70px;top:-140px;width:300px;height:300px;
+  border:1px solid #ffffff1b;border-radius:50%;box-shadow:0 0 0 40px #ffffff07,0 0 0 80px #ffffff05;
+}
+.cta-inner{position:relative;z-index:1;max-width:760px}
+.cta p{color:#c4d9f3}
+footer{background:#030b17;border-top:1px solid var(--border);padding:42px 0 22px}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:28px}
+footer h4{margin:0 0 14px}
+footer p,footer a{font-size:12px;color:var(--muted)}
+footer a{display:block;margin:8px 0}
+footer a:hover{color:white}
+.footer-bottom{border-top:1px solid var(--border);margin-top:30px;padding-top:18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:11px;color:#8192a9}
+.back-top{
+  position:fixed;right:18px;bottom:18px;z-index:40;
+  display:none;width:44px;height:44px;border:0;border-radius:13px;
+  background:var(--orange);color:#1b0c02;font-weight:900;font-size:18px;
+  box-shadow:0 8px 24px #0006;
+}
+.back-top.show{display:block}
+@media(max-width:900px){
+  .navlinks{display:none;position:absolute;left:4%;right:4%;top:75px;padding:20px;background:#09172b;border:1px solid var(--border);border-radius:15px;flex-direction:column;align-items:stretch;gap:0}
+  .navlinks.open{display:flex}
+  .navlinks a{padding:12px 5px;border-bottom:1px solid var(--border)}
+  .navlinks a:last-child{border-bottom:0}
+  .menu-btn{display:block}
+  .contact-grid{grid-template-columns:1fr}
+  .service-grid{grid-template-columns:repeat(2,1fr)}
+  .footer-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){
+  section{padding:55px 0}
+  .hero{min-height:460px}
+  .hero-content{padding:70px 0}
+  h1{letter-spacing:-1px}
+  .form-row,.trust-row,.steps{grid-template-columns:1fr}
+  .service-grid{grid-template-columns:1fr}
+  .panel{padding:20px}
+  .cta{padding:28px 22px}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:18px}
+  .brand{font-size:14px}
+  .logo{width:39px;height:39px}
+}
+</style>
+</head>
+
+<body>
+<div class="topbar">
+  <div class="container">
+    <span>PrimeTask Workspace · Creating Opportunities and Delivering Excellence.</span>
+    <span>Support for workers, clients and platform users</span>
+  </div>
+</div>
+
+<header>
+  <div class="container nav">
+    <a class="brand" href="index.html" aria-label="PrimeTask Workspace home">
+      <span class="logo">PT</span>
+      <span>PrimeTask Workspace<small>WORK · EARN · GROW</small></span>
+    </a>
+
+    <nav class="navlinks" id="navlinks">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+      <a href="auth/login.html">Login</a>
+    </nav>
+
+    <button class="menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false">☰ Menu</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="eyebrow"><span class="dot"></span> We are here to help</div>
+        <h1>Every good conversation starts with <span>contact.</span></h1>
+        <p>
+          Need help understanding a service, accessing your account, completing an assignment,
+          or resolving a platform issue? Reach the PrimeTask Workspace support team through
+          the appropriate channel. Clear information helps us solve problems without turning
+          one small issue into a twenty-email adventure.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-orange" href="#contact-form">Send an enquiry ↗</a>
+          <a class="btn btn-outline" href="#contact-options">Contact options</a>
+        </div>
+        <div class="hero-meta">
+          <span>Service enquiries</span>
+          <span>Account support</span>
+          <span>Assignment assistance</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact-options">
+    <div class="container">
+      <div class="section-head">
+        <div class="kicker">Get in touch</div>
+        <h2>Choose the right support channel.</h2>
+        <p>
+          Different issues need different information. Choose the channel that fits your
+          request and include enough detail for the team to understand what happened.
+          Never send your password, PIN, one-time password, or full payment credentials.
+        </p>
+      </div>
+
+      <div class="contact-grid">
+        <div class="panel">
+          <h3>Contact information</h3>
+          <p class="panel-intro">Use the published channels below. Update these details before launch if your official support contacts change.</p>
+
+          <div class="contact-item">
+            <div class="icon">✉</div>
+            <div>
+              <strong>Email support</strong>
+              <p>For account, service and general enquiries.</p>
+              <a href="mailto:support@primetaskworkspace.com">support@primetaskworkspace.com</a>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="icon">☎</div>
+            <div>
+              <strong>Phone and WhatsApp</strong>
+              <p>For direct enquiries during your published support hours.</p>
+              <a href="https://wa.me/254713960505" target="_blank" rel="noopener noreferrer">Chat with support on WhatsApp</a>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="icon">◷</div>
+            <div>
+              <strong>Response expectations</strong>
+              <p>Response times depend on workload, issue complexity and the information supplied. An enquiry is not automatically a resolved case.</p>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="icon">◎</div>
+            <div>
+              <strong>Before contacting support</strong>
+              <p>Keep your registered email, relevant job or transaction reference, and a short description of the issue ready.</p>
+            </div>
+          </div>
+
+          <div class="small-note">
+            <strong>Security reminder:</strong> PrimeTask support should never need your account password, M-Pesa PIN, or one-time verification code.
+          </div>
+        </div>
+
+        <div class="panel" id="contact-form">
+          <h3>Send us an enquiry</h3>
+          <p class="panel-intro">
+            Complete the form with accurate information. This demo prepares an email using your device's email application. It does not store or submit the form to a server.
+          </p>
+
+          <div id="formStatus" class="form-status" role="status" aria-live="polite"></div>
+
+          <form id="contactForm">
+            <div class="form-row">
+              <div>
+                <label for="fullName">Full name *</label>
+                <input id="fullName" name="fullName" autocomplete="name" maxlength="100" placeholder="Your name" required>
+              </div>
+              <div>
+                <label for="email">Email address *</label>
+                <input id="email" name="email" type="email" autocomplete="email" maxlength="150" placeholder="you@example.com" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div>
+                <label for="role">I am contacting you as *</label>
+                <select id="role" name="role" required>
+                  <option value="">Choose one</option>
+                  <option>Worker / freelancer</option>
+                  <option>Client</option>
+                  <option>Registered member</option>
+                  <option>Prospective member</option>
+                  <option>Business or institutional partner</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="topic">Enquiry category *</label>
+                <select id="topic" name="topic" required>
+                  <option value="">Select a category</option>
+                  <option>General enquiry</option>
+                  <option>Transcription</option>
+                  <option>Note-taking</option>
+                  <option>Data entry</option>
+                  <option>Academic writing support</option>
+                  <option>Account or login</option>
+                  <option>Job or assignment</option>
+                  <option>Minutes or bids</option>
+                  <option>Payment or transaction</option>
+                  <option>Privacy or security</option>
+                  <option>Complaint or feedback</option>
+                  <option>Partnership</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="reference">Reference number (optional)</label>
+              <input id="reference" name="reference" maxlength="100" placeholder="Job ID, transaction reference or support ticket">
+              <div class="form-help">Do not enter passwords, PINs, or one-time codes.</div>
+            </div>
+
+            <div>
+              <label for="subject">Subject *</label>
+              <input id="subject" name="subject" maxlength="150" placeholder="Briefly describe your issue" required>
+            </div>
+
+            <div>
+              <label for="message">How can we help? *</label>
+              <textarea id="message" name="message" maxlength="5000" placeholder="Explain what happened, what you expected, and any relevant details." required></textarea>
+              <div class="form-help"><span id="charCount">0</span>/5000 characters</div>
+            </div>
+
+            <label class="checkbox">
+              <input type="checkbox" id="privacyConsent" required>
+              <span>I have read the <a href="privacy.html" style="color:#8ebeff;text-decoration:underline">Privacy Policy</a> and understand that this page opens my email application to prepare the enquiry.</span>
+            </label>
+
+            <button class="btn btn-orange" type="submit">Prepare email enquiry ↗</button>
+            <p class="form-help">Your email application must be configured for this action to work. The form does not send messages directly from this website.</p>
+          </form>
+        </div>
+      </div>
+
+      <div class="trust-row">
+        <div class="trust-card">
+          <strong>🔎 Be specific</strong>
+          <p>Explain the problem and include a relevant reference number when available. “It isn't working” leaves everyone playing detective.</p>
+        </div>
+        <div class="trust-card">
+          <strong>🛡️ Protect your account</strong>
+          <p>Share only the information necessary to investigate your issue. Never disclose passwords, PINs or verification codes.</p>
+        </div>
+        <div class="trust-card">
+          <strong>📌 Keep records</strong>
+          <p>Retain your enquiry, transaction reference and any response from support so the case can be followed up accurately.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="services-section">
+    <div class="container">
+      <div class="section-head">
+        <div class="kicker">Our services</div>
+        <h2>What can we help you with?</h2>
+        <p>PrimeTask Workspace brings together digital work opportunities and services that depend on accuracy, communication and dependable delivery.</p>
+      </div>
+
+      <div class="service-grid">
+        <article class="service-card">
+          <div class="symbol">🎧</div>
+          <h3>Transcription</h3>
+          <p>Questions about audio assignments, transcript formatting, speaker labels, timestamps or submission requirements.</p>
+          <a href="services.html">Explore service ↗</a>
+        </article>
+        <article class="service-card">
+          <div class="symbol">📝</div>
+          <h3>Note-taking</h3>
+          <p>Enquiries about lecture notes, meeting notes, summaries, assignment instructions and review processes.</p>
+          <a href="services.html">Explore service ↗</a>
+        </article>
+        <article class="service-card">
+          <div class="symbol">📊</div>
+          <h3>Data entry</h3>
+          <p>Help with data-entry task requirements, accuracy standards, file instructions and delivery expectations.</p>
+          <a href="services.html">Explore service ↗</a>
+        </article>
+        <article class="service-card">
+          <div class="symbol">📚</div>
+          <h3>Academic writing support</h3>
+          <p>Questions about formatting, proofreading, research support and responsible academic assistance.</p>
+          <a href="services.html">Explore service ↗</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-head">
+        <div class="kicker">A smoother support process</div>
+        <h2>Three steps to a clearer resolution.</h2>
+        <p>A well-described request helps the team understand the problem and identify the next appropriate step.</p>
+      </div>
+
+      <div class="steps">
+        <article class="step">
+          <div class="step-number">STEP 01</div>
+          <h3>Describe the issue</h3>
+          <p>Tell us what you were doing, what happened, and what you expected to happen. Include a relevant reference number if you have one.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">STEP 02</div>
+          <h3>Allow a review</h3>
+          <p>The relevant team can assess the details, request additional information if necessary, and explain the available next steps.</p>
+        </article>
+        <article class="step">
+          <div class="step-number">STEP 03</div>
+          <h3>Keep the reference</h3>
+          <p>Keep your email and any ticket or transaction reference. Use the same thread when following up on the same issue.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section style="background:#08162a;border-top:1px solid var(--border)">
+    <div class="container">
+      <div class="section-head">
+        <div class="kicker">Common questions</div>
+        <h2>Before you contact us.</h2>
+        <p>These quick answers may save you some time. Humanity has invented many things, including avoidable email chains.</p>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false"><span>How do I report a payment that has not appeared in my account?</span><span>+</span></button>
+          <div class="faq-answer"><div>Contact support with the transaction reference, approximate payment time, amount and registered account email. Never send your M-Pesa PIN or one-time password. A payment should be verified against the payment provider's records before account balances are changed.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false"><span>What should I include when reporting an assignment problem?</span><span>+</span></button>
+          <div class="faq-answer"><div>Include the job or assignment reference, the affected page or step, the error message if any, and a short explanation of what you tried. Do not attach confidential client information unless it is necessary and you are authorized to share it.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false"><span>Does contacting support guarantee that I will receive a job?</span><span>+</span></button>
+          <div class="faq-answer"><div>No. Support can explain platform processes and investigate issues, but contacting support does not guarantee selection for a job, earnings, or a particular assignment outcome.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false"><span>Can I request account or personal-data assistance?</span><span>+</span></button>
+          <div class="faq-answer"><div>Yes. Select the account, privacy or security category and explain your request. The team may need to verify account ownership before making changes or providing account-specific information.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false"><span>Does the contact form submit directly to PrimeTask?</span><span>+</span></button>
+          <div class="faq-answer"><div>Not in this static version. It prepares a message in your device's email application. Direct website submission requires a backend endpoint, server-side validation, spam protection and appropriate handling of personal information.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false"><span>What if I do not receive an immediate response?</span><span>+</span></button>
+          <div class="faq-answer"><div>Check that the message was actually sent, verify the recipient address, and review your spam folder for replies. If you follow up, use the original email thread and include any existing reference number.</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="cta">
+        <div class="cta-inner">
+          <div class="kicker" style="color:#ffb27e">Keep moving forward</div>
+          <h2>Need the basics before getting started?</h2>
+          <p>Read how the platform works, review the available services, and check the FAQ for more information about common workflows.</p>
+          <div class="hero-actions">
+            <a class="btn btn-orange" href="how-it-works.html">How it works ↗</a>
+            <a class="btn btn-outline" href="faq.html">Browse FAQs</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="index.html">
+          <span class="logo">PT</span>
+          <span>PrimeTask Workspace<small>WORK · EARN · GROW</small></span>
+        </a>
+        <p>Creating Opportunities and Delivering Excellence.</p>
+        <p>Connecting people with digital services and work opportunities through clear processes and dependable support.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="about.html">About us</a>
+        <a href="services.html">Services</a>
+        <a href="how-it-works.html">How it works</a>
+      </div>
+      <div>
+        <h4>Help centre</h4>
+        <a href="faq.html">Frequently asked questions</a>
+        <a href="contact.html">Contact support</a>
+        <a href="auth/login.html">Member login</a>
+        <a href="auth/register.html">Create an account</a>
+      </div>
+      <div>
+        <h4>Policies</h4>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="terms.html">Terms of service</a>
+        <a href="contact.html#contact-form">Report an issue</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> PrimeTask Workspace. All rights reserved.</span>
+      <span>Creating Opportunities and Delivering Excellence.</span>
+    </div>
+  </div>
+</footer>
+
+<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+const menuBtn = document.getElementById('menuBtn');
+const navlinks = document.getElementById('navlinks');
+
+menuBtn.addEventListener('click', () => {
+  const open = navlinks.classList.toggle('open');
+  menuBtn.setAttribute('aria-expanded', String(open));
+  menuBtn.textContent = open ? '✕ Close' : '☰ Menu';
+});
+
+navlinks.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    navlinks.classList.remove('open');
+    menuBtn.setAttribute('aria-expanded', 'false');
+    menuBtn.textContent = '☰ Menu';
+  });
+});
+
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const message = document.getElementById('message');
+const charCount = document.getElementById('charCount');
+message.addEventListener('input', () => {
+  charCount.textContent = message.value.length;
+});
+
+document.getElementById('contactForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  const status = document.getElementById('formStatus');
+  status.className = 'form-status';
+
+  if (!this.reportValidity()) return;
+
+  const fullName = document.getElementById('fullName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const role = document.getElementById('role').value;
+  const topic = document.getElementById('topic').value;
+  const reference = document.getElementById('reference').value.trim();
+  const subject = document.getElementById('subject').value.trim();
+  const body = document.getElementById('message').value.trim();
+  const consent = document.getElementById('privacyConsent').checked;
+
+  if (!consent) {
+    status.textContent = 'Please confirm the privacy notice before continuing.';
+    status.classList.add('error');
+    return;
+  }
+
+  if (!fullName || !email || !role || !topic || !subject || !body) {
+    status.textContent = 'Please complete all required fields.';
+    status.classList.add('error');
+    return;
+  }
+
+  const emailSubject = '[PrimeTask Enquiry] ' + subject;
+  const emailBody = [
+    'PrimeTask Workspace enquiry',
+    '',
+    'Name: ' + fullName,
+    'Email: ' + email,
+    'Contacting as: ' + role,
+    'Category: ' + topic,
+    'Reference: ' + (reference || 'Not provided'),
+    '',
+    'Message:',
+    body
+  ].join('\n');
+
+  status.textContent = 'Opening your email application. Check the recipient and message, then send it to submit your enquiry.';
+  status.classList.add('success');
+
+  const mailto = 'mailto:support@primetaskworkspace.com'
+    + '?subject=' + encodeURIComponent(emailSubject)
+    + '&body=' + encodeURIComponent(emailBody);
+
+  window.location.href = mailto;
+});
+
+document.querySelectorAll('.faq-question').forEach(button => {
+  button.addEventListener('click', () => {
+    const item = button.closest('.faq-item');
+    const open = item.classList.toggle('open');
+    button.setAttribute('aria-expanded', String(open));
+  });
+});
+
+const backTop = document.getElementById('backTop');
+window.addEventListener('scroll', () => {
+  backTop.classList.toggle('show', window.scrollY > 450);
+});
+backTop.addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+</script>
+</body>
+</html>

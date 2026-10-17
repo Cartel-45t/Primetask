@@ -1,0 +1,3048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07162d">
+
+<meta name="description" content="Explore the PrimeTask Workspace knowledge centre. Learn about digital work, transcription, note-taking, data entry, academic writing, minutes, bids, memberships, payments and account security.">
+
+<title>FAQ & Knowledge Centre | PrimeTask Workspace</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --navy:#07162d;
+  --navy2:#0c2344;
+  --blue:#1769ff;
+  --blue2:#4d91ff;
+  --orange:#ff8a35;
+  --cream:#fff8ee;
+  --white:#ffffff;
+  --muted:#a8b8d0;
+  --text:#17263e;
+  --line:#e3eaf3;
+  --green:#1c9b70;
+  --shadow:0 20px 55px rgba(7,22,45,.12);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+  scroll-padding-top:95px;
+}
+
+body{
+  font-family:"DM Sans",sans-serif;
+  color:var(--text);
+  background:#f5f8fc;
+  overflow-x:hidden;
+}
+
+button,input{
+  font:inherit;
+}
+
+button,a{
+  -webkit-tap-highlight-color:transparent;
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+img{
+  display:block;
+  max-width:100%;
+}
+
+.container{
+  width:min(1180px,92%);
+  margin:auto;
+}
+
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  color:var(--orange);
+  text-transform:uppercase;
+  font-weight:800;
+  font-size:.76rem;
+  letter-spacing:2px;
+}
+
+.eyebrow:before{
+  content:"";
+  width:25px;
+  height:3px;
+  border-radius:10px;
+  background:var(--orange);
+}
+
+h1,h2,h3,h4{
+  font-family:"Manrope",sans-serif;
+  letter-spacing:-.7px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible{
+  outline:3px solid var(--orange);
+  outline-offset:4px;
+}
+
+/* ANNOUNCEMENT */
+
+.announcement{
+  background:#041020;
+  color:#dce8fa;
+  padding:10px 4%;
+  text-align:center;
+  font-size:.78rem;
+  letter-spacing:.2px;
+}
+
+.announcement span{
+  color:#ffb16f;
+  font-weight:800;
+}
+
+/* NAVIGATION */
+
+.navbar{
+  height:78px;
+  display:flex;
+  align-items:center;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(18px);
+  position:sticky;
+  top:0;
+  z-index:100;
+  border-bottom:1px solid rgba(220,230,243,.8);
+}
+
+.nav-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:190px;
+}
+
+.brand-mark{
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  background:linear-gradient(145deg,var(--blue),#0641b8);
+  display:grid;
+  place-items:center;
+  color:white;
+  font-family:"Manrope",sans-serif;
+  font-size:1.15rem;
+  font-weight:800;
+  box-shadow:0 7px 18px rgba(23,105,255,.25);
+}
+
+.brand-name{
+  font-family:"Manrope",sans-serif;
+  font-weight:800;
+  color:var(--navy);
+  font-size:1rem;
+  line-height:1.2;
+}
+
+.brand-name small{
+  display:block;
+  font-family:"DM Sans",sans-serif;
+  font-size:.66rem;
+  color:#73819a;
+  font-weight:600;
+  letter-spacing:1.2px;
+  margin-top:4px;
+}
+
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:24px;
+  font-size:.86rem;
+  font-weight:600;
+  color:#52617a;
+}
+
+.nav-links a:hover{
+  color:var(--blue);
+}
+
+.nav-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.btn{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  padding:12px 18px;
+  border-radius:11px;
+  border:1px solid transparent;
+  font-weight:700;
+  font-size:.84rem;
+  transition:.2s ease;
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+}
+
+.btn-outline{
+  border-color:#d9e3f0;
+  color:var(--navy);
+  background:white;
+}
+
+.btn-primary{
+  background:var(--blue);
+  color:white;
+  box-shadow:0 7px 18px rgba(23,105,255,.18);
+}
+
+.btn-primary:hover{
+  background:#0757e8;
+}
+
+.menu-toggle{
+  display:none;
+  border:1px solid var(--line);
+  background:white;
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:1.2rem;
+}
+
+/* HERO */
+
+.hero{
+  min-height:570px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+  background:var(--navy);
+  color:white;
+  isolation:isolate;
+}
+
+.hero-photo{
+  position:absolute;
+  inset:0;
+  z-index:-3;
+  background:
+    url("https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=2200&q=85")
+    center 42%/cover no-repeat;
+}
+
+.hero:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  background:
+    linear-gradient(90deg,
+      rgba(4,15,34,.97) 0%,
+      rgba(5,20,44,.91) 45%,
+      rgba(5,20,44,.55) 100%);
+}
+
+.hero:after{
+  content:"";
+  position:absolute;
+  width:430px;
+  height:430px;
+  right:-130px;
+  bottom:-230px;
+  border:70px solid rgba(255,138,53,.15);
+  border-radius:50%;
+  z-index:-1;
+}
+
+.hero-content{
+  padding:85px 0 100px;
+  max-width:800px;
+}
+
+.hero .eyebrow{
+  color:#ffb47f;
+}
+
+.hero h1{
+  font-size:clamp(2.5rem,6vw,4.7rem);
+  line-height:1.08;
+  margin:22px 0;
+  font-weight:800;
+}
+
+.hero h1 span{
+  color:#ffad6c;
+}
+
+.hero-description{
+  color:#d0dbee;
+  font-size:1.05rem;
+  line-height:1.9;
+  max-width:670px;
+}
+
+.hero-points{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-top:28px;
+}
+
+.hero-point{
+  padding:10px 13px;
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);
+  border-radius:9px;
+  color:#e5edfa;
+  font-size:.78rem;
+  font-weight:600;
+}
+
+.hero-point span{
+  color:#ffb47f;
+  margin-right:6px;
+}
+
+/* SEARCH PANEL */
+
+.search-section{
+  position:relative;
+  z-index:5;
+  margin-top:-48px;
+}
+
+.search-panel{
+  background:white;
+  border:1px solid #e6edf6;
+  border-radius:22px;
+  padding:25px;
+  box-shadow:var(--shadow);
+}
+
+.search-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:16px;
+}
+
+.search-heading h2{
+  font-size:1.05rem;
+}
+
+.search-heading span{
+  color:#8794a8;
+  font-size:.77rem;
+}
+
+.search-box{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  background:#f5f8fc;
+  border:1px solid #e2eaf4;
+  border-radius:14px;
+  padding:5px 16px;
+  transition:.2s;
+}
+
+.search-box:focus-within{
+  border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(23,105,255,.08);
+}
+
+.search-icon{
+  font-size:1.3rem;
+  color:var(--blue);
+}
+
+.search-box input{
+  width:100%;
+  border:0;
+  outline:none;
+  background:transparent;
+  padding:14px 0;
+  color:var(--text);
+  font-size:.95rem;
+}
+
+.search-box input::placeholder{
+  color:#94a0b2;
+}
+
+.search-hint{
+  color:#8996aa;
+  font-size:.77rem;
+  margin-top:12px;
+}
+
+/* PAGE INTRO */
+
+.intro{
+  padding:85px 0 40px;
+}
+
+.intro-grid{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  align-items:center;
+  gap:60px;
+}
+
+.intro h2{
+  font-size:clamp(2rem,4vw,3rem);
+  line-height:1.2;
+  margin:17px 0;
+  color:var(--navy);
+}
+
+.intro-copy{
+  color:#65738a;
+  line-height:1.95;
+  font-size:.96rem;
+}
+
+.intro-photo{
+  position:relative;
+  min-height:320px;
+}
+
+.intro-photo img{
+  width:100%;
+  height:320px;
+  object-fit:cover;
+  border-radius:23px;
+}
+
+.photo-note{
+  position:absolute;
+  bottom:20px;
+  left:-20px;
+  right:35px;
+  background:white;
+  border-radius:14px;
+  padding:18px;
+  box-shadow:var(--shadow);
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.photo-note-icon{
+  flex-shrink:0;
+  width:46px;
+  height:46px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  background:#fff0e4;
+  color:#d96613;
+  font-size:1.3rem;
+}
+
+.photo-note strong{
+  display:block;
+  color:var(--navy);
+  font-size:.9rem;
+}
+
+.photo-note small{
+  color:#7c8aa0;
+  line-height:1.6;
+}
+
+/* CATEGORY CARDS */
+
+.category-section{
+  padding:45px 0 75px;
+}
+
+.section-heading{
+  text-align:center;
+  max-width:730px;
+  margin:0 auto 38px;
+}
+
+.section-heading h2{
+  font-size:clamp(1.9rem,4vw,2.8rem);
+  margin:15px 0;
+  color:var(--navy);
+}
+
+.section-heading p{
+  color:#75839a;
+  line-height:1.8;
+  font-size:.93rem;
+}
+
+.category-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:17px;
+}
+
+.category-card{
+  background:white;
+  border:1px solid #e4ebf4;
+  border-radius:17px;
+  padding:24px 20px;
+  text-align:left;
+  transition:.25s;
+  min-height:175px;
+}
+
+.category-card:hover,
+.category-card.active{
+  border-color:#a6c5ff;
+  box-shadow:0 14px 30px rgba(23,105,255,.09);
+  transform:translateY(-4px);
+}
+
+.category-card.active{
+  background:#f2f7ff;
+}
+
+.category-icon{
+  display:grid;
+  place-items:center;
+  width:47px;
+  height:47px;
+  background:#edf4ff;
+  border-radius:13px;
+  font-size:1.35rem;
+  margin-bottom:17px;
+}
+
+.category-card:nth-child(2) .category-icon,
+.category-card:nth-child(5) .category-icon{
+  background:#fff0e4;
+}
+
+.category-card:nth-child(3) .category-icon,
+.category-card:nth-child(7) .category-icon{
+  background:#e6f8ef;
+}
+
+.category-card:nth-child(4) .category-icon,
+.category-card:nth-child(8) .category-icon{
+  background:#f0ebff;
+}
+
+.category-card strong{
+  display:block;
+  color:var(--navy);
+  font-size:.92rem;
+  margin-bottom:8px;
+}
+
+.category-card small{
+  color:#8794a8;
+  line-height:1.6;
+  font-size:.76rem;
+}
+
+/* FAQ WORKSPACE */
+
+.faq-section{
+  padding:85px 0 100px;
+  background:#fff;
+}
+
+.faq-layout{
+  display:grid;
+  grid-template-columns:.78fr 1.22fr;
+  align-items:start;
+  gap:45px;
+}
+
+.faq-sidebar{
+  position:sticky;
+  top:105px;
+}
+
+.faq-sidebar h2{
+  font-size:2.3rem;
+  line-height:1.2;
+  margin:17px 0;
+  color:var(--navy);
+}
+
+.faq-sidebar > p{
+  color:#77859b;
+  font-size:.92rem;
+  line-height:1.9;
+}
+
+.progress-card{
+  background:#f4f8fd;
+  border:1px solid #e3ebf6;
+  border-radius:17px;
+  padding:21px;
+  margin-top:27px;
+}
+
+.progress-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+  font-size:.82rem;
+  font-weight:700;
+  color:var(--navy);
+}
+
+.progress-top span:last-child{
+  color:var(--blue);
+}
+
+.progress-track{
+  height:7px;
+  background:#dfe8f5;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.progress-fill{
+  width:0;
+  height:100%;
+  background:linear-gradient(90deg,var(--blue),#55a1ff);
+  border-radius:20px;
+  transition:width .3s ease;
+}
+
+.progress-card p{
+  font-size:.76rem;
+  color:#8290a5;
+  margin-top:12px;
+  line-height:1.7;
+}
+
+.side-photo{
+  position:relative;
+  margin-top:25px;
+  height:205px;
+  border-radius:17px;
+  overflow:hidden;
+}
+
+.side-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.side-photo:after{
+  content:"Learning. Working. Growing.";
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:flex-end;
+  padding:19px;
+  font-family:"Manrope",sans-serif;
+  font-weight:800;
+  color:white;
+  background:linear-gradient(0deg,rgba(5,20,44,.85),transparent 75%);
+}
+
+/* QUESTION LIST */
+
+.faq-main{
+  min-width:0;
+}
+
+.faq-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:23px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--line);
+}
+
+.faq-toolbar h3{
+  color:var(--navy);
+  font-size:1.05rem;
+}
+
+.faq-toolbar span{
+  color:#8290a5;
+  font-size:.79rem;
+}
+
+.faq-group{
+  margin-bottom:32px;
+  scroll-margin-top:100px;
+}
+
+.faq-group-heading{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:15px;
+  color:var(--navy);
+  font-size:1.05rem;
+}
+
+.group-number{
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+  width:35px;
+  height:35px;
+  border-radius:11px;
+  background:#edf4ff;
+  color:var(--blue);
+  font-size:.78rem;
+  font-weight:800;
+}
+
+.faq-item{
+  border:1px solid #e3eaf4;
+  border-radius:14px;
+  margin-bottom:11px;
+  background:white;
+  overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+}
+
+.faq-item:hover{
+  border-color:#b6ccef;
+}
+
+.faq-item.active{
+  border-color:#a7c5ff;
+  box-shadow:0 8px 25px rgba(23,105,255,.07);
+}
+
+.faq-question{
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:17px;
+  text-align:left;
+  border:0;
+  background:transparent;
+  padding:19px 20px;
+  color:#243650;
+  font-weight:700;
+  line-height:1.65;
+  font-size:.9rem;
+}
+
+.faq-question:hover{
+  color:var(--blue);
+}
+
+.question-left{
+  display:flex;
+  gap:13px;
+  align-items:flex-start;
+}
+
+.question-mark{
+  flex-shrink:0;
+  width:25px;
+  height:25px;
+  border-radius:8px;
+  background:#f0f5fc;
+  color:#5277b1;
+  display:grid;
+  place-items:center;
+  font-size:.78rem;
+  margin-top:1px;
+}
+
+.faq-item.active .question-mark{
+  background:#e7f0ff;
+  color:var(--blue);
+}
+
+.chevron{
+  flex-shrink:0;
+  color:#8290a5;
+  transition:transform .25s;
+  font-size:1.1rem;
+}
+
+.faq-item.active .chevron{
+  transform:rotate(180deg);
+  color:var(--blue);
+}
+
+.faq-answer{
+  display:grid;
+  grid-template-rows:0fr;
+  transition:grid-template-rows .3s ease;
+}
+
+.faq-item.active .faq-answer{
+  grid-template-rows:1fr;
+}
+
+.faq-answer-inner{
+  overflow:hidden;
+  min-height:0;
+}
+
+.answer-content{
+  padding:0 21px 23px 58px;
+  color:#627188;
+  font-size:.88rem;
+  line-height:1.95;
+  white-space:normal;
+}
+
+.answer-content p{
+  margin:0 0 13px;
+}
+
+.answer-content p:last-child{
+  margin-bottom:0;
+}
+
+.answer-content ul,
+.answer-content ol{
+  padding-left:20px;
+  margin:10px 0 15px;
+}
+
+.answer-content li{
+  padding-left:4px;
+  margin-bottom:7px;
+}
+
+.answer-content strong{
+  color:#233752;
+}
+
+.answer-content .answer-note{
+  padding:14px 16px;
+  border-radius:10px;
+  background:#f0f6ff;
+  border-left:3px solid var(--blue);
+  margin:15px 0;
+  color:#425a7b;
+}
+
+.answer-content .warning-note{
+  padding:14px 16px;
+  border-radius:10px;
+  background:#fff5e9;
+  border-left:3px solid var(--orange);
+  margin:15px 0;
+  color:#80552f;
+}
+
+.typing-cursor:after{
+  content:"";
+  display:inline-block;
+  width:2px;
+  height:14px;
+  margin-left:3px;
+  vertical-align:-2px;
+  background:var(--blue);
+  animation:blink .75s steps(2,start) infinite;
+}
+
+@keyframes blink{
+  to{visibility:hidden}
+}
+
+.answer-content.typing{
+  animation:answerIn .3s ease;
+}
+
+@keyframes answerIn{
+  from{opacity:.3;transform:translateY(4px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.no-results{
+  display:none;
+  text-align:center;
+  padding:50px 20px;
+  border:1px dashed #cbd8e9;
+  border-radius:17px;
+  color:#7b899e;
+  line-height:1.8;
+}
+
+.no-results strong{
+  display:block;
+  color:var(--navy);
+  font-size:1.1rem;
+  margin-bottom:8px;
+}
+
+.clear-filter{
+  display:none;
+  border:0;
+  background:#edf4ff;
+  color:var(--blue);
+  border-radius:8px;
+  padding:8px 11px;
+  font-size:.78rem;
+  font-weight:700;
+  margin-top:12px;
+}
+
+/* PROCESS SECTION */
+
+.process-section{
+  padding:95px 0;
+  background:#edf3fb;
+}
+
+.process-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+  margin-top:42px;
+}
+
+.process-card{
+  background:white;
+  border-radius:17px;
+  padding:25px 22px;
+  border:1px solid #e0e9f5;
+  position:relative;
+}
+
+.process-number{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  background:var(--navy);
+  color:white;
+  border-radius:13px;
+  font-family:"Manrope",sans-serif;
+  font-weight:800;
+  margin-bottom:20px;
+}
+
+.process-card h3{
+  font-size:1rem;
+  color:var(--navy);
+  margin-bottom:11px;
+}
+
+.process-card p{
+  color:#748198;
+  font-size:.84rem;
+  line-height:1.85;
+}
+
+/* AFRICAN FEATURE */
+
+.feature-section{
+  padding:100px 0;
+  background:var(--navy);
+  color:white;
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+
+.feature-photo{
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  background:url("https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=2000&q=85") center/cover no-repeat;
+}
+
+.feature-section:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(90deg,rgba(4,16,35,.97),rgba(5,20,44,.88));
+}
+
+.feature-grid{
+  display:grid;
+  grid-template-columns:1fr .8fr;
+  align-items:center;
+  gap:60px;
+}
+
+.feature-section .eyebrow{
+  color:#ffb47f;
+}
+
+.feature-section h2{
+  font-size:clamp(2.1rem,4.4vw,3.4rem);
+  line-height:1.18;
+  margin:20px 0;
+}
+
+.feature-section h2 span{
+  color:#ffad6c;
+}
+
+.feature-section p{
+  color:#d0dbee;
+  line-height:1.95;
+  font-size:.94rem;
+}
+
+.feature-list{
+  list-style:none;
+  margin-top:25px;
+}
+
+.feature-list li{
+  margin:13px 0;
+  color:#e1eafa;
+  font-size:.89rem;
+}
+
+.feature-list li:before{
+  content:"✓";
+  display:inline-grid;
+  place-items:center;
+  width:23px;
+  height:23px;
+  border-radius:50%;
+  background:rgba(255,138,53,.18);
+  color:#ffb47f;
+  margin-right:11px;
+  font-weight:800;
+}
+
+.feature-card{
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.2);
+  backdrop-filter:blur(16px);
+  border-radius:22px;
+  padding:30px;
+}
+
+.feature-card img{
+  width:100%;
+  height:205px;
+  object-fit:cover;
+  border-radius:15px;
+  margin-bottom:23px;
+}
+
+.feature-card h3{
+  font-size:1.2rem;
+  margin-bottom:12px;
+}
+
+.feature-card p{
+  font-size:.85rem;
+}
+
+.feature-card .btn{
+  margin-top:20px;
+  background:var(--orange);
+  color:#25180d;
+}
+
+/* FINAL CTA */
+
+.cta-section{
+  padding:90px 0;
+  background:white;
+}
+
+.cta-box{
+  padding:55px;
+  border-radius:24px;
+  background:linear-gradient(120deg,#0b2550,#0d3b7c);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:35px;
+  overflow:hidden;
+  position:relative;
+  isolation:isolate;
+}
+
+.cta-box:after{
+  content:"";
+  position:absolute;
+  right:-60px;
+  top:-130px;
+  width:340px;
+  height:340px;
+  border:60px solid rgba(255,138,53,.14);
+  border-radius:50%;
+  z-index:-1;
+}
+
+.cta-copy{
+  max-width:650px;
+}
+
+.cta-copy h2{
+  font-size:clamp(1.7rem,4vw,2.5rem);
+  line-height:1.25;
+  margin-bottom:14px;
+}
+
+.cta-copy p{
+  color:#cfdbed;
+  line-height:1.85;
+  font-size:.91rem;
+}
+
+.cta-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  flex-shrink:0;
+}
+
+.cta-actions .btn-primary{
+  background:var(--orange);
+  color:#28170a;
+}
+
+.cta-actions .btn-outline{
+  background:transparent;
+  color:white;
+  border-color:rgba(255,255,255,.3);
+}
+
+/* FOOTER */
+
+.footer{
+  background:#041020;
+  color:#c1cee0;
+  padding:60px 0 0;
+}
+
+.footer-grid{
+  display:grid;
+  grid-template-columns:1.4fr .8fr .8fr 1fr;
+  gap:35px;
+  padding-bottom:45px;
+}
+
+.footer-brand .brand-name{
+  color:white;
+}
+
+.footer-brand .brand-name small{
+  color:#8fa1bb;
+}
+
+.footer-description{
+  color:#91a2ba;
+  line-height:1.9;
+  font-size:.84rem;
+  margin-top:20px;
+  max-width:310px;
+}
+
+.footer h4{
+  color:white;
+  font-size:.91rem;
+  margin-bottom:19px;
+}
+
+.footer-links{
+  display:grid;
+  gap:13px;
+}
+
+.footer-links a{
+  color:#9aacc4;
+  font-size:.82rem;
+  transition:.2s;
+}
+
+.footer-links a:hover{
+  color:#ffad6c;
+}
+
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,.1);
+  padding:20px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  color:#8193ac;
+  font-size:.77rem;
+}
+
+.footer-bottom a:hover{
+  color:white;
+}
+
+/* BACK TO TOP */
+
+.back-top{
+  position:fixed;
+  bottom:22px;
+  right:20px;
+  width:45px;
+  height:45px;
+  border:0;
+  border-radius:13px;
+  background:var(--blue);
+  color:white;
+  font-size:1.2rem;
+  box-shadow:0 8px 25px rgba(23,105,255,.28);
+  z-index:50;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(10px);
+  transition:.2s;
+}
+
+.back-top.visible{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
+
+@media(max-width:1050px){
+  .nav-links{gap:14px}
+  .nav-links a{font-size:.8rem}
+  .category-grid{grid-template-columns:repeat(2,1fr)}
+  .process-grid{grid-template-columns:repeat(2,1fr)}
+  .faq-layout{grid-template-columns:.7fr 1.3fr;gap:30px}
+  .footer-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media(max-width:780px){
+  .navbar{height:70px}
+  .menu-toggle{display:block}
+  .nav-links{
+    display:none;
+    position:absolute;
+    top:69px;
+    left:0;
+    right:0;
+    padding:22px 5%;
+    background:white;
+    border-bottom:1px solid var(--line);
+    flex-direction:column;
+    align-items:stretch;
+    gap:0;
+    box-shadow:0 15px 25px rgba(7,22,45,.08);
+  }
+  .nav-links.open{display:flex}
+  .nav-links a{
+    padding:13px 0;
+    border-bottom:1px solid #edf1f7;
+    font-size:.9rem;
+  }
+  .nav-actions .btn-outline{display:none}
+  .brand{min-width:0}
+  .hero{min-height:520px}
+  .hero-content{padding:75px 0 90px}
+  .intro-grid{grid-template-columns:1fr;gap:35px}
+  .intro-photo{max-width:600px}
+  .photo-note{left:12px;right:12px}
+  .faq-layout{grid-template-columns:1fr}
+  .faq-sidebar{position:static}
+  .faq-sidebar h2{font-size:2rem}
+  .side-photo{display:none}
+  .feature-grid{grid-template-columns:1fr;gap:35px}
+  .feature-card{max-width:550px}
+  .cta-box{flex-direction:column;align-items:flex-start;padding:35px 27px}
+  .faq-section{padding:65px 0}
+}
+
+@media(max-width:500px){
+  .announcement{font-size:.7rem}
+  .brand-name{font-size:.86rem}
+  .brand-mark{width:39px;height:39px}
+  .nav-actions .btn-primary{padding:10px 12px;font-size:.75rem}
+  .hero h1{font-size:2.55rem}
+  .hero-description{font-size:.93rem}
+  .hero-point{font-size:.7rem}
+  .search-panel{padding:19px}
+  .search-heading{align-items:flex-start;flex-direction:column}
+  .intro{padding-top:65px}
+  .category-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .category-card{padding:17px 13px;min-height:165px}
+  .category-card strong{font-size:.83rem}
+  .category-card small{font-size:.71rem}
+  .process-grid{grid-template-columns:1fr}
+  .faq-question{padding:16px 13px;font-size:.84rem}
+  .question-left{gap:9px}
+  .answer-content{padding:0 15px 20px 17px;font-size:.84rem}
+  .faq-toolbar{align-items:flex-start;flex-direction:column}
+  .feature-card{padding:20px}
+  .footer-grid{grid-template-columns:1fr;gap:28px}
+  .footer-bottom{flex-direction:column;align-items:flex-start}
+  .cta-actions{width:100%}
+  .cta-actions .btn{flex:1}
+}
+</style>
+</head>
+
+<body>
+
+<div class="announcement">
+  Your next opportunity starts with understanding the process.
+  <span>Explore the PrimeTask Knowledge Centre.</span>
+</div>
+
+<header class="navbar">
+  <div class="container nav-inner">
+
+    <a class="brand" href="index.html" aria-label="PrimeTask Workspace home">
+      <div class="brand-mark">PT</div>
+      <div class="brand-name">
+        PrimeTask Workspace
+        <small>WORK. EARN. GROW.</small>
+      </div>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="pricing.html">Platform Utilities</a>
+      <a href="about.html">About Us</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+
+    <div class="nav-actions">
+      <a href="auth/login.html" class="btn btn-outline">Log in</a>
+      <a href="auth/register.html" class="btn btn-primary">Get Started ↗</a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false">☰</button>
+    </div>
+
+  </div>
+</header>
+
+<main>
+
+<!-- HERO -->
+
+<section class="hero">
+  <div class="hero-photo"></div>
+
+  <div class="container">
+    <div class="hero-content">
+
+      <span class="eyebrow">The PrimeTask Knowledge Centre</span>
+
+      <h1>
+        Questions deserve<br>
+        <span>real answers.</span>
+      </h1>
+
+      <p class="hero-description">
+        New to PrimeTask Workspace? Trying to understand how assignments,
+        minutes, bids, memberships or payments work? Start here.
+        Explore detailed explanations designed to help you understand the
+        platform before you make decisions, spend money or submit work.
+      </p>
+
+      <div class="hero-points">
+        <div class="hero-point"><span>✦</span> Clear explanations</div>
+        <div class="hero-point"><span>✦</span> Practical guidance</div>
+        <div class="hero-point"><span>✦</span> Worker-focused information</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SEARCH -->
+
+<section class="search-section">
+  <div class="container">
+    <div class="search-panel">
+
+      <div class="search-heading">
+        <h2>What would you like to understand?</h2>
+        <span id="searchCount">Browse the questions below</span>
+      </div>
+
+      <div class="search-box">
+        <span class="search-icon">⌕</span>
+        <input
+          type="search"
+          id="faqSearch"
+          placeholder="Search payments, transcription, earnings, minutes..."
+          aria-label="Search frequently asked questions"
+          autocomplete="off">
+        <span style="color:#a1aec0;font-size:.75rem">SEARCH</span>
+      </div>
+
+      <p class="search-hint">
+        Search by a keyword or phrase. You can also select a category below
+        to explore one topic at a time.
+      </p>
+
+    </div>
+  </div>
+</section>
+
+<!-- INTRO -->
+
+<section class="intro">
+  <div class="container intro-grid">
+
+    <div>
+      <span class="eyebrow">Start With The Basics</span>
+
+      <h2>Understanding the platform is part of doing the work.</h2>
+
+      <p class="intro-copy">
+        Online work platforms can introduce unfamiliar terms, payment
+        processes, application rules and submission requirements.
+        Understanding those details helps you make informed decisions and
+        avoid preventable mistakes.
+        <br><br>
+        PrimeTask Workspace brings together digital work opportunities and
+        supporting tools. Different services may have different eligibility
+        rules, instructions and review processes. That means a rule applying
+        to one service should not automatically be assumed to apply to every
+        other service.
+        <br><br>
+        This knowledge centre explains the intended workflows in plain
+        language. Where a feature depends on your account, an active service,
+        a published policy or a confirmed payment, that distinction matters.
+        A helpful website should explain what it does, not make promises
+        simply because promises sound attractive.
+      </p>
+    </div>
+
+    <div class="intro-photo">
+      <img
+        src="https://images.unsplash.com/photo-1529390079861-591de354faf5?auto=format&fit=crop&w=1200&q=85"
+        alt="Students working and learning together">
+
+      <div class="photo-note">
+        <div class="photo-note-icon">◎</div>
+        <div>
+          <strong>Learn before you begin</strong>
+          <small>Understand the rules, follow instructions and make informed decisions.</small>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+
+<section class="category-section">
+  <div class="container">
+
+    <div class="section-heading">
+      <span class="eyebrow">Browse By Topic</span>
+      <h2>Find your starting point.</h2>
+      <p>
+        Choose a subject to filter the questions. Each category takes you
+        closer to the information relevant to your work and account.
+      </p>
+    </div>
+
+    <div class="category-grid">
+
+      <button class="category-card" data-category="general">
+        <span class="category-icon">🌍</span>
+        <strong>Getting Started</strong>
+        <small>Accounts, eligibility, profiles and platform basics.</small>
+      </button>
+
+      <button class="category-card" data-category="work">
+        <span class="category-icon">💼</span>
+        <strong>Jobs & Assignments</strong>
+        <small>Finding tasks, applications, awards and deadlines.</small>
+      </button>
+
+      <button class="category-card" data-category="services">
+        <span class="category-icon">🎧</span>
+        <strong>Our Services</strong>
+        <small>Transcription, note-taking, data entry and writing.</small>
+      </button>
+
+      <button class="category-card" data-category="utilities">
+        <span class="category-icon">⚙️</span>
+        <strong>Minutes & Bids</strong>
+        <small>Platform utilities, balances and their intended purposes.</small>
+      </button>
+
+      <button class="category-card" data-category="payments">
+        <span class="category-icon">💳</span>
+        <strong>Payments</strong>
+        <small>Purchases, transaction status and account records.</small>
+      </button>
+
+      <button class="category-card" data-category="earnings">
+        <span class="category-icon">📊</span>
+        <strong>Earnings & Withdrawals</strong>
+        <small>Work rewards, reviews and withdrawal requests.</small>
+      </button>
+
+      <button class="category-card" data-category="membership">
+        <span class="category-icon">🪪</span>
+        <strong>Memberships</strong>
+        <small>Access, entitlements and membership conditions.</small>
+      </button>
+
+      <button class="category-card" data-category="security">
+        <span class="category-icon">🔐</span>
+        <strong>Safety & Support</strong>
+        <small>Privacy, account security, disputes and assistance.</small>
+      </button>
+
+    </div>
+  </div>
+</section>
+
+<!-- FAQ WORKSPACE -->
+
+<section class="faq-section" id="questions">
+  <div class="container faq-layout">
+
+    <aside class="faq-sidebar">
+
+      <span class="eyebrow">Knowledge Base</span>
+
+      <h2>Let's unpack the details.</h2>
+
+      <p>
+        Select a question to reveal its answer. The answer will appear
+        progressively, creating a live typing effect instead of dumping a
+        wall of text onto your screen all at once.
+      </p>
+
+      <div class="progress-card">
+        <div class="progress-top">
+          <span>Knowledge explorer</span>
+          <span id="progressPercent">0%</span>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <p id="progressText">Select a question to start exploring.</p>
+      </div>
+
+      <div class="side-photo">
+        <img
+          src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85"
+          alt="A professional working with a laptop">
+      </div>
+
+    </aside>
+
+    <div class="faq-main">
+
+      <div class="faq-toolbar">
+        <h3 id="activeCategoryTitle">All Frequently Asked Questions</h3>
+        <span id="visibleCount">Loading questions...</span>
+      </div>
+
+      <div id="faqContainer">
+
+        <!-- GENERAL -->
+
+        <section class="faq-group" data-category="general">
+          <h3 class="faq-group-heading">
+            <span class="group-number">01</span>
+            Getting Started
+          </h3>
+
+          <article class="faq-item" data-keywords="primetask workspace company platform introduction">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-left">
+                <span class="question-mark">Q</span>
+                <span>1. What is PrimeTask Workspace?</span>
+              </span>
+              <span class="chevron">⌄</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>PrimeTask Workspace is a digital-work platform designed to connect eligible users with supported services and work opportunities. Its service areas include transcription, note-taking, data entry and academic writing support.</p>
+                  <p>The platform is intended to organise work-related activities such as account access, assignment information, instructions, submissions and relevant records in one place.</p>
+                  <p>What you can access depends on the service, your account permissions, the availability of assignments and the applicable platform rules.</p>
+                  <div class="answer-note"><strong>Important:</strong> Creating an account does not guarantee a job, a particular income or immediate access to every service.</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="register signup create account join">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-left">
+                <span class="question-mark">Q</span>
+                <span>2. How do I create a PrimeTask account?</span>
+              </span>
+              <span class="chevron">⌄</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Begin from the official registration page. Complete the requested details accurately, use an email address you can access and create a strong password.</p>
+                  <ol>
+                    <li>Open the registration page.</li>
+                    <li>Enter your requested account information.</li>
+                    <li>Review your details before submitting the form.</li>
+                    <li>Complete any email or account verification step presented to you.</li>
+                    <li>Sign in and review your account dashboard.</li>
+                  </ol>
+                  <p>Only provide information requested through the legitimate platform. If registration requires a membership or paid utility, read the published terms and price before paying.</p>
+                  <div class="answer-note">Use the official PrimeTask Workspace website rather than an unfamiliar registration link sent by an unknown person.</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="eligibility requirements age student worker country">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-left">
+                <span class="question-mark">Q</span>
+                <span>3. Who can use PrimeTask Workspace?</span>
+              </span>
+              <span class="chevron">⌄</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Eligibility depends on the requirements of the relevant service and the platform's published account policies. People interested in digital work may explore the available services to determine which ones match their skills.</p>
+                  <p>Some assignments may require language proficiency, a suitable device, reliable internet access, specialist knowledge, identity verification or successful completion of training.</p>
+                  <p>Do not assume that being eligible to register automatically makes you eligible for every assignment. Assignment-specific requirements take priority when they are properly published.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="profile update name email phone details">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-left">
+                <span class="question-mark">Q</span>
+                <span>4. Why should I complete my profile accurately?</span>
+              </span>
+              <span class="chevron">⌄</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Your profile helps the platform associate your account with your work, communication preferences and relevant eligibility information.</p>
+                  <p>Accurate details can reduce confusion when an administrator needs to contact you about an assignment, resolve a submission issue or verify an account-related request.</p>
+                  <p>Update your details when they change, and never use another person's identity or payment details without proper authorisation.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="multiple accounts duplicate account suspension">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>5. Can I create multiple accounts?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Follow the account policy published by PrimeTask Workspace. Unless multiple accounts are explicitly permitted, use your own authorised account rather than creating duplicates to bypass limits or restrictions.</p>
+                  <p>Duplicate accounts can complicate identity verification, work records, utility balances and payment reviews. They may also trigger security checks.</p>
+                  <p>If you lose access to an existing account, use the available recovery process instead of immediately creating another account.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="free account registration fee price cost">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>6. Is registration free?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Registration fees, if any, must be disclosed on the official registration page before an account is created. Do not assume that registration, membership, minutes, bids and access to assignments are all the same product.</p>
+                  <p>Review the current displayed price and terms before authorising a payment. If a price or fee is unclear, do not proceed based solely on an informal message.</p>
+                  <div class="warning-note">This knowledge page does not establish a price. The official checkout and published terms must provide the applicable amount.</div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- WORK -->
+
+        <section class="faq-group" data-category="work">
+          <h3 class="faq-group-heading">
+            <span class="group-number">02</span>
+            Jobs & Assignments
+          </h3>
+
+          <article class="faq-item" data-keywords="find jobs assignments available work dashboard">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>7. How do I find available assignments?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Use the relevant work area of your dashboard to inspect assignments available to your account. Read each listing carefully before applying or accepting.</p>
+                  <p>Check the service type, task description, required skills, deadline, reward, submission format and any additional eligibility conditions.</p>
+                  <p>Assignments may be limited by client demand, review capacity, skill requirements or availability. An empty dashboard does not necessarily mean your account is broken, just as a full dashboard does not guarantee that every task is suitable for you.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="apply bid job application bid selection">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>8. What is the difference between applying, bidding and being awarded a job?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>An application or bid expresses your interest in completing a particular assignment. An award is a separate decision that grants a worker permission to proceed under the applicable assignment terms.</p>
+                  <ul>
+                    <li><strong>Application:</strong> You express interest and provide any required information.</li>
+                    <li><strong>Bid:</strong> You participate in a workflow that uses bids, if that assignment supports it.</li>
+                    <li><strong>Award:</strong> The authorised process selects you for the task.</li>
+                    <li><strong>Submission:</strong> You deliver the required work according to the instructions.</li>
+                    <li><strong>Review:</strong> The submission is assessed against the applicable requirements.</li>
+                  </ul>
+                  <p>Submitting an application or using a bid does not itself guarantee an award, payment or income.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="deadline late assignment submission extension">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>9. What happens if I miss a deadline?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>The consequences depend on the assignment terms and the platform's published late-submission policy. A missed deadline may require administrator review, affect assignment eligibility or result in the task being marked late.</p>
+                  <p>If you anticipate a delay, contact the authorised person as early as possible and explain the situation. Do not assume that an extension has been granted until it is confirmed.</p>
+                  <p>Keep a record of any approved deadline change and continue following the assignment instructions while waiting for a response.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="work instructions client brief clarification">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>10. What should I do when assignment instructions are unclear?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Read the instructions again, compare them with the required output format and identify the exact point that needs clarification.</p>
+                  <p>Contact the authorised administrator or client channel before making an assumption that could affect the final result. Where possible, ask a specific question rather than sending a vague message such as "I don't understand."</p>
+                  <p>Keep the clarification and any approved change with your assignment records. This makes it easier to demonstrate that you followed the confirmed requirements.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="job rejection revision rejected work appeal">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>11. Can a submitted assignment be rejected?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>A submission may fail review if it does not meet the applicable instructions, quality standards, format or agreed scope. The exact reasons and remedies depend on the assignment policy.</p>
+                  <p>When a submission is rejected, review the stated reason carefully. If revisions are permitted, address the identified issues and resubmit within the authorised period.</p>
+                  <p>If you believe the decision is incorrect, use the available review or dispute process and provide relevant evidence. A rejection should not be treated as a mystery to solve through guesswork.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="cancel assignment withdraw application work">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>12. Can I cancel an assignment after accepting it?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Cancellation depends on the assignment terms and the status of the work. If you cannot continue, notify the authorised contact as early as possible rather than disappearing and hoping the deadline develops a conscience.</p>
+                  <p>Explain the issue, ask about the approved cancellation process and follow any instructions concerning files, reserved utilities or work already completed.</p>
+                  <p>Do not assume that cancellation automatically restores every resource or removes every obligation. The applicable rules should determine the outcome.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- SERVICES -->
+
+        <section class="faq-group" data-category="services">
+          <h3 class="faq-group-heading">
+            <span class="group-number">03</span>
+            Services & Work Quality
+          </h3>
+
+          <article class="faq-item" data-keywords="transcription audio speech words transcript">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>13. What is transcription?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Transcription is the process of converting spoken content from audio or video into written text. Depending on the assignment, the source may be an interview, meeting, lecture, discussion, presentation or other recording.</p>
+                  <p>Workers may need to identify speakers, preserve meaningful wording, mark unclear speech, follow punctuation rules and apply timestamps or other formatting requirements.</p>
+                  <p>Before beginning, identify the requested transcript style. Verbatim, clean verbatim and intelligent or edited transcription can require different treatment of fillers, repetitions and grammatical errors.</p>
+                  <div class="answer-note">The client's instructions determine the required style. Never silently rewrite speech when the task requires faithful transcription.</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="verbatim clean verbatim intelligent transcription styles">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>14. What are verbatim, clean verbatim and intelligent transcription?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p><strong>Verbatim transcription</strong> preserves speech closely, including the disfluencies and repetitions required by the project's rules. Some projects also require non-speech sounds and detailed speaker information.</p>
+                  <p><strong>Clean verbatim</strong> generally removes unnecessary fillers and certain repetitions while preserving the speaker's meaning and natural wording.</p>
+                  <p><strong>Intelligent or edited transcription</strong> may reorganise or polish spoken language for readability, depending on the client's instructions. It must not invent statements or distort the intended meaning.</p>
+                  <p>These labels are not used identically by every client. Follow the project's own formatting guide and examples when they are provided.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="note taking lectures meetings summaries minutes notes">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>15. What is note-taking work?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Note-taking involves capturing useful information from a lecture, meeting, discussion or other source. The expected output might include structured notes, a summary, key points, action items or decisions.</p>
+                  <p>Good notes preserve important meaning while organising the material so that another person can understand it later.</p>
+                  <p>For meetings, this may involve separating discussion points, decisions and action items. For lectures, it may involve headings, definitions, examples and key concepts.</p>
+                  <p>The assignment must specify whether the client expects comprehensive notes, concise notes, formal meeting minutes or a summary. These are related but not identical deliverables.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="data entry spreadsheet accuracy records typing">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>16. What does data entry involve?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Data entry involves transferring, organising, updating or checking information in a specified system or document. Depending on the assignment, this can involve spreadsheets, forms, structured records or other approved formats.</p>
+                  <p>Accuracy is essential. Workers should follow naming conventions, maintain consistent formatting, avoid accidental duplication and protect confidential information.</p>
+                  <p>Never invent missing data to make a spreadsheet look complete. Follow the client's rule for blank, unavailable, uncertain or inconsistent information.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="academic writing research citations essays originality">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>17. What does academic writing support involve?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Academic writing support can involve permitted research assistance, editing, proofreading, formatting, referencing, language improvement and other services defined by the assignment.</p>
+                  <p>Work should respect academic integrity, accurate citation and the rules of the relevant institution. Sources must not be fabricated, and another person's ideas must not be presented as original work.</p>
+                  <p>Before accepting a task, check its scope and the client's intended use. Assignments that require deception, fabricated research or violations of institutional rules should not be treated as ordinary editing work.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="quality accuracy proofreading submit check">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>18. How can I improve the quality of my submissions?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Use a consistent quality-control process instead of relying entirely on memory.</p>
+                  <ol>
+                    <li>Read the instructions before starting.</li>
+                    <li>Confirm the required format and naming convention.</li>
+                    <li>Complete the work using the approved source material.</li>
+                    <li>Check names, figures, dates and other high-risk details.</li>
+                    <li>Review the entire document for omissions and formatting problems.</li>
+                    <li>Confirm that the correct file or content is being submitted.</li>
+                  </ol>
+                  <p>For audio-based work, review difficult sections rather than guessing. For data entry, compare the final records with the source. For writing, check structure, references and compliance with the brief.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- UTILITIES -->
+
+        <section class="faq-group" data-category="utilities">
+          <h3 class="faq-group-heading">
+            <span class="group-number">04</span>
+            Minutes, Bids & Platform Utilities
+          </h3>
+
+          <article class="faq-item" data-keywords="minutes audio capacity purchase balance utility">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>19. What are minutes on PrimeTask Workspace?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Minutes are intended to represent an amount of eligible audio-processing or transcription capacity within services that use a minutes-based workflow.</p>
+                  <p>They are a platform utility, not cash, a salary, an earning balance or a promise that a worker will receive a particular assignment.</p>
+                  <p>The relationship between purchased minutes and an assignment must be explained by the applicable product rules. For example, a system might reserve capacity when an eligible task is accepted and consume it after a defined event. Another service may use a different process.</p>
+                  <div class="answer-note"><strong>Remember:</strong> Minutes and earnings are different records. A minutes balance should not be represented as withdrawable money.</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="buy purchase minutes how many audio duration">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>20. How do I purchase minutes?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Where minutes purchases are enabled, open the relevant purchase section, review the available packages and select the option that suits your intended use.</p>
+                  <p>Before paying, check the amount, number of minutes, applicable restrictions, payment method and any expiry or refund conditions that have been published.</p>
+                  <ol>
+                    <li>Select the intended package.</li>
+                    <li>Review the displayed price and package details.</li>
+                    <li>Complete the supported payment process.</li>
+                    <li>Wait for the platform to verify the transaction.</li>
+                    <li>Confirm that the correct minutes balance has been credited.</li>
+                  </ol>
+                  <p>Do not make another payment immediately just because a confirmation screen is slow. First check the transaction status and contact support if necessary.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="minutes deducted consumed reserved returned refund task">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>21. When are minutes deducted or returned?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>The answer depends on the specific service's published rules and the assignment's status.</p>
+                  <p>A platform may distinguish between available minutes, reserved minutes and consumed minutes. A reservation temporarily sets capacity aside, while consumption records that the applicable resource has been used.</p>
+                  <p>If an assignment is cancelled or rejected, the rules should explain whether any reservation is released. A completed resource consumption is not automatically refundable simply because a worker dislikes the result.</p>
+                  <div class="warning-note">The exact deduction, reservation and restoration rules must be configured and published before a service launches. This page does not create a universal refund entitlement.</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="bids balance bid credits application tokens">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>22. What are bids used for?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Bids are intended to support eligible job application or bidding workflows where the platform explicitly uses them.</p>
+                  <p>A bid balance may determine whether an account can participate in a particular application process. The relevant assignment rules should explain the required amount and when a bid is consumed.</p>
+                  <p>Bids do not guarantee that an application will be accepted, that a worker will be selected or that income will result from participation.</p>
+                  <p>Before purchasing bids, confirm that the assignments you want to pursue actually use a bid-based process and review the applicable conditions.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="buy bids cost bid package deduction refund">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>23. How do I know how many bids I need?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>The relevant job listing or application interface should disclose the bid requirement before you confirm the action.</p>
+                  <p>Review the required quantity, your available balance and any restrictions. If the assignment does not disclose the requirement clearly, seek clarification before purchasing additional bids.</p>
+                  <p>Do not assume every job uses bids or that all bids have the same value. The platform should make the applicable rules visible at the point of use.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="minutes bids cash withdraw money convert transfer">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>24. Can I withdraw minutes or bids as money?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Minutes and bids are utility balances, not cash balances. They should not be treated as withdrawable earnings unless a specific, published product rule expressly provides otherwise.</p>
+                  <p>Purchasing a utility does not automatically create an entitlement to withdraw its purchase value. Utility balances, payment records and approved work earnings should remain separate.</p>
+                  <p>If a product includes a refund policy, follow that policy's actual conditions rather than assuming that the utility can be exchanged for cash at any time.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="expired minutes unused balance expiry validity">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>25. Do unused minutes and bids expire?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Expiry depends on the product's published conditions. Some utilities may have a validity period, while others may be governed by different rules.</p>
+                  <p>Check the package details and account balance information before purchasing. If an expiry date applies, it should be communicated clearly and consistently.</p>
+                  <p>This knowledge centre does not establish an expiry period. The active product terms must state whether the balance expires and what happens when the validity period ends.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- PAYMENTS -->
+
+        <section class="faq-group" data-category="payments">
+          <h3 class="faq-group-heading">
+            <span class="group-number">05</span>
+            Payments & Transactions
+          </h3>
+
+          <article class="faq-item" data-keywords="payment methods safaricom mpesa online checkout">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>26. Which payment methods can I use?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Available payment methods are the methods actually displayed in the official checkout at the time of purchase.</p>
+                  <p>Depending on the active configuration, a checkout may support a mobile-money payment method or another supported payment provider. Availability can vary by service, account and operational status.</p>
+                  <p>Never assume a payment option is active because it appears in an old screenshot, an advertisement or a message from another user. Check the live checkout and follow the instructions displayed there.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="payment successful pending failed transaction reference">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>27. What should I do if payment is successful but my balance does not update?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="answer-content">
+                <p>First, check the transaction status in the payment interface and look for a receipt or transaction reference. Then review your platform balance and transaction history.</p>
+                <ol>
+                  <li>Keep the payment confirmation and reference.</li>
+                  <li>Record the date, time and amount.</li>
+                  <li>Check whether the transaction is pending, failed or confirmed.</li>
+                  <li>Contact official support with the relevant reference if the balance remains incorrect.</li>
+                </ol>
+                <p>A delayed browser redirect does not necessarily mean a payment failed. Likewise, a success-looking browser page is not sufficient proof that a payment provider has confirmed the transaction.</p>
+                <div class="answer-note">The platform should credit utilities only after the backend verifies the relevant payment result. Do not share your PIN or one-time password with support.</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="duplicate payment charged twice receipt">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>28. What if I am charged twice for one purchase?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="answer-content">
+                <p>Do not immediately repeat the transaction or assume that two notifications represent two completed charges.</p>
+                <p>Compare the transaction references, timestamps and amounts. Keep the relevant receipts and contact official support with both references if there appear to be duplicate completed charges.</p>
+                <p>The payment records should be investigated and reconciled against the platform's transaction ledger. Any refund or reversal must follow the applicable payment-provider process and published policy.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="currency usd kenyan shilling exchange rate price">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>29. What currency are platform prices and balances displayed in?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>The currency should be stated clearly next to each amount in the relevant interface. Platform prices, utility purchases, job rewards, earnings and financial records must use the currency defined by the active product configuration.</p>
+                  <p>If a payment provider operates in a different currency, the checkout must explain the actual amount being requested from the payer. Do not infer an exchange rate from an unrelated screen or assume two amounts are equivalent.</p>
+                  <p>Always review the currency label and the final payment prompt before authorising a transaction. If the amount or currency is inconsistent, pause and seek clarification.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="payment downtime service unavailable maintenance">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>30. Why might payments temporarily be unavailable?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Payments may be temporarily unavailable because of a provider outage, maintenance, network problems, a pending configuration change or a technical issue affecting the checkout.</p>
+                  <p>If the platform displays an outage notice, follow the stated guidance. Avoid repeatedly initiating the same payment while a previous transaction remains unresolved.</p>
+                  <p>When service returns, check the status of any earlier transaction before trying again. Confirmed payments should be reconciled before additional charges are initiated.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- EARNINGS -->
+
+        <section class="faq-group" data-category="earnings">
+          <h3 class="faq-group-heading">
+            <span class="group-number">06</span>
+            Earnings & Withdrawals
+          </h3>
+
+          <article class="faq-item" data-keywords="earnings income rewards salary work paid">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>31. How do earnings work on PrimeTask Workspace?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Earnings arise from eligible work under the applicable assignment or service terms. The amount, currency, approval conditions and payment process should be stated in the relevant listing or agreement.</p>
+                  <p>Submitting work does not necessarily mean it has already been approved. A system may distinguish between pending, approved, payable and paid records.</p>
+                  <p>Only confirmed earnings should be represented as available for withdrawal. Purchased minutes, purchased bids and membership benefits must not be counted as work earnings.</p>
+                  <div class="answer-note">No job listing or platform membership should be interpreted as a guarantee of a particular income unless a genuine, enforceable agreement explicitly provides one.</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="pending approved payable earnings balance status">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>32. What is the difference between pending and approved earnings?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="answer-content">
+                <p><strong>Pending earnings</strong> are amounts awaiting the required review, confirmation or processing step.</p>
+                <p><strong>Approved earnings</strong> are amounts that have passed the applicable approval process, although they may still need to meet withdrawal conditions.</p>
+                <p><strong>Payable earnings</strong> are amounts that are eligible for a withdrawal request under the platform's current rules.</p>
+                <p><strong>Paid earnings</strong> are amounts for which the relevant payment has been completed and recorded.</p>
+                <p>The exact labels can vary, but the interface should distinguish these states clearly. A pending amount should not be described as money already received.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="withdraw money withdrawal request payout minimum">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>33. How do I request a withdrawal?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Where withdrawals are enabled, open the withdrawal section and review the current eligibility requirements.</p>
+                  <ol>
+                    <li>Confirm that your earnings are approved and payable.</li>
+                    <li>Check the minimum withdrawal threshold and any applicable fees.</li>
+                    <li>Verify the permitted payout method and your account details.</li>
+                    <li>Submit the request through the authorised interface.</li>
+                    <li>Track the status until the platform records the outcome.</li>
+                  </ol>
+                  <p>Minimum thresholds, processing times, fees and available payout methods must be disclosed in the current withdrawal policy. This FAQ does not invent or guarantee those values.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="withdrawal pending delayed processing payout">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>34. Why is my withdrawal still pending?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>A withdrawal may remain pending while eligibility is checked, payment details are reviewed, a request is processed or a payment provider completes its part of the transaction.</p>
+                  <p>Review the status message and any published processing timeframe. If that period has passed, contact official support with the withdrawal reference and relevant details.</p>
+                  <p>Do not submit repeated withdrawal requests for the same payable balance unless the platform instructs you to do so. Duplicate requests can complicate reconciliation and support investigations.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="withdrawal failed incorrect phone details rejected">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>35. What happens if a withdrawal fails?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="answer-content">
+                <p>Review the failure reason before submitting another request. Possible causes include incorrect payout details, a provider rejection, an account verification issue or a technical error.</p>
+                <p>The platform should reconcile the failed payout and determine whether the amount remains payable, has been returned to the balance or requires another documented correction.</p>
+                <p>Never assume that a failed payout automatically destroys the earnings or that a new request will safely fix every problem. Confirm the recorded status first.</p>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- MEMBERSHIPS -->
+
+        <section class="faq-group" data-category="membership">
+          <h3 class="faq-group-heading">
+            <span class="group-number">07</span>
+            Memberships & Access
+          </h3>
+
+          <article class="faq-item" data-keywords="membership package benefits access subscription">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>36. What is a PrimeTask membership?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="answer-content">
+                <p>A membership is a product that defines access to the features or benefits explicitly included in its terms.</p>
+                <p>Depending on the published plan, membership may affect access to certain tools, training, service features or other clearly described benefits.</p>
+                <p>Membership is not automatically equivalent to a minutes package, bid package, cash balance or employment contract. Each product must have its own stated purpose and conditions.</p>
+                  <div class="answer-note">Read the plan description before purchasing. The actual entitlement list, rather than the package name alone, determines what is included.</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="faq-item" data-keywords="membership tiers differences plans compare">
+              <button class="faq-question" aria-expanded="false">
+                <span class="question-mark">Q</span>
+                <span>37. How do I compare membership tiers?</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-inner">
+                  <div class="answer-content">
+                    <p>Compare the published price, included features, eligible services, duration, restrictions and any renewal or cancellation conditions.</p>
+                    <p>Check whether each benefit is included automatically, requires a separate purchase or depends on another eligibility requirement.</p>
+                    <p>Do not pay for a higher tier based on an assumption that it guarantees a job, a specific volume of assignments or a particular income. Those claims require clear, credible contractual terms, not colourful pricing cards.</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="faq-item" data-keywords="membership includes minutes bids credits">
+              <button class="faq-question" aria-expanded="false">
+                <span class="question-mark">Q</span>
+                <span>38. Does a membership automatically include minutes or bids?</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-inner">
+                  <div class="answer-content">
+                    <p>Only when the relevant membership description explicitly includes them.</p>
+                    <p>If a plan includes a specified number of minutes or bids, the platform should show the quantity, eligibility conditions and crediting rules before purchase.</p>
+                    <p>If the plan does not list those benefits, do not assume they are included. Membership entitlements and utility balances should be recorded separately so users can see what they purchased and what was credited.</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="faq-item" data-keywords="membership renewal cancellation refund expired">
+              <button class="faq-question" aria-expanded="false">
+                <span class="question-mark">Q</span>
+                <span>39. Can I cancel or change my membership?</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-inner">
+                  <div class="answer-content">
+                    <p>Cancellation, upgrades, downgrades and refunds depend on the plan's published conditions and the stage of the transaction.</p>
+                    <p>Review whether the membership is time-limited, recurring or a one-time purchase. Check when a change takes effect and how it affects existing entitlements.</p>
+                    <p>Any refund decision should follow the disclosed terms and applicable law. Do not assume that cancelling access automatically reverses a completed payment or restores consumed utilities.</p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="faq-item" data-keywords="membership jobs guaranteed employment income">
+              <button class="faq-question" aria-expanded="false">
+                <span class="question-mark">Q</span>
+                <span>40. Does paying for membership guarantee work?</span>
+              </button>
+              <div class="faq-answer">
+                <div class="faq-answer-inner">
+                  <div class="answer-content">
+                    <p>A membership purchase should not be treated as a guaranteed job, guaranteed assignment award or guaranteed income unless an explicit and valid agreement states otherwise.</p>
+                    <p>Work availability can depend on client demand, the worker's skills, eligibility, assignment requirements and review processes.</p>
+                    <p>Before buying a membership, make sure you understand the actual benefits and the difference between platform access and a paid work contract.</p>
+                    <div class="warning-note">Be cautious of anyone claiming that a payment guarantees profit simply because they describe a platform as an opportunity.</div>
+                  </div>
+                </div>
+              </div>
+            </article>
+        </section>
+
+        <!-- SECURITY -->
+
+        <section class="faq-group" data-category="security">
+          <h3 class="faq-group-heading">
+            <span class="group-number">08</span>
+            Safety, Privacy & Support
+          </h3>
+
+          <article class="faq-item" data-keywords="password forgot login account recovery">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>41. What should I do if I forget my password?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Use the official password-recovery process if it is available. Follow the verification instructions and choose a strong, unique replacement password.</p>
+                  <p>If recovery is unavailable, contact the official support channel and provide only the information required to identify the account.</p>
+                  <p>Never send your password, one-time verification code or payment PIN to another user or support agent. Legitimate troubleshooting should not require you to disclose those secrets.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="account security fraud scam impersonation">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>42. How can I protect myself from scams?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Verify that you are using the official platform and review payment requests carefully.</p>
+                  <ul>
+                    <li>Do not disclose passwords, PINs or one-time codes.</li>
+                    <li>Do not send money to a personal account merely because someone claims to represent the platform.</li>
+                    <li>Verify unexpected links and account notices.</li>
+                    <li>Keep payment receipts and assignment communications.</li>
+                    <li>Be cautious of guaranteed-income claims and pressure to pay immediately.</li>
+                    <li>Report suspected impersonation through an official support channel.</li>
+                  </ul>
+                  <p>Keep control of your account and verify important financial instructions independently. A professional logo on a message is not proof of authenticity.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="privacy personal data confidential client files">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>43. How does privacy apply to my work?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Handle personal information, client documents, recordings and account details only for authorised purposes.</p>
+                  <p>Do not publish private recordings, share confidential files with unauthorised people or reuse client data for unrelated work. Use appropriate device security and follow the assignment's data-handling instructions.</p>
+                  <p>Platform data practices should be explained in the published Privacy Policy. Review that policy to understand what information is collected, why it is used, how it is retained and how privacy-related requests can be made.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="client files audio download share delete security">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>44. Can I share client recordings or assignment files?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Only share files when you have clear authorisation and a legitimate reason under the assignment terms.</p>
+                  <p>Recordings, meeting notes, personal information and client documents may contain confidential or sensitive material. Do not upload them to public websites or third-party tools unless the client and applicable policies permit it.</p>
+                  <p>Follow the project's storage, retention and deletion requirements. If you are uncertain whether a tool or recipient is authorised, ask before sharing the material.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="contact support help complaint dispute administrator">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>45. How do I contact PrimeTask Workspace support?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Use the contact information or support options published on the official PrimeTask Workspace website.</p>
+                  <p>For a faster investigation, explain the problem clearly and include the relevant account email, assignment reference, payment reference or withdrawal reference, depending on the issue.</p>
+                  <p>Include screenshots only when they are useful, and hide passwords, PINs, verification codes and unnecessary personal information.</p>
+                  <p>Keep your own record of the report and any response. If a complaint involves a financial transaction, provide enough detail for the team to trace the transaction without disclosing sensitive authentication information.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="faq-item" data-keywords="complaint dispute appeal account suspension">
+            <button class="faq-question" aria-expanded="false">
+              <span class="question-mark">Q</span>
+              <span>46. What should I do if I disagree with an account or work decision?</span>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                <div class="answer-content">
+                  <p>Read the decision and its stated reason. Identify the specific point you believe is incorrect and gather relevant evidence, such as assignment instructions, submission records, payment references or previous authorised communications.</p>
+                  <p>Use the designated appeal or support process where available. Keep your explanation factual, organised and respectful.</p>
+                  <p>The review process should follow the applicable policy. Avoid creating duplicate accounts, altering evidence or making unsupported claims while the issue is being investigated.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+      </div>
+
+      <div class="no-results" id="noResults">
+        <strong>No matching questions found.</strong>
+        Try a shorter keyword or clear the current filter to browse all topics.
+        <br>
+        <button class="clear-filter" id="clearFilter">Clear search and filters</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+
+<section class="process-section">
+  <div class="container">
+
+    <div class="section-heading">
+      <span class="eyebrow">Your Working Journey</span>
+      <h2>Understand the process before the process tests you.</h2>
+      <p>
+        Every service has its own rules, but a thoughtful workflow helps
+        you avoid preventable confusion.
+      </p>
+    </div>
+
+    <div class="process-grid">
+
+      <div class="process-card">
+        <div class="process-number">01</div>
+        <h3>Learn</h3>
+        <p>Understand the platform, the service you want to use and the rules that apply to your account.</p>
+      </div>
+
+      <div class="process-card">
+        <div class="process-number">02</div>
+        <h3>Prepare</h3>
+        <p>Review requirements, confirm your tools are ready and check any costs or eligibility conditions.</p>
+      </div>
+
+      <div class="process-card">
+        <div class="process-number">03</div>
+        <h3>Complete</h3>
+        <p>Follow the assignment brief, protect client information and check your work before submitting it.</p>
+      </div>
+
+      <div class="process-card">
+        <div class="process-number">04</div>
+        <h3>Track</h3>
+        <p>Keep records of submissions, reviews, confirmed transactions and approved earnings.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- AFRICAN-INSPIRED FEATURE -->
+
+<section class="feature-section">
+  <div class="feature-photo"></div>
+
+  <div class="container feature-grid">
+
+    <div>
+      <span class="eyebrow">Skills. Opportunity. Growth.</span>
+
+      <h2>Built around people who want to <span>learn and contribute.</span></h2>
+
+      <p>
+        Across Africa, students, independent professionals and emerging
+        digital workers are building skills that can support meaningful
+        participation in the digital economy.
+      </p>
+
+      <p style="margin-top:15px">
+        PrimeTask Workspace aims to organise selected digital-work services
+        and help users understand how those services operate. Progress still
+        depends on skills, consistency, quality, client requirements and the
+        availability of suitable work.
+      </p>
+
+      <ul class="feature-list">
+        <li>Understand the requirements of each service.</li>
+        <li>Build habits around accuracy and professional communication.</li>
+        <li>Keep your account, payment and work records organised.</li>
+        <li>Make decisions using published information rather than assumptions.</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <img
+        src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=85"
+        alt="Students collaborating on learning and project work">
+
+      <h3>Knowledge makes the work clearer.</h3>
+
+      <p>
+        Start with the basics, understand the details and apply what you
+        learn to the tasks you are qualified and authorised to perform.
+      </p>
+
+      <a href="services.html" class="btn">Explore Our Services ↗</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-box">
+
+      <div class="cta-copy">
+        <h2>Ready to take your next step?</h2>
+        <p>
+          Explore the available services, understand the relevant
+          requirements and use the official account pages to access the
+          features currently available to you.
+        </p>
+      </div>
+
+      <div class="cta-actions">
+        <a href="services.html" class="btn btn-primary">Explore Services ↗</a>
+        <a href="contact.html" class="btn btn-outline">Contact Us</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER -->
+
+<footer class="footer">
+  <div class="container">
+
+    <div class="footer-grid">
+
+      <div class="footer-brand">
+        <a class="brand" href="index.html">
+          <div class="brand-mark">PT</div>
+          <div class="brand-name">
+            PrimeTask Workspace
+            <small>WORK. EARN. GROW.</small>
+          </div>
+        </a>
+
+        <p class="footer-description">
+          Creating Opportunities and Delivering Excellence.
+          Helping people explore digital-work services through
+          organised processes, practical information and professional standards.
+        </p>
+      </div>
+
+      <div>
+        <h4>Explore</h4>
+        <div class="footer-links">
+          <a href="index.html">Home</a>
+          <a href="about.html">About Us</a>
+          <a href="services.html">Our Services</a>
+          <a href="how-it-works.html">How It Works</a>
+          <a href="pricing.html">Platform Utilities</a>
+        </div>
+      </div>
+
+      <div>
+        <h4>Information</h4>
+        <div class="footer-links">
+          <a href="faq.html">Knowledge Centre</a>
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="terms.html">Terms & Conditions</a>
+          <a href="contact.html">Contact Support</a>
+        </div>
+      </div>
+
+      <div>
+        <h4>Start Here</h4>
+        <div class="footer-links">
+          <a href="auth/register.html">Create an Account</a>
+          <a href="auth/login.html">Log In</a>
+          <a href="services.html">Find a Service</a>
+          <a href="how-it-works.html">Learn the Process</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <span>© <span id="currentYear"></span> PrimeTask Workspace. All rights reserved.</span>
+      <span>Creating Opportunities and Delivering Excellence.</span>
+    </div>
+
+  </div>
+</footer>
+
+<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+/* NAVIGATION */
+
+const menuToggle = document.getElementById("menuToggle");
+const navLinks = document.getElementById("navLinks");
+
+menuToggle.addEventListener("click", () => {
+  const isOpen = navLinks.classList.toggle("open");
+  menuToggle.setAttribute("aria-expanded", String(isOpen));
+  menuToggle.textContent = isOpen ? "✕" : "☰";
+});
+
+navLinks.querySelectorAll("a").forEach(link => {
+  link.addEventListener("click", () => {
+    navLinks.classList.remove("open");
+    menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.textContent = "☰";
+  });
+});
+
+/* FAQ ELEMENTS */
+
+const faqSearch = document.getElementById("faqSearch");
+const faqGroups = [...document.querySelectorAll(".faq-group")];
+const faqItems = [...document.querySelectorAll(".faq-item")];
+const categoryCards = [...document.querySelectorAll(".category-card")];
+
+const visibleCount = document.getElementById("visibleCount");
+const searchCount = document.getElementById("searchCount");
+const activeCategoryTitle = document.getElementById("activeCategoryTitle");
+const noResults = document.getElementById("noResults");
+const clearFilter = document.getElementById("clearFilter");
+
+const progressPercent = document.getElementById("progressPercent");
+const progressFill = document.getElementById("progressFill");
+const progressText = document.getElementById("progressText");
+
+const categoryNames = {
+  all: "All Frequently Asked Questions",
+  general: "Getting Started",
+  work: "Jobs & Assignments",
+  services: "Services & Work Quality",
+  utilities: "Minutes, Bids & Platform Utilities",
+  payments: "Payments & Transactions",
+  earnings: "Earnings & Withdrawals",
+  membership: "Memberships & Access",
+  security: "Safety, Privacy & Support"
+};
+
+let activeCategory = "all";
+let typingToken = 0;
+let currentOpenItem = null;
+let answeredItems = new Set();
+
+/*
+  The answers contain HTML, including paragraphs and lists.
+  The typewriter reveals text progressively while keeping the HTML structure
+  intact. This prevents the browser from displaying raw HTML tags.
+*/
+
+function typeAnswer(container, token) {
+  const source = container.dataset.source || container.innerHTML;
+
+  container.dataset.source = source;
+  container.innerHTML = "";
+  container.classList.add("typing");
+
+  const template = document.createElement("template");
+  template.innerHTML = source;
+
+  const allNodes = [];
+
+  function collectNodes(parent, output) {
+    [...parent.childNodes].forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        output.push({
+          type: "text",
+          text: node.textContent
+        });
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const children = [];
+        collectNodes(node, children);
+
+        output.push({
+          type: "element",
+          tag: node.tagName.toLowerCase(),
+          attributes: [...node.attributes].map(attr => [
+            attr.name,
+            attr.value
+          ]),
+          children
+        });
+      }
+    });
+  }
+
+  collectNodes(template.content, allNodes);
+
+  function createStructure(nodes, parent) {
+    nodes.forEach(node => {
+      if (node.type === "text") {
+        const textNode = document.createTextNode("");
+        parent.appendChild(textNode);
+
+        node.target = textNode;
+      } else {
+        const element = document.createElement(node.tag);
+
+        node.attributes.forEach(([name, value]) => {
+          element.setAttribute(name, value);
+        });
+
+        parent.appendChild(element);
+        createStructure(node.children, element);
+      }
+    });
+  }
+
+  createStructure(allNodes, container);
+
+  const characterTargets = [];
+
+  function collectCharacters(nodes) {
+    nodes.forEach(node => {
+      if (node.type === "text") {
+        for (let i = 0; i < node.text.length; i++) {
+          characterTargets.push({
+            target: node.target,
+            character: node.text[i]
+          });
+        }
+      } else {
+        collectCharacters(node.children);
+      }
+    });
+  }
+
+  collectCharacters(allNodes);
+
+  if (characterTargets.length === 0) {
+    container.classList.remove("typing");
+    return;
+  }
+
+  let index = 0;
+
+  const total = characterTargets.length;
+
+  function tick() {
+    if (token !== typingToken) return;
+
+    const batchSize = window.innerWidth < 600 ? 5 : 8;
+    const end = Math.min(index + batchSize, total);
+
+    for (; index < end; index++) {
+      const item = characterTargets[index];
+      item.target.textContent += item.character;
+    }
+
+    if (index < total) {
+      const delay = window.innerWidth < 600 ? 12 : 8;
+      setTimeout(tick, delay);
+    } else {
+      container.classList.remove("typing");
+    }
+  }
+
+  tick();
+}
+
+/* OPEN A QUESTION */
+
+function openQuestion(item, shouldScroll = false) {
+  if (!item) return;
+
+  typingToken++;
+
+  const token = typingToken;
+
+  if (currentOpenItem && currentOpenItem !== item) {
+    currentOpenItem.classList.remove("active");
+
+    const previousButton = currentOpenItem.querySelector(".faq-question");
+    previousButton.setAttribute("aria-expanded", "false");
+  }
+
+  const isAlreadyOpen =
+    currentOpenItem === item && item.classList.contains("active");
+
+  if (isAlreadyOpen) {
+    item.classList.remove("active");
+    item.querySelector(".faq-question").setAttribute("aria-expanded", "false");
+    currentOpenItem = null;
+    updateProgress();
+    return;
+  }
+
+  item.classList.add("active");
+  item.querySelector(".faq-question").setAttribute("aria-expanded", "true");
+  currentOpenItem = item;
+
+  const answer = item.querySelector(".answer-content");
+
+  if (!answer.dataset.source) {
+    answer.dataset.source = answer.innerHTML;
+  }
+
+  answer.innerHTML = "";
+  typeAnswer(answer, token);
+
+  answeredItems.add(item);
+  updateProgress();
+
+  if (shouldScroll) {
+    setTimeout(() => {
+      item.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+    }, 100);
+  }
+}
+
+faqItems.forEach(item => {
+  const button = item.querySelector(".faq-question");
+
+  button.addEventListener("click", () => {
+    openQuestion(item, false);
+  });
+});
+
+/* PROGRESS */
+
+function updateProgress() {
+  const total = faqItems.length;
+  const completed = answeredItems.size;
+
+  const percent = total
+    ? Math.round((completed / total) * 100)
+    : 0;
+
+  progressPercent.textContent = percent + "%";
+  progressFill.style.width = percent + "%";
+
+  progressText.textContent = completed === 0
+    ? "Select a question to start exploring."
+    : completed + " of " + total + " questions explored.";
+}
+
+/* FILTER QUESTIONS */
+
+function applyFilters() {
+  const query = faqSearch.value.trim().toLowerCase();
+  let visibleQuestions = 0;
+  let visibleGroups = 0;
+
+  faqGroups.forEach(group => {
+    const category = group.dataset.category;
+    let groupVisible = false;
+
+    const matchesCategory =
+      activeCategory === "all" || activeCategory === category;
+
+    group.querySelectorAll(".faq-item").forEach(item => {
+      const questionText =
+        item.querySelector(".faq-question").textContent.toLowerCase();
+
+      const answerText =
+        (item.dataset.keywords || "").toLowerCase() + " " +
+        item.querySelector(".answer-content").textContent.toLowerCase();
+
+      const matchesSearch =
+        !query ||
+        questionText.includes(query) ||
+        answerText.includes(query);
+
+      const show = matchesCategory && matchesSearch;
+
+      item.style.display = show ? "" : "none";
+
+      if (show) {
+        visibleQuestions++;
+        groupVisible = true;
+      } else if (item === currentOpenItem) {
+        item.classList.remove("active");
+        item.querySelector(".faq-question").setAttribute("aria-expanded", "false");
+        currentOpenItem = null;
+        typingToken++;
+      }
+    });
+
+    group.style.display = groupVisible ? "" : "none";
+
+    if (groupVisible) {
+      visibleGroups++;
+    }
+  });
+
+  activeCategoryTitle.textContent = query
+    ? "Search Results"
+    : categoryNames[activeCategory];
+
+  visibleCount.textContent =
+    visibleQuestions + (visibleQuestions === 1 ? " question" : " questions");
+
+  searchCount.textContent = query
+    ? visibleQuestions + " matching questions"
+    : "Browse the questions below";
+
+  noResults.style.display = visibleQuestions === 0 ? "block" : "none";
+
+  categoryCards.forEach(card => {
+    card.classList.toggle(
+      "active",
+      card.dataset.category === activeCategory
+    );
+  });
+
+  clearFilter.style.display =
+    (query || activeCategory !== "all") ? "inline-block" : "none";
+}
+
+faqSearch.addEventListener("input", applyFilters);
+
+/* CATEGORY SELECTION */
+
+categoryCards.forEach(card => {
+  card.addEventListener("click", () => {
+    activeCategory = card.dataset.category;
+
+    faqSearch.value = "";
+
+    applyFilters();
+
+    document.getElementById("questions").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+});
+
+/* CLEAR FILTERS */
+
+clearFilter.addEventListener("click", () => {
+  activeCategory = "all";
+  faqSearch.value = "";
+  applyFilters();
+});
+
+/* KEYBOARD ACCESS */
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    faqSearch.value = "";
+    activeCategory = "all";
+    applyFilters();
+
+    if (currentOpenItem) {
+      currentOpenItem.classList.remove("active");
+      currentOpenItem.querySelector(".faq-question")
+        .setAttribute("aria-expanded", "false");
+
+      currentOpenItem = null;
+      typingToken++;
+    }
+  }
+});
+
+/* BACK TO TOP */
+
+const backTop = document.getElementById("backTop");
+
+window.addEventListener("scroll", () => {
+  backTop.classList.toggle("visible", window.scrollY > 500);
+});
+
+backTop.addEventListener("click", () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+});
+
+/* FOOTER YEAR */
+
+document.getElementById("currentYear").textContent =
+  new Date().getFullYear();
+
+/* INITIALISE */
+
+applyFilters();
+updateProgress();
+</script>
+
+</body>
+</html>

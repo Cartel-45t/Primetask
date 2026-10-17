@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#061225">
+<meta name="description" content="Read the PrimeTask Workspace Privacy Policy covering personal information, accounts, assignments, payments, data security, retention, and privacy rights.">
+<title>Privacy Policy | PrimeTask Workspace</title>
+
+<style>
+:root{
+  --bg:#061225;
+  --panel:#0c1d35;
+  --panel2:#102744;
+  --blue:#2477e8;
+  --blue2:#55a3ff;
+  --orange:#ff8738;
+  --text:#f5f8ff;
+  --muted:#aabbd1;
+  --border:rgba(255,255,255,.12);
+  --green:#45d6a0;
+  --red:#ff7979;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;line-height:1.8;
+}
+a{color:#8ebeff;text-decoration:none}
+a:hover{color:var(--orange)}
+button,input{font:inherit}
+.container{width:min(1200px,92%);margin:auto}
+.topbar{
+  background:#030b17;border-bottom:1px solid var(--border);
+  padding:9px 0;font-size:11px;color:var(--muted);
+}
+.topbar .container{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(6,18,37,.96);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+}
+.nav{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:11px;color:white;font-size:16px;font-weight:900}
+.logo{
+  display:grid;place-items:center;width:43px;height:43px;border-radius:13px;
+  background:linear-gradient(135deg,var(--blue),#10366e);font-weight:900;
+}
+.brand small{display:block;color:var(--muted);font-size:9px;letter-spacing:1.6px}
+.navlinks{display:flex;align-items:center;gap:18px;font-size:12px;color:var(--muted)}
+.navlinks a{color:var(--muted)}
+.navlinks a:hover{color:white}
+.menu-btn{display:none;background:var(--panel);border:1px solid var(--border);color:white;padding:9px 12px;border-radius:9px}
+.hero{
+  position:relative;isolation:isolate;overflow:hidden;
+  background:
+  linear-gradient(90deg,rgba(3,10,23,.97),rgba(3,10,23,.88) 55%,rgba(3,10,23,.54)),
+  url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=2000&q=85') center/cover;
+  border-bottom:1px solid var(--border);
+}
+.hero:after{
+  content:"";position:absolute;z-index:-1;right:-130px;bottom:-240px;
+  width:550px;height:550px;border:1px solid #ffffff15;border-radius:50%;
+  box-shadow:0 0 0 45px #ffffff07,0 0 0 90px #ffffff04;
+}
+.hero-content{padding:76px 0 62px;max-width:920px}
+.eyebrow{
+  display:inline-block;padding:6px 12px;border-radius:30px;
+  background:#ff87381a;border:1px solid #ff87384a;color:#ffd0ac;
+  text-transform:uppercase;letter-spacing:1.7px;font-size:10px;font-weight:900;
+}
+h1{font-size:clamp(38px,6vw,65px);line-height:1.1;letter-spacing:-2px;margin:20px 0}
+h1 span{color:var(--orange)}
+.hero p{max-width:790px;color:#d0ddef;font-size:15px}
+.meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.meta span{padding:7px 11px;border:1px solid var(--border);border-radius:8px;background:#06122588;font-size:11px;color:#d1dff0}
+.layout{
+  display:grid;grid-template-columns:275px minmax(0,1fr);
+  gap:26px;align-items:start;padding:42px 0 80px;
+}
+.sidebar{
+  position:sticky;top:100px;background:#09182d;
+  border:1px solid var(--border);border-radius:17px;padding:20px;
+  max-height:calc(100vh - 120px);overflow:auto;
+}
+.sidebar h3{font-size:14px;margin:0 0 12px}
+.sidebar .hint{font-size:11px;color:var(--muted);margin-bottom:15px}
+.toc{display:grid;gap:3px}
+.toc a{
+  display:block;padding:8px 10px;border-radius:8px;
+  color:var(--muted);font-size:11px;line-height:1.5;
+  border-left:2px solid transparent;
+}
+.toc a:hover,.toc a.active{background:#2477e81b;color:white;border-left-color:var(--orange)}
+.toc-number{display:inline-block;min-width:23px;color:var(--blue2);font-weight:900}
+.document{min-width:0}
+.notice{
+  padding:20px 22px;border:1px solid #ff87384d;
+  background:linear-gradient(120deg,#ff873812,#0c1d35);
+  border-radius:14px;margin-bottom:24px;
+}
+.notice strong{color:#ffc18f}
+.notice p{margin:7px 0 0;font-size:13px;color:#d4dfef}
+.warning{
+  padding:17px 20px;border:1px solid #ff79794d;background:#ff79790d;
+  border-radius:12px;margin:18px 0;color:#f4d0d0;font-size:13px;
+}
+.policy-section{
+  padding:30px;margin-bottom:17px;background:linear-gradient(145deg,#0c1d35,#09172b);
+  border:1px solid var(--border);border-radius:17px;scroll-margin-top:100px;
+}
+.section-heading{display:flex;gap:15px;align-items:flex-start;margin-bottom:17px}
+.section-num{
+  flex-shrink:0;display:grid;place-items:center;width:43px;height:43px;
+  border-radius:12px;background:#2477e81c;color:#8bbaff;font-size:13px;font-weight:900;
+}
+.section-heading h2{margin:0;font-size:23px;line-height:1.35;letter-spacing:-.5px}
+.policy-section h3{font-size:16px;margin:24px 0 8px;color:#dceaff}
+.policy-section p{font-size:13px;color:#bdcce0;margin:10px 0}
+.policy-section ul,.policy-section ol{padding-left:23px;color:#bdcce0;font-size:13px}
+.policy-section li{padding-left:3px;margin:7px 0}
+.policy-section strong{color:#edf4ff}
+.subsection{
+  padding:15px 18px;margin:15px 0;border-left:2px solid #2477e8;
+  background:#06122566;border-radius:0 10px 10px 0;
+}
+.subsection h3{margin:0 0 7px}
+.subsection p{margin:6px 0}
+.table-wrap{overflow-x:auto;margin:18px 0;border:1px solid var(--border);border-radius:11px}
+table{width:100%;border-collapse:collapse;min-width:510px;font-size:12px}
+th,td{padding:13px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border)}
+th{background:#102744;color:#e9f2ff}
+td{color:#bdcce0}
+tr:last-child td{border-bottom:0}
+.check-list{list-style:none;padding:0!important}
+.check-list li{position:relative;padding-left:27px}
+.check-list li:before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:900}
+.danger-list li:before{content:"!";color:var(--orange)}
+.definition{
+  padding:12px 15px;margin:9px 0;border:1px solid var(--border);
+  border-radius:10px;background:#06122555;font-size:12px;color:var(--muted);
+}
+.definition strong{color:white}
+.doc-tools{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  margin-bottom:22px;padding:15px;background:#09182d;
+  border:1px solid var(--border);border-radius:12px;
+}
+.tool-btn{
+  border:1px solid var(--border);background:#102744;color:white;
+  border-radius:8px;padding:9px 12px;font-size:11px;font-weight:800;
+}
+.tool-btn:hover{background:#1b3a60}
+.reading-progress{
+  height:3px;position:fixed;top:0;left:0;width:0;
+  z-index:200;background:var(--orange);
+}
+.last-box{
+  margin-top:22px;padding:22px;border:1px solid #45d6a044;
+  background:#45d6a00c;border-radius:14px;
+}
+.last-box h3{margin-top:0;color:#8df0c9}
+footer{background:#030b17;border-top:1px solid var(--border);padding:40px 0 20px}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:25px}
+footer h4{margin:0 0 12px;font-size:13px}
+footer p,footer a{font-size:11px;color:var(--muted)}
+footer a{display:block;margin:7px 0}
+.footer-bottom{border-top:1px solid var(--border);margin-top:25px;padding-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#8192a9;font-size:10px}
+.back-top{
+  position:fixed;right:18px;bottom:18px;width:44px;height:44px;
+  border:0;border-radius:13px;background:var(--orange);color:#1b0c02;
+  font-size:19px;font-weight:900;display:none;z-index:90;
+}
+.back-top.show{display:block}
+@media(max-width:980px){
+  .navlinks{display:none;position:absolute;top:74px;left:4%;right:4%;padding:17px;background:#09172b;border:1px solid var(--border);border-radius:13px;flex-direction:column;align-items:stretch;gap:0}
+  .navlinks.open{display:flex}
+  .navlinks a{padding:10px;border-bottom:1px solid var(--border)}
+  .menu-btn{display:block}
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:relative;top:auto;max-height:none}
+  .toc{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .footer-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){
+  .hero-content{padding:56px 0}
+  h1{letter-spacing:-1px}
+  .layout{padding:25px 0 55px;gap:18px}
+  .policy-section{padding:20px}
+  .section-heading h2{font-size:20px}
+  .section-num{width:37px;height:37px}
+  .toc{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:17px}
+  .brand{font-size:13px}
+  .logo{width:38px;height:38px}
+}
+@media print{
+  body{background:white!important;color:#111!important;font-family:Georgia,serif}
+  header,.topbar,.sidebar,.doc-tools,.back-top,footer,.reading-progress{display:none!important}
+  .hero{background:white!important;color:#111!important;border:0}
+  .hero-content{padding:20px 0}
+  h1,h1 span,.hero p{color:#111!important}
+  .layout{display:block;padding:0}
+  .policy-section,.notice,.subsection,.last-box,.warning{
+    background:white!important;color:#111!important;border:1px solid #bbb!important;
+    break-inside:avoid;box-shadow:none;
+  }
+  .policy-section p,.policy-section li,.notice p,.subsection p,.definition,td{color:#222!important}
+  .policy-section h3,.policy-section strong,.notice strong,.last-box h3,th{color:#111!important}
+  .document a{color:#111!important;text-decoration:underline}
+  .policy-section{margin-bottom:12px;padding:18px}
+  .policy-section h2{font-size:17px}
+  .policy-section p,.policy-section li{font-size:10pt}
+  .table-wrap{overflow:visible}
+  table{min-width:0;font-size:9pt}
+}
+</style>
+</head>
+
+<body>
+<div class="reading-progress" id="readingProgress"></div>
+
+<div class="topbar">
+  <div class="container">
+    <span>PRIMETASK WORKSPACE · PRIVACY & DATA PROTECTION</span>
+    <span>Read carefully. Privacy policies are not decorative furniture.</span>
+  </div>
+</div>
+
+<header>
+  <div class="container nav">
+    <a class="brand" href="index.html">
+      <span class="logo">PT</span>
+      <span>PrimeTask Workspace<small>WORK · EARN · GROW</small></span>
+    </a>
+
+    <nav class="navlinks" id="navlinks">
+      <a href="index.html">Home</a>
+      <a href="services.html">Services</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+      <a href="auth/login.html">Login</a>
+    </nav>
+
+    <button class="menu-btn" id="menuBtn" aria-expanded="false">☰ Menu</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <span class="eyebrow">Privacy · Security · Accountability</span>
+      <h1>Your information deserves <span>serious protection.</span></h1>
+      <p>
+        This Privacy Policy explains how PrimeTask Workspace may collect, use, store,
+        disclose and protect information when people visit the website, create accounts,
+        use platform features, submit assignments, communicate with support or make
+        payments. It sets expectations for the platform and for its users.
+      </p>
+      <div class="meta">
+        <span>Policy type: Website and platform privacy</span>
+        <span>Jurisdiction: Kenya, where applicable</span>
+        <span>Read time: Allow time for the details</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container layout">
+  <aside class="sidebar">
+    <h3>Policy contents</h3>
+    <div class="hint">Select a section to jump directly to it.</div>
+    <nav class="toc" id="toc">
+      <a href="#section-1"><span class="toc-number">01</span> Introduction</a>
+      <a href="#section-2"><span class="toc-number">02</span> Who is responsible</a>
+      <a href="#section-3"><span class="toc-number">03</span> Information collected</a>
+      <a href="#section-4"><span class="toc-number">04</span> How information is collected</a>
+      <a href="#section-5"><span class="toc-number">05</span> Why information is used</a>
+      <a href="#section-6"><span class="toc-number">06</span> Lawful processing</a>
+      <a href="#section-7"><span class="toc-number">07</span> Assignments and recordings</a>
+      <a href="#section-8"><span class="toc-number">08</span> Payments and financial records</a>
+      <a href="#section-9"><span class="toc-number">09</span> Cookies and analytics</a>
+      <a href="#section-10"><span class="toc-number">10</span> Sharing and disclosure</a>
+      <a href="#section-11"><span class="toc-number">11</span> International transfers</a>
+      <a href="#section-12"><span class="toc-number">12</span> Security safeguards</a>
+      <a href="#section-13"><span class="toc-number">13</span> Retention and deletion</a>
+      <a href="#section-14"><span class="toc-number">14</span> Your privacy rights</a>
+      <a href="#section-15"><span class="toc-number">15</span> Children's information</a>
+      <a href="#section-16"><span class="toc-number">16</span> Third-party services</a>
+      <a href="#section-17"><span class="toc-number">17</span> Communications</a>
+      <a href="#section-18"><span class="toc-number">18</span> Automated decisions</a>
+      <a href="#section-19"><span class="toc-number">19</span> Data incidents</a>
+      <a href="#section-20"><span class="toc-number">20</span> Changes to this policy</a>
+      <a href="#section-21"><span class="toc-number">21</span> Contact and complaints</a>
+      <a href="#section-22"><span class="toc-number">22</span> Definitions</a>
+      <a href="#section-23"><span class="toc-number">23</span> User responsibilities</a>
+      <a href="#section-24"><span class="toc-number">24</span> Final provisions</a>
+    </nav>
+  </aside>
+
+  <main class="document">
+    <div class="doc-tools">
+      <button class="tool-btn" id="expandAll">Expand reading notes</button>
+      <button class="tool-btn" id="collapseAll">Collapse reading notes</button>
+      <button class="tool-btn" id="printPage">Print / Save PDF</button>
+      <span style="font-size:11px;color:var(--muted)">Use the contents menu to navigate this document.</span>
+    </div>
+
+    <div class="notice">
+      <strong>IMPORTANT: DRAFT POLICY REQUIRING OPERATIONAL REVIEW</strong>
+      <p>
+        This document is a detailed starting point, not a claim that every listed safeguard,
+        system or procedure is already operational. Before publication, PrimeTask Workspace
+        must confirm its legal identity, privacy contact, actual data flows, retention periods,
+        processors, hosting locations, payment integrations and incident procedures. Remove or
+        revise anything that does not reflect reality.
+      </p>
+    </div>
+
+    <div class="warning">
+      <strong>Do not treat this page as a substitute for legal review.</strong>
+      This policy is intended to support transparency and compliance planning. Applicable
+      obligations depend on the actual business structure, processing activities and relevant
+      law, including Kenya's Data Protection Act, 2019 and applicable regulations.
+    </div>
+
+    <article class="policy-section" id="section-1">
+      <div class="section-heading">
+        <div class="section-num">01</div>
+        <h2>Introduction and scope</h2>
+      </div>
+      <p>
+        PrimeTask Workspace ("PrimeTask", "we", "us" or "our") is committed to handling
+        personal information responsibly. This Privacy Policy describes how personal data
+        may be processed in connection with our website, account systems, service workflows,
+        customer support, assignments and other platform features that we make available.
+      </p>
+      <p>
+        This policy applies to visitors, registered users, workers, clients, prospective
+        members, business contacts and other individuals whose personal information we
+        process in connection with PrimeTask Workspace.
+      </p>
+      <p>
+        It should be read together with our Terms of Service, any applicable assignment
+        agreement, payment disclosures, consent notice and other notices presented at the
+        point of collection. Where a specific notice explains a particular processing
+        activity in greater detail, that notice should be considered alongside this policy.
+      </p>
+      <h3>1.1 What this policy covers</h3>
+      <ul>
+        <li>Information submitted through registration, login, contact and support forms.</li>
+        <li>Account, profile, access, job, assignment and submission information.</li>
+        <li>Payment verification records, platform transactions and financial ledgers.</li>
+        <li>Technical logs, security events and limited website usage information.</li>
+        <li>Communications involving users, clients, workers, administrators and support.</li>
+        <li>Rights, retention, disclosures, safeguards and procedures concerning personal data.</li>
+      </ul>
+      <h3>1.2 What this policy does not promise</h3>
+      <p>
+        This policy does not guarantee that a website can never experience an incident,
+        that every message will receive an immediate response, or that every service will
+        be available continuously. We must not claim that information is encrypted, deleted
+        automatically, stored only in Kenya, or inaccessible to administrators unless our
+        systems and actual practices substantiate that claim.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-2">
+      <div class="section-heading">
+        <div class="section-num">02</div>
+        <h2>Who is responsible for your information?</h2>
+      </div>
+      <p>
+        The entity or person legally responsible for deciding why and how personal data is
+        processed must be identified clearly. The trading name "PrimeTask Workspace" alone
+        may not be sufficient legal identification.
+      </p>
+      <div class="subsection">
+        <h3>Controller details to complete before publication</h3>
+        <p><strong>Trading name:</strong> PrimeTask Workspace</p>
+        <p><strong>Legal operator:</strong> Insert the registered proprietor's or legal entity's full name.</p>
+        <p><strong>Business registration reference:</strong> Insert and verify the appropriate public business details where necessary.</p>
+        <p><strong>Business address:</strong> Insert the official business contact address.</p>
+        <p><strong>Privacy contact:</strong> Insert a monitored email address designated for privacy requests.</p>
+      </div>
+      <p>
+        Where PrimeTask decides the purposes and essential means of processing personal
+        data, it may act as a data controller under applicable law. Where it processes
+        personal data solely on a client's documented instructions, it may act as a
+        processor for that activity. Roles must be assessed for each actual workflow.
+      </p>
+      <p>
+        A client, payment provider, hosting provider or other service provider may have
+        separate responsibilities for information it controls. This policy does not
+        automatically make PrimeTask responsible for every independent service or
+        processing activity operated by another organisation.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-3">
+      <div class="section-heading">
+        <div class="section-num">03</div>
+        <h2>Categories of information we may collect</h2>
+      </div>
+      <p>
+        We aim to collect information that is relevant and reasonably necessary for a
+        specified purpose. The exact information collected depends on which features a
+        person uses and how the platform is implemented.
+      </p>
+
+      <h3>3.1 Identity and profile information</h3>
+      <ul>
+        <li>Name or display name.</li>
+        <li>Username and registered email address.</li>
+        <li>Telephone number where provided or needed for a disclosed purpose.</li>
+        <li>Account type, membership status and selected preferences.</li>
+        <li>Profile information voluntarily submitted by the user.</li>
+      </ul>
+      <p>
+        We should not collect identity documents, sensitive personal data or additional
+        identification details merely because they might be useful someday. Any such
+        collection must have a defined purpose, appropriate safeguards and a lawful basis.
+      </p>
+
+      <h3>3.2 Account and authentication information</h3>
+      <p>
+        We may process password hashes, login timestamps, session identifiers, verification
+        status, failed login attempts, access logs and security-related account events.
+        Properly designed systems should not store passwords in readable plain text.
+        Passwords and authentication secrets should never be requested through ordinary
+        support messages.
+      </p>
+
+      <h3>3.3 Work, job and assignment information</h3>
+      <ul>
+        <li>Job listings, task instructions, bids, applications and assignment identifiers.</li>
+        <li>Submitted transcripts, notes, data-entry files and academic support materials.</li>
+        <li>Assignment status, review comments, quality checks and delivery timestamps.</li>
+        <li>Relevant client-worker communications and dispute records.</li>
+        <li>Information needed to investigate suspected abuse, fraud or policy violations.</li>
+      </ul>
+
+      <h3>3.4 Financial and transaction information</h3>
+      <p>
+        Depending on the implemented payment workflow, we may maintain transaction
+        references, requested purchase details, amounts, currency, payment status,
+        provider response identifiers, refunds, account credits, earnings records and
+        payout status. We should avoid storing complete payment credentials when a
+        payment provider can securely handle them.
+      </p>
+      <p>
+        Financial records must be accurate and distinguish separate concepts such as
+        purchases, platform utilities, memberships, job earnings and withdrawals.
+        A balance displayed on a screen must not be treated as proof that a payment
+        settled or that a withdrawal was paid.
+      </p>
+
+      <h3>3.5 Technical and device information</h3>
+      <p>
+        Servers and security systems may record IP addresses, browser type, operating
+        system, request timestamps, error logs, session information and security events.
+        We should limit these records to operational, security and analytical needs,
+        establish retention periods, and restrict access.
+      </p>
+
+      <h3>3.6 Communications and support information</h3>
+      <p>
+        We may process messages, support requests, complaint details, attachments and
+        correspondence needed to respond to enquiries, maintain records, investigate
+        incidents or resolve disputes. Users should avoid including passwords, payment
+        PINs, unnecessary identity documents or unrelated sensitive information.
+      </p>
+
+      <h3>3.7 Information we should not collect by default</h3>
+      <ul>
+        <li>Account passwords in readable form.</li>
+        <li>M-Pesa PINs, bank passwords or one-time verification codes.</li>
+        <li>Precise location data unless a specific, disclosed feature genuinely requires it.</li>
+        <li>Biometric data or sensitive personal data without a justified lawful basis and appropriate safeguards.</li>
+        <li>Information unrelated to the purpose for which it was collected.</li>
+      </ul>
+    </article>
+
+    <article class="policy-section" id="section-4">
+      <div class="section-heading">
+        <div class="section-num">04</div>
+        <h2>How information is collected</h2>
+      </div>
+      <h3>4.1 Directly from you</h3>
+      <p>
+        We may collect information when you register, log in, update your profile, contact
+        support, apply for a job, accept an assignment, upload work, submit a complaint,
+        request a withdrawal or otherwise use a platform feature.
+      </p>
+      <h3>4.2 Automatically through the platform</h3>
+      <p>
+        Basic technical records may be generated when your browser or device communicates
+        with our servers. Depending on configuration, these may include timestamps,
+        diagnostic logs, session data and security events. Optional analytics and
+        non-essential cookies should not be activated contrary to applicable consent rules.
+      </p>
+      <h3>4.3 From clients and other users</h3>
+      <p>
+        A client may provide task instructions, source files, feedback or assignment
+        information concerning a worker. A worker may provide submissions, questions or
+        delivery information concerning a client project. Access should be limited to
+        individuals who need the information for a legitimate platform purpose.
+      </p>
+      <h3>4.4 From payment and verification providers</h3>
+      <p>
+        A payment provider may return transaction references, payment status, timestamps
+        or other limited information needed to verify a transaction. The exact data depends
+        on the provider and integration. We must document the real fields received and
+        must not imply that a payment was confirmed merely because a user returned to a
+        success page.
+      </p>
+      <h3>4.5 From public or authorised sources</h3>
+      <p>
+        Where necessary and lawful, we may receive limited information from authorised
+        business, fraud-prevention or verification sources. We should explain relevant
+        checks where required by law and avoid obtaining information through unauthorised
+        access or deceptive methods.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-5">
+      <div class="section-heading">
+        <div class="section-num">05</div>
+        <h2>Purposes for processing personal information</h2>
+      </div>
+      <p>Depending on the feature used and the applicable lawful basis, information may be processed to:</p>
+      <ul>
+        <li>Create, administer, authenticate and secure user accounts.</li>
+        <li>Provide requested services and manage assignments.</li>
+        <li>Enable authorised communication between clients, workers and support.</li>
+        <li>Track assignment status, submission history, reviews and delivery records.</li>
+        <li>Verify payments, maintain transaction records and investigate discrepancies.</li>
+        <li>Calculate and record legitimate earnings, fees, credits or withdrawals.</li>
+        <li>Prevent unauthorised access, spam, fraud, manipulation and abuse.</li>
+        <li>Provide customer support, resolve disputes and maintain complaint records.</li>
+        <li>Maintain backups, diagnose errors and improve reliability and accessibility.</li>
+        <li>Meet applicable legal, regulatory, accounting or record-keeping obligations.</li>
+        <li>Communicate important policy, security, service or transaction notices.</li>
+        <li>Evaluate service quality and improve workflows using appropriate safeguards.</li>
+      </ul>
+      <h3>5.1 Purpose limitation</h3>
+      <p>
+        We should not reuse personal data for a materially different purpose without
+        assessing compatibility, identifying a lawful basis and providing additional
+        information or obtaining consent where required.
+      </p>
+      <h3>5.2 No sale of personal data as a business model</h3>
+      <p>
+        PrimeTask should not sell personal information as a business model. Any disclosure
+        to service providers or other recipients must have a legitimate, documented purpose
+        and comply with applicable law. The exact practices of the operating business must
+        match this statement before it is published as a final commitment.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-6">
+      <div class="section-heading">
+        <div class="section-num">06</div>
+        <h2>Lawful basis and fair processing</h2>
+      </div>
+      <p>
+        Applicable data protection law may require a valid lawful basis for each processing
+        activity. The appropriate basis depends on the circumstances and must be documented
+        rather than chosen after the fact simply because it is convenient.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Potential basis</th><th>Possible example</th><th>Important limitation</th></tr></thead>
+          <tbody>
+            <tr><td>Contract or steps before a contract</td><td>Creating an account or administering a requested assignment.</td><td>Only applies where the processing is genuinely necessary for the relevant contract or requested steps.</td></tr>
+            <tr><td>Legal obligation</td><td>Maintaining a record required by applicable law.</td><td>The obligation must actually apply.</td></tr>
+            <tr><td>Consent</td><td>Optional communications or certain non-essential tracking technologies.</td><td>Consent must meet applicable requirements and should be withdrawable where the law requires.</td></tr>
+            <tr><td>Legitimate interests</td><td>Proportionate security monitoring or prevention of abuse.</td><td>Requires an appropriate assessment and respect for individuals' rights.</td></tr>
+            <tr><td>Other lawful grounds</td><td>Another basis expressly recognised by applicable law.</td><td>Must be assessed for the specific processing activity.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        We should provide clear information at or before collection where required, use
+        personal data fairly and proportionately, and avoid misleading notices or bundled
+        consent that obscures optional processing.
+      </p>
+      <p>
+        If consent is used, withdrawing it should be as straightforward as giving it.
+        Withdrawal does not automatically make earlier lawful processing unlawful, and
+        it does not prevent retention required under another valid legal obligation.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-7">
+      <div class="section-heading">
+        <div class="section-num">07</div>
+        <h2>Assignments, audio recordings and client materials</h2>
+      </div>
+      <p>
+        Transcription, note-taking, data entry and academic writing support may involve
+        information supplied by clients or contained in source files. Some files may
+        include personal, confidential, commercial, educational or otherwise sensitive
+        material.
+      </p>
+      <h3>7.1 Access to source materials</h3>
+      <ul>
+        <li>Assignment files should be accessible only to authorised people with a legitimate need.</li>
+        <li>Workers should use source materials only for the authorised task.</li>
+        <li>Files should not be copied, downloaded, forwarded or retained outside the permitted workflow.</li>
+        <li>Users must follow any applicable confidentiality and client instructions.</li>
+        <li>Source material should not be posted publicly or used for unrelated demonstrations.</li>
+      </ul>
+      <h3>7.2 Audio, video and meeting content</h3>
+      <p>
+        Recordings may contain names, voices, opinions, business discussions, classroom
+        content or other personal information. People who provide recordings must have
+        the authority and any necessary permissions to share and process them. PrimeTask
+        should not encourage unlawful recording or unauthorised disclosure.
+      </p>
+      <p>
+        Workers should not create independent recordings of clients, meetings, lectures
+        or conversations unless explicitly authorised and lawful. Any recording feature
+        introduced by the platform must be explained separately, including its purpose,
+        access, storage and deletion arrangements.
+      </p>
+      <h3>7.3 Human review and quality assurance</h3>
+      <p>
+        Where an authorised reviewer checks a submission, that reviewer may need access
+        to the source file, submission, comments or quality information. Such access should
+        be restricted to the review purpose. The platform should disclose any material
+        use of external reviewers or third-party tools where required.
+      </p>
+      <h3>7.4 Prohibited reuse</h3>
+      <p>
+        Client recordings, transcripts, notes and documents should not be used to train
+        external artificial intelligence systems, publish examples, create portfolios,
+        or develop unrelated products unless the necessary rights and lawful basis exist
+        and appropriate disclosure or permission has been obtained.
+      </p>
+      <h3>7.5 Accidental disclosure</h3>
+      <p>
+        If a worker believes a source file was sent to the wrong person, exposed publicly
+        or accessed without authorisation, the worker should promptly report the issue
+        through the designated support channel and avoid further sharing.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-8">
+      <div class="section-heading">
+        <div class="section-num">08</div>
+        <h2>Payments, purchases, earnings and financial records</h2>
+      </div>
+      <p>
+        The platform may process transaction and financial records associated with
+        purchases, account utilities, memberships, eligible work, fees or withdrawals.
+        These records serve different purposes and should not be combined into a single
+        unexplained balance.
+      </p>
+      <h3>8.1 Payment verification</h3>
+      <ul>
+        <li>Payment status should be verified through the payment provider or a trusted server-side mechanism.</li>
+        <li>A browser redirect or screenshot alone should not be treated as conclusive payment proof.</li>
+        <li>Duplicate callbacks should be handled idempotently so a single transaction is not credited twice.</li>
+        <li>Failed, pending, reversed and completed transactions should be distinguished accurately.</li>
+        <li>Only the minimum payment data necessary for verification and record keeping should be retained.</li>
+      </ul>
+      <h3>8.2 Currency and ledger accuracy</h3>
+      <p>
+        Financial records should preserve the actual currency, amount and transaction
+        meaning. The platform must not silently relabel a value from one currency as
+        another. Where payment rails require a different settlement currency, the actual
+        processing and display rules must be documented accurately.
+      </p>
+      <h3>8.3 Earnings and withdrawals</h3>
+      <p>
+        Job rewards, earned amounts, platform credits, membership entitlements and
+        withdrawal records should be maintained separately. A displayed earning is not
+        necessarily proof that a payout has been initiated or completed. Withdrawal
+        records should accurately reflect their real status and relevant transaction
+        references.
+      </p>
+      <h3>8.4 Provider data</h3>
+      <p>
+        Payment service providers may independently process personal data under their
+        own terms and privacy notices. Users should review the relevant provider's
+        information where they interact directly with its service.
+      </p>
+      <h3>8.5 Financial record retention</h3>
+      <p>
+        Certain transaction records may need to be retained for accounting, dispute
+        resolution, fraud prevention or legal compliance even after an account is closed.
+        The actual retention period must be established based on applicable requirements,
+        not invented for the sake of this document.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-9">
+      <div class="section-heading">
+        <div class="section-num">09</div>
+        <h2>Cookies, local storage and analytics</h2>
+      </div>
+      <p>
+        Cookies and similar technologies may help a website maintain sessions, remember
+        preferences, support security or understand service performance. The actual
+        technologies used by PrimeTask must be inventoried before this section is treated
+        as a complete description.
+      </p>
+      <h3>9.1 Strictly necessary technologies</h3>
+      <p>
+        Technologies required for essential functions, such as maintaining a secure login
+        session, may be used where permitted by applicable law. They should not be used
+        as a pretext for unrelated tracking.
+      </p>
+      <h3>9.2 Optional analytics and marketing technologies</h3>
+      <p>
+        Optional analytics, advertising pixels or cross-site tracking technologies should
+        be disclosed and handled in accordance with applicable consent requirements.
+        If these tools are not used, the policy should not claim that they are.
+      </p>
+      <h3>9.3 Browser storage</h3>
+      <p>
+        Websites may use local storage or session storage to remember interface state or
+        limited preferences. Sensitive authentication tokens should be protected through
+        an appropriate security design. Client-side storage must not be treated as a
+        trusted source of payment confirmation, account balances or permissions.
+      </p>
+      <h3>9.4 Managing preferences</h3>
+      <p>
+        Users can review their browser settings to manage or delete cookies and local
+        website data. Blocking essential technologies may cause some features to stop
+        working. Where a consent manager is required, its available controls must be
+        clearly presented and functional.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-10">
+      <div class="section-heading">
+        <div class="section-num">10</div>
+        <h2>When information may be shared</h2>
+      </div>
+      <p>
+        Personal information should be disclosed only where there is a valid purpose,
+        an appropriate legal basis and suitable safeguards. We do not treat a person's
+        registration as permission to publish their personal information.
+      </p>
+      <h3>10.1 Clients and workers</h3>
+      <p>
+        Information necessary to perform an assignment may be shared between an authorised
+        client and worker. The information shared should be limited to what is reasonably
+        necessary for the task, communication or dispute process.
+      </p>
+      <h3>10.2 Service providers</h3>
+      <p>
+        Providers may support hosting, databases, file storage, email delivery, security,
+        customer support, analytics or payment processing. The actual providers used
+        should be documented, and appropriate contractual and security arrangements
+        should be in place where required.
+      </p>
+      <h3>10.3 Administrators and authorised personnel</h3>
+      <p>
+        Authorised personnel may access relevant records to administer the platform,
+        review assignments, resolve disputes, investigate security incidents or comply
+        with legal obligations. Access should be role-based, logged where appropriate,
+        periodically reviewed and revoked when no longer needed.
+      </p>
+      <h3>10.4 Legal requests and protection of rights</h3>
+      <p>
+        We may disclose information where required by law or valid legal process, or
+        where disclosure is otherwise permitted and reasonably necessary to protect
+        rights, safety, property or platform integrity. Requests should be assessed
+        for authenticity, scope and legal validity.
+      </p>
+      <h3>10.5 Business transfers</h3>
+      <p>
+        If the business undergoes a merger, restructuring, sale or transfer, relevant
+        information may be transferred where lawful and subject to appropriate safeguards
+        and notices. We should not use this clause to justify unrelated disclosures.
+      </p>
+      <h3>10.6 Public disclosure</h3>
+      <p>
+        We should not publicly display private email addresses, telephone numbers,
+        personal documents, payment details or private communications without an
+        appropriate legal basis or valid permission.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-11">
+      <div class="section-heading">
+        <div class="section-num">11</div>
+        <h2>International transfers and hosting locations</h2>
+      </div>
+      <p>
+        Digital services may use infrastructure located in countries other than the
+        country where a user lives. The location of a website's domain or its business
+        operator does not, by itself, establish where its databases, backups, emails or
+        uploaded files are stored.
+      </p>
+      <p>
+        If personal data is transferred outside Kenya or another relevant jurisdiction,
+        PrimeTask must assess applicable transfer requirements and implement required
+        safeguards. Depending on the circumstances, this may involve contractual
+        protections, adequacy arrangements, consent or another legally recognised route.
+      </p>
+      <h3>11.1 Information that must be verified</h3>
+      <ul>
+        <li>Primary hosting and database regions.</li>
+        <li>File-storage and backup locations.</li>
+        <li>Email and support-provider processing locations.</li>
+        <li>Payment-provider processing arrangements.</li>
+        <li>Any international access by authorised support or engineering personnel.</li>
+      </ul>
+      <p>
+        PrimeTask must not promise that all personal data remains within Kenya unless
+        the actual infrastructure and provider arrangements support that statement.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-12">
+      <div class="section-heading">
+        <div class="section-num">12</div>
+        <h2>Security safeguards and access control</h2>
+      </div>
+      <p>
+        We should implement technical and organisational measures appropriate to the
+        nature, volume, sensitivity and risks of the personal data processed. No online
+        system can promise absolute security, but that is not an excuse for neglecting
+        basic safeguards.
+      </p>
+      <h3>12.1 Expected safeguards</h3>
+      <ul class="check-list">
+        <li>HTTPS for website traffic and secure transport where supported.</li>
+        <li>Secure password hashing and sensible authentication controls.</li>
+        <li>Role-based access permissions for users, administrators and reviewers.</li>
+        <li>Server-side validation of sensitive operations and account permissions.</li>
+        <li>Payment verification through trusted server-side provider responses.</li>
+        <li>Protection of API credentials, signing secrets and environment variables.</li>
+        <li>Access logging and monitoring appropriate to system risk.</li>
+        <li>Secure backups, recovery planning and controlled restoration procedures.</li>
+        <li>Dependency updates, vulnerability management and testing before releases.</li>
+        <li>Documented processes for handling privacy requests and security incidents.</li>
+      </ul>
+      <h3>12.2 Administrator responsibilities</h3>
+      <p>
+        Administrative access must be limited to authorised individuals. Shared passwords,
+        public credential files, unrestricted database access and hard-coded production
+        secrets increase the risk of unauthorised access. Privileged accounts should use
+        stronger authentication where available.
+      </p>
+      <h3>12.3 User responsibilities</h3>
+      <p>
+        Users should keep their login details confidential, use a secure device, log out
+        of shared devices, and report suspected account compromise. Users should not
+        attempt to access another person's files, session, account or private messages.
+      </p>
+      <h3>12.4 Limits of security</h3>
+      <p>
+        We cannot guarantee that every internet transmission, device, third-party system
+        or service will remain free from risk. Where a security incident occurs, we will
+        assess the circumstances and take appropriate steps consistent with applicable law.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-13">
+      <div class="section-heading">
+        <div class="section-num">13</div>
+        <h2>Data retention, account closure and deletion</h2>
+      </div>
+      <p>
+        Personal data should not be retained indefinitely without a purpose. Retention
+        should reflect operational needs, contractual requirements, security considerations
+        and applicable legal obligations.
+      </p>
+      <h3>13.1 Retention principles</h3>
+      <ul>
+        <li>Keep information only for as long as a documented purpose requires.</li>
+        <li>Apply separate retention rules to account profiles, assignment files, financial records and security logs.</li>
+        <li>Review records that have reached the end of their retention period.</li>
+        <li>Delete, anonymise or securely dispose of information when appropriate.</li>
+        <li>Limit backup retention and access, and document how deleted records age out of backups.</li>
+      </ul>
+      <h3>13.2 Retention schedule to complete</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Record category</th><th>Required decision</th><th>Operational requirement</th></tr></thead>
+          <tbody>
+            <tr><td>Account profile</td><td>Set the period after account closure or inactivity.</td><td>Provide a deletion or deactivation workflow.</td></tr>
+            <tr><td>Assignment source files</td><td>Set a period based on client needs and confidentiality.</td><td>Restrict access and remove files when no longer needed.</td></tr>
+            <tr><td>Submissions and reviews</td><td>Set a period for quality assurance and dispute resolution.</td><td>Separate necessary records from unnecessary copies.</td></tr>
+            <tr><td>Financial records</td><td>Follow applicable legal and accounting requirements.</td><td>Retain only necessary transaction information.</td></tr>
+            <tr><td>Security logs</td><td>Set a proportionate period based on risk and investigation needs.</td><td>Restrict access and protect integrity.</td></tr>
+            <tr><td>Support correspondence</td><td>Set a period based on case handling and legal needs.</td><td>Remove unnecessary attachments and sensitive details.</td></tr>
+            <tr><td>Backups</td><td>Document rotation and expiration periods.</td><td>Prevent routine restoration from reintroducing deleted data indefinitely.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>13.3 Account deletion</h3>
+      <p>
+        Users may request account deletion through the designated contact channel, subject
+        to appropriate identity verification. Deletion may not immediately remove every
+        record where retention is required by law, necessary for a valid dispute, or
+        otherwise permitted under applicable law. Any continuing retention should be
+        limited to the relevant purpose.
+      </p>
+      <h3>13.4 Deactivation is not necessarily deletion</h3>
+      <p>
+        Disabling an account may prevent login without deleting historical records.
+        The platform must explain the difference and implement the selected action
+        accurately. It should not describe an account as deleted if identifiable
+        information remains in active systems without a valid reason.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-14">
+      <div class="section-heading">
+        <div class="section-num">14</div>
+        <h2>Your privacy rights and how to exercise them</h2>
+      </div>
+      <p>
+        Subject to applicable law and the circumstances of the request, individuals may
+        have rights concerning their personal information. The precise scope and applicable
+        deadlines must be assessed under the law governing the processing.
+      </p>
+      <h3>14.1 Potential rights</h3>
+      <ul>
+        <li><strong>Information:</strong> receive clear information about relevant processing.</li>
+        <li><strong>Access:</strong> request access to personal data held about you.</li>
+        <li><strong>Correction:</strong> request correction of inaccurate or incomplete data.</li>
+        <li><strong>Deletion:</strong> request erasure where the applicable legal conditions are met.</li>
+        <li><strong>Objection:</strong> object to certain processing where the law provides that right.</li>
+        <li><strong>Restriction:</strong> request restriction of certain processing where available.</li>
+        <li><strong>Consent withdrawal:</strong> withdraw consent where processing relies on consent.</li>
+        <li><strong>Portability:</strong> request data portability where the right applies.</li>
+        <li><strong>Complaint:</strong> raise a concern with the relevant supervisory authority.</li>
+      </ul>
+      <h3>14.2 How to make a request</h3>
+      <ol>
+        <li>Contact the privacy team using the designated privacy contact published on this page.</li>
+        <li>Describe the request and identify the relevant account or processing activity.</li>
+        <li>Provide only the information reasonably needed to verify your identity.</li>
+        <li>Respond to reasonable clarification requests if necessary.</li>
+        <li>Keep a copy of the request and any reference supplied.</li>
+      </ol>
+      <h3>14.3 Identity verification</h3>
+      <p>
+        We may need to verify the identity or authority of a requester before disclosing
+        personal information or changing an account. Verification should be proportionate.
+        We should not routinely request excessive documents or collect new sensitive
+        information where a safer, less intrusive method is available.
+      </p>
+      <h3>14.4 Response periods and limitations</h3>
+      <p>
+        Requests will be handled within the period required by applicable law. Some
+        requests may be refused or limited where a lawful exception applies, such as
+        protecting another person's rights or meeting a legal retention obligation.
+        Where required, we will explain the outcome and any available complaint route.
+      </p>
+      <h3>14.5 No retaliation for lawful requests</h3>
+      <p>
+        A person should not be penalised merely for exercising a valid privacy right.
+        However, certain information may remain necessary to provide an active service,
+        complete a transaction or comply with legal requirements.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-15">
+      <div class="section-heading">
+        <div class="section-num">15</div>
+        <h2>Children and age-related safeguards</h2>
+      </div>
+      <p>
+        PrimeTask should establish and publish a clear minimum-age policy appropriate
+        to its services, contractual arrangements and applicable law. If a service is
+        not intended for children, the registration flow and service design should
+        communicate that restriction clearly.
+      </p>
+      <p>
+        We should not knowingly collect children's personal data in circumstances where
+        doing so would be unlawful. Where the law requires parental or guardian consent,
+        age assurance or additional safeguards, those requirements must be implemented
+        before processing begins.
+      </p>
+      <p>
+        If we become aware that information has been collected unlawfully from a child,
+        we will assess the situation and take appropriate action, which may include
+        restricting processing, contacting an authorised guardian where lawful, or
+        deleting the information where appropriate.
+      </p>
+      <p>
+        Users should not upload identifiable information about children into assignments
+        unless the task is authorised, the sharing is lawful and the necessary safeguards
+        are in place.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-16">
+      <div class="section-heading">
+        <div class="section-num">16</div>
+        <h2>Third-party websites, providers and integrations</h2>
+      </div>
+      <p>
+        The platform may link to or integrate with external services, including payment
+        providers, hosting platforms, file-storage services, communication tools and
+        social networks. An external provider may process information under its own
+        privacy policy and terms.
+      </p>
+      <h3>16.1 External links</h3>
+      <p>
+        When you leave PrimeTask and use another website or application, that provider's
+        rules may apply. Review the provider's privacy notice before submitting personal
+        information. A link on our website does not automatically mean that PrimeTask
+        controls the provider's data practices.
+      </p>
+      <h3>16.2 Third-party integrations</h3>
+      <p>
+        Before enabling an integration, PrimeTask should document what information is
+        transferred, why it is transferred, which party controls the data, how long the
+        provider retains it, and how access can be revoked.
+      </p>
+      <h3>16.3 Changes in providers</h3>
+      <p>
+        If a provider change materially affects the way personal information is processed,
+        we should review whether this policy or another notice needs to be updated and
+        provide any required notice before the change takes effect.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-17">
+      <div class="section-heading">
+        <div class="section-num">17</div>
+        <h2>Service messages and optional communications</h2>
+      </div>
+      <h3>17.1 Essential service communications</h3>
+      <p>
+        We may send messages necessary to administer an account or requested service,
+        such as account verification, security alerts, assignment updates, payment
+        confirmations or important policy changes, where permitted by law.
+      </p>
+      <h3>17.2 Optional promotional communications</h3>
+      <p>
+        If PrimeTask sends promotional communications, it must comply with applicable
+        marketing and data protection requirements. Where consent is required, it should
+        be obtained appropriately. Marketing messages should include a practical way
+        to opt out where required.
+      </p>
+      <h3>17.3 Communication channels</h3>
+      <p>
+        Email, SMS, telephone, in-platform messages and third-party messaging applications
+        may have different privacy and security characteristics. We should not ask users
+        to send confidential credentials through an insecure channel.
+      </p>
+      <h3>17.4 Opting out</h3>
+      <p>
+        Users may opt out of optional communications using the method provided in the
+        message or by contacting support. Opting out of marketing does not necessarily
+        stop essential account, security or transaction notices.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-18">
+      <div class="section-heading">
+        <div class="section-num">18</div>
+        <h2>Automated processing and platform decisions</h2>
+      </div>
+      <p>
+        Software may automatically validate forms, calculate balances, route assignments,
+        flag unusual activity or determine whether required fields are complete. These
+        functions should be tested for accuracy and appropriate access controls.
+      </p>
+      <p>
+        Where a decision is made solely by automated processing and has legal or similarly
+        significant effects on a person, additional legal requirements may apply. PrimeTask
+        must assess those requirements before introducing such a feature.
+      </p>
+      <p>
+        Where required, individuals should receive meaningful information about the
+        relevant processing and have access to the rights or review mechanisms provided
+        by applicable law.
+      </p>
+      <h3>18.1 No unsupported claims</h3>
+      <p>
+        We should not claim that the platform uses artificial intelligence, automated
+        profiling or algorithmic job selection unless those systems are actually used.
+        If they are introduced later, this section should be reviewed and updated.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-19">
+      <div class="section-heading">
+        <div class="section-num">19</div>
+        <h2>Security incidents and personal data breaches</h2>
+      </div>
+      <p>
+        A suspected incident involving personal data must be assessed promptly. Examples
+        include unauthorised access, accidental disclosure, lost devices containing
+        personal data, compromised credentials, exposed files or an unintended database
+        exposure.
+      </p>
+      <h3>19.1 Response process</h3>
+      <ol>
+        <li>Record the incident and preserve relevant evidence.</li>
+        <li>Restrict unauthorised access and contain the incident where reasonably possible.</li>
+        <li>Assess what information was involved, whose data may be affected and the likely risks.</li>
+        <li>Secure affected accounts, systems, credentials or files as appropriate.</li>
+        <li>Determine whether notification to individuals or authorities is required.</li>
+        <li>Make required notifications within applicable legal deadlines.</li>
+        <li>Document the response, corrective actions and lessons learned.</li>
+      </ol>
+      <h3>19.2 Notifications</h3>
+      <p>
+        Where applicable law requires notification to a supervisory authority or affected
+        individuals, PrimeTask will follow the relevant requirements and deadlines.
+        Notification obligations depend on the circumstances, the role of the parties,
+        the risk to individuals and the governing law.
+      </p>
+      <h3>19.3 Reporting a suspected incident</h3>
+      <p>
+        Users should report suspected account compromise or unintended disclosure promptly
+        through the official support channel. Include a concise description, approximate
+        time and relevant reference. Do not publicly post exposed personal data or send
+        passwords and verification codes in the report.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-20">
+      <div class="section-heading">
+        <div class="section-num">20</div>
+        <h2>Changes to this Privacy Policy</h2>
+      </div>
+      <p>
+        We may revise this policy when our services, technology, providers, legal
+        obligations or data practices change. The published version should identify
+        when it was last updated and explain material changes where appropriate.
+      </p>
+      <p>
+        Where a change requires advance notice or renewed consent under applicable law,
+        we will take the required steps before relying on the revised terms.
+      </p>
+      <p>
+        Continuing to use a website should not be treated as a substitute for consent
+        where the law specifically requires consent. Users should review material
+        changes that affect their personal information.
+      </p>
+      <div class="definition">
+        <strong>Publication control:</strong> The effective date below is a placeholder.
+        Replace it with the actual date on which the approved policy becomes effective.
+      </div>
+      <p><strong>Draft policy date:</strong> 14 October 2026</p>
+      <p><strong>Effective date:</strong> To be confirmed before publication.</p>
+      <p><strong>Version:</strong> Draft 1.0</p>
+    </article>
+
+    <article class="policy-section" id="section-21">
+      <div class="section-heading">
+        <div class="section-num">21</div>
+        <h2>Contact, privacy requests and complaints</h2>
+      </div>
+      <p>
+        For account support or general enquiries, use the official contact page. For
+        privacy requests, the operator should designate a monitored privacy contact and
+        establish a procedure for logging, verifying, assigning and responding to requests.
+      </p>
+      <div class="subsection">
+        <h3>General support</h3>
+        <p><strong>Email:</strong> <a href="mailto:support@primetaskworkspace.com">support@primetaskworkspace.com</a></p>
+        <p><strong>Contact page:</strong> <a href="contact.html">PrimeTask Workspace Contact</a></p>
+        <p><strong>Privacy contact:</strong> A dedicated address or clearly designated contact must be confirmed before publication.</p>
+      </div>
+      <p>
+        If you are dissatisfied with how your personal data has been handled, you may
+        raise the issue with PrimeTask through the designated privacy channel. Depending
+        on the circumstances, you may also have the right to complain to the relevant
+        data protection supervisory authority.
+      </p>
+      <p>
+        In Kenya, the Office of the Data Protection Commissioner is the relevant
+        supervisory authority under the country's data protection framework. Check its
+        official resources for current guidance and complaint procedures:
+        <a href="https://www.odpc.go.ke/" target="_blank" rel="noopener noreferrer">Office of the Data Protection Commissioner (Kenya)</a>.
+      </p>
+      <p>
+        This policy does not remove rights or remedies available under applicable law.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-22">
+      <div class="section-heading">
+        <div class="section-num">22</div>
+        <h2>Definitions</h2>
+      </div>
+      <div class="definition"><strong>Personal data:</strong> Information relating to an identified or identifiable individual.</div>
+      <div class="definition"><strong>Data subject:</strong> The individual to whom personal data relates.</div>
+      <div class="definition"><strong>Data controller:</strong> A person or organisation that determines the purposes and essential means of processing personal data, as defined by applicable law.</div>
+      <div class="definition"><strong>Data processor:</strong> A person or organisation that processes personal data on behalf of a controller, as defined by applicable law.</div>
+      <div class="definition"><strong>Processing:</strong> An operation performed on personal data, such as collecting, recording, organising, storing, using, disclosing, restricting or deleting it.</div>
+      <div class="definition"><strong>Consent:</strong> A person's agreement to a specified processing activity where that agreement meets the requirements of applicable law.</div>
+      <div class="definition"><strong>Personal data breach:</strong> A security incident leading to accidental or unlawful destruction, loss, alteration, unauthorised disclosure of, or access to personal data, as defined by applicable law.</div>
+      <div class="definition"><strong>Service provider:</strong> An external organisation engaged to support an operational function such as hosting, payment processing, storage or communications.</div>
+      <div class="definition"><strong>Assignment materials:</strong> Source files, recordings, instructions, notes, transcripts, data-entry records or other materials supplied or created in connection with a task.</div>
+      <div class="definition"><strong>Platform account:</strong> A user profile and associated records used to access PrimeTask Workspace features.</div>
+    </article>
+
+    <article class="policy-section" id="section-23">
+      <div class="section-heading">
+        <div class="section-num">23</div>
+        <h2>User responsibilities and acceptable handling</h2>
+      </div>
+      <p>
+        Privacy is not a one-person operation. Users who submit or access personal data
+        also have responsibilities to handle it appropriately and follow applicable law
+        and authorised task instructions.
+      </p>
+      <h3>23.1 Account protection</h3>
+      <ul class="danger-list">
+        <li>Do not share your password, authentication codes or payment PIN.</li>
+        <li>Do not use another person's account without authorisation.</li>
+        <li>Report suspected account compromise promptly.</li>
+        <li>Keep contact details accurate where they are required for account administration.</li>
+      </ul>
+      <h3>23.2 Confidentiality of work</h3>
+      <ul class="danger-list">
+        <li>Do not publish or distribute client files without authority.</li>
+        <li>Do not use assignment materials for unrelated personal projects.</li>
+        <li>Do not retain unnecessary copies of confidential recordings or documents.</li>
+        <li>Do not attempt to bypass platform permissions or access controls.</li>
+        <li>Do not include unrelated personal data in submitted work.</li>
+      </ul>
+      <h3>23.3 Accurate information</h3>
+      <p>
+        Users should provide accurate information where reasonably required and avoid
+        submitting personal data about others without an appropriate purpose and
+        authority. Deliberately false information may interfere with account security,
+        payments, assignment administration or legal compliance.
+      </p>
+      <h3>23.4 Reporting concerns</h3>
+      <p>
+        Users should promptly report a suspected privacy violation, mistaken disclosure
+        or security weakness through the designated support channel. Reports should
+        contain enough detail to investigate without unnecessarily repeating the
+        sensitive information involved.
+      </p>
+    </article>
+
+    <article class="policy-section" id="section-24">
+      <div class="section-heading">
+        <div class="section-num">24</div>
+        <h2>Final provisions and publication checklist</h2>
+      </div>
+      <p>
+        This policy should be interpreted consistently with applicable data protection
+        law. Where a provision conflicts with a mandatory legal requirement, the
+        applicable legal requirement prevails to the extent of the conflict.
+      </p>
+      <p>
+        If part of this policy is found unenforceable, the remaining provisions continue
+        to apply to the extent permitted by law. Nothing in this document is intended
+        to remove a privacy right that cannot lawfully be excluded.
+      </p>
+
+      <h3>24.1 Required checks before publishing</h3>
+      <ul class="check-list">
+        <li>Confirm the legal operator's full name and official business details.</li>
+        <li>Confirm the designated privacy contact and verify that it is monitored.</li>
+        <li>Map all personal data collected by the website and backend.</li>
+        <li>List hosting, database, file-storage, email and payment providers actually used.</li>
+        <li>Confirm where active data and backups are stored and accessed.</li>
+        <li>Define retention periods for accounts, assignments, logs, support and financial records.</li>
+        <li>Implement account access controls, server-side authorization and secure secrets management.</li>
+        <li>Confirm the minimum-age policy and any required safeguards.</li>
+        <li>Review cookie, local-storage and analytics behaviour.</li>
+        <li>Implement an operational process for access, correction and deletion requests.</li>
+        <li>Document incident response and applicable notification requirements.</li>
+        <li>Check consistency with the Terms of Service and actual platform behaviour.</li>
+        <li>Obtain appropriate legal review before treating this as the final policy.</li>
+      </ul>
+
+      <div class="last-box">
+        <h3>Our standard</h3>
+        <p>
+          Personal information should be collected for clear reasons, accessed only by
+          authorised people, protected through appropriate safeguards and retained only
+          for as long as justified. Users should be able to understand how their data is
+          handled and how to raise a concern.
+        </p>
+        <p>
+          PrimeTask Workspace must earn trust through actual system behaviour, not merely
+          through polished wording. A privacy policy is a public commitment, so the
+          operational reality must match it.
+        </p>
+      </div>
+    </article>
+  </main>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="index.html"><span class="logo">PT</span><span>PrimeTask Workspace<small>WORK · EARN · GROW</small></span></a>
+        <p>Creating Opportunities and Delivering Excellence.</p>
+        <p>Responsible work. Clear processes. Respect for personal information.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="about.html">About us</a>
+        <a href="services.html">Services</a>
+        <a href="how-it-works.html">How it works</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="faq.html">FAQs</a>
+        <a href="contact.html">Contact</a>
+        <a href="auth/login.html">Login</a>
+        <a href="auth/register.html">Register</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="terms.html">Terms of service</a>
+        <a href="contact.html#contact-form">Raise an issue</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> PrimeTask Workspace. All rights reserved.</span>
+      <span>Draft 1.0 · Effective date to be confirmed</span>
+    </div>
+  </div>
+</footer>
+
+<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
+
+<script>
+const menuBtn = document.getElementById('menuBtn');
+const navlinks = document.getElementById('navlinks');
+
+menuBtn.addEventListener('click', () => {
+  const open = navlinks.classList.toggle('open');
+  menuBtn.setAttribute('aria-expanded', String(open));
+  menuBtn.textContent = open ? '✕ Close' : '☰ Menu';
+});
+
+navlinks.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    navlinks.classList.remove('open');
+    menuBtn.setAttribute('aria-expanded', 'false');
+    menuBtn.textContent = '☰ Menu';
+  });
+});
+
+document.getElementById('year').textContent = new Date().getFullYear();
+
+document.getElementById('printPage').addEventListener('click', () => window.print());
+
+document.getElementById('expandAll').addEventListener('click', () => {
+  document.querySelectorAll('.subsection,.definition').forEach(el => {
+    el.style.boxShadow = '0 0 0 1px #2477e855';
+  });
+  document.getElementById('expandAll').textContent = 'Reading notes highlighted';
+});
+
+document.getElementById('collapseAll').addEventListener('click', () => {
+  document.querySelectorAll('.subsection,.definition').forEach(el => {
+    el.style.boxShadow = '';
+  });
+  document.getElementById('expandAll').textContent = 'Expand reading notes';
+});
+
+const backTop = document.getElementById('backTop');
+window.addEventListener('scroll', () => {
+  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+  document.getElementById('readingProgress').style.width = progress + '%';
+  backTop.classList.toggle('show', window.scrollY > 500);
+});
+
+backTop.addEventListener('click', () => window.scrollTo({top:0,behavior:'smooth'}));
+
+const sections = [...document.querySelectorAll('.policy-section')];
+const tocLinks = [...document.querySelectorAll('.toc a')];
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+      });
+    }
+  });
+}, {rootMargin:'-15% 0px -70% 0px'});
+
+sections.forEach(section => observer.observe(section));
+</script>
+</body>
+</html>

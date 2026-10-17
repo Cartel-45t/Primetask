@@ -1,0 +1,347 @@
+/* Dedicated transcription operations page. */
+.ptw-transcription-layout {
+  min-height: 100vh;
+}
+
+.ptw-transcription-main {
+  min-width: 0;
+  background: #071426;
+  color: #eaf1fb;
+}
+
+.ptw-transcription-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 280px;
+  display: flex;
+  align-items: end;
+  padding: clamp(24px, 5vw, 52px);
+  margin: 0 0 24px;
+  border: 1px solid rgba(169, 197, 230, .2);
+  border-radius: 22px;
+  background-color: #102640;
+  background-image:
+    linear-gradient(90deg, rgba(4, 14, 29, .96), rgba(4, 14, 29, .55)),
+    linear-gradient(0deg, rgba(4, 14, 29, .92), transparent 90%),
+    url("https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=2000&q=85");
+  background-size: cover;
+  background-position: center;
+}
+
+.ptw-transcription-hero-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse at 78% 25%, rgba(52, 211, 153, .13), transparent 42%);
+}
+
+.ptw-transcription-hero-content {
+  max-width: 780px;
+}
+
+.ptw-transcription-eyebrow,
+.ptw-transcription-kicker {
+  display: block;
+  color: #77e2bc;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.ptw-transcription-hero h1 {
+  margin: 12px 0;
+  font-size: clamp(2rem, 5vw, 3.3rem);
+  line-height: 1.06;
+  color: #fff;
+}
+
+.ptw-transcription-hero p {
+  max-width: 620px;
+  color: #d2deee;
+  line-height: 1.65;
+}
+
+.ptw-transcription-hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.ptw-transcription-hero-tags span,
+.ptw-transcription-pill {
+  padding: 7px 11px;
+  border: 1px solid rgba(153, 194, 228, .27);
+  border-radius: 999px;
+  background: rgba(6, 20, 38, .72);
+  color: #e4f4ff;
+  font-size: .78rem;
+}
+
+.ptw-transcription-status {
+  margin: 14px 0 24px;
+}
+
+.ptw-transcription-section {
+  margin: 26px 0;
+  scroll-margin-top: 20px;
+}
+
+.ptw-transcription-section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 15px;
+}
+
+.ptw-transcription-section-heading h2 {
+  margin: 7px 0;
+  color: #f4f8ff;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+}
+
+.ptw-transcription-section-heading p {
+  margin: 0;
+  color: #a9bbd2;
+  line-height: 1.55;
+}
+
+.ptw-transcription-card,
+.ptw-transcription-item {
+  padding: clamp(16px, 3vw, 25px);
+  border: 1px solid rgba(155, 185, 218, .19);
+  border-radius: 17px;
+  background: rgba(13, 30, 52, .94);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .13);
+}
+
+.ptw-transcription-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px;
+}
+
+.ptw-transcription-wide {
+  grid-column: 1 / -1;
+}
+
+.ptw-transcription-card .ptw-admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #dce8f6;
+}
+
+.ptw-transcription-card input,
+.ptw-transcription-card textarea,
+.ptw-transcription-filter select,
+.ptw-transcription-item input,
+.ptw-transcription-item textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #334c69;
+  border-radius: 9px;
+  background: #09182b;
+  color: #f0f6ff;
+  font: inherit;
+}
+
+.ptw-transcription-card input:focus,
+.ptw-transcription-card textarea:focus,
+.ptw-transcription-filter select:focus,
+.ptw-transcription-item input:focus,
+.ptw-transcription-item textarea:focus {
+  outline: 2px solid #56d6a6;
+  outline-offset: 2px;
+}
+
+.ptw-transcription-card small {
+  color: #9db0c8;
+  line-height: 1.5;
+}
+
+.ptw-transcription-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(155, 185, 218, .16);
+}
+
+.ptw-transcription-muted {
+  color: #a9bbd2;
+  font-size: .88rem;
+}
+
+.ptw-transcription-filter {
+  display: grid;
+  gap: 7px;
+  min-width: 180px;
+  color: #c8d7e9;
+  font-size: .85rem;
+}
+
+.ptw-transcription-queue {
+  display: grid;
+  gap: 14px;
+}
+
+.ptw-transcription-item h3 {
+  margin: 0 0 8px;
+  color: #f4f8ff;
+  overflow-wrap: anywhere;
+}
+
+.ptw-transcription-item p {
+  color: #b6c7dc;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.ptw-transcription-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  color: #9fb4cd;
+  font-size: .84rem;
+}
+
+.ptw-transcription-meta strong {
+  color: #dce8f6;
+}
+
+.ptw-transcription-transcript {
+  max-height: 360px;
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid #2b425d;
+  border-radius: 10px;
+  background: #071426;
+  color: #e4edf8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: .92rem/1.65 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.ptw-transcription-note {
+  display: grid;
+  gap: 7px;
+  margin: 15px 0;
+  color: #d5e2f1;
+  font-size: .9rem;
+}
+
+.ptw-transcription-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.ptw-transcription-actions button {
+  min-height: 40px;
+}
+
+.ptw-transcription-button-danger {
+  border: 1px solid #a94d5c !important;
+  background: #54202c !important;
+  color: #fff !important;
+}
+
+.ptw-transcription-warning {
+  margin: 14px 0;
+  padding: 13px 15px;
+  border: 1px solid rgba(242, 184, 75, .42);
+  border-radius: 12px;
+  background: rgba(112, 73, 15, .2);
+  color: #f7dfad;
+  line-height: 1.6;
+}
+
+.ptw-transcription-empty {
+  padding: 22px;
+  border: 1px dashed #38516d;
+  border-radius: 13px;
+  color: #b6c7dc;
+  text-align: center;
+}
+
+.ptw-transcription-error {
+  color: #ffb8c0;
+}
+
+@media (max-width: 650px) {
+  .ptw-transcription-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ptw-transcription-wide {
+    grid-column: auto;
+  }
+
+  .ptw-transcription-hero {
+    min-height: 250px;
+    padding: 22px;
+  }
+
+  .ptw-transcription-form-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ptw-transcription-form-footer button {
+    width: 100%;
+  }
+}
+
+
+/* Admin transcription configuration and minute package controls */
+.ptw-transcription-config-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+.ptw-transcription-config-heading h3 {
+  margin: 0;
+}
+.ptw-transcription-config-list {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.ptw-transcription-config-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--ptw-border, rgba(148, 163, 184, .25));
+  border-radius: 12px;
+}
+.ptw-transcription-config-row .ptw-admin-field,
+#minutePackagesList .ptw-admin-field {
+  min-width: 0;
+}
+#minutePackagesList .ptw-transcription-item {
+  display: grid;
+  gap: 1rem;
+}
+#minutePackagesList input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+@media (max-width: 760px) {
+  .ptw-transcription-config-row {
+    grid-template-columns: 1fr;
+  }
+}

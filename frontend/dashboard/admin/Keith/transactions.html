@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090a0d">
+  <meta name="description" content="PrimeTask Workspace financial transaction control center">
+  <title>Transactions | PrimeTask Workspace</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090a0d;
+      --panel: #111318;
+      --panel2: #171a21;
+      --line: rgba(255,255,255,.085);
+      --gold: #edc875;
+      --gold2: #b88b37;
+      --text: #f6f4ee;
+      --muted: #9398a5;
+      --green: #5ee0a0;
+      --red: #ff8189;
+      --blue: #86baff;
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 80% 0%, rgba(190,143,54,.105), transparent 35%),
+        var(--bg);
+      font: 14px/1.55 Inter, system-ui, sans-serif;
+    }
+
+    body, button, input, select { font-family: Inter, system-ui, sans-serif; }
+    button, input, select { font-size: inherit; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; }
+    button:disabled { opacity: .4; cursor: not-allowed; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 255px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 27px 17px;
+      background: rgba(13,15,19,.97);
+      border-right: 1px solid var(--line);
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 9px 27px;
+    }
+
+    .brand-mark {
+      width: 43px;
+      height: 43px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      border-radius: 14px;
+      color: #171109;
+      background: linear-gradient(145deg, #ffe6a2, #bc8c35);
+      font-size: 20px;
+      font-weight: 900;
+      box-shadow: 0 5px 25px rgba(237,200,117,.13);
+    }
+
+    .brand strong { display: block; font-size: 14px; }
+    .brand small {
+      display: block;
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .nav-label {
+      padding: 10px 11px;
+      color: #666c78;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+    }
+
+    .nav { display: grid; gap: 5px; }
+
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: #aeb3bf;
+      transition: background .2s, border-color .2s, color .2s;
+    }
+
+    .nav a:hover {
+      color: white;
+      background: rgba(255,255,255,.045);
+    }
+
+    .nav a.active {
+      color: var(--gold);
+      background: linear-gradient(100deg, rgba(237,200,117,.13), rgba(237,200,117,.035));
+      border-color: rgba(237,200,117,.19);
+    }
+
+    .nav-icon {
+      width: 22px;
+      text-align: center;
+      font-size: 17px;
+    }
+
+    .side-note {
+      margin-top: 30px;
+      padding: 15px;
+      border: 1px solid rgba(237,200,117,.15);
+      border-radius: 15px;
+      background: linear-gradient(145deg, rgba(237,200,117,.08), rgba(255,255,255,.015));
+    }
+
+    .side-note strong { font-size: 12px; }
+    .side-note p { margin: 7px 0 0; color: var(--muted); font-size: 11px; }
+
+    .main {
+      min-width: 0;
+      padding: 27px clamp(16px, 3vw, 42px) 35px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .crumb {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .crumb span { color: var(--gold); }
+
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+
+    .secure-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #c6d6ca;
+      background: #121712;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .secure-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(94,224,160,.5);
+    }
+
+    .menu-toggle {
+      display: none;
+      width: 43px;
+      height: 43px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      color: var(--text);
+      font-size: 22px;
+    }
+
+    .heading { margin-bottom: 23px; }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 2.2px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 8px 0;
+      font-size: clamp(28px, 3.5vw, 43px);
+      line-height: 1.13;
+      letter-spacing: -1.7px;
+    }
+
+    .subtitle { margin: 0; max-width: 720px; color: var(--muted); }
+
+    .hero {
+      position: relative;
+      min-height: 230px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(200px, .7fr);
+      align-items: center;
+      gap: 20px;
+      padding: clamp(22px, 3vw, 34px);
+      border: 1px solid rgba(237,200,117,.24);
+      border-radius: 25px;
+      background:
+        linear-gradient(105deg, rgba(15,16,19,.98) 0%, rgba(15,16,19,.91) 48%, rgba(15,16,19,.42) 100%),
+        url("https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=1400&q=85")
+        center 48%/cover;
+      box-shadow: 0 20px 65px rgba(0,0,0,.24);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 250px;
+      height: 250px;
+      right: 10%;
+      top: -150px;
+      border-radius: 50%;
+      border: 1px solid rgba(237,200,117,.19);
+      box-shadow: 0 0 0 25px rgba(237,200,117,.025), 0 0 0 55px rgba(237,200,117,.02);
+      pointer-events: none;
+    }
+
+    .hero-copy, .hero-visual { position: relative; z-index: 1; }
+    .hero h2 { margin: 9px 0; font-size: clamp(22px, 3vw, 32px); letter-spacing: -.9px; }
+    .hero p { max-width: 490px; margin: 0; color: #c0c0c0; line-height: 1.7; }
+    .hero-kicker { color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: 1.7px; text-transform: uppercase; }
+
+    .hero-visual {
+      justify-self: end;
+      width: min(100%, 245px);
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.19);
+      border-radius: 20px;
+      background: rgba(12,14,17,.62);
+      backdrop-filter: blur(15px);
+      transform: rotate(2deg);
+    }
+
+    .hero-visual img {
+      display: block;
+      width: 100%;
+      height: 115px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #222;
+    }
+
+    .visual-caption { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 11px; }
+    .visual-caption strong { font-size: 11px; }
+    .visual-caption span { color: var(--gold); font-size: 10px; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 13px;
+      margin: 19px 0 25px;
+    }
+
+    .metric {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: linear-gradient(145deg, #15171d, #101115);
+    }
+
+    .metric::after {
+      content: "";
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      right: -42px;
+      bottom: -48px;
+      border-radius: 50%;
+      background: rgba(237,200,117,.07);
+    }
+
+    .metric-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .metric-label { color: var(--muted); font-size: 11px; }
+    .metric-icon { font-size: 18px; }
+    .metric-value { margin-top: 13px; font-size: clamp(20px, 2.2vw, 28px); font-weight: 800; letter-spacing: -.8px; overflow-wrap: anywhere; }
+    .metric-note { margin-top: 5px; color: #777d89; font-size: 10px; }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      flex-wrap: wrap;
+      gap: 13px;
+      margin: 28px 0 15px;
+    }
+
+    .section-head h2 { margin: 0; font-size: 19px; letter-spacing: -.5px; }
+    .section-head p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+
+    .refresh-btn, .filter-btn, .page-btn {
+      min-height: 39px;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      background: #191b21;
+      font-weight: 600;
+      transition: border-color .2s, background .2s;
+    }
+
+    .refresh-btn:hover, .filter-btn:hover, .page-btn:hover:not(:disabled) {
+      border-color: rgba(237,200,117,.5);
+      background: #24221c;
+    }
+
+    .ledger {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: rgba(17,19,24,.92);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 11px;
+      padding: 17px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .field { display: grid; flex: 1 1 145px; gap: 6px; min-width: 0; }
+    .field.search-field { flex: 2 1 230px; }
+    .field label { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; }
+
+    .field input, .field select {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 11px;
+      border: 1px solid #2a2d35;
+      border-radius: 10px;
+      outline: none;
+      color: var(--text);
+      background: #0d0f13;
+    }
+
+    .field input:focus, .field select:focus { border-color: var(--gold2); }
+    .field input::placeholder { color: #626774; }
+
+    .table-wrap { width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+    thead { background: #191b20; }
+    th { padding: 14px 15px; color: #aeb2bd; font-size: 10px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; white-space: nowrap; }
+    td { padding: 15px; border-top: 1px solid rgba(255,255,255,.055); vertical-align: middle; }
+    tbody tr { transition: background .15s; }
+    tbody tr:hover { background: rgba(255,255,255,.025); }
+    .user-name { display: block; font-weight: 700; color: #f2f0e9; }
+    .subtext { display: block; margin-top: 4px; color: #858a96; font-size: 10px; max-width: 220px; white-space: normal; overflow-wrap: anywhere; }
+    .amount { color: var(--gold); font-weight: 800; white-space: nowrap; }
+    .reference { font-family: ui-monospace, monospace; color: #c6c9d0; font-size: 11px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 999px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .badge.completed, .badge.paid { color: var(--green); background: rgba(94,224,160,.07); }
+    .badge.pending, .badge.pending_review { color: var(--gold); background: rgba(237,200,117,.07); }
+    .badge.failed, .badge.reversed, .badge.rejected { color: var(--red); background: rgba(255,129,137,.07); }
+    .badge.other { color: var(--blue); background: rgba(134,186,255,.07); }
+
+    .empty-state { padding: 34px 18px; text-align: center; color: var(--muted); }
+    .empty-icon { margin-bottom: 10px; font-size: 28px; }
+    .empty-state strong { display: block; color: var(--text); font-size: 14px; }
+    .empty-state p { margin: 7px 0 0; font-size: 12px; overflow-wrap: anywhere; }
+
+    .ledger-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 14px 17px;
+      border-top: 1px solid var(--line);
+    }
+
+    .page-summary { color: var(--muted); font-size: 11px; }
+    .pagination { display: flex; gap: 7px; }
+    .status-message { margin: 14px 0; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+    .status-message[data-kind="ok"] { color: var(--green); }
+    .status-message[data-kind="error"] { color: var(--red); }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+      padding-top: 17px;
+      border-top: 1px solid var(--line);
+      color: #727783;
+      font-size: 10px;
+    }
+
+    .mobile-backdrop { display: none; }
+
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 225px minmax(0,1fr); }
+      .metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .hero { grid-template-columns: minmax(0,1fr) 200px; }
+    }
+
+    @media (max-width: 760px) {
+      .app { display: block; }
+      .sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: min(290px, 85vw);
+        height: 100dvh;
+        transform: translateX(-105%);
+        transition: transform .23s ease;
+        box-shadow: 20px 0 60px rgba(0,0,0,.4);
+      }
+      body.menu-open .sidebar { transform: translateX(0); }
+      .mobile-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 19;
+        background: rgba(0,0,0,.65);
+      }
+      body.menu-open .mobile-backdrop { display: block; }
+      .menu-toggle { display: inline-grid; place-items: center; }
+      .topbar { justify-content: flex-start; }
+      .top-actions { margin-left: auto; }
+      .secure-pill { font-size: 10px; }
+      .hero { grid-template-columns: minmax(0,1fr); }
+      .hero-visual { display: none; }
+      .main { padding: 18px 15px 28px; }
+      .heading { margin-bottom: 19px; }
+      .hero { min-height: 190px; }
+      .metrics { gap: 9px; margin: 13px 0 23px; }
+      .metric { padding: 14px; }
+      .metric-value { font-size: 22px; }
+      .toolbar { padding: 13px; }
+      .field, .field.search-field { flex-basis: 100%; }
+      .filter-btn, .refresh-btn { flex: 1; }
+      .ledger-bottom { align-items: flex-start; flex-direction: column; }
+      .pagination { width: 100%; }
+      .page-btn { flex: 1; }
+    }
+
+    @media (max-width: 390px) {
+      .secure-pill { padding: 8px; }
+      .metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .metric-value { font-size: 19px; }
+      h1 { font-size: 29px; }
+      .hero { padding: 20px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+
+  <script src="/assets/js/config.js"></script>
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+</head>
+
+<body>
+  <div class="mobile-backdrop" id="mobile-backdrop" aria-hidden="true"></div>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar" aria-label="Administrator navigation">
+      <a class="brand" href="/dashboard/admin/Keith/keith.html">
+        <span class="brand-mark">P</span>
+        <span>
+          <strong>PrimeTask</strong>
+          <small>Financial control</small>
+        </span>
+      </a>
+
+      <div class="nav-label">Workspace</div>
+      <nav class="nav">
+        <a href="/dashboard/admin/Keith/keith.html"><span class="nav-icon">◈</span>Overview</a>
+        <a href="/dashboard/admin/Keith/users.html"><span class="nav-icon">♙</span>Members</a>
+        <a href="/dashboard/admin/Keith/memberships.html"><span class="nav-icon">✦</span>Memberships</a>
+      </nav>
+
+      <div class="nav-label">Financial operations</div>
+      <nav class="nav">
+        <a href="/dashboard/admin/Keith/transactions.html" class="active" aria-current="page"><span class="nav-icon">⇄</span>Transactions</a>
+        <a href="/dashboard/admin/Keith/deposits.html"><span class="nav-icon">↙</span>Deposits</a>
+        <a href="/dashboard/admin/Keith/withdrawals.html"><span class="nav-icon">↗</span>Withdrawals</a>
+        <a href="/dashboard/admin/Keith/platform-revenue.html"><span class="nav-icon">◉</span>Platform revenue</a>
+        <a href="/dashboard/admin/Keith/commissions.html"><span class="nav-icon">◈</span>Commissions</a>
+        <a href="/dashboard/admin/Keith/referrals.html"><span class="nav-icon">♧</span>Referrals</a>
+      </nav>
+
+      <div class="nav-label">Administration</div>
+      <nav class="nav">
+        <a href="/dashboard/admin/Keith/audit-logs.html"><span class="nav-icon">≡</span>Audit logs</a>
+        <a href="/dashboard/admin/Keith/settings.html"><span class="nav-icon">⚙</span>Settings</a>
+      </nav>
+
+      <div class="side-note">
+        <strong>◈ Financial integrity</strong>
+        <p>Live records come from the protected platform API. Never treat a decorative balance as an accounting record.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-toggle" id="menu-toggle" type="button"
+          aria-label="Open navigation menu" aria-controls="sidebar" aria-expanded="false">☰</button>
+        <div class="crumb">PrimeTask / Financial operations / <span>Transactions</span></div>
+        <div class="top-actions">
+          <span class="secure-pill"><span class="secure-dot"></span>Secure admin</span>
+        </div>
+      </header>
+
+      <section class="heading">
+        <div class="eyebrow">Founder control center</div>
+        <h1>Transaction ledger<span style="color:var(--gold)">.</span></h1>
+        <p class="subtitle">A clear view of platform wallet activity, transaction references, and payment status.</p>
+      </section>
+
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="hero-kicker">Financial operations / 01</div>
+          <h2>Every transaction.<br>Accounted for.</h2>
+          <p>Track wallet movements and payment activity from real platform records, with protected access and searchable transaction history.</p>
+        </div>
+        <div class="hero-visual">
+          <img
+            src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=700&q=80"
+            alt="Digital payment being made using a smartphone"
+            loading="lazy"
+            onerror="this.style.display='none'">
+          <div class="visual-caption">
+            <strong>Digital payments</strong>
+            <span>● SECURE</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Current transaction page summary">
+        <article class="metric">
+          <div class="metric-top"><span class="metric-label">Total matching records</span><span class="metric-icon">▤</span></div>
+          <div class="metric-value" id="metric-total">—</div>
+          <div class="metric-note">Based on current filters</div>
+        </article>
+        <article class="metric">
+          <div class="metric-top"><span class="metric-label">Visible-page volume</span><span class="metric-icon">◈</span></div>
+          <div class="metric-value" id="metric-volume">—</div>
+          <div class="metric-note">USD, current page only</div>
+        </article>
+        <article class="metric">
+          <div class="metric-top"><span class="metric-label">Completed on page</span><span class="metric-icon">✓</span></div>
+          <div class="metric-value" id="metric-completed">—</div>
+          <div class="metric-note">Current page only</div>
+        </article>
+        <article class="metric">
+          <div class="metric-top"><span class="metric-label">Pending on page</span><span class="metric-icon">◷</span></div>
+          <div class="metric-value" id="metric-pending">—</div>
+          <div class="metric-note">Current page only</div>
+        </article>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>Recent transactions</h2>
+          <p>Search and filter records returned by the admin API.</p>
+        </div>
+        <button class="refresh-btn" id="refresh" type="button">↻ Refresh records</button>
+      </div>
+
+      <section class="ledger" aria-label="Transaction records">
+        <form class="toolbar" id="filters">
+          <div class="field search-field">
+            <label for="search">Search members</label>
+            <input id="search" name="search" type="search" maxlength="100"
+              placeholder="Search username, name or email">
+          </div>
+          <div class="field">
+            <label for="type">Transaction type</label>
+            <select id="type" name="type">
+              <option value="">All types</option>
+              <option value="deposit">Deposit</option>
+              <option value="withdrawal">Withdrawal</option>
+              <option value="transfer_in">Transfer in</option>
+              <option value="transfer_out">Transfer out</option>
+              <option value="earning">Earning</option>
+              <option value="commission">Commission</option>
+              <option value="adjustment">Adjustment</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="status-filter">Status</label>
+            <select id="status-filter" name="status">
+              <option value="">All statuses</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+              <option value="reversed">Reversed</option>
+            </select>
+          </div>
+          <button class="filter-btn" type="submit">Apply filters</button>
+        </form>
+
+        <div id="table-content" aria-live="polite">
+          <div class="empty-state"><div class="empty-icon">◌</div><strong>Loading transactions</strong><p>Connecting to the protected reporting API…</p></div>
+        </div>
+
+        <div class="ledger-bottom">
+          <div class="page-summary" id="page-summary">Waiting for records…</div>
+          <div class="pagination">
+            <button class="page-btn" id="previous" type="button" disabled>← Previous</button>
+            <button class="page-btn" id="next" type="button" disabled>Next →</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="status-message" id="status-message" role="status" aria-live="polite">Connecting to PrimeTask…</div>
+
+      <footer class="footer">
+        <span>PrimeTask Workspace · Restricted financial administration</span>
+        <span>Platform amounts in USD · Payment-rail amounts retain their native currency</span>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    "use strict";
+
+    (() => {
+      const $ = selector => document.querySelector(selector);
+      const tableContent = $("#table-content");
+      const statusMessage = $("#status-message");
+      const form = $("#filters");
+      const search = $("#search");
+      const typeFilter = $("#type");
+      const statusFilter = $("#status-filter");
+      const previous = $("#previous");
+      const next = $("#next");
+      const refresh = $("#refresh");
+      const pageSummary = $("#page-summary");
+
+      const API_BASE = String(window.PTW_API_BASE || "").replace(/\/+$/, "");
+      const ENDPOINT = "/admin/reports/transactions";
+      const PAGE_SIZE = 25;
+
+      let currentPage = 1;
+      let lastPage = 1;
+      let busy = false;
+      let requestVersion = 0;
+
+      function setMessage(text, kind = "") {
+        statusMessage.textContent = text;
+        statusMessage.dataset.kind = kind;
+      }
+
+      function node(tag, text, className) {
+        const element = document.createElement(tag);
+        if (text !== undefined && text !== null) element.textContent = String(text);
+        if (className) element.className = className;
+        return element;
+      }
+
+      function formatUsd(value) {
+        const amount = Number(value);
+        if (!Number.isFinite(amount)) return "—";
+        return "USD " + amount.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+
+      function formatDate(value) {
+        if (!value) return "—";
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString();
+      }
+
+      function userLabel(value) {
+        if (!value || typeof value !== "object") return "—";
+        const fullName = [value.firstName, value.lastName].filter(Boolean).join(" ");
+        return value.username || fullName || value.email || value._id || value.id || "—";
+      }
+
+      function humanize(value) {
+        return String(value || "unknown")
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, character => character.toUpperCase());
+      }
+
+      function statusBadge(value) {
+        const status = String(value || "unknown").toLowerCase();
+        const safeClass = ["completed", "paid", "pending", "pending_review", "failed", "reversed", "rejected"].includes(status)
+          ? status : "other";
+        return node("span", humanize(status), "badge " + safeClass);
+      }
+
+      function showEmpty(title, detail, icon = "◈") {
+        const box = node("div", undefined, "empty-state");
+        box.append(
+          node("div", icon, "empty-icon"),
+          node("strong", title),
+          node("p", detail)
+        );
+        tableContent.replaceChildren(box);
+      }
+
+      function renderRows(rows) {
+        if (!rows.length) {
+          showEmpty("No matching transactions", "Try different search terms or clear one of the filters.");
+          return;
+        }
+
+        const wrap = node("div", undefined, "table-wrap");
+        const table = node("table");
+        const thead = node("thead");
+        const header = node("tr");
+
+        ["Member / reference", "Transaction", "Amount", "Status", "Description", "Date"].forEach(label => {
+          header.append(node("th", label));
+        });
+
+        thead.append(header);
+        const tbody = node("tbody");
+
+        rows.forEach(row => {
+          const tr = node("tr");
+
+          const identity = node("td");
+          identity.append(
+            node("span", userLabel(row.user), "user-name"),
+            node("span", row.reference || row.id || "No reference", "subtext reference")
+          );
+
+          const transaction = node("td");
+          transaction.append(
+            node("span", humanize(row.type), "user-name"),
+            node("span", row.relatedUser ? "Related: " + userLabel(row.relatedUser) : "Wallet activity", "subtext")
+          );
+
+          const amount = node("td", formatUsd(row.amountUsd), "amount");
+          const status = node("td");
+          status.append(statusBadge(row.status));
+
+          const description = node("td");
+          description.append(
+            node("span", row.description || "No description supplied", "subtext")
+          );
+
+          const date = node("td");
+          date.append(
+            node("span", formatDate(row.createdAt), "user-name"),
+            row.completedAt ? node("span", "Completed " + formatDate(row.completedAt), "subtext") : node("span", "Creation time", "subtext")
+          );
+
+          tr.append(identity, transaction, amount, status, description, date);
+          tbody.append(tr);
+        });
+
+        table.append(thead, tbody);
+        wrap.append(table);
+        tableContent.replaceChildren(wrap);
+      }
+
+      function updateMetrics(rows, total) {
+        const visibleVolume = rows.reduce((sum, row) => {
+          const amount = Number(row.amountUsd);
+          return sum + (Number.isFinite(amount) ? amount : 0);
+        }, 0);
+
+        $("#metric-total").textContent = Number(total || 0).toLocaleString("en-US");
+        $("#metric-volume").textContent = formatUsd(visibleVolume);
+        $("#metric-completed").textContent = rows.filter(row => row.status === "completed").length.toLocaleString("en-US");
+        $("#metric-pending").textContent = rows.filter(row => row.status === "pending").length.toLocaleString("en-US");
+      }
+
+      async function loadRecords() {
+        if (busy) return;
+        busy = true;
+        const version = ++requestVersion;
+
+        refresh.disabled = true;
+        previous.disabled = true;
+        next.disabled = true;
+
+        showEmpty("Loading transactions", "Retrieving the latest matching records…", "◌");
+
+        try {
+          if (!API_BASE) {
+            throw new Error("The API base URL is not configured. Check the frontend config.js file.");
+          }
+
+          const params = new URLSearchParams({
+            page: String(currentPage),
+            limit: String(PAGE_SIZE)
+          });
+
+          if (search.value.trim()) params.set("search", search.value.trim());
+          if (typeFilter.value) params.set("type", typeFilter.value);
+          if (statusFilter.value) params.set("status", statusFilter.value);
+
+          const response = await fetch(API_BASE + ENDPOINT + "?" + params.toString(), {
+            method: "GET",
+            credentials: "include",
+            headers: { Accept: "application/json" }
+          });
+
+          const payload = await response.json().catch(() => ({}));
+
+          if (!response.ok || payload.success === false) {
+            if (response.status === 401) {
+              throw new Error("Your session is missing or expired. Sign in with your administrator account.");
+            }
+            if (response.status === 403) {
+              throw new Error("Administrator access is required to view transactions.");
+            }
+            throw new Error(payload.message || "The transaction request failed (" + response.status + ").");
+          }
+
+          if (version !== requestVersion) return;
+
+          const rows = Array.isArray(payload.data) ? payload.data : [];
+          const pagination = payload.pagination || {};
+          const total = Number(pagination.total) || 0;
+
+          lastPage = Math.max(1, Number(pagination.pages) || 1);
+          currentPage = Math.min(currentPage, lastPage);
+
+          renderRows(rows);
+          updateMetrics(rows, total);
+
+          pageSummary.textContent =
+            "Page " + currentPage + " of " + lastPage +
+            " · " + total.toLocaleString("en-US") + " matching record(s)";
+
+          previous.disabled = currentPage <= 1;
+          next.disabled = currentPage >= lastPage;
+
+          setMessage("Connected to the protected transaction reporting API.", "ok");
+        } catch (error) {
+          if (version !== requestVersion) return;
+          showEmpty("Unable to load transactions", error.message || "An unexpected error occurred.", "!");
+          pageSummary.textContent = "Transaction records unavailable";
+          $("#metric-total").textContent = "—";
+          $("#metric-volume").textContent = "—";
+          $("#metric-completed").textContent = "—";
+          $("#metric-pending").textContent = "—";
+          setMessage(error.message || "Could not load transactions.", "error");
+        } finally {
+          if (version === requestVersion) {
+            busy = false;
+            refresh.disabled = false;
+            previous.disabled = currentPage <= 1;
+            next.disabled = currentPage >= lastPage;
+          }
+        }
+      }
+
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        currentPage = 1;
+        loadRecords();
+      });
+
+      refresh.addEventListener("click", () => loadRecords());
+
+      [typeFilter, statusFilter].forEach(control => {
+        control.addEventListener("change", () => {
+          currentPage = 1;
+          loadRecords();
+        });
+      });
+
+      previous.addEventListener("click", () => {
+        if (!busy && currentPage > 1) {
+          currentPage--;
+          loadRecords();
+        }
+      });
+
+      next.addEventListener("click", () => {
+        if (!busy && currentPage < lastPage) {
+          currentPage++;
+          loadRecords();
+        }
+      });
+
+      const menuToggle = $("#menu-toggle");
+      const backdrop = $("#mobile-backdrop");
+
+      function closeMenu() {
+        document.body.classList.remove("menu-open");
+        menuToggle.setAttribute("aria-expanded", "false");
+        menuToggle.setAttribute("aria-label", "Open navigation menu");
+        menuToggle.textContent = "☰";
+      }
+
+      menuToggle.addEventListener("click", () => {
+        const isOpen = document.body.classList.toggle("menu-open");
+        menuToggle.setAttribute("aria-expanded", String(isOpen));
+        menuToggle.setAttribute("aria-label", isOpen ? "Close navigation menu" : "Open navigation menu");
+        menuToggle.textContent = isOpen ? "×" : "☰";
+      });
+
+      backdrop.addEventListener("click", closeMenu);
+
+      document.querySelectorAll(".nav a").forEach(link => {
+        link.addEventListener("click", closeMenu);
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closeMenu();
+      });
+
+      loadRecords();
+    })();
+  </script>
+  <script src="/dashboard/admin/Keith/assets/admin-navigation.js" defer></script>
+</body>
+</html>
