@@ -10,6 +10,7 @@ const PURCHASE_ID = "222222222222222222222222";
 const CHECKOUT_ID = "ws_CO_TestCallback123";
 
 let purchase;
+let membershipPurchase;
 let events;
 let server;
 let baseUrl;
@@ -41,6 +42,32 @@ const purchaseModel = {
     }
 
     Object.assign(purchase, update.$set || {});
+    return { modifiedCount: 1 };
+  }
+};
+
+const membershipPurchaseModel = {
+  async findOne(query) {
+    if (
+      query.checkoutRequestId !== CHECKOUT_ID ||
+      !membershipPurchase
+    ) {
+      return null;
+    }
+
+    return { ...membershipPurchase };
+  },
+
+  async updateOne(filter, update) {
+    if (
+      String(filter._id) !== PURCHASE_ID ||
+      !membershipPurchase ||
+      membershipPurchase.paymentStatus !== filter.paymentStatus
+    ) {
+      return { modifiedCount: 0 };
+    }
+
+    Object.assign(membershipPurchase, update.$set || {});
     return { modifiedCount: 1 };
   }
 };
@@ -78,6 +105,9 @@ const eventModel = {
 function loadRouteWithMocks() {
   Module._load = function (request, parent, isMain) {
     if (request === "../models/Deposit") return depositModel;
+    if (request === "../models/MembershipPurchase") {
+      return membershipPurchaseModel;
+    }
     if (request === "../models/TranscriptionMinutePurchase") {
       return purchaseModel;
     }
@@ -96,6 +126,7 @@ function loadRouteWithMocks() {
 }
 
 function resetState(status = "pending") {
+  membershipPurchase = null;
   purchase = {
     _id: PURCHASE_ID,
     checkoutRequestId: CHECKOUT_ID,
@@ -225,4 +256,49 @@ test("callback does not downgrade an already verified purchase", async () => {
   assert.equal(purchase.paymentStatus, "verified");
   assert.equal(purchase.mpesaReceipt, null);
   assert.equal(events.length, 1);
+});
+
+
+test("membership callback flags matching purchase for reconciliation without verifying or activating it", async () => {
+  membershipPurchase = {
+    _id: PURCHASE_ID,
+    checkoutRequestId: CHECKOUT_ID,
+    paymentStatus: "pending",
+    mpesaReceipt: null,
+    membershipId: null
+  };
+
+  const response = await sendCallback(callbackPayload(0));
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(body.ResultCode, 0);
+  assert.equal(membershipPurchase.paymentStatus, "verification_required");
+  assert.equal(membershipPurchase.mpesaReceipt, null);
+  assert.equal(membershipPurchase.membershipId, null);
+  assert.equal(
+    membershipPurchase.failureCode,
+    "CALLBACK_REQUIRES_RECONCILIATION"
+  );
+  assert.equal(purchase.paymentStatus, "pending");
+  assert.equal(events.length, 1);
+  assert.equal(events[0].processingStatus, "reconciliation_required");
+});
+
+test("membership callback does not downgrade a previously verified purchase", async () => {
+  membershipPurchase = {
+    _id: PURCHASE_ID,
+    checkoutRequestId: CHECKOUT_ID,
+    paymentStatus: "verified",
+    mpesaReceipt: "REALRECEIPT1",
+    membershipId: null
+  };
+
+  const response = await sendCallback(callbackPayload(0));
+
+  assert.equal(response.status, 200);
+  assert.equal(membershipPurchase.paymentStatus, "verified");
+  assert.equal(membershipPurchase.mpesaReceipt, "REALRECEIPT1");
+  assert.equal(events.length, 1);
+  assert.equal(events[0].processingStatus, "reconciliation_required");
 });

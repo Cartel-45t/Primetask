@@ -1,6 +1,7 @@
 const express = require("express");
 const { createHash } = require("crypto");
 const Deposit = require("../models/Deposit");
+const MembershipPurchase = require("../models/MembershipPurchase");
 const MinutePurchase = require("../models/TranscriptionMinutePurchase");
 const DarajaCallbackEvent = require("../models/DarajaCallbackEvent");
 
@@ -143,6 +144,50 @@ router.post("/stk", async (req, res) => {
     });
 
     if (!deposit) {
+      // Membership callbacks are evidence only. They cannot verify payment
+      // or activate membership without independent reconciliation.
+      const membershipPurchase = await MembershipPurchase.findOne({
+        checkoutRequestId
+      });
+
+      if (membershipPurchase) {
+        await DarajaCallbackEvent.updateOne(
+          { eventKey },
+          {
+            $set: {
+              processingStatus: "reconciliation_required"
+            }
+          }
+        );
+
+        // Only pending purchases may transition to reconciliation.
+        // Never overwrite verified, failed, or cancelled purchases.
+        await MembershipPurchase.updateOne(
+          {
+            _id: membershipPurchase._id,
+            paymentStatus: "pending"
+          },
+          {
+            $set: {
+              paymentStatus: "verification_required",
+              failureCode: "CALLBACK_REQUIRES_RECONCILIATION",
+              failureDescription:
+                "A Daraja callback was received. Callback data is untrusted; independently reconcile the payment before activating membership."
+            }
+          }
+        );
+
+        console.info(
+          "Membership callback stored for reconciliation:",
+          String(membershipPurchase._id)
+        );
+
+        return res.status(200).json({
+          ResultCode: 0,
+          ResultDesc: "Callback stored for payment reconciliation"
+        });
+      }
+
       // Transcription callbacks are evidence only. Never credit minutes here.
       const minutePurchase = await MinutePurchase.findOne({
         checkoutRequestId
