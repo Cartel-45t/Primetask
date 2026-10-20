@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { randomUUID } = require("crypto");
+const { randomInt, randomUUID } = require("crypto");
 
 const Withdrawal = require("../models/Withdrawal");
 const MpesaReceiptClaim = require("../models/MpesaReceiptClaim");
@@ -21,6 +21,17 @@ const MAX_CENTS = Number(
 
 function centsToUSD(cents) {
   return Number((cents / 100).toFixed(2));
+}
+
+function generateWithdrawalReference() {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let suffix = "";
+
+  for (let i = 0; i < 8; i += 1) {
+    suffix += alphabet[randomInt(alphabet.length)];
+  }
+
+  return `PTW-WC${suffix}`;
 }
 
 function isAdmin(req) {
@@ -115,11 +126,16 @@ router.post("/", async (req, res) => {
   }
 
   const requestId = `WD-${randomUUID()}`;
+  let publicReference;
   const session = await mongoose.startSession();
   let result;
 
   try {
-    await session.withTransaction(async () => {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      publicReference = generateWithdrawalReference();
+
+      try {
+        await session.withTransaction(async () => {
       // Reserve only funds that are actually available.
       const wallet = await Wallet.findOneAndUpdate(
         {
@@ -146,6 +162,7 @@ router.post("/", async (req, res) => {
       const [withdrawal] = await Withdrawal.create(
         [{
           requestId,
+          publicReference,
           userId: req.user._id,
           amountCents,
           currency: "USD",
@@ -161,7 +178,7 @@ router.post("/", async (req, res) => {
           amountCents,
           currency: "USD",
           status: "pending",
-          reference: requestId,
+          reference: publicReference,
           description: "Withdrawal request awaiting admin review"
         }],
         { session }
@@ -172,6 +189,7 @@ router.post("/", async (req, res) => {
 
       result = {
         requestId,
+        publicReference,
         amount: centsToUSD(amountCents),
         currency: "USD",
         phoneNumber,
@@ -179,7 +197,26 @@ router.post("/", async (req, res) => {
         createdAt: withdrawal.createdAt,
         availableBalance: centsToUSD(wallet.availableBalanceCents)
       };
-    });
+        });
+
+        break;
+      } catch (error) {
+        const duplicatePublicReference =
+          error.code === 11000 &&
+          (
+            Boolean(error.keyPattern?.publicReference) ||
+            /publicReference_1/.test(error.message || "")
+          );
+
+        if (!duplicatePublicReference || attempt === 4) {
+          throw error;
+        }
+      }
+    }
+
+    if (!result) {
+      throw new Error("Withdrawal transaction completed without a result.");
+    }
 
     return res.status(201).json({
       success: true,
@@ -187,6 +224,8 @@ router.post("/", async (req, res) => {
         "Withdrawal request submitted for admin review. No payment has been sent yet.",
       withdrawal: {
         requestId: result.requestId,
+        reference: result.publicReference,
+        publicReference: result.publicReference,
         amount: result.amount,
         currency: result.currency,
         phoneNumber: result.phoneNumber,
@@ -226,7 +265,7 @@ router.get("/mine", async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(50)
       .select(
-        "requestId amountCents currency phoneNumber status mpesaReceipt adminNote createdAt reviewedAt"
+        "requestId publicReference amountCents currency phoneNumber status mpesaReceipt adminNote createdAt reviewedAt"
       )
       .lean();
 
@@ -235,6 +274,7 @@ router.get("/mine", async (req, res) => {
       currency: "USD",
       withdrawals: withdrawals.map((item) => ({
         ...item,
+        reference: item.publicReference || item.requestId,
         amount: centsToUSD(item.amountCents)
       }))
     });
@@ -281,6 +321,7 @@ router.get("/admin", async (req, res) => {
       currency: "USD",
       withdrawals: withdrawals.map((item) => ({
         ...item,
+        reference: item.publicReference || item.requestId,
         amount: centsToUSD(item.amountCents)
       }))
     });

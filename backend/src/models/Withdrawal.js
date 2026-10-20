@@ -8,6 +8,12 @@ const withdrawalSchema = new mongoose.Schema(
       unique: true,
       immutable: true
     },
+    publicReference: {
+      type: String,
+      immutable: true,
+      match: /^PTW-WC[A-Z0-9]{8}$/,
+      maxlength: 15
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -72,6 +78,16 @@ const withdrawalSchema = new mongoose.Schema(
 );
 
 withdrawalSchema.index({ userId: 1, createdAt: -1 });
+
+withdrawalSchema.index(
+  { publicReference: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      publicReference: { $type: "string" }
+    }
+  }
+);
 
 withdrawalSchema.index(
   { mpesaReceipt: 1 },
