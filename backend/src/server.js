@@ -44,6 +44,8 @@ if (!process.env.MONGODB_URI) {
   process.exit(1);
 }
 
+app.set("trust proxy", 1);
+
 app.disable("x-powered-by");
 
 app.use(helmet());
