@@ -4,6 +4,7 @@ const Deposit = require("../models/Deposit");
 const Wallet = require("../models/Wallet");
 const WalletTransaction = require("../models/WalletTransaction");
 const MpesaReceiptClaim = require("../models/MpesaReceiptClaim");
+const AdminAuditLog = require("../models/AdminAuditLog");
 
 const KES_PER_USD = 130;
 
@@ -44,9 +45,13 @@ async function createPendingDeposit({
   idempotencyKey,
   userId,
   amountCents,
-  phoneNumber
+  phoneNumber,
+  paymentMode = "daraja"
 }) {
   const expectedAmountKes = calculateExpectedKes(amountCents);
+  if (!["daraja", "simulation"].includes(paymentMode)) {
+    throw new Error("Invalid deposit payment mode.");
+  }
 
   if (!mongoose.isValidObjectId(userId)) {
     throw new Error("Invalid deposit user.");
@@ -83,6 +88,7 @@ async function createPendingDeposit({
       currency: "USD",
       expectedAmountKes,
       phoneNumber,
+      paymentMode,
       status: "pending"
     });
 
@@ -100,7 +106,8 @@ async function createPendingDeposit({
       if (existing) {
         if (
           existing.amountCents !== amountCents ||
-          existing.phoneNumber !== phoneNumber
+          existing.phoneNumber !== phoneNumber ||
+          existing.paymentMode !== paymentMode
         ) {
           throw new Error(
             "Idempotency key was already used with different deposit details."
@@ -136,7 +143,13 @@ async function completeVerifiedDeposit(verifiedPayment) {
     requestId,
     resultCode,
     amountKes,
-    mpesaReceipt
+    mpesaReceipt,
+    checkoutRequestId,
+    evidenceSource,
+    evidenceReference,
+    claimedBy,
+    auditReason,
+    ipAddress
   } = verifiedPayment || {};
 
   if (
@@ -160,6 +173,38 @@ async function completeVerifiedDeposit(verifiedPayment) {
     throw new Error("A valid verified M-Pesa receipt is required.");
   }
 
+  if (
+    typeof checkoutRequestId !== "string" ||
+    !checkoutRequestId.trim() ||
+    checkoutRequestId.trim().length > 150
+  ) {
+    throw new Error("A valid recorded checkout ID is required.");
+  }
+
+  if (!["safaricom_portal", "safaricom_statement"].includes(evidenceSource)) {
+    throw new Error("Authoritative Safaricom evidence is required.");
+  }
+
+  if (
+    typeof evidenceReference !== "string" ||
+    !evidenceReference.trim() ||
+    evidenceReference.trim().length > 150
+  ) {
+    throw new Error("A valid evidence reference is required.");
+  }
+
+  if (!mongoose.isValidObjectId(claimedBy)) {
+    throw new Error("A valid verifying administrator is required.");
+  }
+
+  if (
+    typeof auditReason !== "string" ||
+    !auditReason.trim() ||
+    auditReason.trim().length > 500
+  ) {
+    throw new Error("An audit reason is required.");
+  }
+
   const session = await mongoose.startSession();
   let outcome;
 
@@ -171,8 +216,26 @@ async function completeVerifiedDeposit(verifiedPayment) {
         throw new Error("Deposit not found.");
       }
 
-      // Repeated callbacks cannot credit a completed deposit again.
+      if (deposit.paymentMode !== "daraja") {
+        throw new Error("Only Daraja deposits can be verified here.");
+      }
+
+      if (
+        !deposit.checkoutRequestId ||
+        deposit.checkoutRequestId !== checkoutRequestId.trim()
+      ) {
+        throw new Error("Recorded checkout ID does not match.");
+      }
+
+      if (deposit.expectedAmountKes !== amountKes) {
+        throw new Error("Verified payment amount does not match the deposit.");
+      }
+
+      // An idempotent retry must match the receipt already credited.
       if (deposit.status === "completed") {
+        if (deposit.mpesaReceipt !== receipt) {
+          throw new Error("Completed deposit has a different receipt.");
+        }
         outcome = {
           alreadyCredited: true,
           requestId: deposit.requestId,
@@ -186,17 +249,15 @@ async function completeVerifiedDeposit(verifiedPayment) {
         throw new Error("Deposit is not awaiting payment.");
       }
 
-      if (deposit.expectedAmountKes !== amountKes) {
-        throw new Error("Verified payment amount does not match the deposit.");
-      }
-
       await MpesaReceiptClaim.create(
         [{
           receipt,
           purpose: "deposit",
           referenceId: deposit.requestId,
           amountKes,
-          evidenceSource: "deposit_completion_service"
+          claimedBy,
+          evidenceSource,
+          evidenceReference: evidenceReference.trim()
         }],
         { session }
       );
@@ -270,6 +331,35 @@ async function completeVerifiedDeposit(verifiedPayment) {
       updated.walletTransactionId = transaction._id;
       await updated.save({ session });
 
+      await AdminAuditLog.create(
+        [{
+          adminId: claimedBy,
+          targetUserId: deposit.userId,
+          action: "deposit_payment_verified",
+          reason: auditReason.trim(),
+          before: {
+            requestId: deposit.requestId,
+            status: "pending",
+            amountCents: deposit.amountCents,
+            expectedAmountKes: deposit.expectedAmountKes
+          },
+          after: {
+            requestId: deposit.requestId,
+            status: "completed",
+            amountCents: deposit.amountCents,
+            amountKes,
+            currency: "USD",
+            mpesaReceipt: receipt,
+            evidenceSource,
+            evidenceReference: evidenceReference.trim()
+          },
+          ipAddress: typeof ipAddress === "string"
+            ? ipAddress.slice(0, 100)
+            : null
+        }],
+        { session }
+      );
+
       outcome = {
         alreadyCredited: false,
         requestId: deposit.requestId,
@@ -287,8 +377,183 @@ async function completeVerifiedDeposit(verifiedPayment) {
   }
 }
 
+
+/*
+ * LOCAL DEVELOPMENT ONLY.
+ * This path never creates or claims an M-Pesa receipt.
+ * Deposit, wallet balance, and ledger commit atomically on success.
+ */
+async function completeSimulatedDeposit({ requestId, outcome }) {
+  if (process.env.NODE_ENV !== "development" ||
+      process.env.DEPOSIT_SIMULATION_ENABLED !== "true") {
+    throw new Error("Deposit simulation is disabled.");
+  }
+
+  if (typeof requestId !== "string" || !requestId) {
+    throw new Error("A valid deposit request ID is required.");
+  }
+
+  if (!["success", "failed"].includes(outcome)) {
+    throw new Error("Simulation outcome must be success or failed.");
+  }
+
+  const session = await mongoose.startSession();
+  let result;
+
+  try {
+    await session.withTransaction(async () => {
+      const deposit = await Deposit.findOne({ requestId }).session(session);
+
+      if (!deposit) {
+        throw new Error("Deposit not found.");
+      }
+
+      if (deposit.paymentMode !== "simulation") {
+        throw new Error("This deposit is not a simulated deposit.");
+      }
+
+      if (deposit.status === "completed") {
+        result = {
+          alreadyFinalized: true,
+          alreadyCredited: true,
+          requestId,
+          amount: centsToUSD(deposit.amountCents),
+          currency: "USD",
+          status: "completed"
+        };
+        return;
+      }
+
+      if (deposit.status === "failed") {
+        result = {
+          alreadyFinalized: true,
+          alreadyCredited: false,
+          requestId,
+          amount: centsToUSD(deposit.amountCents),
+          currency: "USD",
+          status: "failed"
+        };
+        return;
+      }
+
+      if (deposit.status !== "pending") {
+        throw new Error("Deposit is not awaiting simulation.");
+      }
+
+      if (outcome === "failed") {
+        const failed = await Deposit.findOneAndUpdate(
+          {
+            _id: deposit._id,
+            status: "pending",
+            paymentMode: "simulation"
+          },
+          {
+            $set: {
+              status: "failed",
+              resultCode: 1,
+              resultDescription: "Local simulated payment failure."
+            }
+          },
+          { new: true, session, runValidators: true }
+        );
+
+        if (!failed) {
+          throw new Error("Deposit status changed; retry the simulation.");
+        }
+
+        result = {
+          alreadyFinalized: false,
+          alreadyCredited: false,
+          requestId,
+          amount: centsToUSD(deposit.amountCents),
+          currency: "USD",
+          status: "failed"
+        };
+        return;
+      }
+
+      const completedAt = new Date();
+      const updated = await Deposit.findOneAndUpdate(
+        {
+          _id: deposit._id,
+          status: "pending",
+          paymentMode: "simulation"
+        },
+        {
+          $set: {
+            status: "completed",
+            resultCode: 0,
+            resultDescription: "Local simulated payment succeeded.",
+            completedAt
+          }
+        },
+        { new: true, session, runValidators: true }
+      );
+
+      if (!updated) {
+        throw new Error("Deposit status changed; retry the simulation.");
+      }
+
+      const wallet = await Wallet.findOneAndUpdate(
+        { userId: deposit.userId, currency: "USD" },
+        {
+          $inc: { availableBalanceCents: deposit.amountCents },
+          $setOnInsert: {
+            userId: deposit.userId,
+            currency: "USD",
+            pendingEarningsCents: 0,
+            totalEarningsCents: 0,
+            totalWithdrawalsCents: 0
+          }
+        },
+        {
+          upsert: true,
+          new: true,
+          setDefaultsOnInsert: true,
+          runValidators: true,
+          session
+        }
+      );
+
+      const [transaction] = await WalletTransaction.create(
+        [{
+          depositId: deposit._id,
+          userId: deposit.userId,
+          type: "deposit",
+          amountCents: deposit.amountCents,
+          currency: "USD",
+          status: "completed",
+          reference: `SIM-${deposit.requestId}`,
+          description: "Local simulated deposit; not an M-Pesa payment.",
+          completedAt
+        }],
+        { session }
+      );
+
+      updated.walletTransactionId = transaction._id;
+      await updated.save({ session });
+
+      result = {
+        alreadyFinalized: false,
+        alreadyCredited: false,
+        requestId,
+        amount: centsToUSD(deposit.amountCents),
+        currency: "USD",
+        availableBalance: centsToUSD(wallet.availableBalanceCents),
+        status: "completed",
+        completedAt
+      };
+    });
+
+    return result;
+  } finally {
+    await session.endSession();
+  }
+}
+
 module.exports = {
   calculateExpectedKes,
   createPendingDeposit,
-  completeVerifiedDeposit
+  completeVerifiedDeposit,
+  completeSimulatedDeposit
 };

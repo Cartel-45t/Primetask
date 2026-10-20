@@ -95,6 +95,7 @@ app.use("/api/referrals", referralRoutes);
 app.use("/api/membership", membershipRoutes);
 app.use("/api/admin/membership-plans", adminMembershipPlanRoutes);
 app.use("/api/admin/membership-reconciliation", adminMembershipReconciliationRoutes);
+app.use("/api/admin/deposit-reconciliation", require("./routes/adminDepositReconciliation"));
 app.use("/api/admin/membership-fulfilment", adminMembershipFulfilmentRoutes);
 app.use("/api/admin/overview", adminOverviewRoutes);
 app.use("/api/admin/users", adminUsersRoutes);

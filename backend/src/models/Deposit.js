@@ -65,6 +65,13 @@ const depositSchema = new mongoose.Schema(
       match: /^254[17]\d{8}$/
     },
 
+    paymentMode: {
+      type: String,
+      enum: ["daraja", "simulation"],
+      default: "daraja",
+      required: true,
+      immutable: true
+    },
     status: {
       type: String,
       enum: ["pending", "completed", "failed", "cancelled"],
