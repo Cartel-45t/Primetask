@@ -31,7 +31,7 @@ function setSessionCookie(res, token, remember = false) {
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
     secure: production,
-    sameSite: "strict",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     path: "/",
     maxAge: remember ? 7 * 24 * 60 * 60 * 1000 : undefined
   });
@@ -314,7 +314,7 @@ router.post("/logout", (req, res) => {
   res.clearCookie(COOKIE_NAME, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     path: "/"
   });
 
@@ -349,7 +349,7 @@ router.get("/me", async (req, res) => {
       res.clearCookie(COOKIE_NAME, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         path: "/"
       });
 
