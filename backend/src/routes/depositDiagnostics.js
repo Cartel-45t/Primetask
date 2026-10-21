@@ -47,6 +47,64 @@ router.get("/status", (req, res) => {
 });
 
 
+router.get("/diagnostic/recent", async (req, res) => {
+  try {
+    const deposits = await Deposit.find({
+      userId: req.user._id,
+      paymentMode: "daraja"
+    })
+      .select("requestId status paymentMode checkoutRequestId resultCode resultDescription createdAt completedAt")
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+
+    const results = await Promise.all(
+      deposits.map(async deposit => {
+        let callback = null;
+
+        if (deposit.checkoutRequestId) {
+          callback = await DarajaCallbackEvent.findOne({
+            checkoutRequestId: deposit.checkoutRequestId
+          })
+            .select("resultCode resultDescription processingStatus receivedAt")
+            .sort({ receivedAt: -1 })
+            .lean();
+        }
+
+        return {
+          requestId: deposit.requestId,
+          status: deposit.status,
+          resultCode: deposit.resultCode,
+          resultDescription: deposit.resultDescription,
+          createdAt: deposit.createdAt,
+          completedAt: deposit.completedAt,
+          callback: callback
+            ? {
+                resultCode: callback.resultCode,
+                resultDescription: callback.resultDescription,
+                processingStatus: callback.processingStatus,
+                receivedAt: callback.receivedAt
+              }
+            : null
+        };
+      })
+    );
+
+    return res.json({
+      success: true,
+      count: results.length,
+      deposits: results
+    });
+  } catch (error) {
+    console.error("Recent deposit diagnostic error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not retrieve recent deposit diagnostics."
+    });
+  }
+});
+
 router.get("/diagnostic/:requestId", async (req, res) => {
   try {
     const requestId = req.params.requestId;
