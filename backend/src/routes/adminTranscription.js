@@ -130,7 +130,9 @@ router.post("/jobs", async (req, res) => {
     description,
     audioPublicId,
     instructions,
-    dueAt
+    dueAt,
+    publishAt,
+    rewardUsd
   } = req.body || {};
 
   const descriptionValue =
@@ -173,6 +175,32 @@ router.post("/jobs", async (req, res) => {
         message: "Due date must be a valid future date."
       });
     }
+  }
+
+  let publicationDate;
+  if (publishAt !== undefined && publishAt !== null && publishAt !== "") {
+    publicationDate = new Date(publishAt);
+    if (
+      Number.isNaN(publicationDate.getTime()) ||
+      publicationDate <= new Date()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Publication time must be a valid future date and time."
+      });
+    }
+  }
+
+  const hasRewardOverride =
+    rewardUsd !== undefined && rewardUsd !== null && rewardUsd !== "";
+  if (hasRewardOverride && (
+    !Number.isSafeInteger(rewardUsd) || rewardUsd < 1 ||
+    !Number.isSafeInteger(rewardUsd * 100)
+  )) {
+    return res.status(400).json({
+      success: false,
+      message: "Reward must be a positive whole USD amount."
+    });
   }
 
   if (
@@ -236,31 +264,43 @@ router.post("/jobs", async (req, res) => {
       });
     }
 
-    if (!settings) {
-      return res.status(503).json({
-        success: false,
-        message: "Transcription settings have not been initialized."
-      });
+    let configuredRewardUsd;
+
+    if (!hasRewardOverride) {
+      if (!settings) {
+        return res.status(503).json({
+          success: false,
+          message: "Transcription settings are required when no custom reward is supplied."
+        });
+      }
+
+      const ranges = Array.isArray(settings.durationRewardRanges)
+        ? settings.durationRewardRanges
+        : [];
+
+      const matchingRanges = ranges.filter(range =>
+        durationMinutes >= range.minMinutes &&
+        durationMinutes <= range.maxMinutes
+      );
+
+      if (matchingRanges.length !== 1) {
+        return res.status(422).json({
+          success: false,
+          message: "No unique reward rule matches this audio duration. Update the admin duration and reward settings."
+        });
+      }
+
+      configuredRewardUsd = matchingRanges[0].rewardUsd;
     }
 
-    const matchingRanges = settings.durationRewardRanges.filter(range =>
-      durationMinutes >= range.minMinutes &&
-      durationMinutes <= range.maxMinutes
-    );
-
-    if (matchingRanges.length !== 1) {
-      return res.status(422).json({
-        success: false,
-        message: "No unique reward rule matches this audio duration. Update the admin duration and reward settings."
-      });
-    }
-
-    const rewardUsd = matchingRanges[0].rewardUsd;
-    const rewardCents = rewardUsd * 100;
+    const finalRewardUsd = hasRewardOverride
+      ? rewardUsd
+      : configuredRewardUsd;
+    const rewardCents = finalRewardUsd * 100;
 
     if (
-      !Number.isSafeInteger(rewardUsd) ||
-      rewardUsd < 1 ||
+      !Number.isSafeInteger(finalRewardUsd) ||
+      finalRewardUsd < 1 ||
       !Number.isSafeInteger(rewardCents)
     ) {
       return res.status(500).json({
@@ -269,12 +309,14 @@ router.post("/jobs", async (req, res) => {
       });
     }
 
-    const finalTitle = titleValue || settings.defaultAudioTitle;
+    const finalTitle = titleValue ||
+      (settings && settings.defaultAudioTitle) ||
+      "Transcription Task";
 
     if (!finalTitle || finalTitle.length > 180) {
-      return res.status(503).json({
+      return res.status(400).json({
         success: false,
-        message: "Configure a valid default transcription audio title."
+        message: "Provide a valid job title or configure a default title."
       });
     }
 
@@ -289,19 +331,24 @@ router.post("/jobs", async (req, res) => {
       status: "open",
       assignedUserId: null,
       createdByAdminId: req.user._id,
-      ...(deadline ? { dueAt: deadline } : {})
+      ...(deadline ? { dueAt: deadline } : {}),
+      ...(publicationDate ? { publishAt: publicationDate } : {})
     });
 
     return res.status(201).json({
       success: true,
-      message: "Transcription job created using verified audio duration and configured reward rules.",
+      message: publicationDate && publicationDate > new Date()
+        ? "Transcription job scheduled using verified audio duration and reward."
+        : "Transcription job created using verified audio duration and reward.",
       job: {
         id: String(job._id),
         title: job.title,
         durationMinutes: job.durationMinutes,
         reward: job.rewardCents / 100,
         currency: "USD",
-        status: job.status,
+        status: job.publishAt && job.publishAt > new Date() ? "scheduled" : job.status,
+        publishAt: job.publishAt || null,
+        dueAt: job.dueAt || null,
         createdAt: job.createdAt
       }
     });
@@ -328,6 +375,44 @@ router.post("/jobs", async (req, res) => {
  * Admin-only streaming proxy for a verified authenticated Cloudinary asset.
  * Never returns the temporary Cloudinary URL to the browser.
  */
+router.get("/jobs", async (req, res) => {
+  try {
+    const now = new Date();
+    const jobs = await Job.find({})
+      .sort({ createdAt: -1, _id: -1 })
+      .limit(500)
+      .lean();
+
+    return res.json({
+      success: true,
+      jobs: jobs.map(job => ({
+        id: String(job._id),
+        title: job.title,
+        description: job.description,
+        instructions: job.instructions,
+        durationMinutes: job.durationMinutes,
+        reward: Number((job.rewardCents / 100).toFixed(2)),
+        currency: "USD",
+        status: job.status === "open" && job.publishAt && job.publishAt > now
+          ? "scheduled"
+          : job.status,
+        dueAt: job.dueAt || null,
+        publishAt: job.publishAt || null,
+        assignedUserId: job.assignedUserId ? String(job.assignedUserId) : null,
+        claimedAt: job.claimedAt || null,
+        assignmentExpiresAt: job.assignmentExpiresAt || null,
+        createdAt: job.createdAt
+      }))
+    });
+  } catch (error) {
+    console.error("Admin transcription job register error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Could not load transcription jobs."
+    });
+  }
+});
+
 router.get("/jobs/:id/audio", async (req, res) => {
   if (!validId(req.params.id)) {
     return res.status(400).json({

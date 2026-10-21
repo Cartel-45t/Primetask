@@ -21,11 +21,14 @@ const adminTranscriptionRoutes =
   require("../src/routes/adminTranscription");
 const transcriptionRoutes = require("../src/routes/transcription");
 const TranscriptionJob = require("../src/models/TranscriptionJob");
+const TranscriptionSettings = require("../src/models/TranscriptionSettings");
 const cloudinary = require("cloudinary").v2;
 
 
 const originalFindById = User.findById;
 const originalJobFindOne = TranscriptionJob.findOne;
+const originalJobCreate = TranscriptionJob.create;
+const originalSettingsFindOne = TranscriptionSettings.findOne;
 const originalCloudinaryResource = cloudinary.api.resource;
 const originalPrivateDownloadUrl = cloudinary.utils.private_download_url;
 const originalFetch = globalThis.fetch;
@@ -112,6 +115,8 @@ before(async () => {
 afterEach(() => {
   mockedRole = "user";
   TranscriptionJob.findOne = originalJobFindOne;
+  TranscriptionJob.create = originalJobCreate;
+  TranscriptionSettings.findOne = originalSettingsFindOne;
   cloudinary.api.resource = originalCloudinaryResource;
   cloudinary.utils.private_download_url = originalPrivateDownloadUrl;
   globalThis.fetch = originalFetch;
@@ -121,6 +126,8 @@ afterEach(() => {
 after(async () => {
   User.findById = originalFindById;
   TranscriptionJob.findOne = originalJobFindOne;
+  TranscriptionJob.create = originalJobCreate;
+  TranscriptionSettings.findOne = originalSettingsFindOne;
   cloudinary.api.resource = originalCloudinaryResource;
   cloudinary.utils.private_download_url = originalPrivateDownloadUrl;
   globalThis.fetch = originalFetch;
@@ -130,6 +137,140 @@ after(async () => {
     await new Promise(resolve => server.close(resolve));
   }
 });
+
+
+function validJobPayload(overrides = {}) {
+  return {
+    title: "sample-audio",
+    description: "Transcribe the provided recording accurately.",
+    instructions: "Submit a DOCX document with speaker labels.",
+    audioPublicId: "primetask-workspace/transcription/audio/sample-audio",
+    ...overrides
+  };
+}
+
+function mockVerifiedAudio() {
+  cloudinary.api.resource = async (publicId, options) => {
+    assert.equal(
+      publicId,
+      "primetask-workspace/transcription/audio/sample-audio"
+    );
+    assert.equal(options.resource_type, "video");
+    assert.equal(options.type, "authenticated");
+
+    return {
+      public_id: publicId,
+      resource_type: "video",
+      type: "authenticated",
+      format: "mp3",
+      duration: 61
+    };
+  };
+}
+
+test("custom whole-dollar reward creates a job without configured reward ranges",
+  async () => {
+    mockedRole = "admin";
+    setTestCloudinaryEnv();
+    mockVerifiedAudio();
+
+    TranscriptionSettings.findOne = async () => null;
+
+    TranscriptionJob.create = async data => ({
+      _id: "507f1f77bcf86cd799439013",
+      ...data,
+      createdAt: new Date("2026-01-01T00:00:00.000Z")
+    });
+
+    const { response, body } = await request(
+      "/api/admin/transcription/jobs",
+      {
+        method: "POST",
+        role: "admin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(validJobPayload({ rewardUsd: 6 }))
+      }
+    );
+
+    assert.equal(response.status, 201);
+    assert.equal(body.success, true);
+    assert.equal(body.job.reward, 6);
+    assert.equal(body.job.currency, "USD");
+    assert.equal(body.job.durationMinutes, 2);
+  }
+);
+
+test("job without reward override continues using configured duration reward",
+  async () => {
+    mockedRole = "admin";
+    setTestCloudinaryEnv();
+    mockVerifiedAudio();
+
+    TranscriptionSettings.findOne = async () => ({
+      defaultAudioTitle: "Default Audio Task",
+      durationRewardRanges: [
+        { minMinutes: 1, maxMinutes: 1, rewardUsd: 3 },
+        { minMinutes: 2, maxMinutes: 5, rewardUsd: 8 }
+      ]
+    });
+
+    TranscriptionJob.create = async data => ({
+      _id: "507f1f77bcf86cd799439014",
+      ...data,
+      createdAt: new Date("2026-01-01T00:00:00.000Z")
+    });
+
+    const payload = validJobPayload();
+    delete payload.title;
+
+    const { response, body } = await request(
+      "/api/admin/transcription/jobs",
+      {
+        method: "POST",
+        role: "admin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    assert.equal(response.status, 201);
+    assert.equal(body.success, true);
+    assert.equal(body.job.title, "Default Audio Task");
+    assert.equal(body.job.reward, 8);
+    assert.equal(body.job.currency, "USD");
+  }
+);
+
+test("job creation rejects a past publication time before Cloudinary lookup",
+  async () => {
+    mockedRole = "admin";
+    setTestCloudinaryEnv();
+
+    let resourceLookups = 0;
+    cloudinary.api.resource = async () => {
+      resourceLookups += 1;
+      throw new Error("Cloudinary must not be called for an invalid schedule");
+    };
+
+    const { response, body } = await request(
+      "/api/admin/transcription/jobs",
+      {
+        method: "POST",
+        role: "admin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(validJobPayload({
+          rewardUsd: 6,
+          publishAt: "2020-01-01T00:00:00.000Z"
+        }))
+      }
+    );
+
+    assert.equal(response.status, 400);
+    assert.equal(body.success, false);
+    assert.match(body.message, /future date and time/i);
+    assert.equal(resourceLookups, 0);
+  }
+);
 
 test("transcription admin endpoints reject requests without a session",
   async () => {

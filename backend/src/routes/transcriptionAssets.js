@@ -30,7 +30,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 100 * 1024 * 1024,
-    files: 1
+    files: 7
   },
   fileFilter(req, file, callback) {
     if (!AUDIO_MIME_TYPES.has(file.mimetype)) {
@@ -197,6 +197,7 @@ router.post(
         success: true,
         message: "Audio uploaded securely.",
         asset: {
+          originalName: req.file.originalname,
           publicId: result.public_id,
           resourceType: result.resource_type,
           deliveryType: result.type,
@@ -215,5 +216,156 @@ router.post(
     }
   }
 );
+
+
+/*
+ * POST /api/admin/transcription/assets/audio/batch
+ * Accepts 1–7 protected audio uploads. Each file is content-checked.
+ */
+router.post(
+  "/audio/batch",
+  requireAuth,
+  (req, res, next) => {
+    if (!["admin", "founder"].includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Administrator access required."
+      });
+    }
+
+    if (!cloudinaryReady()) {
+      return res.status(503).json({
+        success: false,
+        message: "Audio storage is not configured on the server."
+      });
+    }
+
+    next();
+  },
+  (req, res, next) => {
+    upload.array("audio", 7)(req, res, error => {
+      if (!error) return next();
+
+      if (error instanceof multer.MulterError) {
+        let message = "Batch upload could not be processed.";
+        if (error.code === "LIMIT_FILE_SIZE") {
+          message = "Each audio file must be 100 MB or smaller.";
+        } else if (
+          error.code === "LIMIT_FILE_COUNT" ||
+          error.code === "LIMIT_UNEXPECTED_FILE"
+        ) {
+          message = "Upload between 1 and 7 audio files using the audio field.";
+        }
+
+        return res.status(400).json({ success: false, message });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: error.message === "UNSUPPORTED_AUDIO_TYPE"
+          ? "Every file must be MP3, WAV, M4A, OGG, FLAC, or WebM audio."
+          : "Batch upload could not be processed."
+      });
+    });
+  },
+  async (req, res) => {
+    const files = req.files || [];
+
+    if (!files.length || files.length > 7) {
+      return res.status(400).json({
+        success: false,
+        message: "Choose between 1 and 7 audio files."
+      });
+    }
+
+    const compatibleTypes = {
+      "audio/mpeg": ["mp3"],
+      "audio/mp3": ["mp3"],
+      "audio/wav": ["wav"],
+      "audio/x-wav": ["wav"],
+      "audio/mp4": ["mp4"],
+      "audio/x-m4a": ["mp4"],
+      "audio/ogg": ["ogg"],
+      "audio/flac": ["flac"],
+      "audio/webm": ["webm"]
+    };
+
+    for (const file of files) {
+      const detectedType = detectAudioType(file.buffer);
+      if (
+        !detectedType ||
+        !compatibleTypes[file.mimetype]?.includes(detectedType)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: `File "${file.originalname}" does not match a supported audio format. No files in this batch were uploaded.`
+        });
+      }
+    }
+
+    const uploaded = [];
+
+    try {
+      for (const file of files) {
+        const result = await uploadAudio(file.buffer);
+
+        const validAsset =
+          result &&
+          result.resource_type === "video" &&
+          result.type === "authenticated" &&
+          typeof result.public_id === "string" &&
+          result.public_id.startsWith(
+            "primetask-workspace/transcription/audio/"
+          );
+
+        if (!validAsset) {
+          if (result?.public_id) {
+            await cloudinary.uploader.destroy(result.public_id, {
+              resource_type: "video",
+              type: result.type || "authenticated",
+              invalidate: true
+            }).catch(() => {});
+          }
+          throw new Error("Unexpected protected audio asset configuration.");
+        }
+
+        uploaded.push({
+          originalName: file.originalname,
+          publicId: result.public_id,
+          resourceType: result.resource_type,
+          deliveryType: result.type,
+          format: result.format,
+          bytes: result.bytes,
+          durationSeconds: result.duration || null
+        });
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: `${uploaded.length} audio file(s) uploaded securely.`,
+        assets: uploaded
+      });
+    } catch (error) {
+      console.error("Transcription batch audio upload error:", error.message);
+
+      // Avoid leaving partial batches in Cloudinary after a failed upload.
+      await Promise.allSettled(
+        uploaded.map(asset =>
+          cloudinary.uploader.destroy(asset.publicId, {
+            resource_type: "video",
+            type: "authenticated",
+            invalidate: true
+          })
+        )
+      );
+
+      return res.status(502).json({
+        success: false,
+        message: "The audio batch could not be stored. No jobs were created."
+      });
+    }
+  }
+);
+
 
 module.exports = router;

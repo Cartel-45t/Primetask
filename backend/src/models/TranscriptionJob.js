@@ -34,6 +34,7 @@ const transcriptionJobSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
+  publishAt: { type: Date, default: null, index: true },
   dueAt: { type: Date, default: null },
   completedAt: { type: Date, default: null }
 }, { timestamps: true, versionKey: false });

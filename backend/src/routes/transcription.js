@@ -54,6 +54,7 @@ function publicJob(job) {
     currency: "USD",
     instructions: job.instructions,
     status: job.status,
+    publishAt: job.publishAt || null,
     dueAt: job.dueAt,
     claimedAt: job.claimedAt || null,
     assignmentExpiresAt: job.assignmentExpiresAt || null,
@@ -276,7 +277,14 @@ router.get("/jobs", async (req, res) => {
 
     const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
     const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 20));
-    const filter = { status: "open" };
+    const filter = {
+      status: "open",
+      $and: [{ $or: [
+        { publishAt: null },
+        { publishAt: { $exists: false } },
+        { publishAt: { $lte: new Date() } }
+      ] }]
+    };
 
     const [jobs, total] = await Promise.all([
       TranscriptionJob.find(filter)
@@ -324,7 +332,14 @@ router.get("/jobs/:id", async (req, res) => {
     const isAssigned = job.assignedUserId &&
       String(job.assignedUserId) === String(req.user._id);
 
-    if (job.status !== "open" && !isAssigned && !["admin", "superadmin"].includes(req.user.role)) {
+    const isAdmin = ["admin", "founder", "superadmin"].includes(req.user.role);
+    if (
+      !isAdmin &&
+      (
+        (job.status !== "open" && !isAssigned) ||
+        (job.status === "open" && job.publishAt && job.publishAt > new Date())
+      )
+    ) {
       return res.status(404).json({ success: false, message: "Job not found." });
     }
 
@@ -350,7 +365,16 @@ router.post("/jobs/:id/claim", requireServiceAccess("transcription"), async (req
     );
 
     const job = await TranscriptionJob.findOneAndUpdate(
-      { _id: req.params.id, status: "open", assignedUserId: null },
+      {
+        _id: req.params.id,
+        status: "open",
+        assignedUserId: null,
+        $or: [
+          { publishAt: null },
+          { publishAt: { $exists: false } },
+          { publishAt: { $lte: claimedAt } }
+        ]
+      },
       {
         $set: {
           status: "awarded",
