@@ -340,10 +340,22 @@ router.post("/", async (req, res) => {
         }
       );
 
-      console.error(
-        "STK initiation error:",
-        error.code || error.message
-      );
+      const providerError = error.providerResponse || {};
+
+      console.error("STK initiation diagnostic:", JSON.stringify({
+        code: error.code || null,
+        httpStatus: error.statusCode || null,
+        message: error.message || null,
+        providerErrorCode:
+          providerError.errorCode ||
+          providerError.error ||
+          null,
+        providerErrorMessage:
+          providerError.errorMessage ||
+          providerError.error_description ||
+          providerError.message ||
+          null
+      }));
 
       return res.status(202).json({
         success: true,
@@ -358,6 +370,14 @@ router.post("/", async (req, res) => {
     }
 
     if (!stkResult.accepted) {
+      console.error("STK provider rejection:", JSON.stringify({
+        responseCode: stkResult.responseCode || null,
+        responseDescription: stkResult.responseDescription || null,
+        customerMessage: stkResult.customerMessage || null,
+        merchantRequestId: stkResult.merchantRequestId || null,
+        checkoutRequestId: stkResult.checkoutRequestId || null
+      }));
+
       await Deposit.updateOne(
         { _id: deposit._id, status: "pending" },
         {

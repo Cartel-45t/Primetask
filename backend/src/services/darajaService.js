@@ -7,6 +7,11 @@ const DARAJA_ENV = String(process.env.DARAJA_ENV || "sandbox")
 const LIVE_ENABLED =
   process.env.DARAJA_LIVE_ENABLED === "true";
 
+const TRANSACTION_TYPE = String(
+  process.env.DARAJA_TRANSACTION_TYPE ||
+  (DARAJA_ENV === "sandbox" ? "CustomerPayBillOnline" : "")
+).trim();
+
 const REQUEST_TIMEOUT_MS = 15000;
 
 function getConfig() {
@@ -15,6 +20,12 @@ function getConfig() {
   const shortcode = process.env.DARAJA_SHORTCODE;
   const passkey = process.env.DARAJA_PASSKEY;
   const callbackUrl = process.env.DARAJA_CALLBACK_URL;
+
+  if (!["CustomerPayBillOnline", "CustomerBuyGoodsOnline"].includes(TRANSACTION_TYPE)) {
+    throw new Error(
+      "Set DARAJA_TRANSACTION_TYPE to CustomerPayBillOnline or CustomerBuyGoodsOnline."
+    );
+  }
 
   if (
     !consumerKey ||
@@ -52,7 +63,8 @@ function getConfig() {
     consumerSecret,
     shortcode,
     passkey,
-    callbackUrl
+    callbackUrl,
+    transactionType: TRANSACTION_TYPE
   };
 }
 
@@ -213,7 +225,7 @@ async function initiateStkPush({
     BusinessShortCode: config.shortcode,
     Password: password,
     Timestamp: timestamp,
-    TransactionType: "CustomerPayBillOnline",
+    TransactionType: config.transactionType,
     Amount: amountKes,
     PartyA: phoneNumber,
     PartyB: config.shortcode,
