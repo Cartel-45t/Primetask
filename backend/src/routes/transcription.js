@@ -19,6 +19,31 @@ function isValidId(id) {
   return mongoose.isValidObjectId(id);
 }
 
+const ASSIGNMENT_WINDOW_MS = 60 * 60 * 1000;
+
+async function releaseExpiredAssignments() {
+  const now = new Date();
+
+  await TranscriptionJob.updateMany(
+    {
+      status: "awarded",
+      $or: [
+        { assignmentExpiresAt: { $lte: now } },
+        { assignmentExpiresAt: null },
+        { claimedAt: null }
+      ]
+    },
+    {
+      $set: {
+        status: "open",
+        assignedUserId: null,
+        claimedAt: null,
+        assignmentExpiresAt: null
+      }
+    }
+  );
+}
+
 function publicJob(job) {
   return {
     id: String(job._id),
@@ -30,6 +55,8 @@ function publicJob(job) {
     instructions: job.instructions,
     status: job.status,
     dueAt: job.dueAt,
+    claimedAt: job.claimedAt || null,
+    assignmentExpiresAt: job.assignmentExpiresAt || null,
     createdAt: job.createdAt,
     updatedAt: job.updatedAt
   };
@@ -78,7 +105,15 @@ router.get("/jobs/:id/audio", async (req, res) => {
     const job = await TranscriptionJob.findOne({
       _id: req.params.id,
       assignedUserId: req.user._id,
-      status: { $in: ["awarded", "submitted", "completed"] }
+      status: { $in: ["awarded", "submitted", "completed"] },
+      $or: [
+        { status: { $in: ["submitted", "completed"] } },
+        {
+          status: "awarded",
+          claimedAt: { $ne: null },
+          assignmentExpiresAt: { $gt: new Date() }
+        }
+      ]
     }).lean();
 
     // Do not reveal whether a different worker's job exists.
@@ -237,6 +272,8 @@ router.get("/jobs/:id/audio", async (req, res) => {
 /* GET /api/transcription/jobs */
 router.get("/jobs", async (req, res) => {
   try {
+    await releaseExpiredAssignments();
+
     const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
     const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 20));
     const filter = { status: "open" };
@@ -273,6 +310,8 @@ router.get("/jobs/:id", async (req, res) => {
   }
 
   try {
+    await releaseExpiredAssignments();
+
     const job = await TranscriptionJob.findOne({
       _id: req.params.id,
       status: { $in: ["open", "awarded", "submitted", "completed", "closed"] }
@@ -303,9 +342,23 @@ router.post("/jobs/:id/claim", requireServiceAccess("transcription"), async (req
   }
 
   try {
+    await releaseExpiredAssignments();
+
+    const claimedAt = new Date();
+    const assignmentExpiresAt = new Date(
+      claimedAt.getTime() + ASSIGNMENT_WINDOW_MS
+    );
+
     const job = await TranscriptionJob.findOneAndUpdate(
       { _id: req.params.id, status: "open", assignedUserId: null },
-      { $set: { status: "awarded", assignedUserId: req.user._id } },
+      {
+        $set: {
+          status: "awarded",
+          assignedUserId: req.user._id,
+          claimedAt,
+          assignmentExpiresAt
+        }
+      },
       { new: true, runValidators: true }
     );
 
@@ -326,6 +379,8 @@ router.post("/jobs/:id/claim", requireServiceAccess("transcription"), async (req
 /* GET /api/transcription/my-jobs */
 router.get("/my-jobs", async (req, res) => {
   try {
+    await releaseExpiredAssignments();
+
     const jobs = await TranscriptionJob.find({
       assignedUserId: req.user._id
     }).sort({ updatedAt: -1 }).limit(100).lean();
@@ -461,6 +516,34 @@ router.post(
 
     const hasText = transcriptText.length > 0;
     const hasDocument = Boolean(req.file);
+    const submissionLink = typeof req.body?.submissionLink === "string"
+      ? req.body.submissionLink.trim()
+      : "";
+
+    if (submissionLink) {
+      let parsedLink;
+      try {
+        parsedLink = new URL(submissionLink);
+      } catch {
+        return res.status(400).json({
+          success: false,
+          message: "Provide a valid HTTPS submission link."
+        });
+      }
+
+      if (
+        parsedLink.protocol !== "https:" ||
+        !parsedLink.hostname ||
+        parsedLink.username ||
+        parsedLink.password ||
+        submissionLink.length > 2048
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Submission link must be a valid HTTPS URL, no longer than 2048 characters, without embedded credentials."
+        });
+      }
+    }
 
     if (hasText === hasDocument) {
       return res.status(400).json({
@@ -508,11 +591,15 @@ router.post(
     let submissionSaved = false;
 
     try {
+      await releaseExpiredAssignments();
+
       const eligibleJob = await TranscriptionJob.findOne({
         _id: req.params.id,
         assignedUserId: req.user._id,
-        status: "awarded"
-      }).select("_id rewardCents");
+        status: "awarded",
+        claimedAt: { $ne: null },
+        assignmentExpiresAt: { $gt: new Date() }
+      }).select("_id rewardCents claimedAt assignmentExpiresAt");
 
       if (!eligibleJob) {
         return res.status(409).json({
@@ -558,6 +645,7 @@ router.post(
 
       const content = {
         transcriptText: hasText ? transcriptText : "",
+        submissionLink,
         documentPublicId: uploadedPublicId,
         documentOriginalName: documentMetadata?.originalName || "",
         documentBytes: documentMetadata?.bytes || null,
@@ -579,9 +667,16 @@ router.post(
             {
               _id: eligibleJob._id,
               assignedUserId: req.user._id,
-              status: "awarded"
+              status: "awarded",
+              claimedAt: { $ne: null },
+              assignmentExpiresAt: { $gt: new Date() }
             },
-            { $set: { status: "submitted" } },
+            {
+              $set: {
+                status: "submitted",
+                assignmentExpiresAt: null
+              }
+            },
             { new: true, session }
           );
 

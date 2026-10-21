@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const MembershipPurchase = require("../models/MembershipPurchase");
 const { initiateStkPush } = require("../services/darajaService");
+const { fulfilMembershipPurchase } = require("../services/membershipFulfilmentService");
 
 const MembershipPlan = require("../models/MembershipPlan");
 const Membership = require("../models/Membership");
@@ -35,8 +36,7 @@ function serializePlan(plan) {
 router.get("/plans", async (req, res) => {
   try {
     const plans = await MembershipPlan.find({
-      active: true,
-      mpesaAmountKes: { $type: "number", $gt: 0 }
+      active: true
     })
       .select(
         "key name description priceCents mpesaAmountKes durationDays services commissionEnabled"
@@ -541,13 +541,253 @@ router.post("/purchases", async (req, res) => {
   }
 });
 
+
+/*
+ * POST /api/membership/purchases/wallet
+ *
+ * Charges the authenticated user's USD wallet and fulfils the
+ * membership atomically. This route does not call Daraja.
+ *
+ * Headers:
+ *   Idempotency-Key: unique client-generated request key
+ *
+ * Body:
+ *   { "planId": "..." }
+ */
+router.post("/purchases/wallet", async (req, res) => {
+  try {
+    const idempotencyKey = req.get("Idempotency-Key");
+
+    if (
+      typeof idempotencyKey !== "string" ||
+      idempotencyKey.length < 8 ||
+      idempotencyKey.length > 150 ||
+      !/^[A-Za-z0-9._:-]+$/.test(idempotencyKey)
+    ) {
+      return res.status(400).json({
+        success: false,
+        code: "INVALID_IDEMPOTENCY_KEY",
+        message: "A valid Idempotency-Key header is required."
+      });
+    }
+
+    const { planId } = req.body || {};
+
+    if (
+      typeof planId !== "string" ||
+      !mongoose.isValidObjectId(planId)
+    ) {
+      return res.status(400).json({
+        success: false,
+        code: "INVALID_PLAN",
+        message: "Select a valid membership plan."
+      });
+    }
+
+    // Check idempotency before reading mutable plan configuration.
+    const existing = await MembershipPurchase.findOne({
+      purchaserUserId: req.user._id,
+      idempotencyKey
+    }).lean();
+
+    if (existing) {
+      if (
+        String(existing.planId) !== planId ||
+        existing.paymentMethod !== "wallet"
+      ) {
+        return res.status(409).json({
+          success: false,
+          code: "IDEMPOTENCY_CONFLICT",
+          message: "This key was already used for different purchase details."
+        });
+      }
+
+      const failedForBalance =
+        existing.paymentStatus === "failed" &&
+        existing.failureCode === "INSUFFICIENT_WALLET_BALANCE";
+
+      return res.status(200).json({
+        success: true,
+        reused: true,
+        code: failedForBalance ? "INSUFFICIENT_WALLET_BALANCE" : undefined,
+        message: failedForBalance
+          ? "This purchase failed because the wallet balance was insufficient. Fund the wallet and create a new purchase with a new Idempotency-Key."
+          : "This wallet purchase already exists. No additional debit was requested.",
+        purchase: serializePurchase(existing)
+      });
+    }
+
+    const plan = await MembershipPlan.findOne({
+      _id: planId,
+      active: true
+    })
+      .select(
+        "key name priceCents durationDays services commissionEnabled commissionAmountsCents"
+      )
+      .lean();
+
+    if (!plan) {
+      return res.status(404).json({
+        success: false,
+        code: "PLAN_UNAVAILABLE",
+        message: "This membership plan is unavailable for purchase."
+      });
+    }
+
+    const commissionAmounts = plan.commissionAmountsCents;
+    const commissionTotal = Array.isArray(commissionAmounts)
+      ? commissionAmounts.reduce((sum, amount) => sum + amount, 0)
+      : NaN;
+
+    if (
+      !Number.isSafeInteger(plan.priceCents) ||
+      plan.priceCents < 1 ||
+      !Number.isSafeInteger(plan.durationDays) ||
+      plan.durationDays < 1 ||
+      !Array.isArray(plan.services) ||
+      !Array.isArray(commissionAmounts) ||
+      commissionAmounts.length !== 4 ||
+      !commissionAmounts.every(
+        amount => Number.isSafeInteger(amount) && amount >= 0
+      ) ||
+      !Number.isSafeInteger(commissionTotal) ||
+      (
+        plan.commissionEnabled === true &&
+        commissionTotal > plan.priceCents
+      )
+    ) {
+      return res.status(409).json({
+        success: false,
+        code: "INVALID_PLAN_CONFIGURATION",
+        message: "The plan configuration needs administrator review."
+      });
+    }
+
+    let purchase;
+
+    try {
+      purchase = await MembershipPurchase.create({
+        idempotencyKey,
+        purchaserUserId: req.user._id,
+        planId: plan._id,
+        planKey: plan.key,
+        paymentMethod: "wallet",
+        priceCents: plan.priceCents,
+        currency: "USD",
+        expectedAmountKes: undefined,
+        durationDays: plan.durationDays,
+        services: plan.services,
+        commissionEnabledSnapshot: plan.commissionEnabled === true,
+        commissionAmountsCentsSnapshot: commissionAmounts.slice(),
+        paymentStatus: "pending"
+      });
+    } catch (error) {
+      if (error.code === 11000) {
+        const concurrent = await MembershipPurchase.findOne({
+          purchaserUserId: req.user._id,
+          idempotencyKey
+        }).lean();
+
+        if (concurrent) {
+          if (
+            String(concurrent.planId) !== planId ||
+            concurrent.paymentMethod !== "wallet"
+          ) {
+            return res.status(409).json({
+              success: false,
+              code: "IDEMPOTENCY_CONFLICT",
+              message: "This key was already used for different purchase details."
+            });
+          }
+
+          return res.status(200).json({
+            success: true,
+            reused: true,
+            message: "This wallet purchase already exists.",
+            purchase: serializePurchase(concurrent)
+          });
+        }
+      }
+
+      throw error;
+    }
+
+    let fulfilment;
+
+    try {
+      fulfilment = await fulfilMembershipPurchase(purchase._id, {
+        paymentMethod: "wallet"
+      });
+    } catch (error) {
+      if (error.code === "INSUFFICIENT_WALLET_BALANCE") {
+        await MembershipPurchase.updateOne(
+          {
+            _id: purchase._id,
+            paymentMethod: "wallet",
+            paymentStatus: "pending",
+            membershipId: null
+          },
+          {
+            $set: {
+              paymentStatus: "failed",
+              failureCode: "INSUFFICIENT_WALLET_BALANCE",
+              failureDescription:
+                "The USD wallet balance was insufficient. Use a new idempotency key to retry after funding."
+            }
+          }
+        );
+
+        return res.status(402).json({
+          success: false,
+          code: "INSUFFICIENT_WALLET_BALANCE",
+          message: "Your wallet balance is insufficient for this membership.",
+          purchaseReference: purchase.purchaseReference,
+          amount: Number((purchase.priceCents / 100).toFixed(2)),
+          currency: "USD"
+        });
+      }
+
+      throw error;
+    }
+
+    const saved = await MembershipPurchase.findById(purchase._id).lean();
+
+    return res.status(201).json({
+      success: true,
+      message: "Membership purchased and activated using your USD wallet.",
+      purchase: serializePurchase(saved),
+      membership: {
+        id: fulfilment.membershipId,
+        startsAt: fulfilment.startsAt,
+        expiresAt: fulfilment.expiresAt
+      },
+      commissionsCreated: fulfilment.commissionsCreated,
+      totalCommission: Number(
+        (fulfilment.totalCommissionCents / 100).toFixed(2)
+      ),
+      currency: "USD"
+    });
+  } catch (error) {
+    console.error(
+      "Wallet membership purchase error:",
+      error.code || error.message
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not complete the wallet membership purchase."
+    });
+  }
+});
+
 function serializePurchase(purchase) {
   return {
     purchaseReference: purchase.purchaseReference,
     planKey: purchase.planKey,
     amount: Number((purchase.priceCents / 100).toFixed(2)),
     currency: "USD",
-    expectedAmountKes: purchase.expectedAmountKes,
+    paymentMethod: purchase.paymentMethod || "daraja",
+    expectedAmountKes: purchase.expectedAmountKes ?? null,
     paymentStatus: purchase.paymentStatus,
     checkoutRequestId: purchase.checkoutRequestId || null,
     createdAt: purchase.createdAt

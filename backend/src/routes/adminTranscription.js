@@ -11,6 +11,7 @@ const Submission = require("../models/TranscriptionSubmission");
 const Wallet = require("../models/TranscriptionWallet");
 const WalletTransaction = require("../models/TranscriptionWalletTransaction");
 const Withdrawal = require("../models/TranscriptionWithdrawal");
+const MinutePurchase = require("../models/TranscriptionMinutePurchase");
 
 const router = express.Router();
 
@@ -35,7 +36,95 @@ function transactionUnavailable(error) {
     .test(error?.message || "");
 }
 
- router.post("/jobs", async (req, res) => {
+
+router.get("/overview", async (req, res) => {
+  try {
+    const [
+      jobGroups,
+      submissionGroups,
+      withdrawalGroups,
+      purchaseGroups,
+      verifiedPurchaseTotals
+    ] = await Promise.all([
+      Job.aggregate([
+        { $group: { _id: "$status", count: { $sum: 1 } } }
+      ]),
+      Submission.aggregate([
+        { $group: { _id: "$status", count: { $sum: 1 } } }
+      ]),
+      Withdrawal.aggregate([
+        { $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+          amountCents: { $sum: "$amountCents" }
+        } }
+      ]),
+      MinutePurchase.aggregate([
+        { $group: { _id: "$paymentStatus", count: { $sum: 1 } } }
+      ]),
+      MinutePurchase.aggregate([
+        { $match: { paymentStatus: "verified" } },
+        { $group: {
+          _id: null,
+          purchases: { $sum: 1 },
+          minutesSold: { $sum: "$minutes" },
+          revenueCents: { $sum: "$priceCents" }
+        } }
+      ])
+    ]);
+
+    const counts = groups => Object.fromEntries(
+      groups.map(group => [group._id, group.count])
+    );
+
+    const jobs = counts(jobGroups);
+    const submissions = counts(submissionGroups);
+    const withdrawals = counts(withdrawalGroups);
+    const purchases = counts(purchaseGroups);
+    const pendingWithdrawal = withdrawalGroups.find(
+      group => group._id === "pending_review"
+    );
+    const verified = verifiedPurchaseTotals[0] || {
+      purchases: 0,
+      minutesSold: 0,
+      revenueCents: 0
+    };
+
+    return res.json({
+      success: true,
+      generatedAt: new Date().toISOString(),
+      jobs: {
+        total: Object.values(jobs).reduce((sum, value) => sum + value, 0),
+        byStatus: jobs
+      },
+      submissions: {
+        total: Object.values(submissions).reduce((sum, value) => sum + value, 0),
+        byStatus: submissions
+      },
+      withdrawals: {
+        total: Object.values(withdrawals).reduce((sum, value) => sum + value, 0),
+        byStatus: withdrawals,
+        pendingCount: pendingWithdrawal?.count || 0,
+        pendingAmountUsd: (pendingWithdrawal?.amountCents || 0) / 100
+      },
+      minutePurchases: {
+        total: Object.values(purchases).reduce((sum, value) => sum + value, 0),
+        byStatus: purchases,
+        verifiedCount: verified.purchases,
+        verifiedMinutesSold: verified.minutesSold,
+        verifiedRevenueUsd: verified.revenueCents / 100
+      }
+    });
+  } catch (error) {
+    console.error("Admin transcription overview error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Could not load transcription overview metrics."
+    });
+  }
+});
+
+router.post("/jobs", async (req, res) => {
   const {
     title,
     description,
@@ -414,6 +503,139 @@ router.get("/jobs/:id/audio", async (req, res) => {
   }
 });
 
+/*
+ * GET /api/admin/transcription/submissions/:id/document
+ * Authenticated admin/founder only. Never expose the Cloudinary URL.
+ */
+router.get("/submissions/:id/document", async (req, res) => {
+  if (!validId(req.params.id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid submission ID."
+    });
+  }
+
+  try {
+    const submission = await Submission.findById(req.params.id)
+      .select("documentPublicId documentFormat documentOriginalName")
+      .lean();
+
+    if (
+      !submission ||
+      submission.documentFormat !== "docx" ||
+      typeof submission.documentPublicId !== "string" ||
+      !/^primetask-workspace\/transcription\/documents\/[A-Za-z0-9_./-]+$/.test(
+        submission.documentPublicId
+      ) ||
+      submission.documentPublicId.includes("..")
+    ) {
+      return res.status(404).json({
+        success: false,
+        message: "DOCX document not found."
+      });
+    }
+
+    if (
+      !process.env.CLOUDINARY_CLOUD_NAME ||
+      !process.env.CLOUDINARY_API_KEY ||
+      !process.env.CLOUDINARY_API_SECRET
+    ) {
+      return res.status(503).json({
+        success: false,
+        message: "Document storage is not configured."
+      });
+    }
+
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+
+    const publicId = submission.documentPublicId;
+    const asset = await cloudinary.api.resource(publicId, {
+      resource_type: "raw",
+      type: "authenticated"
+    });
+
+    if (
+      asset.public_id !== publicId ||
+      asset.resource_type !== "raw" ||
+      asset.type !== "authenticated" ||
+      asset.format !== "docx"
+    ) {
+      return res.status(404).json({
+        success: false,
+        message: "DOCX document not found."
+      });
+    }
+
+    const signedUrl = cloudinary.utils.private_download_url(
+      publicId,
+      "docx",
+      {
+        resource_type: "raw",
+        type: "authenticated",
+        expires_at: Math.floor(Date.now() / 1000) + 60
+      }
+    );
+
+    const parsedUrl = new URL(signedUrl);
+    if (
+      parsedUrl.protocol !== "https:" ||
+      parsedUrl.hostname !== "api.cloudinary.com" ||
+      parsedUrl.username ||
+      parsedUrl.password
+    ) {
+      throw new Error("Unexpected document download URL.");
+    }
+
+    const upstream = await fetch(parsedUrl.href, {
+      method: "GET",
+      redirect: "error"
+    });
+
+    if (!upstream.ok) {
+      return res.status(502).json({
+        success: false,
+        message: "The DOCX document could not be retrieved."
+      });
+    }
+
+    const bytes = Buffer.from(await upstream.arrayBuffer());
+    if (!bytes.length || bytes.length > 10 * 1024 * 1024) {
+      return res.status(502).json({
+        success: false,
+        message: "The retrieved DOCX document has an invalid size."
+      });
+    }
+
+    const originalName = typeof submission.documentOriginalName === "string"
+      ? submission.documentOriginalName
+      : "";
+    const filename = (originalName.split(/[\\/]/).pop() || "submission.docx")
+      .replace(/[^A-Za-z0-9._ -]/g, "_")
+      .replace(/^[. ]+/, "")
+      .slice(-150) || "submission.docx";
+
+    res.set({
+      "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "Content-Disposition": `attachment; filename="${filename}"`,
+      "Content-Length": String(bytes.length),
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff"
+    });
+
+    return res.status(200).send(bytes);
+  } catch (error) {
+    console.error("Admin transcription document download error:", error.message);
+    return res.status(502).json({
+      success: false,
+      message: "The DOCX document is temporarily unavailable."
+    });
+  }
+});
+
 /* GET /api/admin/transcription/submissions */
 router.get("/submissions", async (req, res) => {
   try {
@@ -439,6 +661,17 @@ router.get("/submissions", async (req, res) => {
       submissions: submissions.map(item => ({
         id: String(item._id),
         transcriptText: item.transcriptText,
+        submissionLink: item.submissionLink || "",
+        documentAvailable: Boolean(
+          item.documentFormat === "docx" &&
+          typeof item.documentPublicId === "string" &&
+          item.documentPublicId.startsWith(
+            "primetask-workspace/transcription/documents/"
+          ) &&
+          !item.documentPublicId.includes("..")
+        ),
+        documentOriginalName: item.documentOriginalName || "",
+        documentBytes: item.documentBytes || null,
         status: item.status,
         reviewNote: item.reviewNote,
         reward: item.rewardCents / 100,

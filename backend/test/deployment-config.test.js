@@ -67,5 +67,16 @@ test("Daraja callbacks do not directly trust callback data for wallet credit", (
   );
 
   assert.match(source, /reconciliation_required/);
-  assert.match(source, /Independent reconciliation is required before wallet credit/i);
+  assert.match(source, /verifyAndCompleteDepositCallback/);
+  assert.match(source, /Callback data is untrusted/i);
+
+  const verificationService = fs.readFileSync(
+    path.join(root, "backend/src/services/depositDarajaVerificationService.js"),
+    "utf8"
+  );
+
+  assert.match(verificationService, /queryStkPush/);
+  assert.match(verificationService, /verification\.mode !== "live"/);
+  assert.match(verificationService, /verification\.resultCode/);
+  assert.match(verificationService, /completeVerifiedDeposit/);
 });

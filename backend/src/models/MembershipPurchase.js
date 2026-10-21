@@ -64,10 +64,18 @@ const membershipPurchaseSchema = new mongoose.Schema(
       default: "USD",
       immutable: true
     },
+    paymentMethod: {
+      type: String,
+      enum: ["daraja", "wallet"],
+      required: true,
+      default: "daraja",
+      immutable: true
+    },
+
 
     expectedAmountKes: {
       type: Number,
-      required: true,
+      required: function () { return this.paymentMethod !== "wallet"; },
       immutable: true,
       min: 1,
       validate: Number.isSafeInteger
@@ -135,7 +143,7 @@ const membershipPurchaseSchema = new mongoose.Schema(
 
     phoneNumber: {
       type: String,
-      required: true,
+      required: function () { return this.paymentMethod !== "wallet"; },
       trim: true,
       match: /^254[17]\d{8}$/
     },

@@ -303,6 +303,7 @@ router.get("/deposits", async (req, res) => {
       user: row.userId || null,
       amountUsd: usd(row.amountCents),
       currency: row.currency,
+      paymentMode: row.paymentMode || "daraja",
       expectedAmountKes: row.expectedAmountKes,
       status: row.status,
       phoneNumber: row.phoneNumber,

@@ -27,6 +27,8 @@ const transcriptionJobSchema = new mongoose.Schema({
     default: null,
     index: true
   },
+  claimedAt: { type: Date, default: null },
+  assignmentExpiresAt: { type: Date, default: null, index: true },
   createdByAdminId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

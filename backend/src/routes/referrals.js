@@ -9,11 +9,66 @@ const router = express.Router();
 const MAX_LEVEL_SCAN = 5000;
 const MAX_DISPLAY_PER_LEVEL = 50;
 
-function getPublicSiteUrl() {
-  return (
-    process.env.PUBLIC_SITE_URL ||
-    "https://www.primetaskworkspace.com"
-  ).replace(/\/+$/, "");
+function getReferralLink(req, username) {
+  const encodedUsername = encodeURIComponent(username);
+  const isProduction = process.env.NODE_ENV === "production";
+
+  // In development, generate links to the actual local registration page.
+  if (!isProduction) {
+    const allowedHosts = new Set(["localhost", "127.0.0.1"]);
+    let localOrigin = "http://127.0.0.1:8080";
+    const requestOrigin = req.get("origin");
+
+    if (requestOrigin) {
+      try {
+        const parsedOrigin = new URL(requestOrigin);
+
+        if (
+          parsedOrigin.protocol === "http:" &&
+          allowedHosts.has(parsedOrigin.hostname) &&
+          parsedOrigin.port === "8080" &&
+          !parsedOrigin.username &&
+          !parsedOrigin.password
+        ) {
+          localOrigin = parsedOrigin.origin;
+        }
+      } catch {
+        // Ignore invalid Origin headers and use the safe local fallback.
+      }
+    }
+
+    return (
+      `${localOrigin}/auth/register.html?ref=${encodedUsername}`
+    );
+  }
+
+  // Production must explicitly configure its public frontend URL.
+  const publicSiteUrl = process.env.PUBLIC_SITE_URL;
+
+  if (!publicSiteUrl || !publicSiteUrl.trim()) {
+    throw new Error("PUBLIC_SITE_URL must be configured in production.");
+  }
+
+  let parsedPublicUrl;
+
+  try {
+    parsedPublicUrl = new URL(publicSiteUrl);
+  } catch {
+    throw new Error("PUBLIC_SITE_URL is invalid.");
+  }
+
+  if (
+    parsedPublicUrl.protocol !== "https:" ||
+    parsedPublicUrl.username ||
+    parsedPublicUrl.password ||
+    parsedPublicUrl.search ||
+    parsedPublicUrl.hash
+  ) {
+    throw new Error("PUBLIC_SITE_URL must be a valid HTTPS base URL.");
+  }
+
+  const baseUrl = publicSiteUrl.trim().replace(/\/+$/, "");
+  return `${baseUrl}/register/${encodedUsername}`;
 }
 
 // GET /api/referrals/me
@@ -46,8 +101,7 @@ router.get("/me", requireAuth, async (req, res) => {
         }
       : null;
 
-    const referralLink =
-      `${getPublicSiteUrl()}/register/${encodeURIComponent(user.username)}`;
+    const referralLink = getReferralLink(req, user.username);
 
     return res.json({
       success: true,

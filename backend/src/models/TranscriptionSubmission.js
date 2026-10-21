@@ -44,6 +44,27 @@ const transcriptionSubmissionSchema = new mongoose.Schema({
     trim: true,
     maxlength: 200000
   },
+  submissionLink: {
+    type: String,
+    default: "",
+    trim: true,
+    maxlength: 2048,
+    validate: {
+      validator(value) {
+        if (!value) return true;
+        try {
+          const parsed = new URL(value);
+          return parsed.protocol === "https:" &&
+            Boolean(parsed.hostname) &&
+            !parsed.username &&
+            !parsed.password;
+        } catch {
+          return false;
+        }
+      },
+      message: "Submission link must be a valid HTTPS URL without embedded credentials."
+    }
+  },
   documentPublicId: {
     type: String,
     default: null,
@@ -119,6 +140,28 @@ transcriptionSubmissionSchema.pre("validate", function validateSubmission() {
       this.documentPublicId
     ) &&
     !this.documentPublicId.includes("..");
+
+  if (this.submissionLink) {
+    try {
+      const parsed = new URL(this.submissionLink);
+      if (
+        parsed.protocol !== "https:" ||
+        !parsed.hostname ||
+        parsed.username ||
+        parsed.password
+      ) {
+        this.invalidate(
+          "submissionLink",
+          "Submission link must be a valid HTTPS URL without embedded credentials."
+        );
+      }
+    } catch {
+      this.invalidate(
+        "submissionLink",
+        "Submission link must be a valid HTTPS URL."
+      );
+    }
+  }
 
   if (!hasText && !hasDocument) {
     this.invalidate(

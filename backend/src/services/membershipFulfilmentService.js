@@ -14,7 +14,11 @@ function codedError(code) {
   return error;
 }
 
-async function fulfilMembershipPurchase(purchaseId) {
+async function fulfilMembershipPurchase(purchaseId, options = {}) {
+  const paymentMethod = options.paymentMethod || "daraja";
+  if (!["daraja", "wallet"].includes(paymentMethod)) {
+    throw codedError("INVALID_PAYMENT_METHOD");
+  }
   if (!mongoose.isValidObjectId(purchaseId)) {
     throw codedError("PURCHASE_NOT_FOUND");
   }
@@ -28,7 +32,11 @@ async function fulfilMembershipPurchase(purchaseId) {
         .session(session);
 
       if (!purchase) throw codedError("PURCHASE_NOT_FOUND");
-      if (purchase.paymentStatus !== "verified") {
+      if (paymentMethod === "wallet") {
+        if (purchase.paymentMethod !== "wallet" || purchase.paymentStatus !== "pending") {
+          throw codedError("PAYMENT_NOT_VERIFIED");
+        }
+      } else if (purchase.paymentStatus !== "verified") {
         throw codedError("PAYMENT_NOT_VERIFIED");
       }
       if (purchase.membershipId || purchase.activatedAt) {
@@ -49,7 +57,7 @@ async function fulfilMembershipPurchase(purchaseId) {
 
       if (
         !Number.isSafeInteger(purchase.priceCents) ||
-        purchase.priceCents < 0 ||
+        purchase.priceCents < 1 ||
         purchase.currency !== "USD" ||
         typeof commissionsEnabled !== "boolean" ||
         !Array.isArray(amounts) ||
@@ -74,7 +82,37 @@ async function fulfilMembershipPurchase(purchaseId) {
 
       if (!purchaser) throw codedError("PURCHASER_NOT_FOUND");
 
+
       const now = new Date();
+
+      if (paymentMethod === "wallet") {
+        const debit = await Wallet.findOneAndUpdate(
+          {
+            userId: purchaser._id,
+            currency: "USD",
+            availableBalanceCents: { $gte: purchase.priceCents }
+          },
+          { $inc: { availableBalanceCents: -purchase.priceCents } },
+          { new: true, session }
+        );
+
+        if (!debit) throw codedError("INSUFFICIENT_WALLET_BALANCE");
+
+        await WalletTransaction.create(
+          [{
+            membershipPurchaseId: purchase._id,
+            userId: purchaser._id,
+            type: "membership_purchase",
+            amountCents: purchase.priceCents,
+            currency: "USD",
+            status: "completed",
+            reference: purchase.purchaseReference,
+            description: `Membership purchase: ${purchase.planKey}`,
+            completedAt: now
+          }],
+          { session }
+        );
+      }
 
       // Preserve any existing paid access, including a future-dated membership.
       const latestMembership = await Membership.findOne({
@@ -205,19 +243,29 @@ async function fulfilMembershipPurchase(purchaseId) {
         sponsorId = sponsor.referredBy;
       }
 
+      const purchaseGuard = {
+        _id: purchase._id,
+        paymentStatus: paymentMethod === "wallet" ? "pending" : "verified",
+        membershipId: null,
+        activatedAt: null
+      };
+
+      if (paymentMethod === "wallet") {
+        purchaseGuard.paymentMethod = "wallet";
+      }
+
+      const purchaseSet = {
+        membershipId: membership._id,
+        activatedAt: now
+      };
+
+      if (paymentMethod === "wallet") {
+        purchaseSet.paymentStatus = "verified";
+      }
+
       const updatedPurchase = await MembershipPurchase.updateOne(
-        {
-          _id: purchase._id,
-          paymentStatus: "verified",
-          membershipId: null,
-          activatedAt: null
-        },
-        {
-          $set: {
-            membershipId: membership._id,
-            activatedAt: now
-          }
-        },
+        purchaseGuard,
+        { $set: purchaseSet },
         { session }
       );
 
