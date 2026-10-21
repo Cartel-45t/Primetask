@@ -8,22 +8,49 @@ const TRANSCRIPTION_DARAJA_ENV = String(process.env.TRANSCRIPTION_DARAJA_ENV || 
 const LIVE_ENABLED =
   process.env.TRANSCRIPTION_DARAJA_ENABLED === "true";
 
+const TRANSACTION_TYPE = String(
+  process.env.TRANSCRIPTION_DARAJA_TRANSACTION_TYPE ||
+  (TRANSCRIPTION_DARAJA_ENV === "sandbox" ? "CustomerPayBillOnline" : "")
+).trim();
+
 const REQUEST_TIMEOUT_MS = 15000;
 
 function getConfig() {
   const consumerKey = process.env.TRANSCRIPTION_DARAJA_CONSUMER_KEY;
   const consumerSecret = process.env.TRANSCRIPTION_DARAJA_CONSUMER_SECRET;
-  const shortcode = process.env.TRANSCRIPTION_DARAJA_SHORTCODE;
+  const storeNumber = String(
+    process.env.TRANSCRIPTION_DARAJA_STORE_NUMBER ||
+    process.env.TRANSCRIPTION_DARAJA_SHORTCODE ||
+    ""
+  ).trim();
+  const tillNumber = String(
+    process.env.TRANSCRIPTION_DARAJA_TILL_NUMBER || ""
+  ).trim();
   const passkey = process.env.TRANSCRIPTION_DARAJA_PASSKEY;
   const callbackUrl = process.env.TRANSCRIPTION_DARAJA_CALLBACK_URL;
 
   if (
     !consumerKey ||
     !consumerSecret ||
-    !shortcode ||
+    !storeNumber ||
     !passkey
   ) {
     throw new Error("Daraja credentials are not fully configured.");
+  }
+
+  if (!["CustomerPayBillOnline", "CustomerBuyGoodsOnline"].includes(TRANSACTION_TYPE)) {
+    throw new Error(
+      "Set TRANSCRIPTION_DARAJA_TRANSACTION_TYPE to CustomerPayBillOnline or CustomerBuyGoodsOnline."
+    );
+  }
+
+  if (
+    TRANSACTION_TYPE === "CustomerBuyGoodsOnline" &&
+    !tillNumber
+  ) {
+    throw new Error(
+      "TRANSCRIPTION_DARAJA_TILL_NUMBER is required for CustomerBuyGoodsOnline."
+    );
   }
 
   if (!callbackUrl) {
@@ -51,9 +78,11 @@ function getConfig() {
   return {
     consumerKey,
     consumerSecret,
-    shortcode,
+    storeNumber,
+    tillNumber,
     passkey,
-    callbackUrl
+    callbackUrl,
+    transactionType: TRANSACTION_TYPE
   };
 }
 
@@ -203,7 +232,7 @@ async function initiateStkPush({
   const config = getConfig();
   const timestamp = getTimestamp();
   const password = makeStkPassword(
-    config.shortcode,
+    config.storeNumber,
     config.passkey,
     timestamp
   );
@@ -211,13 +240,15 @@ async function initiateStkPush({
   const accessToken = await getAccessToken();
 
   const payload = {
-    BusinessShortCode: config.shortcode,
+    BusinessShortCode: config.storeNumber,
     Password: password,
     Timestamp: timestamp,
-    TransactionType: "CustomerPayBillOnline",
+    TransactionType: config.transactionType,
     Amount: amountKes,
     PartyA: phoneNumber,
-    PartyB: config.shortcode,
+    PartyB: config.transactionType === "CustomerBuyGoodsOnline"
+      ? config.tillNumber
+      : config.storeNumber,
     PhoneNumber: phoneNumber,
     CallBackURL: config.callbackUrl,
     AccountReference: String(accountReference).slice(0, 12),
@@ -273,7 +304,7 @@ async function queryStkPush({ checkoutRequestId }) {
   const config = getConfig();
   const timestamp = getTimestamp();
   const password = makeStkPassword(
-    config.shortcode,
+    config.storeNumber,
     config.passkey,
     timestamp
   );
@@ -290,7 +321,7 @@ async function queryStkPush({ checkoutRequestId }) {
         Accept: "application/json"
       },
       body: JSON.stringify({
-        BusinessShortCode: config.shortcode,
+        BusinessShortCode: config.storeNumber,
         Password: password,
         Timestamp: timestamp,
         CheckoutRequestID: checkoutRequestId

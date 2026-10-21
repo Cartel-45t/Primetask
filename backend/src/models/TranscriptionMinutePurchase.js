@@ -92,6 +92,13 @@ const schema = new mongoose.Schema({
     required: true,
     index: true
   },
+  // True while this user has a payment awaiting a confirmed outcome.
+  // A unique partial index below enforces one unresolved purchase per user.
+  hasUnresolvedPayment: {
+    type: Boolean,
+    default: false,
+    required: true
+  },
   merchantRequestId: {
     type: String,
     default: null,
@@ -187,6 +194,15 @@ schema.index(
       mpesaReceipt: { $type: "string" }
     },
     name: "unique_transcription_minute_receipt"
+  }
+);
+
+schema.index(
+  { userId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { hasUnresolvedPayment: true },
+    name: "unique_unresolved_transcription_minute_purchase_per_user"
   }
 );
 

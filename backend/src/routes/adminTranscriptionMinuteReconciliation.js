@@ -192,6 +192,7 @@ router.post("/:purchaseId/verify", async (req, res) => {
         {
           $set: {
             paymentStatus: "verified",
+            hasUnresolvedPayment: false,
             mpesaReceipt,
             verifiedAmountKes: amountKes,
             verificationMethod: "admin_manual_reconciliation",

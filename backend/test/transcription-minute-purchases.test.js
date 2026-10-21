@@ -1,6 +1,5 @@
 "use strict";
 
-
 const { test, beforeEach, afterEach } = require("node:test");
 const assert = require("node:assert/strict");
 const http = require("node:http");
@@ -9,27 +8,101 @@ const Module = require("node:module");
 
 const USER_ID = "111111111111111111111111";
 const PURCHASE_ID = "222222222222222222222222";
+const PACKAGE_ID = "333333333333333333333333";
+const IDEMPOTENCY_KEY = "minute-test-key-001";
 
 let purchase;
+let createCount;
 let darajaBehavior;
 let darajaCalls;
 let server;
 let baseUrl;
+let router;
 
-const minutePackageMock = {};
+const testPackage = {
+  _id: PACKAGE_ID,
+  name: "Test Minutes",
+  minutes: 60,
+  priceCents: 500,
+  priceKes: 650,
+  isActive: true
+};
+
+const minutePackageMock = {
+  findOne(query) {
+    const matches =
+      String(query._id) === PACKAGE_ID &&
+      query.isActive === true &&
+      testPackage.isActive;
+
+    return {
+      lean: async () => matches ? { ...testPackage } : null
+    };
+  }
+};
+
+function applyUpdate(update) {
+  Object.assign(purchase, update.$set || {});
+  for (const key of Object.keys(update.$unset || {})) {
+    delete purchase[key];
+  }
+}
+
 const minutePurchaseMock = {
   async findOne(query) {
+    if (!purchase) return null;
+
     if (
-      String(query._id) !== String(purchase._id) ||
-      String(query.userId) !== USER_ID
+      query.idempotencyKey != null &&
+      String(query.userId) === USER_ID &&
+      query.idempotencyKey === purchase.idempotencyKey
     ) {
-      return null;
+      return { ...purchase };
     }
+
+    if (
+      query._id != null &&
+      String(query._id) === String(purchase._id) &&
+      (query.userId == null || String(query.userId) === USER_ID)
+    ) {
+      return { ...purchase };
+    }
+
+    if (
+      query.paymentStatus?.$in?.includes(purchase.paymentStatus) &&
+      String(query.userId) === USER_ID
+    ) {
+      return { ...purchase };
+    }
+
+    return null;
+  },
+
+  async create(data) {
+    createCount += 1;
+
+    if (purchase) {
+      const error = new Error("Duplicate purchase");
+      error.code = 11000;
+      throw error;
+    }
+
+    purchase = {
+      ...data,
+      _id: PURCHASE_ID,
+      checkoutRequestId: null,
+      merchantRequestId: null,
+      mpesaReceipt: null,
+      createdAt: new Date("2026-01-01T00:00:00Z"),
+      updatedAt: new Date("2026-01-01T00:00:00Z")
+    };
+
     return { ...purchase };
   },
 
   async findOneAndUpdate(filter, update) {
     if (
+      !purchase ||
       String(filter._id) !== String(purchase._id) ||
       (filter.userId != null && String(filter.userId) !== USER_ID) ||
       purchase.paymentStatus !== filter.paymentStatus ||
@@ -49,6 +122,7 @@ const minutePurchaseMock = {
 
   async updateOne(filter, update) {
     if (
+      purchase &&
       String(filter._id) === String(purchase._id) &&
       purchase.paymentStatus === filter.paymentStatus &&
       (!filter.failureCode ||
@@ -57,20 +131,14 @@ const minutePurchaseMock = {
       applyUpdate(update);
       return { modifiedCount: 1 };
     }
+
     return { modifiedCount: 0 };
   }
 };
 
-function applyUpdate(update) {
-  Object.assign(purchase, update.$set || {});
-  for (const key of Object.keys(update.$unset || {})) {
-    delete purchase[key];
-  }
-}
-
 const darajaMock = {
   async initiateStkPush(args) {
-    darajaCalls.push(args);
+    darajaCalls.push({ ...args });
 
     if (darajaBehavior instanceof Error) {
       throw darajaBehavior;
@@ -85,10 +153,8 @@ const darajaMock = {
 };
 
 const originalLoad = Module._load;
-let router;
 
 function loadRouteWithMocks() {
-
   Module._load = function (request, parent, isMain) {
     if (request === "../middleware/requireAuth") {
       return (req, res, next) => {
@@ -118,31 +184,14 @@ function loadRouteWithMocks() {
     );
     delete require.cache[routePath];
     router = require(routePath);
-
   } finally {
     Module._load = originalLoad;
   }
 }
 
-function resetPurchase() {
-  purchase = {
-    _id: PURCHASE_ID,
-    userId: USER_ID,
-    purchaseReference: "PTW-TM-TEST-001",
-    packageId: "333333333333333333333333",
-    packageName: "Test Minutes",
-    minutes: 60,
-    priceCents: 500,
-    currency: "USD",
-    expectedAmountKes: 650,
-    phoneNumber: "254712345678",
-    paymentStatus: "pending",
-    checkoutRequestId: null,
-    merchantRequestId: null,
-    mpesaReceipt: null,
-    createdAt: new Date("2026-01-01T00:00:00Z"),
-    updatedAt: new Date("2026-01-01T00:00:00Z")
-  };
+function resetState() {
+  purchase = null;
+  createCount = 0;
 
   darajaBehavior = {
     mode: "live",
@@ -156,18 +205,18 @@ function resetPurchase() {
 }
 
 beforeEach(async () => {
+  resetState();
 
-  resetPurchase();
-
-  if (!router) {
-    loadRouteWithMocks();
-  }
+  if (!router) loadRouteWithMocks();
 
   const app = express();
   app.use(express.json());
   app.use("/", router);
+
   server = http.createServer(app);
-  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  await new Promise(resolve =>
+    server.listen(0, "127.0.0.1", resolve)
+  );
 
   baseUrl = `http://127.0.0.1:${server.address().port}`;
 });
@@ -183,13 +232,17 @@ afterEach(async () => {
   server = null;
 });
 
-async function initiate(id = PURCHASE_ID) {
-
-
-  const response = await fetch(
-    `${baseUrl}/${id}/initiate`,
-    { method: "POST" }
-  );
+async function purchaseMinutes(overrides = {}) {
+  const response = await fetch(`${baseUrl}/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      packageId: PACKAGE_ID,
+      phoneNumber: "0712345678",
+      idempotencyKey: IDEMPOTENCY_KEY,
+      ...overrides
+    })
+  });
 
   return {
     status: response.status,
@@ -197,57 +250,89 @@ async function initiate(id = PURCHASE_ID) {
   };
 }
 
-test("successful STK initiation records IDs but does not credit minutes", async () => {
-  const result = await initiate();
+test("one submission creates purchase and requests STK", async () => {
+  const result = await purchaseMinutes();
 
   assert.equal(result.status, 200);
   assert.equal(result.body.success, true);
+  assert.equal(result.body.paymentInitiationEnabled, true);
   assert.equal(result.body.purchase.paymentStatus, "pending");
-  assert.equal(result.body.purchase.checkoutRequestId, "CHECKOUT-TEST-1");
-  assert.equal(result.body.purchase.currency, "USD");
-  assert.equal(purchase.checkoutRequestId, "CHECKOUT-TEST-1");
-  assert.equal(purchase.mpesaReceipt, null);
-  assert.equal(purchase.availableMinutes, undefined);
+  assert.equal(
+    result.body.purchase.checkoutRequestId,
+    "CHECKOUT-TEST-1"
+  );
+
+  assert.equal(createCount, 1);
   assert.equal(darajaCalls.length, 1);
   assert.deepEqual(darajaCalls[0], {
     phoneNumber: "254712345678",
     amountKes: 650,
-    accountReference: "PTW-TM-TEST-001",
+    accountReference: purchase.purchaseReference,
     transactionDesc: "Minutes 60"
   });
+
+  assert.equal(purchase.mpesaReceipt, null);
+  assert.equal(purchase.availableMinutes, undefined);
+  assert.equal(purchase.priceCents, 500);
+  assert.equal(purchase.currency, "USD");
 });
 
-test("disabled Daraja restores pending and reports no prompt requested", async () => {
+test("disabled Daraja records purchase but confirms no prompt was requested", async () => {
   darajaBehavior = {
     mode: "disabled",
     accepted: false,
-    message: "Disabled"
+    message: "Daraja initiation is disabled."
   };
 
-  const result = await initiate();
+  const result = await purchaseMinutes();
 
   assert.equal(result.status, 503);
   assert.equal(result.body.paymentInitiationEnabled, false);
-  assert.equal(purchase.paymentStatus, "pending");
-  assert.equal(purchase.failureCode, undefined);
+  assert.equal(purchase.paymentStatus, "failed");
+  assert.equal(purchase.failureCode, "DARAJA_INITIATION_DISABLED");
   assert.equal(purchase.checkoutRequestId, null);
+  assert.equal(createCount, 1);
   assert.equal(darajaCalls.length, 1);
 });
 
-test("uncertain provider error locks purchase for reconciliation", async () => {
+test("uncertain provider result locks purchase and same-key retry cannot send another prompt", async () => {
   darajaBehavior = new Error("Provider timeout");
 
-  const result = await initiate();
+  const first = await purchaseMinutes();
 
-  assert.equal(result.status, 503);
-  assert.equal(result.body.paymentStatus, "verification_required");
+  assert.equal(first.status, 503);
+  assert.equal(first.body.paymentStatus, "verification_required");
   assert.equal(purchase.paymentStatus, "verification_required");
-  assert.equal(purchase.failureCode, "STK_INITIATION_IN_PROGRESS");
+  assert.equal(
+    purchase.failureCode,
+    "STK_INITIATION_IN_PROGRESS"
+  );
   assert.equal(darajaCalls.length, 1);
 
-  const retry = await initiate();
+  const retry = await purchaseMinutes();
+
+  assert.equal(retry.status, 200);
+  assert.equal(retry.body.reused, true);
+  assert.equal(createCount, 1);
+  assert.equal(darajaCalls.length, 1);
+});
+
+test("different idempotency key cannot create another purchase while first is unresolved", async () => {
+  darajaBehavior = new Error("Provider timeout");
+
+  const first = await purchaseMinutes();
+  assert.equal(first.status, 503);
+  assert.equal(purchase.paymentStatus, "verification_required");
+
+  const retry = await purchaseMinutes({
+    idempotencyKey: "minute-test-key-002"
+  });
 
   assert.equal(retry.status, 409);
+  assert.equal(retry.body.success, false);
+  assert.equal(retry.body.purchase.id, PURCHASE_ID);
+  assert.match(retry.body.message, /awaiting payment verification/i);
+  assert.equal(createCount, 1);
   assert.equal(darajaCalls.length, 1);
 });
 
@@ -260,7 +345,7 @@ test("rejected or incomplete STK response locks purchase for reconciliation", as
     responseDescription: "Rejected test response"
   };
 
-  const result = await initiate();
+  const result = await purchaseMinutes();
 
   assert.equal(result.status, 502);
   assert.equal(result.body.paymentStatus, "verification_required");
@@ -271,25 +356,54 @@ test("rejected or incomplete STK response locks purchase for reconciliation", as
   );
   assert.equal(purchase.checkoutRequestId, "CHECKOUT-REJECTED");
   assert.equal(purchase.mpesaReceipt, null);
-
-  const retry = await initiate();
-
-  assert.equal(retry.status, 409);
   assert.equal(darajaCalls.length, 1);
 });
 
-test("purchase with an existing checkout ID cannot initiate another prompt", async () => {
-  purchase.checkoutRequestId = "CHECKOUT-ALREADY-EXISTS";
+test("invalid package is rejected before creating a purchase or contacting Daraja", async () => {
+  const result = await purchaseMinutes({ packageId: "invalid-id" });
 
-  const result = await initiate();
-
-  assert.equal(result.status, 409);
+  assert.equal(result.status, 400);
+  assert.equal(createCount, 0);
   assert.equal(darajaCalls.length, 0);
 });
 
-test("invalid purchase ID is rejected without contacting Daraja", async () => {
-  const result = await initiate("not-an-object-id");
+test("invalid Kenyan phone is rejected before creating a purchase", async () => {
+  const result = await purchaseMinutes({ phoneNumber: "12345" });
 
   assert.equal(result.status, 400);
+  assert.equal(createCount, 0);
   assert.equal(darajaCalls.length, 0);
+});
+
+test("invalid idempotency key is rejected", async () => {
+  const result = await purchaseMinutes({ idempotencyKey: "short" });
+
+  assert.equal(result.status, 400);
+  assert.equal(createCount, 0);
+  assert.equal(darajaCalls.length, 0);
+});
+
+test("repeating the same idempotency key never creates another purchase or STK request", async () => {
+  const first = await purchaseMinutes();
+  const second = await purchaseMinutes();
+
+  assert.equal(first.status, 200);
+  assert.equal(second.status, 200);
+  assert.equal(second.body.reused, true);
+  assert.equal(createCount, 1);
+  assert.equal(darajaCalls.length, 1);
+});
+
+test("inactive or missing package is rejected without STK", async () => {
+  testPackage.isActive = false;
+
+  try {
+    const result = await purchaseMinutes();
+
+    assert.equal(result.status, 404);
+    assert.equal(createCount, 0);
+    assert.equal(darajaCalls.length, 0);
+  } finally {
+    testPackage.isActive = true;
+  }
 });

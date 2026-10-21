@@ -90,7 +90,10 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const body = req.body || {};
   const packageId = body.packageId;
-  const idempotencyKey = body.idempotencyKey;
+  const idempotencyKey =
+    typeof body.idempotencyKey === "string"
+      ? body.idempotencyKey.trim()
+      : "";
   const phoneNumber = normalizePhone(body.phoneNumber);
 
   if (!mongoose.isValidObjectId(packageId)) {
@@ -100,11 +103,7 @@ router.post("/", async (req, res) => {
     });
   }
 
-  if (
-    typeof idempotencyKey !== "string" ||
-    idempotencyKey.trim().length < 8 ||
-    idempotencyKey.trim().length > 150
-  ) {
+  if (idempotencyKey.length < 8 || idempotencyKey.length > 150) {
     return res.status(400).json({
       success: false,
       message: "A unique idempotency key of 8 to 150 characters is required."
@@ -118,18 +117,37 @@ router.post("/", async (req, res) => {
     });
   }
 
+  let purchase;
+
   try {
     const existing = await MinutePurchase.findOne({
       userId: req.user._id,
-      idempotencyKey: idempotencyKey.trim()
+      idempotencyKey
     });
 
     if (existing) {
       return res.status(200).json({
         success: true,
         reused: true,
-        message: "Existing purchase returned. No duplicate purchase was created.",
+        message: "This purchase request was already recorded. No second payment prompt was requested.",
         purchase: publicPurchase(existing)
+      });
+    }
+
+    // Block new purchase attempts while this user's previous purchase
+    // is unresolved. A database-level unique index is still needed to
+    // protect against simultaneous requests.
+    const unresolved = await MinutePurchase.findOne({
+      userId: req.user._id,
+      paymentStatus: { $in: ["pending", "verification_required"] }
+    });
+
+    if (unresolved) {
+      return res.status(409).json({
+        success: false,
+        paymentStatus: unresolved.paymentStatus,
+        purchase: publicPurchase(unresolved),
+        message: "You already have a minute purchase awaiting payment verification. Check its status before creating another purchase or requesting another prompt."
       });
     }
 
@@ -145,10 +163,12 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const purchase = await MinutePurchase.create({
+    // Reserve the purchase before contacting Safaricom. If the provider
+    // result is uncertain, the record stays locked for reconciliation.
+    purchase = await MinutePurchase.create({
       purchaseReference: `PTW-TM-${randomUUID()}`,
       userId: req.user._id,
-      idempotencyKey: idempotencyKey.trim(),
+      idempotencyKey,
       packageId: pkg._id,
       packageName: pkg.name,
       minutes: pkg.minutes,
@@ -156,32 +176,45 @@ router.post("/", async (req, res) => {
       currency: "USD",
       expectedAmountKes: pkg.priceKes,
       phoneNumber,
-      paymentStatus: "pending"
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "Purchase recorded. Payment initiation is not enabled yet; no payment has been requested or confirmed.",
-      paymentInitiationEnabled: false,
-      purchase: publicPurchase(purchase)
+      paymentStatus: "verification_required",
+      hasUnresolvedPayment: true,
+      failureCode: "STK_INITIATION_IN_PROGRESS",
+      failureDescription: "STK initiation is being processed. Verify the result before retrying."
     });
   } catch (error) {
     if (error.code === 11000) {
       try {
+        // A different idempotency key may have collided with the
+        // per-user unresolved-payment index. Return the existing lock.
+        const unresolved = await MinutePurchase.findOne({
+          userId: req.user._id,
+          paymentStatus: { $in: ["pending", "verification_required"] }
+        });
+
+        if (unresolved) {
+          return res.status(409).json({
+            success: false,
+            paymentStatus: unresolved.paymentStatus,
+            purchase: publicPurchase(unresolved),
+            message: "You already have a minute purchase awaiting payment verification. Do not request another payment prompt."
+          });
+        }
+
         const existing = await MinutePurchase.findOne({
           userId: req.user._id,
-          idempotencyKey: idempotencyKey.trim()
+          idempotencyKey
         });
 
         if (existing) {
           return res.status(200).json({
             success: true,
             reused: true,
+            message: "This purchase request was already recorded. No second payment prompt was requested.",
             purchase: publicPurchase(existing)
           });
         }
       } catch (_) {
-        // Return the safe failure response below.
+        // Use the safe error response below.
       }
     }
 
@@ -191,6 +224,127 @@ router.post("/", async (req, res) => {
       message: "Could not safely create the minute purchase."
     });
   }
+
+  let result;
+
+  try {
+    result = await darajaService.initiateStkPush({
+      phoneNumber: purchase.phoneNumber,
+      amountKes: purchase.expectedAmountKes,
+      accountReference: purchase.purchaseReference,
+      transactionDesc: `Minutes ${purchase.minutes}`
+    });
+  } catch (error) {
+    console.error("Minute STK initiation requires reconciliation:", error.message);
+
+    return res.status(503).json({
+      success: false,
+      paymentStatus: "verification_required",
+      message: "The purchase was recorded, but the payment prompt result could not be confirmed. Do not retry or pay again. This purchase requires reconciliation."
+    });
+  }
+
+  if (result.mode === "disabled") {
+    await MinutePurchase.updateOne(
+      {
+        _id: purchase._id,
+        paymentStatus: "verification_required",
+        failureCode: "STK_INITIATION_IN_PROGRESS"
+      },
+      {
+        $set: {
+          paymentStatus: "failed",
+          hasUnresolvedPayment: false,
+          failureCode: "DARAJA_INITIATION_DISABLED",
+          failureDescription: "Daraja initiation is disabled. No payment prompt was requested."
+        }
+      }
+    );
+
+    return res.status(503).json({
+      success: false,
+      paymentInitiationEnabled: false,
+      purchase: publicPurchase({
+        ...(typeof purchase.toObject === "function"
+          ? purchase.toObject()
+          : purchase),
+        paymentStatus: "failed",
+        hasUnresolvedPayment: false,
+        failureCode: "DARAJA_INITIATION_DISABLED",
+        failureDescription: "Daraja initiation is disabled. No payment prompt was requested."
+      }),
+      message: "The purchase was recorded, but M-Pesa initiation is disabled. No payment prompt was requested."
+    });
+  }
+
+  const hasIdentifiers =
+    typeof result.checkoutRequestId === "string" &&
+    result.checkoutRequestId.length > 0 &&
+    typeof result.merchantRequestId === "string" &&
+    result.merchantRequestId.length > 0;
+
+  if (!result.accepted || !hasIdentifiers) {
+    await MinutePurchase.updateOne(
+      {
+        _id: purchase._id,
+        paymentStatus: "verification_required"
+      },
+      {
+        $set: {
+          ...(result.checkoutRequestId
+            ? { checkoutRequestId: result.checkoutRequestId }
+            : {}),
+          ...(result.merchantRequestId
+            ? { merchantRequestId: result.merchantRequestId }
+            : {}),
+          failureCode: "STK_RESULT_REQUIRES_RECONCILIATION",
+          failureDescription: String(
+            result.responseDescription ||
+            "Safaricom did not provide a confirmed STK acceptance result."
+          ).slice(0, 500)
+        }
+      }
+    );
+
+    return res.status(502).json({
+      success: false,
+      paymentStatus: "verification_required",
+      message: "The purchase was recorded, but Safaricom did not confirm the prompt. Do not retry or pay again. This purchase requires reconciliation."
+    });
+  }
+
+  const updated = await MinutePurchase.findOneAndUpdate(
+    {
+      _id: purchase._id,
+      paymentStatus: "verification_required",
+      failureCode: "STK_INITIATION_IN_PROGRESS"
+    },
+    {
+      $set: {
+        merchantRequestId: result.merchantRequestId,
+        checkoutRequestId: result.checkoutRequestId,
+        paymentStatus: "pending"
+      },
+      $unset: { failureCode: 1, failureDescription: 1 }
+    },
+    { new: true }
+  );
+
+  if (!updated) {
+    return res.status(503).json({
+      success: false,
+      paymentStatus: "verification_required",
+      message: "Safaricom accepted the request, but the purchase record needs reconciliation. Do not retry or pay again."
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    paymentInitiationEnabled: true,
+    message: result.customerMessage ||
+      "M-Pesa prompt accepted. Complete the prompt on your phone. Minutes are credited only after payment verification.",
+    purchase: publicPurchase(updated)
+  });
 });
 
 
@@ -246,6 +400,7 @@ router.post("/:purchaseId/initiate", async (req, res) => {
       {
         $set: {
           paymentStatus: "verification_required",
+          hasUnresolvedPayment: true,
           failureCode: "STK_INITIATION_IN_PROGRESS",
           failureDescription: "STK initiation is being processed. Verify the result before retrying."
         }
@@ -287,8 +442,12 @@ router.post("/:purchaseId/initiate", async (req, res) => {
           failureCode: "STK_INITIATION_IN_PROGRESS"
         },
         {
-          $set: { paymentStatus: "pending" },
-          $unset: { failureCode: 1, failureDescription: 1 }
+          $set: {
+            paymentStatus: "failed",
+            hasUnresolvedPayment: false,
+            failureCode: "DARAJA_INITIATION_DISABLED",
+            failureDescription: "Daraja initiation is disabled. No payment prompt was requested."
+          }
       });
       return res.status(503).json({
         success: false,

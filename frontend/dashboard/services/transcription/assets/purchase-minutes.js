@@ -10,7 +10,6 @@
   const phone = document.getElementById("minutePhone");
 
   let packages = [];
-  let latestCreatedPurchaseId = null;
 
   if (!root || !select || !form || !notice || !history || !button || !summary || !phone) return;
 
@@ -101,36 +100,6 @@
     }
   }
 
-  async function initiatePayment(purchaseId, initiateButton) {
-    if (!purchaseId || initiateButton.disabled) return;
-
-    initiateButton.disabled = true;
-    initiateButton.textContent = "Requesting M-Pesa prompt…";
-    message("Requesting the M-Pesa prompt. Do not submit another payment request.");
-
-    try {
-      const data = await api(
-        `/transcription/minute-purchases/${encodeURIComponent(purchaseId)}/initiate`,
-        {
-          method: "POST",
-          body: JSON.stringify({})
-        }
-      );
-
-      latestCreatedPurchaseId = null;
-      message(
-        `${data.message || "M-Pesa request submitted."} This is not confirmation of payment.`
-      );
-    } catch (error) {
-      message(
-        `${error.message} Check purchase history before attempting anything else.`,
-        true
-      );
-    } finally {
-      await loadHistory();
-    }
-  }
-
   async function loadHistory() {
     history.textContent = "Loading purchase history…";
 
@@ -164,26 +133,24 @@
           add(card, "p", `Verified receipt: ${p.mpesaReceipt}`);
         }
 
-        const purchaseId = String(p.id || p._id || "");
-
         if (status === "verification_required") {
           add(
             card,
             "p",
-            "This purchase is locked for reconciliation. Do not retry the payment prompt."
+            "This purchase requires reconciliation. Do not retry the payment prompt."
           );
-        } else if (
-          purchaseId &&
-          purchaseId === latestCreatedPurchaseId &&
-          status === "pending" &&
-          !p.checkoutRequestId &&
-          !p.merchantRequestId
-        ) {
-          const initiateButton = add(card, "button", "Initiate M-Pesa prompt");
-          initiateButton.type = "button";
-          initiateButton.addEventListener("click", () => {
-            initiatePayment(purchaseId, initiateButton);
-          });
+        } else if (status === "pending" && p.checkoutRequestId) {
+          add(
+            card,
+            "p",
+            "M-Pesa request recorded. Payment and minutes still require verification."
+          );
+        } else if (status === "pending" && !p.checkoutRequestId) {
+          add(
+            card,
+            "p",
+            "No payment prompt is recorded for this purchase. Check its status before creating another purchase."
+          );
         } else if (status === "verified") {
           add(card, "p", "Payment verified by the backend reconciliation process.");
         }
@@ -206,7 +173,8 @@
     }
 
     button.disabled = true;
-    button.textContent = "Creating purchase…";
+    button.textContent = "Requesting M-Pesa prompt…";
+    message("Recording the purchase and requesting the payment prompt. Do not submit again.");
 
     try {
       const key = `minute-${crypto.randomUUID
@@ -222,22 +190,18 @@
         })
       });
 
-      const purchase = data.purchase || data.data?.purchase || null;
-      const id = purchase?.id || purchase?._id || null;
-      latestCreatedPurchaseId = id ? String(id) : null;
-
       message(
-        latestCreatedPurchaseId
-          ? `${data.message || "Purchase record created."} Use the button on this purchase to request an M-Pesa prompt. Payment is not confirmed until verified.`
-          : `${data.message || "Purchase record created."} The API did not return a purchase ID, so the prompt button cannot be shown. Do not send money manually.`
+        `${data.message || "M-Pesa request accepted."} Payment is not confirmed until verified.`
       );
-
-      await loadHistory();
     } catch (error) {
-      message(error.message, true);
+      message(
+        `${error.message} Check purchase history before taking any further payment action.`,
+        true
+      );
     } finally {
+      await loadHistory();
       button.disabled = packages.length === 0;
-      button.textContent = "Create purchase record";
+      button.textContent = "Purchase minutes";
     }
   });
 
