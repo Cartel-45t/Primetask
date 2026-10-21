@@ -11,9 +11,36 @@ router.get("/status", (req, res) => {
   const required = [
     "DARAJA_CONSUMER_KEY",
     "DARAJA_CONSUMER_SECRET",
-    "DARAJA_SHORTCODE",
     "DARAJA_PASSKEY"
   ];
+
+  const storeNumber = String(
+    process.env.DARAJA_STORE_NUMBER ||
+    process.env.DARAJA_SHORTCODE ||
+    ""
+  ).trim();
+
+  const transactionType = String(
+    process.env.DARAJA_TRANSACTION_TYPE ||
+    (String(process.env.DARAJA_ENV || "sandbox").trim() === "sandbox"
+      ? "CustomerPayBillOnline"
+      : "")
+  ).trim();
+
+  const missing = required.filter(
+    name => !String(process.env[name] || "").trim()
+  );
+
+  if (!storeNumber) {
+    missing.push("DARAJA_STORE_NUMBER or DARAJA_SHORTCODE");
+  }
+
+  if (
+    transactionType === "CustomerBuyGoodsOnline" &&
+    !String(process.env.DARAJA_TILL_NUMBER || "").trim()
+  ) {
+    missing.push("DARAJA_TILL_NUMBER");
+  }
 
   let callbackHttps = false;
 
@@ -21,10 +48,6 @@ router.get("/status", (req, res) => {
     callbackHttps =
       new URL(process.env.DARAJA_CALLBACK_URL).protocol === "https:";
   } catch {}
-
-  const missing = required.filter(
-    name => !String(process.env[name] || "").trim()
-  );
 
   const liveEnabled = process.env.DARAJA_LIVE_ENABLED === "true";
   const environment = process.env.DARAJA_ENV || "unset";
@@ -53,7 +76,7 @@ router.get("/diagnostic/recent", async (req, res) => {
       userId: req.user._id,
       paymentMode: "daraja"
     })
-      .select("requestId status paymentMode checkoutRequestId resultCode resultDescription createdAt completedAt")
+      .select("requestId status paymentMode amountCents checkoutRequestId resultCode resultDescription createdAt completedAt")
       .sort({ createdAt: -1 })
       .limit(10)
       .lean();
@@ -73,6 +96,8 @@ router.get("/diagnostic/recent", async (req, res) => {
 
         return {
           requestId: deposit.requestId,
+          amount: Number(((deposit.amountCents || 0) / 100).toFixed(2)),
+          currency: "USD",
           status: deposit.status,
           resultCode: deposit.resultCode,
           resultDescription: deposit.resultDescription,
