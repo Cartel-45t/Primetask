@@ -17,7 +17,14 @@ const REQUEST_TIMEOUT_MS = 15000;
 function getConfig() {
   const consumerKey = process.env.DARAJA_CONSUMER_KEY;
   const consumerSecret = process.env.DARAJA_CONSUMER_SECRET;
-  const shortcode = process.env.DARAJA_SHORTCODE;
+  const storeNumber = String(
+    process.env.DARAJA_STORE_NUMBER ||
+    process.env.DARAJA_SHORTCODE ||
+    ""
+  ).trim();
+  const tillNumber = String(
+    process.env.DARAJA_TILL_NUMBER || ""
+  ).trim();
   const passkey = process.env.DARAJA_PASSKEY;
   const callbackUrl = process.env.DARAJA_CALLBACK_URL;
 
@@ -30,10 +37,19 @@ function getConfig() {
   if (
     !consumerKey ||
     !consumerSecret ||
-    !shortcode ||
+    !storeNumber ||
     !passkey
   ) {
     throw new Error("Daraja credentials are not fully configured.");
+  }
+
+  if (
+    TRANSACTION_TYPE === "CustomerBuyGoodsOnline" &&
+    !tillNumber
+  ) {
+    throw new Error(
+      "DARAJA_TILL_NUMBER is required for CustomerBuyGoodsOnline."
+    );
   }
 
   if (!callbackUrl) {
@@ -61,7 +77,8 @@ function getConfig() {
   return {
     consumerKey,
     consumerSecret,
-    shortcode,
+    storeNumber,
+    tillNumber,
     passkey,
     callbackUrl,
     transactionType: TRANSACTION_TYPE
@@ -214,7 +231,7 @@ async function initiateStkPush({
   const config = getConfig();
   const timestamp = getTimestamp();
   const password = makeStkPassword(
-    config.shortcode,
+    config.storeNumber,
     config.passkey,
     timestamp
   );
@@ -222,13 +239,15 @@ async function initiateStkPush({
   const accessToken = await getAccessToken();
 
   const payload = {
-    BusinessShortCode: config.shortcode,
+    BusinessShortCode: config.storeNumber,
     Password: password,
     Timestamp: timestamp,
     TransactionType: config.transactionType,
     Amount: amountKes,
     PartyA: phoneNumber,
-    PartyB: config.shortcode,
+    PartyB: config.transactionType === "CustomerBuyGoodsOnline"
+      ? config.tillNumber
+      : config.storeNumber,
     PhoneNumber: phoneNumber,
     CallBackURL: config.callbackUrl,
     AccountReference: String(accountReference).slice(0, 12),
@@ -284,7 +303,7 @@ async function queryStkPush({ checkoutRequestId }) {
   const config = getConfig();
   const timestamp = getTimestamp();
   const password = makeStkPassword(
-    config.shortcode,
+    config.storeNumber,
     config.passkey,
     timestamp
   );
@@ -301,7 +320,7 @@ async function queryStkPush({ checkoutRequestId }) {
         Accept: "application/json"
       },
       body: JSON.stringify({
-        BusinessShortCode: config.shortcode,
+        BusinessShortCode: config.storeNumber,
         Password: password,
         Timestamp: timestamp,
         CheckoutRequestID: checkoutRequestId
