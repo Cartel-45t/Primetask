@@ -181,7 +181,13 @@ async function completeVerifiedDeposit(verifiedPayment) {
     throw new Error("A valid recorded checkout ID is required.");
   }
 
-  if (!["safaricom_portal", "safaricom_statement"].includes(evidenceSource)) {
+  const providerVerified =
+    evidenceSource === "daraja_provider_confirmation";
+
+  if (
+    !providerVerified &&
+    !["safaricom_portal", "safaricom_statement"].includes(evidenceSource)
+  ) {
     throw new Error("Authoritative Safaricom evidence is required.");
   }
 
@@ -193,16 +199,18 @@ async function completeVerifiedDeposit(verifiedPayment) {
     throw new Error("A valid evidence reference is required.");
   }
 
-  if (!mongoose.isValidObjectId(claimedBy)) {
-    throw new Error("A valid verifying administrator is required.");
-  }
+  if (!providerVerified) {
+    if (!mongoose.isValidObjectId(claimedBy)) {
+      throw new Error("A valid verifying administrator is required.");
+    }
 
-  if (
-    typeof auditReason !== "string" ||
-    !auditReason.trim() ||
-    auditReason.trim().length > 500
-  ) {
-    throw new Error("An audit reason is required.");
+    if (
+      typeof auditReason !== "string" ||
+      !auditReason.trim() ||
+      auditReason.trim().length > 500
+    ) {
+      throw new Error("An audit reason is required.");
+    }
   }
 
   const session = await mongoose.startSession();
@@ -331,34 +339,36 @@ async function completeVerifiedDeposit(verifiedPayment) {
       updated.walletTransactionId = transaction._id;
       await updated.save({ session });
 
-      await AdminAuditLog.create(
-        [{
-          adminId: claimedBy,
-          targetUserId: deposit.userId,
-          action: "deposit_payment_verified",
-          reason: auditReason.trim(),
-          before: {
-            requestId: deposit.requestId,
-            status: "pending",
-            amountCents: deposit.amountCents,
-            expectedAmountKes: deposit.expectedAmountKes
-          },
-          after: {
-            requestId: deposit.requestId,
-            status: "completed",
-            amountCents: deposit.amountCents,
-            amountKes,
-            currency: "USD",
-            mpesaReceipt: receipt,
-            evidenceSource,
-            evidenceReference: evidenceReference.trim()
-          },
-          ipAddress: typeof ipAddress === "string"
-            ? ipAddress.slice(0, 100)
-            : null
-        }],
-        { session }
-      );
+      if (!providerVerified) {
+        await AdminAuditLog.create(
+          [{
+            adminId: claimedBy,
+            targetUserId: deposit.userId,
+            action: "deposit_payment_verified",
+            reason: auditReason.trim(),
+            before: {
+              requestId: deposit.requestId,
+              status: "pending",
+              amountCents: deposit.amountCents,
+              expectedAmountKes: deposit.expectedAmountKes
+            },
+            after: {
+              requestId: deposit.requestId,
+              status: "completed",
+              amountCents: deposit.amountCents,
+              amountKes,
+              currency: "USD",
+              mpesaReceipt: receipt,
+              evidenceSource,
+              evidenceReference: evidenceReference.trim()
+            },
+            ipAddress: typeof ipAddress === "string"
+              ? ipAddress.slice(0, 100)
+              : null
+          }],
+          { session }
+        );
+      }
 
       outcome = {
         alreadyCredited: false,

@@ -13,6 +13,7 @@ const walletRoutes = require("./routes/wallet");
 const withdrawalRoutes = require("./routes/withdrawals");
 const referralRoutes = require("./routes/referrals");
 const depositRoutes = require("./routes/deposits");
+const { startDepositRecoveryWorker } = require("./services/depositRecoveryWorker");
 const depositDiagnosticsRoutes = require("./routes/depositDiagnostics");
 const darajaCallbackRoutes = require("./routes/darajaCallbacks");
 const membershipRoutes = require("./routes/membership");
@@ -99,7 +100,6 @@ app.use("/api/referrals", referralRoutes);
 app.use("/api/membership", membershipRoutes);
 app.use("/api/admin/membership-plans", adminMembershipPlanRoutes);
 app.use("/api/admin/membership-reconciliation", adminMembershipReconciliationRoutes);
-app.use("/api/admin/deposit-reconciliation", require("./routes/adminDepositReconciliation"));
 app.use("/api/admin/membership-fulfilment", adminMembershipFulfilmentRoutes);
 app.use("/api/admin/overview", adminOverviewRoutes);
 app.use("/api/admin/users", adminUsersRoutes);
@@ -143,6 +143,8 @@ async function startServer() {
     });
 
     console.log("MongoDB connected successfully.");
+
+    startDepositRecoveryWorker();
 
     httpServer = app.listen(PORT, "0.0.0.0", () => {
       console.log(`PrimeTask Workspace API running on port ${PORT}.`);

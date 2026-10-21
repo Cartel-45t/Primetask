@@ -4,6 +4,10 @@ const Deposit = require("../models/Deposit");
 const MembershipPurchase = require("../models/MembershipPurchase");
 const MinutePurchase = require("../models/TranscriptionMinutePurchase");
 const DarajaCallbackEvent = require("../models/DarajaCallbackEvent");
+const { verifyAndFulfilMembershipCallback } = require("../services/membershipDarajaVerificationService");
+const {
+  verifyAndCompleteDepositCallback
+} = require("../services/depositDarajaVerificationService");
 
 const router = express.Router();
 
@@ -144,47 +148,85 @@ router.post("/stk", async (req, res) => {
     });
 
     if (!deposit) {
-      // Membership callbacks are evidence only. They cannot verify payment
-      // or activate membership without independent reconciliation.
+      // Membership callbacks require callback metadata AND an independent
+      // live Safaricom query before payment can be verified.
       const membershipPurchase = await MembershipPurchase.findOne({
         checkoutRequestId
       });
 
       if (membershipPurchase) {
-        await DarajaCallbackEvent.updateOne(
-          { eventKey },
-          {
-            $set: {
-              processingStatus: "reconciliation_required"
-            }
-          }
-        );
+        let verification;
 
-        // Only pending purchases may transition to reconciliation.
-        // Never overwrite verified, failed, or cancelled purchases.
-        await MembershipPurchase.updateOne(
-          {
-            _id: membershipPurchase._id,
-            paymentStatus: "pending"
-          },
-          {
-            $set: {
-              paymentStatus: "verification_required",
-              failureCode: "CALLBACK_REQUIRES_RECONCILIATION",
-              failureDescription:
-                "A Daraja callback was received. Callback data is untrusted; independently reconcile the payment before activating membership."
+        try {
+          verification = await verifyAndFulfilMembershipCallback({
+            purchaseId: membershipPurchase._id,
+            checkoutRequestId,
+            merchantRequestId,
+            resultCode,
+            metadata
+          });
+        } catch (verificationError) {
+          console.error(
+            "Membership payment verification failed safely:",
+            verificationError.message
+          );
+          verification = {
+            verified: false,
+            reason: verificationError.code || "VERIFICATION_ERROR"
+          };
+        }
+
+        if (verification.verified) {
+          await DarajaCallbackEvent.updateOne(
+            { eventKey },
+            { $set: { processingStatus: "processed" } }
+          );
+
+          console.info(
+            "Membership payment verified:",
+            String(membershipPurchase._id),
+            "fulfilled:",
+            verification.fulfilled === true
+          );
+
+          return res.status(200).json({
+            ResultCode: 0,
+            ResultDesc: verification.fulfilled
+              ? "Membership payment verified and fulfilment completed"
+              : "Payment verified; membership fulfilment requires recovery"
+          });
+        }
+
+        await Promise.all([
+          DarajaCallbackEvent.updateOne(
+            { eventKey },
+            { $set: { processingStatus: "reconciliation_required" } }
+          ),
+          MembershipPurchase.updateOne(
+            {
+              _id: membershipPurchase._id,
+              paymentStatus: "pending"
+            },
+            {
+              $set: {
+                paymentStatus: "verification_required",
+                failureCode: verification.reason || "CALLBACK_REQUIRES_RECONCILIATION",
+                failureDescription:
+                  "Automatic payment verification could not safely confirm this purchase. Manual reconciliation is required."
+              }
             }
-          }
-        );
+          )
+        ]);
 
         console.info(
-          "Membership callback stored for reconciliation:",
-          String(membershipPurchase._id)
+          "Membership callback requires reconciliation:",
+          String(membershipPurchase._id),
+          verification.reason || "UNCONFIRMED"
         );
 
         return res.status(200).json({
           ResultCode: 0,
-          ResultDesc: "Callback stored for payment reconciliation"
+          ResultDesc: "Callback stored; payment requires reconciliation"
         });
       }
 
@@ -246,30 +288,44 @@ router.post("/stk", async (req, res) => {
         { $set: { processingStatus: "processed" } }
       );
     } else {
-      await Promise.all([
-        DarajaCallbackEvent.updateOne(
-          { eventKey },
-          {
-            $set: {
-              processingStatus: "reconciliation_required"
-            }
-          }
-        ),
+      try {
+        await verifyAndCompleteDepositCallback({
+          requestId: deposit.requestId,
+          checkoutRequestId,
+          merchantRequestId,
+          resultCode,
+          metadata,
+          ipAddress: req.ip
+        });
 
-        Deposit.updateOne(
-          {
-            _id: deposit._id,
-            status: "pending"
-          },
-          {
-            $set: {
-              resultCode,
-              resultDescription:
-                "Callback stored as untrusted evidence. Independent reconciliation is required before wallet credit."
+        await DarajaCallbackEvent.updateOne(
+          { eventKey },
+          { $set: { processingStatus: "processed" } }
+        );
+      } catch (verificationError) {
+        console.error(
+          "Automatic deposit verification incomplete:",
+          verificationError.message
+        );
+
+        await Promise.all([
+          DarajaCallbackEvent.updateOne(
+            { eventKey },
+            { $set: { processingStatus: "reconciliation_required" } }
+          ),
+          Deposit.updateOne(
+            { _id: deposit._id, status: "pending" },
+            {
+              $set: {
+                resultCode,
+                resultDescription:
+                  "Automatic Safaricom verification incomplete: " +
+                  String(verificationError.message).slice(0, 300)
+              }
             }
-          }
-        )
-      ]);
+          )
+        ]);
+      }
     }
 
     return res.status(200).json({

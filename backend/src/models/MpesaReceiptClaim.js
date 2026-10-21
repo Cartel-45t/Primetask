@@ -52,7 +52,8 @@ const mpesaReceiptClaimSchema = new mongoose.Schema(
         "safaricom_portal",
         "safaricom_statement",
         "deposit_completion_service",
-        "admin_manual_payout"
+        "admin_manual_payout",
+        "daraja_provider_confirmation"
       ],
       immutable: true
     },

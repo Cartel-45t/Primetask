@@ -4,6 +4,12 @@ const mongoose = require("mongoose");
 
 const walletTransactionSchema = new mongoose.Schema(
   {
+    membershipPurchaseId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MembershipPurchase",
+      default: undefined
+    },
+
     depositId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Deposit",
@@ -80,7 +86,8 @@ const walletTransactionSchema = new mongoose.Schema(
         "transfer_out",
         "earning",
         "commission",
-        "adjustment"
+        "adjustment",
+        "membership_purchase"
       ],
       required: true
     },
@@ -173,6 +180,17 @@ walletTransactionSchema.index(
       commissionId: { $type: "objectId" }
     },
     name: "unique_commission_wallet_ledger"
+  }
+);
+
+walletTransactionSchema.index(
+  { membershipPurchaseId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      membershipPurchaseId: { $type: "objectId" }
+    },
+    name: "unique_membership_purchase_wallet_ledger"
   }
 );
 

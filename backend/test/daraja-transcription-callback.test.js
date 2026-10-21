@@ -72,6 +72,16 @@ const membershipPurchaseModel = {
   }
 };
 
+const membershipVerificationService = {
+  async verifyAndFulfilMembershipCallback() {
+    return {
+      verified: false,
+      fulfilled: false,
+      reason: "PROVIDER_QUERY_FAILED"
+    };
+  }
+};
+
 const eventModel = {
   async create(record) {
     if (events.some(item => item.eventKey === record.eventKey)) {
@@ -112,6 +122,9 @@ function loadRouteWithMocks() {
       return purchaseModel;
     }
     if (request === "../models/DarajaCallbackEvent") return eventModel;
+    if (request === "../services/membershipDarajaVerificationService") {
+      return membershipVerificationService;
+    }
 
     return originalLoad.call(this, request, parent, isMain);
   };
@@ -278,7 +291,7 @@ test("membership callback flags matching purchase for reconciliation without ver
   assert.equal(membershipPurchase.membershipId, null);
   assert.equal(
     membershipPurchase.failureCode,
-    "CALLBACK_REQUIRES_RECONCILIATION"
+    "PROVIDER_QUERY_FAILED"
   );
   assert.equal(purchase.paymentStatus, "pending");
   assert.equal(events.length, 1);

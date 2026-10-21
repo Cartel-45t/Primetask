@@ -6,7 +6,8 @@ const requireAuth = require("../middleware/requireAuth");
 
 const {
   calculateExpectedKes,
-  createPendingDeposit
+  createPendingDeposit,
+  completeSimulatedDeposit
 } = require("../services/depositService");
 
 const {
@@ -99,6 +100,110 @@ function publicDeposit(deposit) {
  *
  * This endpoint never credits the wallet.
  */
+
+// POST /api/wallet/deposits/simulate
+// Development-only test endpoint. It never contacts Daraja.
+router.post("/simulate", async (req, res) => {
+  if (
+    process.env.NODE_ENV !== "development" ||
+    process.env.DEPOSIT_SIMULATION_ENABLED !== "true"
+  ) {
+    return res.status(404).json({
+      success: false,
+      message: "Not found."
+    });
+  }
+
+  try {
+    const idempotencyKey = req.get("Idempotency-Key");
+
+    if (
+      typeof idempotencyKey !== "string" ||
+      idempotencyKey.length < 8 ||
+      idempotencyKey.length > 100 ||
+      !/^[A-Za-z0-9._:-]+$/.test(idempotencyKey)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "A valid Idempotency-Key header is required."
+      });
+    }
+
+    const amountCents = parseAmountCents(req.body?.amount);
+    const phoneNumber = normalizePhoneNumber(req.body?.phoneNumber);
+    const outcome = req.body?.outcome;
+
+    if (!["success", "failed"].includes(outcome)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Outcome must be "success" or "failed".'
+      });
+    }
+
+    const expectedAmountKes = calculateExpectedKes(amountCents);
+    const minKes = Number(process.env.WALLET_TOPUP_MIN_KES);
+    const maxKes = Number(process.env.WALLET_TOPUP_MAX_KES);
+
+    if (
+      (Number.isSafeInteger(minKes) && minKes > 0 &&
+        expectedAmountKes < minKes) ||
+      (Number.isSafeInteger(maxKes) && maxKes > 0 &&
+        expectedAmountKes > maxKes)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Deposit amount is outside the configured limits."
+      });
+    }
+
+    const requestId = `DP-${randomUUID()}`;
+    const created = await createPendingDeposit({
+      requestId,
+      idempotencyKey,
+      userId: req.user._id,
+      amountCents,
+      phoneNumber,
+      paymentMode: "simulation"
+    });
+
+    if (!created.created) {
+      return res.status(200).json({
+        success: true,
+        simulated: true,
+        reused: true,
+        message: "Existing simulation returned; its outcome was not changed.",
+        deposit: created.deposit
+      });
+    }
+
+    const result = await completeSimulatedDeposit({
+      requestId: created.deposit.requestId,
+      outcome
+    });
+
+    return res.status(201).json({
+      success: true,
+      simulated: true,
+      message: "Local simulation completed. No M-Pesa payment occurred.",
+      deposit: result
+    });
+  } catch (error) {
+    if (/Idempotency key was already used/.test(error.message)) {
+      return res.status(409).json({
+        success: false,
+        code: "IDEMPOTENCY_CONFLICT",
+        message: error.message
+      });
+    }
+
+    console.error("Deposit simulation error:", error.message);
+    return res.status(400).json({
+      success: false,
+      message: error.message || "Deposit simulation failed."
+    });
+  }
+});
+
 router.post("/", async (req, res) => {
   try {
     const idempotencyKey = req.get("Idempotency-Key");
@@ -167,7 +272,8 @@ router.post("/", async (req, res) => {
     if (existing) {
       if (
         existing.amountCents !== amountCents ||
-        existing.phoneNumber !== phoneNumber
+        existing.phoneNumber !== phoneNumber ||
+        existing.paymentMode !== "daraja"
       ) {
         return res.status(409).json({
           success: false,
