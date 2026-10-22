@@ -647,6 +647,15 @@ router.post(
       if (hasDocument) {
         const uploaded = await uploadSubmissionDocument(req.file.buffer);
 
+        console.error("[DOCX Cloudinary response metadata]", {
+          resource_type: uploaded.resource_type,
+          type: uploaded.type,
+          public_id: uploaded.public_id,
+          format: uploaded.format,
+          asset_folder: uploaded.asset_folder,
+          bytes: uploaded.bytes
+        });
+
         if (
           uploaded.resource_type !== "raw" ||
           uploaded.type !== "authenticated" ||
