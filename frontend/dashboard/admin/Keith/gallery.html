@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080611">
+<title>Dragon Ball Super | Saiyan Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080611;--panel:#100c20;--line:#7251a955;--purple:#bc8cff;--orange:#ff812e;--gold:#ffdf85;--cyan:#70dcff;--text:#faf7ff;--muted:#a8a0bd}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Rajdhani,sans-serif;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;z-index:-2;background:radial-gradient(ellipse at 50% 0%,#352054 0%,#171027 40%,#080611 82%)}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit}
+header{position:sticky;top:0;z-index:20;background:#080611ed;backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.energy-line{height:3px;background:linear-gradient(90deg,#ff812e,#ffdf85,#bc8cff,#70dcff,#ff812e)}
+.nav{max-width:1550px;margin:auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px}
+.dragon-orb{width:43px;height:43px;display:grid;place-items:center;border-radius:50%;font-size:25px;background:radial-gradient(circle at 35% 25%,#fff4bd,#ffb52e 40%,#ef501d 75%);color:#57130c;box-shadow:0 0 23px #ff812e55}
+.brand strong{font:900 12px Orbitron;letter-spacing:1px}
+.brand small{display:block;color:var(--orange);font-size:11px;letter-spacing:2px;margin-top:4px}
+nav{display:flex;gap:5px;flex-wrap:wrap}
+nav a{font:700 9px Orbitron;letter-spacing:.6px;padding:10px;color:#c8bfdf;border:1px solid transparent}
+nav a:hover,nav a.active{color:white;border-color:#bc8cff77;background:#bc8cff17}
+main{max-width:1550px;margin:auto;padding:28px 22px 65px}
+.hero{position:relative;overflow:hidden;min-height:300px;padding:43px 30px;display:flex;align-items:center;border:1px solid var(--line);background:linear-gradient(110deg,#110a25f5,#160e2dbb),radial-gradient(ellipse at 80% 50%,#7540ac,#10091d)}
+.hero:before{content:"龍";position:absolute;right:5%;top:-65px;font-size:330px;line-height:1;color:#bc8cff0d;font-family:serif;pointer-events:none}
+.hero-copy{position:relative;z-index:1;max-width:850px}
+.kicker{font:700 10px Orbitron;letter-spacing:3px;color:var(--gold);text-transform:uppercase}
+h1{font:900 clamp(36px,6vw,76px)/1.05 Orbitron;letter-spacing:-2px;margin:19px 0}
+h1 span{display:block;color:var(--orange);text-shadow:0 0 30px #ff812e4d}
+.hero p{max-width:700px;color:#d4cce6;font-size:19px;line-height:1.5}
+.hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.pill{border:1px solid #bc8cff66;background:#bc8cff13;padding:8px 11px;color:#e6d8ff;font:700 9px Orbitron;letter-spacing:.7px}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:23px 0 17px}
+#search{flex:1 1 240px}
+input,select{min-width:0;background:#100b20;color:var(--text);border:1px solid #584274;padding:12px 13px;outline:none}
+input:focus,select:focus{border-color:var(--purple);box-shadow:0 0 0 2px #bc8cff20}
+select option{background:#100b20}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filter{border:1px solid #584274;background:#100b20;color:#c7b9e3;padding:10px 12px;font:700 9px Orbitron;cursor:pointer}
+.filter.active,.filter:hover{border-color:var(--orange);background:#ff812e16;color:#fff}
+.gallery-head{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:21px 0 14px}
+.gallery-head h2{font:800 15px Orbitron;letter-spacing:1px;margin:7px 0}
+.gallery-head p{font-size:13px;color:var(--muted);margin:0}
+#count{color:var(--gold);font-family:Orbitron}
+.gallery{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px}
+.character{position:relative;min-width:0;overflow:hidden;background:linear-gradient(150deg,#211439,#0d0919 80%);border:1px solid var(--line);cursor:pointer;transition:transform .2s,border-color .2s}
+.character:hover{transform:translateY(-4px);border-color:var(--orange);box-shadow:0 10px 28px #0005}
+.art{height:240px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;background:radial-gradient(ellipse at 50% 35%,#56367c 0%,#211438 44%,#0b0814 85%)}
+.art:before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#0e091b 0%,transparent 55%);z-index:1;pointer-events:none}
+.art img{width:100%;height:100%;object-fit:contain;object-position:center bottom;position:absolute;inset:0;filter:drop-shadow(0 0 15px #bd8cff22);transition:transform .3s}
+.character:hover .art img{transform:scale(1.06)}
+.character-info{padding:12px 13px 14px;position:relative}
+.character-info small{display:block;color:var(--orange);font:700 8px Orbitron;letter-spacing:1px;margin-bottom:7px}
+.character-info h3{font:800 11px Orbitron;line-height:1.5;margin:0;overflow-wrap:anywhere}
+.character-info p{font-size:12px;color:var(--muted);margin:5px 0 0}
+.star{position:absolute;right:10px;top:10px;z-index:2;border:1px solid #ffdf8580;background:#0b081bd9;color:var(--gold);padding:5px 7px;font-size:12px}
+.loading,.empty{grid-column:1/-1;padding:32px;text-align:center;border:1px dashed var(--line);color:var(--muted)}
+#load-more{display:block;margin:24px auto 0}
+.btn{border:1px solid #bc8cff77;background:#180f2d;color:white;padding:12px 17px;font:800 10px Orbitron;letter-spacing:1px;cursor:pointer}
+.btn.hot{background:linear-gradient(110deg,#ff7426,#ffbc4d);color:#260c05;border-color:#ffdf85}
+.btn:disabled{opacity:.5;cursor:wait}
+.note{color:var(--muted);font-size:12px;line-height:1.6;margin-top:22px}
+footer{max-width:1550px;margin:auto;padding:0 22px 25px;color:#8e83a7;font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.viewer{display:none;position:fixed;inset:0;z-index:50;background:#030208f2;backdrop-filter:blur(12px);padding:20px;align-items:center;justify-content:center}
+.viewer.open{display:flex}
+.viewer-box{position:relative;width:min(900px,100%);height:min(88vh,800px);display:grid;grid-template-columns:minmax(0,1fr) minmax(200px,.6fr);border:1px solid #bc8cff88;background:#100b20;overflow:hidden}
+.viewer-art{min-height:0;background:radial-gradient(ellipse,#513074,#100b20);display:flex;align-items:center;justify-content:center}
+.viewer-art img{width:100%;height:100%;object-fit:contain}
+.viewer-info{padding:28px;align-self:center}
+.viewer-info h2{font:900 24px Orbitron;overflow-wrap:anywhere}
+.viewer-info p{color:#c8bfdc;line-height:1.6}
+.close{position:absolute;right:12px;top:12px;width:40px;height:40px;background:#100b20;color:white;border:1px solid #bc8cff88;font-size:22px;z-index:2}
+@media(max-width:1150px){.gallery{grid-template-columns:repeat(4,minmax(0,1fr))}.art{height:225px}}
+@media(max-width:850px){.gallery{grid-template-columns:repeat(3,minmax(0,1fr))}.art{height:220px}}
+@media(max-width:600px){.nav{padding:11px 13px;align-items:flex-start;flex-direction:column}nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:4px}nav a{text-align:center;padding:10px 2px;font-size:8px}main{padding:17px 12px 45px}.hero{padding:28px 17px;min-height:265px}h1{font-size:clamp(32px,9vw,47px);letter-spacing:-1px}.hero p{font-size:16px}.hero:before{right:-18%;font-size:240px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.art{height:205px}.character-info{padding:10px}.character-info h3{font-size:10px}.toolbar{align-items:stretch}.filters{width:100%}.filter{flex:1;padding:10px 5px;font-size:8px}.gallery-head h2{font-size:13px}.gallery-head p{font-size:11px}.viewer-box{height:90vh;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}.viewer-art{min-height:0}.viewer-art img{max-height:54vh}.viewer-info{padding:16px}.viewer-info h2{font-size:18px}.viewer-info p{font-size:13px}footer{padding:0 13px 20px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="energy-line"></div>
+  <div class="nav">
+    <a class="brand" href="gallery.html">
+      <span class="dragon-orb">★</span>
+      <span><strong>DRAGON BALL SUPER</strong><small>THE SAIYAN IMAGE ARCHIVE</small></span>
+    </a>
+    <nav aria-label="PrimeTask transcription navigation">
+      <a href="transcription-overview.html">SCOUTER</a>
+      <a href="jobs.html">MISSIONS</a>
+      <a href="submissions.html">SUBMISSIONS</a>
+      <a class="active" href="gallery.html">DBS GALLERY</a>
+      <a href="transcription.html">OPERATIONS</a>
+      <a href="transcription-overview.html#withdrawals">PAYOUTS</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="kicker">Universe 7 · Saiyan image archive</div>
+      <h1>THE DRAGON<span>BALL GALLERY.</span></h1>
+      <p>Transformations. Gods of Destruction. Saiyan legends. Rivals, fusions, and warriors from across the multiverse. An image-first gallery built for the fans who know the difference between a power-up and a whole new form.</p>
+      <div class="hero-meta">
+        <span class="pill">IMAGE GALLERY ONLY</span>
+        <span class="pill">SEARCH & FILTER</span>
+        <span class="pill">CHARACTER VIEWER</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Search Goku, Vegeta, Beerus, Broly..." aria-label="Search Dragon Ball characters">
+    <select id="sort" aria-label="Sort gallery">
+      <option value="default">DEFAULT ORDER</option>
+      <option value="az">NAME A–Z</option>
+      <option value="za">NAME Z–A</option>
+    </select>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="filter active" data-group="all">ALL WARRIORS</button>
+    <button class="filter" data-group="saiyan">SAIYANS</button>
+    <button class="filter" data-group="god">GODS & ANGELS</button>
+    <button class="filter" data-group="villain">VILLAINS</button>
+    <button class="filter" data-group="other">OTHER WARRIORS</button>
+  </div>
+
+  <section>
+    <div class="gallery-head">
+      <div>
+        <div class="kicker">Character collection</div>
+        <h2>EXPLORE THE MULTIVERSE</h2>
+      </div>
+      <p><span id="count">0</span> CHARACTERS</p>
+    </div>
+    <div class="gallery" id="gallery">
+      <div class="loading">Summoning the gallery…</div>
+    </div>
+    <button class="btn hot" id="load-more" type="button">LOAD MORE CHARACTERS</button>
+    <p class="note">Character artwork is loaded from the Dragon Ball API image library. Some images may fail if the external image host changes or limits access. This page uses images only, with no embedded video or animated background.</p>
+  </section>
+</main>
+
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-labelledby="viewer-title">
+  <div class="viewer-box">
+    <button class="close" id="close-viewer" type="button" aria-label="Close character viewer">×</button>
+    <div class="viewer-art"><img id="viewer-image" alt=""></div>
+    <div class="viewer-info">
+      <div class="kicker">Warrior profile</div>
+      <h2 id="viewer-title"></h2>
+      <p id="viewer-description"></p>
+      <span class="pill" id="viewer-group"></span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>DRAGON BALL SUPER · SAIYAN IMAGE ARCHIVE</span>
+  <span>NO VIDEO. JUST THE ART.</span>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+
+  const API = "https://dragonball-api.com/api/characters";
+  const gallery = document.getElementById("gallery");
+  const search = document.getElementById("search");
+  const sort = document.getElementById("sort");
+  const count = document.getElementById("count");
+  const loadMore = document.getElementById("load-more");
+  const viewer = document.getElementById("viewer");
+
+  let characters = [];
+  let page = 1;
+  let totalPages = 1;
+  let activeGroup = "all";
+  let loading = false;
+
+  const escapeText = value => String(value ?? "");
+  const groupFor = character => {
+    const text = [
+      character.name,
+      character.race,
+      character.affiliation,
+      character.description
+    ].join(" ").toLowerCase();
+
+    if (/beerus|whis|vados|champa|angel|god of destruction|supreme kai|zamasu/.test(text)) return "god";
+    if (/frieza|cell|majin buu|moro|gas\b|goku black|hit\b|broly/.test(text)) return "villain";
+    if (/saiyan|goku|vegeta|trunks|gohan|goten|pan\b|bardock|caulifla|kale|raditz|nappa/.test(text)) return "saiyan";
+    return "other";
+  };
+
+  function characterImage(character) {
+    return character.image || character.img || character.thumbnail || "";
+  }
+
+  function fallbackImage(id) {
+    return "https://dragonball-api.com/characters/" + encodeURIComponent(id) + ".webp";
+  }
+
+  function render() {
+    const query = search.value.trim().toLowerCase();
+    let visible = characters.filter(character => {
+      const text = [
+        character.name,
+        character.race,
+        character.affiliation,
+        character.ki,
+        character.maxKi,
+        character.description
+      ].join(" ").toLowerCase();
+
+      return (!query || text.includes(query)) &&
+        (activeGroup === "all" || groupFor(character) === activeGroup);
+    });
+
+    if (sort.value === "az") visible.sort((a,b) => escapeText(a.name).localeCompare(escapeText(b.name)));
+    if (sort.value === "za") visible.sort((a,b) => escapeText(b.name).localeCompare(escapeText(a.name)));
+
+    count.textContent = visible.length.toLocaleString();
+    gallery.replaceChildren();
+
+    if (!visible.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = characters.length
+        ? "No characters match your search or filter."
+        : "No characters loaded. Check your connection to the image library.";
+      gallery.appendChild(empty);
+      return;
+    }
+
+    visible.forEach(character => {
+      const card = document.createElement("article");
+      card.className = "character";
+      card.tabIndex = 0;
+      card.setAttribute("role","button");
+      card.setAttribute("aria-label","View " + escapeText(character.name));
+
+      const art = document.createElement("div");
+      art.className = "art";
+
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.alt = escapeText(character.name) + " character artwork";
+      img.src = characterImage(character) || fallbackImage(character.id);
+      img.onerror = () => {
+        if (img.dataset.fallbackTried) {
+          img.style.opacity = "0";
+          return;
+        }
+        img.dataset.fallbackTried = "1";
+        img.src = fallbackImage(character.id);
+      };
+
+      const star = document.createElement("span");
+      star.className = "star";
+      star.textContent = "✦";
+
+      art.append(img,star);
+
+      const info = document.createElement("div");
+      info.className = "character-info";
+
+      const label = document.createElement("small");
+      label.textContent = groupFor(character).replace(/^\w/, c => c.toUpperCase()) + " · ARCHIVE";
+
+      const name = document.createElement("h3");
+      name.textContent = escapeText(character.name || "Unknown Warrior");
+
+      const description = document.createElement("p");
+      description.textContent = character.race
+        ? escapeText(character.race)
+        : escapeText(character.affiliation || "Multiverse warrior");
+
+      info.append(label,name,description);
+      card.append(art,info);
+
+      const open = () => openViewer(character);
+      card.addEventListener("click",open);
+      card.addEventListener("keydown",event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          open();
+        }
+      });
+
+      gallery.appendChild(card);
+    });
+  }
+
+  function openViewer(character) {
+    const image = document.getElementById("viewer-image");
+    image.src = characterImage(character) || fallbackImage(character.id);
+    image.alt = escapeText(character.name) + " artwork";
+    document.getElementById("viewer-title").textContent = escapeText(character.name || "Unknown Warrior");
+
+    const details = [];
+    if (character.race) details.push("Race: " + character.race);
+    if (character.gender) details.push("Gender: " + character.gender);
+    if (character.affiliation) details.push("Affiliation: " + character.affiliation);
+    if (character.ki) details.push("Ki: " + character.ki);
+    if (character.maxKi) details.push("Maximum Ki: " + character.maxKi);
+    if (character.description) details.push(character.description);
+
+    document.getElementById("viewer-description").textContent = details.join("\n\n") || "Character details are not available from the image library.";
+    document.getElementById("viewer-description").style.whiteSpace = "pre-line";
+    document.getElementById("viewer-group").textContent = groupFor(character).toUpperCase();
+    viewer.classList.add("open");
+    document.getElementById("close-viewer").focus();
+  }
+
+  function closeViewer() {
+    viewer.classList.remove("open");
+  }
+
+  async function loadCharacters() {
+    if (loading || page > totalPages) return;
+    loading = true;
+    loadMore.disabled = true;
+    loadMore.textContent = "LOADING ARCHIVE…";
+
+    try {
+      const response = await fetch(API + "?page=" + page + "&limit=20", {
+        headers: {"Accept":"application/json"},
+        cache: "no-store"
+      });
+      if (!response.ok) throw new Error("Character library returned HTTP " + response.status);
+
+      const payload = await response.json();
+      const items = Array.isArray(payload)
+        ? payload
+        : payload.items || payload.characters || payload.data || [];
+
+      if (!Array.isArray(items)) throw new Error("Unexpected character library response.");
+
+      const unique = new Map(characters.map(character => [String(character.id),character]));
+      items.forEach(character => {
+        if (character && character.id !== undefined) unique.set(String(character.id),character);
+      });
+      characters = [...unique.values()];
+
+      const meta = payload.meta || payload.pagination || {};
+      totalPages = Number(meta.totalPages || meta.lastPage || payload.totalPages || totalPages);
+      if (!Number.isFinite(totalPages) || totalPages < page) totalPages = page;
+
+      page++;
+      render();
+
+      const canLoadMore = page <= totalPages && items.length > 0;
+      loadMore.hidden = !canLoadMore;
+      if (canLoadMore) loadMore.textContent = "LOAD MORE CHARACTERS";
+    } catch (error) {
+      if (!characters.length) {
+        gallery.innerHTML = "";
+        const errorCard = document.createElement("div");
+        errorCard.className = "empty";
+        errorCard.textContent = "The character library could not be reached. " + error.message;
+        gallery.appendChild(errorCard);
+      }
+      loadMore.textContent = "RETRY LOADING";
+      loadMore.hidden = false;
+    } finally {
+      loading = false;
+      loadMore.disabled = false;
+    }
+  }
+
+  document.getElementById("filters").addEventListener("click",event => {
+    const button = event.target.closest("button[data-group]");
+    if (!button) return;
+    activeGroup = button.dataset.group;
+    document.querySelectorAll(".filter").forEach(item => item.classList.toggle("active",item === button));
+    render();
+  });
+
+  search.addEventListener("input",render);
+  sort.addEventListener("change",render);
+  loadMore.addEventListener("click",loadCharacters);
+  document.getElementById("close-viewer").addEventListener("click",closeViewer);
+  viewer.addEventListener("click",event => {
+    if (event.target === viewer) closeViewer();
+  });
+  document.addEventListener("keydown",event => {
+    if (event.key === "Escape") closeViewer();
+  });
+
+  loadCharacters();
+})();
+</script>
+</body>
+</html>

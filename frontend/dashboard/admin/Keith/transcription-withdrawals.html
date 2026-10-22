@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10234b">
+<title>Transcription Withdrawals | PrimeTask Workspace</title>
+<style>
+:root {
+  color-scheme: light;
+  --navy: #10234b;
+  --navy2: #1c3768;
+  --blue: #2864dc;
+  --orange: #f28a24;
+  --ink: #17233c;
+  --muted: #718096;
+  --line: #e4eaf2;
+  --bg: #f4f7fb;
+  --white: #fff;
+  --green: #137b52;
+  --red: #c23b45;
+  --shadow: 0 8px 28px rgba(24,43,76,.06);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+button,input,select,textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { opacity: .55; cursor: wait; }
+a { color: inherit; }
+.shell { max-width: 1500px; margin: auto; padding: 24px; }
+.hero {
+  padding: 26px;
+  color: white;
+  background: linear-gradient(120deg,#10234b,#244d8c);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.hero:after {
+  content: "";
+  position: absolute;
+  width: 190px; height: 190px;
+  border: 35px solid rgba(255,255,255,.07);
+  border-radius: 50%;
+  right: -50px; top: -75px;
+}
+.brand { font-size: 12px; font-weight: 800; letter-spacing: 2px; opacity: .8; }
+.hero h1 { margin: 10px 0 5px; font-size: clamp(25px,4vw,36px); letter-spacing: -.8px; }
+.hero p { margin: 0; max-width: 700px; color: #dbe6fb; }
+.hero-row { display: flex; justify-content: space-between; gap: 20px; align-items: center; position: relative; z-index: 1; }
+.hero-mark {
+  display: grid; place-items: center; flex: 0 0 60px; height: 60px;
+  border-radius: 17px; background: var(--orange); color: #17233c;
+  font-size: 25px; font-weight: 900;
+}
+.notice {
+  margin-top: 18px; padding: 13px 16px; border-radius: 12px;
+  background: #fff4e8; border: 1px solid #ffdbb6; color: #854514;
+  font-size: 13px;
+}
+.stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 15px; margin: 20px 0; }
+.stat,.panel { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+.stat { padding: 19px; }
+.stat-label { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; }
+.stat-value { font-size: 27px; font-weight: 850; margin-top: 8px; letter-spacing: -.5px; overflow-wrap: anywhere; }
+.stat-sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.panel { padding: 20px; margin-bottom: 18px; min-width: 0; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.panel h2 { font-size: 18px; margin: 0; }
+.panel-desc { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+input,select,textarea {
+  width: 100%; border: 1px solid #d7dfeb; border-radius: 10px;
+  background: #fff; color: var(--ink); padding: 11px 12px; outline: none;
+}
+input:focus,select:focus,textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px #2864dc19; }
+.controls select { width: auto; min-width: 150px; }
+.btn {
+  border: 0; border-radius: 10px; padding: 10px 14px;
+  font-weight: 750; font-size: 13px; display: inline-flex;
+  justify-content: center; align-items: center; gap: 7px;
+}
+.btn-primary { color: white; background: var(--blue); }
+.btn-dark { color: white; background: var(--navy); }
+.btn-soft { color: var(--navy); background: #edf2fb; }
+.btn-orange { color: #39210c; background: #ffb15d; }
+.btn-danger { color: white; background: var(--red); }
+.btn:focus-visible { outline: 3px solid #f28a24; outline-offset: 2px; }
+.status {
+  display: inline-block; border-radius: 30px; padding: 5px 9px;
+  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px;
+}
+.status-pending_review { color: #87510b; background: #fff0d4; }
+.status-paid { color: #126a48; background: #dff6e9; }
+.status-rejected { color: #a42b37; background: #fde7e9; }
+.table-wrap { width: 100%; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 820px; }
+th { background: #f6f8fc; color: #697890; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; text-align: left; }
+th,td { padding: 13px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+td { font-size: 13px; }
+td strong { display: block; color: var(--ink); }
+.subtext { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.money { color: var(--navy); font-size: 16px; font-weight: 850; white-space: nowrap; }
+.actions { display: flex; gap: 7px; flex-wrap: wrap; }
+.empty { text-align: center; padding: 35px 12px; color: var(--muted); }
+.empty strong { display: block; color: var(--ink); margin-bottom: 5px; }
+.message { display: none; padding: 12px 14px; margin: 14px 0; border-radius: 10px; font-size: 13px; }
+.message.show { display: block; }
+.message.error { background: #fff0f0; color: #a32732; border: 1px solid #f3c8cc; }
+.message.success { background: #e7f8ee; color: #146b46; border: 1px solid #bce8cf; }
+.loading { color: var(--muted); padding: 22px; text-align: center; }
+.modal-backdrop {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: rgba(10,22,43,.58); padding: 18px; overflow-y: auto;
+  align-items: center; justify-content: center;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  width: min(100%,520px); background: white; border-radius: 18px;
+  padding: 23px; box-shadow: 0 24px 90px #0003;
+}
+.modal h2 { margin: 0 0 5px; }
+.modal-intro { margin: 0 0 18px; color: var(--muted); font-size: 13px; }
+.field { margin: 14px 0; }
+.field label { display: block; font-weight: 750; font-size: 13px; margin-bottom: 6px; }
+.help { font-size: 12px; color: var(--muted); margin-top: 5px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 9px; flex-wrap: wrap; margin-top: 20px; }
+@media(max-width:700px) {
+  .shell { padding: 13px; }
+  .hero { padding: 20px; border-radius: 15px; }
+  .hero-mark { display: none; }
+  .stats { grid-template-columns: 1fr; gap: 10px; }
+  .stat { padding: 15px; }
+  .stat-value { font-size: 24px; }
+  .panel { padding: 15px; }
+  .controls select { width: 100%; }
+}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="hero">
+    <div class="hero-row">
+      <div>
+        <div class="brand">PRIMETASK WORKSPACE · ADMIN OPERATIONS</div>
+        <h1>Transcription Withdrawals</h1>
+        <p>Review payout requests, record verified manual payments, and track decisions.</p>
+      </div>
+      <div class="hero-mark" aria-hidden="true">PT</div>
+    </div>
+  </header>
+
+  <div class="notice">
+    <strong>Manual payout control:</strong> marking a request as paid records the M-Pesa receipt.
+    This page does not initiate an M-Pesa or Daraja payment. Verify the actual transfer before recording it.
+  </div>
+
+  <div id="message" class="message" role="status" aria-live="polite"></div>
+
+  <section class="stats" aria-label="Withdrawal summary">
+    <article class="stat">
+      <div class="stat-label">Pending requests</div>
+      <div class="stat-value" id="pendingCount">—</div>
+      <div class="stat-sub">Awaiting admin review</div>
+    </article>
+    <article class="stat">
+      <div class="stat-label">Pending value</div>
+      <div class="stat-value" id="pendingValue">—</div>
+      <div class="stat-sub">USD requested, not yet paid</div>
+    </article>
+    <article class="stat">
+      <div class="stat-label">Loaded records</div>
+      <div class="stat-value" id="recordCount">—</div>
+      <div class="stat-sub">For the selected status</div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Withdrawal queue</h2>
+        <p class="panel-desc">Review pending requests or inspect completed decisions.</p>
+      </div>
+      <div class="controls">
+        <select id="statusFilter" aria-label="Filter withdrawals">
+          <option value="pending_review">Pending review</option>
+          <option value="paid">Paid</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <button class="btn btn-primary" id="refreshBtn" type="button">↻ Refresh</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Amount</th>
+            <th>Payment details</th>
+            <th>Requested</th>
+            <th>Status</th>
+            <th>Review</th>
+          </tr>
+        </thead>
+        <tbody id="withdrawalRows">
+          <tr><td colspan="6" class="loading">Loading withdrawal records…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <p class="subtext">All withdrawal amounts are displayed in USD. M-Pesa receipts are recorded as payout evidence only.</p>
+</main>
+
+<div class="modal-backdrop" id="reviewModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <h2 id="modalTitle">Review withdrawal</h2>
+    <p class="modal-intro" id="modalIntro">Confirm the decision details.</p>
+    <form id="reviewForm">
+      <input type="hidden" id="withdrawalId">
+      <input type="hidden" id="decision">
+      <div id="receiptField" class="field">
+        <label for="mpesaReceipt">M-Pesa receipt number</label>
+        <input id="mpesaReceipt" name="mpesaReceipt" autocomplete="off"
+          maxlength="20" placeholder="e.g. QWE1234567" pattern="[A-Za-z0-9]{8,20}">
+        <div class="help">Enter the receipt from the actual completed transfer, not a checkout request ID.</div>
+      </div>
+      <div id="reasonField" class="field" hidden>
+        <label for="reviewNote">Reason for rejection</label>
+        <textarea id="reviewNote" name="reviewNote" rows="3" maxlength="1000"
+          placeholder="Explain why this request is being rejected."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-soft" type="button" id="cancelReview">Cancel</button>
+        <button class="btn btn-primary" type="submit" id="submitReview">Confirm decision</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="assets/admin-navigation.js"></script>
+<script>
+"use strict";
+(() => {
+  const $ = id => document.getElementById(id);
+  const statusFilter = $("statusFilter");
+  const rows = $("withdrawalRows");
+  const message = $("message");
+  const modal = $("reviewModal");
+  let records = [];
+  let busy = false;
+
+  // Local Termux development and production use their respective API origins.
+  const API_BASE = (() => {
+    const host = location.hostname;
+    if (host === "127.0.0.1" || host === "localhost") {
+      return "http://127.0.0.1:5001/api";
+    }
+    return "https://primetask-mdcx.onrender.com/api";
+  })();
+
+  function showMessage(text, type) {
+    message.textContent = text;
+    message.className = "message show " + type;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  function clearMessage() {
+    message.textContent = "";
+    message.className = "message";
+  }
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    })[char]);
+  }
+  function usd(value) {
+    const amount = Number(value);
+    return Number.isFinite(amount)
+      ? new Intl.NumberFormat("en-US", {style:"currency",currency:"USD"}).format(amount)
+      : "Unavailable";
+  }
+  function date(value) {
+    if (!value) return "Not recorded";
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? "Not recorded" :
+      parsed.toLocaleString(undefined, {dateStyle:"medium",timeStyle:"short"});
+  }
+  function statusLabel(value) {
+    return value === "pending_review" ? "Pending review" :
+      value === "paid" ? "Paid" : value === "rejected" ? "Rejected" : value || "Unknown";
+  }
+  async function api(path, options = {}) {
+    const response = await fetch(API_BASE + path, {
+      ...options,
+      credentials: "include",
+      headers: {
+        ...(options.body ? {"Content-Type":"application/json"} : {}),
+        ...(options.headers || {})
+      }
+    });
+    let data;
+    try { data = await response.json(); }
+    catch { throw new Error("The server returned an unreadable response."); }
+    if (!response.ok || data.success === false) {
+      throw new Error(data.message || data.error || ("Request failed (" + response.status + ")."));
+    }
+    return data;
+  }
+
+  function render(list) {
+    if (!list.length) {
+      rows.innerHTML = '<tr><td colspan="6"><div class="empty"><strong>No records found</strong>There are no withdrawals under this status.</div></td></tr>';
+      return;
+    }
+    rows.innerHTML = list.map(item => {
+      const user = item.user || {};
+      const id = String(item.id || "");
+      const status = String(item.status || "pending_review");
+      const actions = status === "pending_review"
+        ? '<div class="actions"><button class="btn btn-primary" data-action="paid" data-id="' + escapeHTML(id) + '">Record paid</button><button class="btn btn-soft" data-action="reject" data-id="' + escapeHTML(id) + '">Reject</button></div>'
+        : '<span class="subtext">' + (status === "paid" ? "Receipt: " + escapeHTML(item.mpesaReceipt || "Not recorded") : "Reviewed: " + escapeHTML(date(item.reviewedAt))) + '</span>';
+      return '<tr>' +
+        '<td><strong>' + escapeHTML(user.username || "Unknown member") + '</strong><span class="subtext">' + escapeHTML(user.email || "No email provided") + '</span><span class="subtext">ID: ' + escapeHTML(item.requestId || id || "Unavailable") + '</span></td>' +
+        '<td><span class="money">' + escapeHTML(usd(item.amount)) + '</span><span class="subtext">USD</span></td>' +
+        '<td><strong>' + escapeHTML(item.phoneNumber || "No phone provided") + '</strong>' +
+        (item.mpesaReceipt ? '<span class="subtext">Receipt: ' + escapeHTML(item.mpesaReceipt) + '</span>' : '') +
+        (item.reviewNote ? '<span class="subtext">Note: ' + escapeHTML(item.reviewNote) + '</span>' : '') + '</td>' +
+        '<td>' + escapeHTML(date(item.createdAt)) + '</td>' +
+        '<td><span class="status status-' + escapeHTML(status) + '">' + escapeHTML(statusLabel(status)) + '</span></td>' +
+        '<td>' + actions + '</td></tr>';
+    }).join("");
+  }
+
+  async function load() {
+    if (busy) return;
+    busy = true;
+    clearMessage();
+    $("refreshBtn").disabled = true;
+    rows.innerHTML = '<tr><td colspan="6" class="loading">Loading records from the server…</td></tr>';
+    try {
+      const selectedStatus = statusFilter.value;
+      const data = await api("/admin/transcription/withdrawals?status=" + encodeURIComponent(selectedStatus));
+      records = Array.isArray(data.withdrawals) ? data.withdrawals : [];
+      $("recordCount").textContent = String(records.length);
+      render(records);
+
+      // Pending totals are fetched from the actual pending queue, not estimated.
+      if (selectedStatus === "pending_review") {
+        $("pendingCount").textContent = String(records.length);
+        $("pendingValue").textContent = usd(records.reduce((sum, item) => sum + (Number(item.amount) || 0), 0));
+      } else {
+        try {
+          const pendingData = await api("/admin/transcription/withdrawals?status=pending_review");
+          const pending = Array.isArray(pendingData.withdrawals) ? pendingData.withdrawals : [];
+          $("pendingCount").textContent = String(pending.length);
+          $("pendingValue").textContent = usd(pending.reduce((sum, item) => sum + (Number(item.amount) || 0), 0));
+        } catch {
+          $("pendingCount").textContent = "—";
+          $("pendingValue").textContent = "—";
+        }
+      }
+    } catch (error) {
+      rows.innerHTML = '<tr><td colspan="6"><div class="empty"><strong>Could not load withdrawals</strong>' +
+        escapeHTML(error.message) + '<p class="subtext">Check that the API is running and that your admin session is valid.</p></div></td></tr>';
+      $("recordCount").textContent = "—";
+      showMessage(error.message, "error");
+    } finally {
+      busy = false;
+      $("refreshBtn").disabled = false;
+    }
+  }
+
+  function openReview(id, decision) {
+    const item = records.find(record => String(record.id) === String(id));
+    if (!item || item.status !== "pending_review") {
+      showMessage("This request is no longer pending. Refresh the queue before reviewing it.", "error");
+      return;
+    }
+    $("withdrawalId").value = item.id;
+    $("decision").value = decision;
+    $("modalTitle").textContent = decision === "paid" ? "Record manual payout" : "Reject withdrawal";
+    $("modalIntro").textContent = (item.user?.username || "This member") + " · " + usd(item.amount);
+    $("receiptField").hidden = decision !== "paid";
+    $("reasonField").hidden = decision !== "reject";
+    $("mpesaReceipt").required = decision === "paid";
+    $("reviewNote").required = decision === "reject";
+    $("mpesaReceipt").value = "";
+    $("reviewNote").value = "";
+    $("submitReview").textContent = decision === "paid" ? "Confirm paid" : "Confirm rejection";
+    $("submitReview").className = decision === "paid" ? "btn btn-primary" : "btn btn-danger";
+    modal.classList.add("open");
+    (decision === "paid" ? $("mpesaReceipt") : $("reviewNote")).focus();
+  }
+  function closeModal() {
+    modal.classList.remove("open");
+  }
+
+  rows.addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    openReview(button.dataset.id, button.dataset.action);
+  });
+  $("refreshBtn").addEventListener("click", load);
+  statusFilter.addEventListener("change", load);
+  $("cancelReview").addEventListener("click", closeModal);
+  modal.addEventListener("click", event => {
+    if (event.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeModal();
+  });
+
+  $("reviewForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    if (busy) return;
+    const id = $("withdrawalId").value;
+    const decision = $("decision").value;
+    const body = {decision};
+    if (decision === "paid") {
+      body.mpesaReceipt = $("mpesaReceipt").value.trim().toUpperCase();
+      if (!/^[A-Z0-9]{8,20}$/.test(body.mpesaReceipt)) {
+        showMessage("Enter a valid M-Pesa receipt containing 8 to 20 letters or numbers.", "error");
+        return;
+      }
+      if (!window.confirm("Confirm that the real M-Pesa transfer is complete and this receipt belongs to this payout?")) return;
+    } else {
+      body.reviewNote = $("reviewNote").value.trim();
+      if (!body.reviewNote) {
+        showMessage("A reason is required to reject a withdrawal.", "error");
+        return;
+      }
+      if (!window.confirm("Reject this withdrawal? The backend should return the reserved amount to the member's available wallet balance.")) return;
+    }
+
+    busy = true;
+    $("submitReview").disabled = true;
+    $("submitReview").textContent = "Saving decision…";
+    clearMessage();
+    try {
+      await api("/admin/transcription/withdrawals/" + encodeURIComponent(id) + "/review", {
+        method: "PATCH",
+        body: JSON.stringify(body)
+      });
+      closeModal();
+      showMessage(decision === "paid"
+        ? "Manual payout receipt recorded successfully."
+        : "Withdrawal rejected. The server has processed the review decision.", "success");
+      await load();
+    } catch (error) {
+      showMessage(error.message, "error");
+    } finally {
+      busy = false;
+      $("submitReview").disabled = false;
+      $("submitReview").textContent = decision === "paid" ? "Confirm paid" : "Confirm rejection";
+    }
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

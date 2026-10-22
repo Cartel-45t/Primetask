@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>Transcription Jobs | PrimeTask Workspace Admin</title>
+<style>
+:root{--navy:#15294b;--blue:#3569d4;--orange:#f28b35;--ink:#202b3c;--muted:#758197;--line:#e4e9f1;--bg:#f5f7fb;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.shell{max-width:1450px;margin:auto;padding:24px}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:850;color:var(--navy);letter-spacing:.3px}
+.logo{width:43px;height:43px;border-radius:13px;background:var(--navy);color:white;display:grid;place-items:center;font-weight:900;position:relative}
+.logo:after{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:var(--orange);right:4px;top:4px}
+.kicker{font-size:11px;letter-spacing:1.7px;color:var(--blue);font-weight:850;text-transform:uppercase}
+h1{font-size:clamp(28px,4vw,39px);line-height:1.1;letter-spacing:-1px;color:var(--navy);margin:8px 0}
+.intro{color:var(--muted);max-width:720px;margin:0}
+.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:750;font-size:13px}
+.primary{background:var(--navy);color:white}
+.secondary{background:#e9effb;color:var(--navy)}
+.orange{background:var(--orange);color:#38220e}
+button:disabled{opacity:.6;cursor:wait}
+.banner{margin:22px 0;padding:15px 18px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:12px;color:#556278;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+.stat{background:white;border:1px solid var(--line);border-radius:15px;padding:18px}
+.stat-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.stat-value{font-size:29px;font-weight:850;color:var(--navy);margin-top:6px;overflow-wrap:anywhere}
+.stat-foot{font-size:12px;color:var(--muted)}
+.panel{background:white;border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:0 7px 24px #192f5208}
+.panelhead{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+h2{font-size:18px;margin:0;color:var(--navy)}
+.sub{font-size:13px;color:var(--muted);margin:4px 0 0}
+.filters{display:flex;gap:9px;flex-wrap:wrap}
+input,select{border:1px solid #dbe2ed;background:white;border-radius:10px;padding:10px 12px;min-width:150px;max-width:100%;color:var(--ink);outline:none}
+input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3569d41a}
+.search{min-width:min(260px,100%)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:790px}
+th{background:#f6f8fc;text-align:left;text-transform:uppercase;letter-spacing:.7px;font-size:10px;color:#758197}
+th,td{padding:14px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+td{font-size:13px}
+td strong{display:block;color:var(--navy);font-size:13px}
+.muted{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.pill{display:inline-block;border-radius:30px;padding:5px 9px;background:#eaf0fc;color:#3158a1;font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.4px}
+.pill.orange-pill{background:#fff0df;color:#985315}
+.pill.green{background:#e2f6eb;color:#176c49}
+.pill.red{background:#fde8e8;color:#a72d39}
+.message{display:none;margin:15px 0;padding:12px 14px;border-radius:10px;font-size:13px}
+.message.show{display:block}
+.error{background:#fff0f0;border:1px solid #f1c7cb;color:#a32732}
+.success{background:#e7f8ee;border:1px solid #bce8cf;color:#146b46}
+.empty{text-align:center;padding:35px 12px;color:var(--muted)}
+.empty strong{display:block;color:var(--navy);margin-bottom:5px}
+.foot{font-size:12px;color:var(--muted);margin:15px 2px}
+@media(max-width:700px){.shell{padding:13px}.stats{grid-template-columns:1fr;gap:9px}.stat{padding:14px}.stat-value{font-size:25px}.panel{padding:14px}.search,input,select{width:100%;min-width:0}.filters{width:100%}.filters>*{flex:1}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="topline">
+    <div class="brand"><div class="logo">PT</div><div>PRIMETASK WORKSPACE<div class="muted">ADMINISTRATION / TRANSCRIPTION</div></div></div>
+    <button class="btn secondary" id="refresh" type="button">↻ Refresh jobs</button>
+  </header>
+
+  <div class="kicker">Operations centre · Work management</div>
+  <h1>Transcription Jobs</h1>
+  <p class="intro">Monitor published work, job requirements, rewards, and workflow status from one place. Actual records only, because imaginary dashboards are not particularly useful.</p>
+
+  <div class="banner"><strong>Job management view.</strong> This page reads existing records from the admin API. It does not create, assign, or alter jobs until those actions are verified against the backend routes.</div>
+  <div id="message" class="message" role="status" aria-live="polite"></div>
+
+  <section class="stats">
+    <article class="stat"><div class="stat-label">Jobs returned</div><div class="stat-value" id="total">—</div><div class="stat-foot">Records from the server</div></article>
+    <article class="stat"><div class="stat-label">Active / available</div><div class="stat-value" id="active">—</div><div class="stat-foot">Based on returned job status</div></article>
+    <article class="stat"><div class="stat-label">Other statuses</div><div class="stat-value" id="other">—</div><div class="stat-foot">Assigned, completed, or other states</div></article>
+  </section>
+
+  <section class="panel">
+    <div class="panelhead">
+      <div><h2>Job register</h2><p class="sub">Search and filter the jobs returned by the API.</p></div>
+      <div class="filters">
+        <input id="search" class="search" type="search" placeholder="Search title, ID, or description…" aria-label="Search jobs">
+        <select id="status" aria-label="Filter by status">
+          <option value="">All statuses</option>
+          <option value="available">Available</option>
+          <option value="open">Open</option>
+          <option value="assigned">Assigned</option>
+          <option value="in_progress">In progress</option>
+          <option value="submitted">Submitted</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Job</th><th>Reward</th><th>Status</th><th>Assignment</th><th>Created</th></tr></thead>
+        <tbody id="jobRows"><tr><td colspan="5" class="empty">Loading jobs…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+  <p class="foot">Amounts are shown in USD when a job reward is present. Status labels reflect the returned record and are not inferred from missing data.</p>
+</main>
+
+<script src="assets/admin-navigation.js"></script>
+<script>
+"use strict";
+(() => {
+  const $ = id => document.getElementById(id);
+  const rows = $("jobRows");
+  const message = $("message");
+  let jobs = [];
+  let loading = false;
+
+  const API_BASE = (() => {
+    const host = location.hostname;
+    return host === "localhost" || host === "127.0.0.1"
+      ? "http://127.0.0.1:5001/api"
+      : "https://primetask-mdcx.onrender.com/api";
+  })();
+
+  function esc(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[c]);
+  }
+  function getFirst(obj, keys) {
+    for (const key of keys) {
+      const value = obj && obj[key];
+      if (value !== undefined && value !== null && value !== "") return value;
+    }
+    return null;
+  }
+  function statusOf(job) {
+    return String(getFirst(job, ["status","state","jobStatus"]) || "unknown")
+      .toLowerCase().replace(/[\s-]+/g, "_");
+  }
+  function pretty(value) {
+    return String(value || "Unknown").replace(/[_-]+/g," ")
+      .replace(/\b\w/g, char => char.toUpperCase());
+  }
+  function money(job) {
+    const value = getFirst(job, ["rewardUsd","rewardUSD","reward","amountUsd","amount","price"]);
+    if (value === null || !Number.isFinite(Number(value))) return "Not provided";
+    return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(Number(value));
+  }
+  function date(value) {
+    if (!value) return "Not recorded";
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? "Not recorded" :
+      parsed.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
+  }
+  function showMessage(text,type) {
+    message.textContent = text;
+    message.className = "message show " + type;
+  }
+  function normalText(job) {
+    return [
+      getFirst(job,["title","name","jobTitle"]),
+      getFirst(job,["description","instructions","summary"]),
+      getFirst(job,["_id","id","jobId","reference","referenceCode"]),
+      statusOf(job)
+    ].filter(Boolean).join(" ").toLowerCase();
+  }
+  function render() {
+    const query = $("search").value.trim().toLowerCase();
+    const selected = $("status").value;
+    const filtered = jobs.filter(job =>
+      (!selected || statusOf(job) === selected) &&
+      (!query || normalText(job).includes(query))
+    );
+    if (!filtered.length) {
+      rows.innerHTML = '<tr><td colspan="5"><div class="empty"><strong>No matching jobs</strong>Try another search or status filter.</div></td></tr>';
+      return;
+    }
+    rows.innerHTML = filtered.map(job => {
+      const id = getFirst(job,["_id","id","jobId","reference","referenceCode"]) || "ID unavailable";
+      const title = getFirst(job,["title","name","jobTitle"]) || "Untitled transcription job";
+      const desc = getFirst(job,["description","summary","instructions"]);
+      const state = statusOf(job);
+      const assignee = getFirst(job,["assignedToName","assigneeName","workerName","assignedUsername"]);
+      const created = getFirst(job,["createdAt","created_at","dateCreated"]);
+      let pillClass = "";
+      if (["available","open","published"].includes(state)) pillClass = "green";
+      else if (["cancelled","rejected","failed"].includes(state)) pillClass = "red";
+      else if (["pending","draft","unknown"].includes(state)) pillClass = "orange-pill";
+      return '<tr><td><strong>'+esc(title)+'</strong><span class="muted">'+esc(id)+'</span>'+
+        (desc ? '<div class="muted">'+esc(String(desc).slice(0,150))+'</div>' : '')+
+        '</td><td><strong>'+esc(money(job))+'</strong><span class="muted">USD, if supplied</span></td>'+
+        '<td><span class="pill '+pillClass+'">'+esc(pretty(state))+'</span></td>'+
+        '<td><strong>'+esc(assignee || "No assignee listed")+'</strong></td>'+
+        '<td>'+esc(date(created))+'</td></tr>';
+    }).join("");
+  }
+
+  async function load() {
+    if (loading) return;
+    loading = true;
+    $("refresh").disabled = true;
+    message.className = "message";
+    rows.innerHTML = '<tr><td colspan="5" class="empty">Loading jobs from the server…</td></tr>';
+    try {
+      const response = await fetch(API_BASE + "/admin/transcription/jobs", {
+        credentials:"include",
+        headers:{"Accept":"application/json"}
+      });
+      let data;
+      try { data = await response.json(); }
+      catch { throw new Error("The API returned a response that could not be read."); }
+      if (!response.ok || data.success === false) {
+        throw new Error(data.message || data.error || "Unable to load jobs (HTTP " + response.status + ").");
+      }
+      const list = Array.isArray(data) ? data :
+        Array.isArray(data.jobs) ? data.jobs :
+        Array.isArray(data.data) ? data.data :
+        Array.isArray(data.results) ? data.results : null;
+      if (!list) throw new Error("The endpoint responded, but its jobs array was not in a recognised response field.");
+      jobs = list;
+      $("total").textContent = jobs.length;
+      const activeCount = jobs.filter(job => ["available","open","published","active"].includes(statusOf(job))).length;
+      $("active").textContent = activeCount;
+      $("other").textContent = jobs.length - activeCount;
+      render();
+    } catch (error) {
+      $("total").textContent = "—";
+      $("active").textContent = "—";
+      $("other").textContent = "—";
+      rows.innerHTML = '<tr><td colspan="5"><div class="empty"><strong>Jobs could not be loaded</strong>'+esc(error.message)+'<p class="muted">Check the API connection and admin session. Authentication must remain enabled.</p></div></td></tr>';
+      showMessage(error.message,"error");
+    } finally {
+      loading = false;
+      $("refresh").disabled = false;
+    }
+  }
+  $("refresh").addEventListener("click",load);
+  $("search").addEventListener("input",render);
+  $("status").addEventListener("change",render);
+  load();
+})();
+</script>
+</body>
+</html>

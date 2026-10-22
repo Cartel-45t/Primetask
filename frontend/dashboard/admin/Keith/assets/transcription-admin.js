@@ -6,8 +6,8 @@
   const API_BASE = String(
     window.PTW_API_BASE ||
     document.body.dataset.apiBase ||
-    "http://127.0.0.1:5001/api"
-  ).replace(/\/+$/, "");
+    ""
+  ).trim().replace(/\/+$/, "");
 
   const $ = (selector, root = document) => root.querySelector(selector);
 
@@ -52,6 +52,10 @@
   }
 
   async function request(path, options = {}) {
+    if (!API_BASE) {
+      throw new Error("Admin API URL is not configured for this page.");
+    }
+
     const headers = new Headers(options.headers || {});
     headers.set("Accept", "application/json");
 
@@ -158,14 +162,62 @@
           ? submission.transcriptText.trim()
           : "";
 
+        const hasDocument = submission.documentAvailable === true;
+
         if (transcript) {
           card.append(element("h4", "", "Submitted transcript"));
           card.append(element("pre", "ptw-transcription-transcript", transcript));
-        } else {
+        }
+
+        if (hasDocument) {
+          const documentName = submission.documentOriginalName || "submission.docx";
+          card.append(element(
+            "p",
+            "ptw-transcription-muted",
+            `DOCX document: ${documentName}` +
+              (Number.isFinite(Number(submission.documentBytes))
+                ? ` (${Number(submission.documentBytes)} bytes)`
+                : "")
+          ));
+
+          card.append(makeButton("Download DOCX", async () => {
+            setStatus("Downloading submitted DOCX…");
+            try {
+              const response = await fetch(
+                `${API_BASE}/admin/transcription/submissions/${encodeURIComponent(submission.id)}/document`,
+                {
+                  method: "GET",
+                  headers: { "Accept": "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+                  credentials: "include"
+                }
+              );
+
+              if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                throw new Error(payload.message || `Download failed (${response.status}).`);
+              }
+
+              const blob = await response.blob();
+              const objectUrl = URL.createObjectURL(blob);
+              const link = element("a");
+              link.href = objectUrl;
+              link.download = documentName.replace(/[\\/]/g, "_") || "submission.docx";
+              document.body.append(link);
+              link.click();
+              link.remove();
+              setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+              setStatus("DOCX download started.", "success");
+            } catch (error) {
+              setStatus(error.message || "DOCX download failed.", "error");
+            }
+          }));
+        }
+
+        if (!transcript && !hasDocument) {
           card.append(element(
             "p",
             "ptw-transcription-warning",
-            "No inline transcript text is available for this submission. The current admin API does not provide a document preview/download endpoint here. Review actions are disabled to avoid approving unseen work."
+            "No transcript text or downloadable DOCX is available. Review actions are disabled."
           ));
         }
 
@@ -173,7 +225,7 @@
           card.append(element("p", "", `Previous review note: ${submission.reviewNote}`));
         }
 
-        if (submission.status === "submitted" && transcript) {
+        if (submission.status === "submitted" && (transcript || hasDocument)) {
           const noteLabel = element("label", "ptw-transcription-note", "Review note (required when rejecting)");
           const noteInput = element("textarea");
           noteInput.rows = 3;
@@ -606,17 +658,13 @@
     setStatus("Uploading audio to protected storage…");
 
     try {
-      const uploadData = new FormData();
-      uploadData.append("audio", file);
+      if (!window.PTWCloudinaryAudioUpload) {
+        throw new Error("The secure audio uploader did not load. Refresh the page and try again.");
+      }
 
-      const uploadPayload = await request("/admin/transcription/assets/audio", {
-        method: "POST",
-        body: uploadData
-      });
-
-      const asset = uploadPayload.asset || {};
+      const asset = await window.PTWCloudinaryAudioUpload.upload(file, API_BASE);
       const publicId = asset.publicId;
-      if (!publicId) throw new Error("Audio upload returned no asset public ID.");
+      if (!publicId) throw new Error("Verified audio upload returned no asset public ID.");
 
       const durationSeconds = Number(asset.durationSeconds);
       if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {

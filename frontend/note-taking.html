@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#082a55">
+<title>PrimeTask Workspace | Professional Note-Taking Academy</title>
+<style>
+:root{--navy:#071a35;--blue:#1266d5;--blue2:#eaf3ff;--orange:#ff8a22;--orange2:#fff0df;--white:#fff;--ink:#17243a;--muted:#5e6d82;--line:#dce6f2;--shadow:0 18px 50px rgba(6,31,67,.14);--radius:22px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f8fd;color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif;line-height:1.7}a{color:inherit}button{font:inherit;cursor:pointer}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(7,26,53,.96);backdrop-filter:blur(14px);color:#fff;border-bottom:1px solid rgba(255,255,255,.13)}
+.nav{max-width:1200px;margin:auto;padding:12px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;align-items:center;gap:11px;text-decoration:none;font-weight:900;letter-spacing:.2px}.brand-mark{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--blue),#7bb7ff);display:grid;place-items:center;font-weight:1000;color:#fff;box-shadow:0 8px 22px #1266d555}.brand small{display:block;color:#b8d3f8;font-size:.7rem;letter-spacing:1.7px;text-transform:uppercase}.navlinks{display:flex;align-items:center;gap:17px}.navlinks a{text-decoration:none;font-size:.88rem;color:#e0ecff}.navlinks a:hover{color:#ffb46c}.nav-toggle{display:none;background:transparent;border:1px solid #ffffff55;color:white;border-radius:10px;padding:7px 11px}
+.hero{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(110deg,rgba(4,20,44,.94),rgba(9,57,117,.82) 58%,rgba(255,138,34,.36)),url('https://images.unsplash.com/photo-1455390582262-044c174d5b4c?auto=format&fit=crop&w=2000&q=85') center/cover;color:#fff}
+.hero:after{content:"";position:absolute;z-index:-1;right:-90px;bottom:-210px;width:500px;height:500px;border:1px solid #ffffff30;border-radius:50%;box-shadow:0 0 0 45px #ffffff0c,0 0 0 95px #ffffff09}
+.hero-inner{max-width:1200px;margin:auto;padding:82px 22px 76px;display:grid;grid-template-columns:1.15fr .85fr;gap:45px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:#ffffff17;border:1px solid #ffffff38;border-radius:999px;padding:7px 13px;font-size:.78rem;font-weight:800;letter-spacing:1px;text-transform:uppercase}.eyebrow i{width:8px;height:8px;background:var(--orange);border-radius:50%;display:inline-block}
+h1{font-size:clamp(2.5rem,5vw,4.5rem);line-height:1.05;letter-spacing:-2px;margin:20px 0}.hero h1 span{color:#ffae60}.hero p{font-size:1.08rem;color:#e3edfb;max-width:650px}.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:12px;padding:12px 18px;text-decoration:none;font-weight:850;transition:.2s}.btn:hover{transform:translateY(-2px)}.btn-orange{background:var(--orange);color:#17243a;box-shadow:0 9px 22px #ff8a2238}.btn-white{background:white;color:var(--navy)}.btn-outline{border:1px solid #ffffff77;color:white;background:#ffffff0c}
+.hero-visual{position:relative;min-height:390px;display:flex;align-items:center;justify-content:center}.hero-photo{width:min(100%,390px);height:410px;object-fit:cover;border-radius:30px;border:7px solid #ffffffdf;box-shadow:0 28px 70px #00112f77;transform:rotate(2deg)}.floating-card{position:absolute;background:#fff;color:var(--ink);padding:15px 17px;border-radius:16px;box-shadow:var(--shadow);max-width:225px}.floating-card strong{display:block;color:var(--blue);font-size:.92rem}.floating-card span{font-size:.8rem;color:var(--muted)}.float-one{left:-5px;top:42px}.float-two{right:-5px;bottom:25px}.mini-icon{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--orange2);margin-right:8px}
+main{max-width:1200px;margin:auto;padding:0 22px 70px}.section{padding:65px 0 8px;scroll-margin-top:90px}.section-head{max-width:790px;margin-bottom:27px}.kicker{color:var(--blue);font-weight:900;letter-spacing:1.8px;text-transform:uppercase;font-size:.76rem}.section h2{font-size:clamp(1.8rem,3vw,2.8rem);letter-spacing:-1px;line-height:1.15;color:var(--navy);margin:8px 0 14px}.section-head p{color:var(--muted);font-size:1.03rem}.highlight{background:linear-gradient(transparent 58%,#ffb86d 58%);padding:0 3px}.blue-highlight{background:var(--blue2);color:#08458f;border-radius:5px;padding:2px 6px;font-weight:800}.orange-callout{border-left:5px solid var(--orange);background:var(--orange2);padding:17px 20px;border-radius:0 15px 15px 0;margin:22px 0}.blue-callout{border-left:5px solid var(--blue);background:var(--blue2);padding:17px 20px;border-radius:0 15px 15px 0;margin:22px 0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:-30px;position:relative;z-index:3}.stat{background:#fff;padding:20px;border-radius:18px;box-shadow:var(--shadow);border:1px solid var(--line)}.stat strong{display:block;font-size:1.65rem;color:var(--blue)}.stat span{color:var(--muted);font-size:.84rem}
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.info-card{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 8px 28px #0a2c5010}.info-card img{width:100%;height:185px;object-fit:cover;display:block}.info-card .pad{padding:20px}.info-card h3{margin:0 0 8px;color:var(--navy)}.info-card p{margin:0;color:var(--muted)}.tag{display:inline-block;background:var(--blue2);color:#0b55a7;border-radius:999px;padding:4px 10px;font-size:.74rem;font-weight:900;margin-bottom:10px}.tag.orange{background:var(--orange2);color:#a84c00}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:25px;box-shadow:0 8px 30px #0a2c5009}.panel h3{margin-top:0;color:var(--navy)}.panel ul,.panel ol{padding-left:22px}.panel li{margin:8px 0}.step{display:flex;gap:14px;padding:15px 0;border-bottom:1px solid var(--line)}.step:last-child{border-bottom:0}.step-num{flex:0 0 39px;height:39px;display:grid;place-items:center;border-radius:12px;background:var(--blue);color:#fff;font-weight:900}.step p{margin:3px 0 0;color:var(--muted)}
+.photo-banner{position:relative;overflow:hidden;border-radius:25px;background:linear-gradient(90deg,#061a35f2,#0b3b78c9,#ff8a224d),url('https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=1800&q=85') center/cover;color:white;padding:34px;margin:28px 0}.photo-banner h3{font-size:1.7rem;margin:0 0 8px}.photo-banner p{max-width:780px;color:#e6efff;margin:0}
+.format-list{display:grid;grid-template-columns:1fr 1fr;gap:16px}.format{border:1px solid var(--line);background:#fff;border-radius:18px;overflow:hidden}.format summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:18px 20px;font-weight:900;color:var(--navy)}.format summary::-webkit-details-marker{display:none}.format summary:after{content:"+";margin-left:auto;display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--blue2);color:var(--blue);font-size:1.2rem}.format[open] summary:after{content:"−";background:var(--orange2);color:#a84c00}.format[open] summary{background:#f8fbff;border-bottom:1px solid var(--line)}.format-body{padding:19px 21px 23px;color:#35445b}.format-body h4{color:var(--blue);margin:18px 0 7px}.format-body p{margin:8px 0}.format-body pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#071a35;color:#f1f6ff;padding:17px;border-radius:13px;font: .9rem/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;border-left:4px solid var(--orange)}.format-body .example-label{font-size:.72rem;text-transform:uppercase;letter-spacing:1.2px;color:#a84c00;font-weight:900}
+.table-wrap{overflow-x:auto;border-radius:16px;border:1px solid var(--line);background:#fff}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:15px 17px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#eaf3ff;color:#083d7e;font-size:.86rem}tr:last-child td{border-bottom:0}td{color:#425169}
+.qa-intro{display:flex;align-items:center;gap:20px;margin-bottom:22px}.qa-intro img{width:130px;height:130px;object-fit:cover;border-radius:20px;border:5px solid #fff;box-shadow:var(--shadow)}.qa-list{display:grid;gap:13px}.qa{background:white;border:1px solid var(--line);border-radius:17px;overflow:hidden}.qa summary{list-style:none;cursor:pointer;padding:18px 21px;font-weight:850;color:var(--navy);display:flex;gap:12px;align-items:flex-start}.qa summary::-webkit-details-marker{display:none}.qmark{background:var(--orange);color:#182840;display:inline-grid;place-items:center;flex:0 0 29px;height:29px;border-radius:9px;font-weight:1000}.qa summary:after{content:"＋";margin-left:auto;color:var(--blue);font-size:1.2rem}.qa[open] summary{background:#f1f7ff}.qa[open] summary:after{content:"−"}.answer{padding:4px 23px 23px 62px;color:#4a5a70}.answer p{margin:10px 0}.answer h4{color:var(--blue);margin:16px 0 6px}.answer ul{padding-left:20px}.answer li{margin:7px 0}.answer .answer-note{background:var(--orange2);padding:13px 15px;border-radius:12px;border-left:4px solid var(--orange);color:#68401f}
+.checklist{display:grid;grid-template-columns:1fr 1fr;gap:10px}.check-item{display:flex;gap:10px;align-items:flex-start;background:#f8fbff;border:1px solid var(--line);border-radius:12px;padding:12px}.check-item input{margin-top:6px;accent-color:var(--blue);width:17px;height:17px}.progress-shell{height:9px;background:#e4ebf5;border-radius:999px;overflow:hidden;margin:15px 0}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--orange));transition:width .2s}.progress-text{font-size:.85rem;color:var(--muted)}
+.quiz-card{background:linear-gradient(135deg,#071a35,#0b4c9e);color:white;border-radius:24px;padding:28px;box-shadow:var(--shadow)}.quiz-card h3{margin-top:0}.quiz-q{padding:15px 0;border-bottom:1px solid #ffffff25}.quiz-q:last-child{border-bottom:0}.quiz-q label{display:block;padding:7px 10px;border-radius:9px;color:#e8f1ff}.quiz-q input{accent-color:var(--orange);margin-right:8px}.quiz-result{margin-top:18px;padding:14px;border-radius:12px;background:#ffffff15;display:none}.quiz-result.show{display:block}
+footer{background:#06152b;color:#dce9fc;padding:38px 22px}.footer-inner{max-width:1200px;margin:auto;display:flex;justify-content:space-between;gap:24px;align-items:center}.footer-inner p{color:#9fb4d1;margin:6px 0}.footer-mark{color:#ffae60;font-weight:900}
+@media(max-width:900px){.hero-inner{grid-template-columns:1fr;padding-top:58px}.hero-visual{min-height:320px}.hero-photo{height:320px;width:min(78%,360px)}.float-one{left:3%}.float-two{right:2%}.stats{grid-template-columns:repeat(2,1fr);margin-top:18px}.card-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.nav{padding:10px 15px}.nav-toggle{display:block}.navlinks{display:none;position:absolute;top:65px;left:12px;right:12px;background:#081c38;border:1px solid #ffffff22;border-radius:15px;padding:15px;flex-direction:column;align-items:stretch;gap:0}.navlinks.open{display:flex}.navlinks a{padding:12px;border-bottom:1px solid #ffffff14}.navlinks a:last-child{border-bottom:0}.hero-inner{padding:48px 18px 44px}.hero h1{letter-spacing:-1px}.hero-visual{min-height:285px}.hero-photo{height:285px;width:76%;border-width:5px}.floating-card{padding:10px 12px;max-width:180px}.float-one{top:20px}.float-two{bottom:10px}.floating-card span{font-size:.72rem}main{padding:0 15px 48px}.section{padding-top:47px}.stats,.card-grid,.two-col,.format-list,.checklist{grid-template-columns:1fr}.stat{padding:15px}.info-card img{height:205px}.panel{padding:19px}.photo-banner{padding:24px 20px}.qa-intro{align-items:flex-start}.qa-intro img{width:90px;height:90px}.answer{padding:2px 18px 20px 18px}.qa summary{padding:15px}.footer-inner{display:block}.footer-inner p{font-size:.9rem}}
+
+.brand-mark img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
+</style>
+  <link rel="icon" type="image/jpeg" href="assets/primetask.jpg">
+</head>
+<body>
+<header class="topbar">
+  <nav class="nav">
+    <a class="brand" href="#top"><span class="brand-mark"><img src="assets/primetask.jpg" alt="PrimeTask"></span><span>PrimeTask Workspace<small>Learning Studio</small></span></a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-label="Open navigation">☰ Menu</button>
+    <div class="navlinks" id="navLinks">
+      <a href="#foundations">Foundations</a><a href="#formats">Formats</a><a href="#workflow">Workflow</a><a href="#questions">Long-form Q&amp;A</a><a href="#practice">Practice</a>
+    </div>
+  </nav>
+</header>
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div>
+      <span class="eyebrow"><i></i> Practical skills training · Note-taking</span>
+      <h1>Write less noise.<br><span>Capture more meaning.</span></h1>
+      <p>A practical, detailed training ground for professional note-taking: how to listen, select key information, structure readable notes, record decisions, prepare handwritten documents, and return completed work to an administrator or client according to the stated instructions.</p>
+      <div class="hero-actions"><a class="btn btn-orange" href="#foundations">Start learning ↓</a><a class="btn btn-white" href="#formats">Explore note formats</a><a class="btn btn-outline" href="#questions">Open detailed questions</a></div>
+    </div>
+    <div class="hero-visual">
+      <img class="hero-photo" src="https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=1000&q=85" alt="Notebook and writing tools on a desk">
+      <div class="floating-card float-one"><span class="mini-icon">✍️</span><strong>Capture the meaning</strong><span>Not every word deserves a place on the page.</span></div>
+      <div class="floating-card float-two"><span class="mini-icon">✓</span><strong>Make it usable</strong><span>Clear headings, accurate details, tidy filing.</span></div>
+    </div>
+  </div>
+</section>
+<main>
+  <div class="stats">
+    <div class="stat"><strong>12</strong><span>Note-taking formats explored</span></div>
+    <div class="stat"><strong>6+</strong><span>Worked examples and templates</span></div>
+    <div class="stat"><strong>End-to-end</strong><span>From preparation to handover</span></div>
+    <div class="stat"><strong>Self-check</strong><span>Checklist and knowledge quiz</span></div>
+  </div>
+
+  <section class="section" id="foundations">
+    <div class="section-head"><span class="kicker">01 · Foundations</span><h2>What professional note-taking <span class="highlight">actually means</span></h2><p>Note-taking is the deliberate process of capturing important information in a clear, organized, accurate form so that someone can understand, remember, review, or act on it later. It is not a race to fill every blank space with handwriting.</p></div>
+    <div class="card-grid">
+      <article class="info-card"><img src="https://images.unsplash.com/photo-1455390582262-044c174d5b4c?auto=format&fit=crop&w=900&q=80" alt="Hand writing notes in a notebook"><div class="pad"><span class="tag">Purpose</span><h3>Capture what matters</h3><p>Record the main ideas, facts, definitions, evidence, decisions, questions, and actions. Select information according to the task, not according to how loudly or quickly it was said.</p></div></article>
+      <article class="info-card"><img src="https://images.unsplash.com/photo-1456324504439-367cee3b3c32?auto=format&fit=crop&w=900&q=80" alt="Organized notes and paper on a desk"><div class="pad"><span class="tag orange">Structure</span><h3>Make information findable</h3><p>Use headings, dates, labels, indentation, numbering, tables, or diagrams. A note that contains the right information but hides it in a wall of text is only half-finished.</p></div></article>
+      <article class="info-card"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80" alt="Person working carefully at a desk"><div class="pad"><span class="tag">Reliability</span><h3>Preserve the truth</h3><p>Keep facts distinct from opinions, identify uncertainty, preserve important figures and names, and never invent missing details to make a page appear complete.</p></div></article>
+    </div>
+    <div class="orange-callout"><strong>Core principle:</strong> Good notes are accurate enough to trust, organized enough to use, and concise enough to review. “Concise” does not mean removing context that changes the meaning.</div>
+    <div class="two-col">
+      <div class="panel"><h3>What notes may need to contain</h3><ul><li>Topic, date, time, location, and purpose where relevant.</li><li>Main ideas and supporting points.</li><li>Names, roles, terminology, numbers, dates, and quoted wording when exactness matters.</li><li>Questions, unresolved issues, risks, and follow-up tasks.</li><li>Decisions, responsible people, and deadlines in meeting or project notes.</li><li>Source references or page numbers when information must be traced.</li></ul></div>
+      <div class="panel"><h3>What note-taking is not</h3><ul><li>Blindly copying every sentence regardless of relevance.</li><li>Guessing at words, figures, or names that were unclear.</li><li>Rewriting what someone said to match your own opinion.</li><li>Mixing separate speakers' ideas so the source becomes unclear.</li><li>Adding personal information unrelated to the task.</li><li>Assuming that neat handwriting can rescue inaccurate content. It cannot. Paper is not a truth machine.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="section" id="workflow">
+    <div class="section-head"><span class="kicker">02 · The complete workflow</span><h2>From preparation to <span class="highlight">final handover</span></h2><p>Follow the task instructions first. A lecture, client interview, research observation, meeting, and handwritten filing assignment may share basic skills, but they do not all use the same template or rules.</p></div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="step"><span class="step-num">1</span><div><strong>Read the brief before writing</strong><p>Identify the topic, audience, required format, whether notes must be handwritten or typed, expected level of detail, deadline, and how the work must be returned. Ask for clarification before starting if a requirement is contradictory or missing.</p></div></div>
+        <div class="step"><span class="step-num">2</span><div><strong>Prepare the page</strong><p>Write the title or topic, date, page number, and any required identifiers. Leave a margin or space for questions and later corrections. For confidential work, use only the identifiers authorized by the brief.</p></div></div>
+        <div class="step"><span class="step-num">3</span><div><strong>Listen, observe, and select</strong><p>Pay attention to repeated points, definitions, transitions, examples, conclusions, decisions, and instructions. Use concise phrases when safe, but preserve exact wording when a quotation, legal statement, formula, or technical term requires it.</p></div></div>
+        <div class="step"><span class="step-num">4</span><div><strong>Organize while capturing</strong><p>Group related points under headings. Use numbering for sequence, bullets for separate ideas, tables for comparison, and arrows only when their meaning is clear. Do not let decorative formatting slow down the actual listening.</p></div></div>
+        <div class="step"><span class="step-num">5</span><div><strong>Review for completeness</strong><p>Check names, dates, figures, units, negations such as “not,” and relationships such as cause versus effect. Mark unclear items honestly instead of silently filling the gap with a guess.</p></div></div>
+        <div class="step"><span class="step-num">6</span><div><strong>Prepare and return the work</strong><p>Make the final notes legible and correctly ordered. If handwritten, check page sequence, margins, labels, and attachments. Return them to the specified administrator or client using the stated handover process, then confirm receipt when required.</p></div></div>
+      </div>
+      <div>
+        <div class="panel"><h3>Before the session: a quick readiness check</h3><ul><li>Suitable notebook or approved paper is available.</li><li>Pens, pencils, ruler, and any required tools are ready.</li><li>Topic and required format are understood.</li><li>Names and technical vocabulary are prepared if provided.</li><li>Confidentiality and handling instructions are understood.</li><li>There is a plan for labeling, numbering, and returning pages.</li></ul></div>
+        <div class="photo-banner"><h3>Notes should survive the moment</h3><p>A good page should still make sense tomorrow, when the discussion is no longer fresh in your mind. Add enough context that a reader can identify what a point refers to without having to guess.</p></div>
+        <div class="blue-callout"><strong>Practical rule:</strong> If you cannot tell later who did what, which figure belongs to which item, or whether a statement was a decision or just a suggestion, the notes need clearer labels.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="formats">
+    <div class="section-head"><span class="kicker">03 · Formats and examples</span><h2>Choose a format that fits the <span class="highlight">job</span></h2><p>Open each format to read when to use it, how to build it, what to watch for, and a worked example. These are templates, not sacred tablets. Follow the client or administrator's specified format when one has been supplied.</p></div>
+    <div class="format-list">
+      <details class="format" open><summary>1. Cornell notes</summary><div class="format-body"><p><strong>Best for:</strong> lectures, lessons, training, and study material where you need both detailed notes and a later review prompt.</p><p>Divide the page into a narrow cue column on the left, a wide notes column on the right, and a short summary area at the bottom. Capture information in the notes column first. After the session, write questions or key terms in the cue column, then summarize the page in your own words without changing the facts.</p><h4>Worked example</h4><pre>TOPIC: Effective Communication      DATE: 18 Oct
+
+CUES / QUESTIONS       NOTES
+What is feedback?      Information about how a message or action
+                       was understood or performed.
+Active listening       Focus on the speaker, avoid interrupting,
+                       clarify meaning, and summarize key points.
+Barriers               Noise, assumptions, unfamiliar terms,
+                       distraction, and unclear instructions.
+
+SUMMARY:
+Communication improves when the receiver listens actively,
+checks understanding, and gives clear, relevant feedback.</pre><p><strong>Common mistake:</strong> Writing the cue questions while the speaker is still explaining a complicated point can make you miss the next point. Capture the main content first, then refine the cues.</p></div></details>
+      <details class="format"><summary>2. Outline notes</summary><div class="format-body"><p><strong>Best for:</strong> talks and subjects with clear levels of importance or nested topics.</p><p>Use a main heading for the central topic, then indent subtopics and supporting details. Keep the hierarchy consistent. A point indented under “Causes” should actually explain a cause, not suddenly introduce an unrelated recommendation.</p><h4>Worked example</h4><pre>TOPIC: Workplace Safety
+1. Purpose
+   1.1 Prevent injuries
+   1.2 Protect equipment
+2. Common hazards
+   2.1 Physical: wet floors, exposed wires
+   2.2 Chemical: unsafe handling or storage
+   2.3 Ergonomic: poor posture, repetitive strain
+3. Prevention
+   3.1 Identify hazards
+   3.2 Follow approved procedures
+   3.3 Report incidents promptly</pre><p><strong>Quality check:</strong> If every line has the same indentation, you may have lost the hierarchy. Use a clear level system rather than random spaces.</p></div></details>
+      <details class="format"><summary>3. Sentence method</summary><div class="format-body"><p><strong>Best for:</strong> fast-moving sessions where many distinct facts arrive quickly.</p><p>Write each important idea as a separate numbered sentence or concise statement. It is easy to capture, but the notes may become a list without a clear structure. Add headings and group related points during review.</p><h4>Worked example</h4><pre>TOPIC: Customer Service
+1. Acknowledge a customer promptly.
+2. Listen without interrupting.
+3. Repeat the issue to confirm understanding.
+4. Explain the next step and realistic timeframe.
+5. Record unresolved issues for follow-up.</pre><p><strong>Common mistake:</strong> Turning every spoken sentence into a written sentence. Select meaningful points and preserve enough detail to prevent ambiguity.</p></div></details>
+      <details class="format"><summary>4. Charting method</summary><div class="format-body"><p><strong>Best for:</strong> comparisons, categories, repeated data, and structured observations.</p><p>Create columns before the session if the categories are known. Keep each item in the correct column and use the same units and terms throughout. If an item does not fit a column, add a note rather than forcing it into a misleading category.</p><h4>Worked example</h4><pre>COMMUNICATION CHANNEL COMPARISON
+Channel       Strength             Limitation
+Email         Searchable record    Replies may be delayed
+Phone         Immediate dialogue   Harder to quote later
+Meeting       Shared discussion    Requires clear minutes
+Chat          Quick coordination   Context can get fragmented</pre><p><strong>Common mistake:</strong> Comparing unlike things. If one row lists cost and another lists speed, the table needs better-defined columns.</p></div></details>
+      <details class="format"><summary>5. Mind map</summary><div class="format-body"><p><strong>Best for:</strong> brainstorming, planning, and showing relationships among ideas.</p><p>Place the central topic in the middle, draw branches for major themes, and add smaller branches for details. Use short labels. Make arrows and colors meaningful, and add a small legend if a symbol could be misunderstood.</p><h4>Text version of a mind map</h4><pre>                  COMMUNICATION
+                  /     |      \
+             Speaking Listening Writing
+                |         |       |
+             Clarity   Questions Structure
+                \         |       /
+                   Feedback loop</pre><p><strong>Limit:</strong> A mind map is not always suitable for detailed sequential instructions, formal records, or information that must be audited line by line.</p></div></details>
+      <details class="format"><summary>6. Meeting and action notes</summary><div class="format-body"><p><strong>Best for:</strong> meetings, planning sessions, team reviews, and discussions that produce decisions or assigned tasks.</p><p>Capture the meeting title, date, attendees where required, agenda, key discussion points, decisions, action owners, and deadlines. Distinguish a suggestion from an agreed decision. Do not assign responsibility to someone merely because they mentioned the task.</p><h4>Worked example</h4><pre>MEETING: Weekly Operations Review
+DATE: 18 October 2026
+ATTENDEES: As recorded in the approved attendance list
+
+DISCUSSION
+- Delivery records need a consistent filing order.
+- Two files were missing page numbers.
+
+DECISION
+- New submissions will be checked for page numbering
+  before being filed.
+
+ACTION
+Task: Prepare a one-page filing checklist
+Owner: Operations coordinator
+Due: 21 October 2026
+
+OPEN ITEM
+- Confirm the approved storage location.</pre><p><strong>Important:</strong> Formal minutes may require an approved template, exact wording, review, and sign-off. Action notes are not automatically a substitute for official minutes.</p></div></details>
+      <details class="format"><summary>7. Question-and-answer notes</summary><div class="format-body"><p><strong>Best for:</strong> interviews, revision, oral examinations, FAQ creation, and training sessions built around questions.</p><p>Write each question clearly and pair it with a direct answer. Record follow-up questions and unanswered items separately. When capturing a person's answer, do not make it sound more certain or more favorable than it was.</p><h4>Worked example</h4><pre>Q: Why should files be numbered?
+A: Numbering helps confirm the correct page order and
+   makes missing pages easier to identify.
+
+Q: What if a page is illegible?
+A: Flag it for clarification or replacement. Do not guess
+   at the unreadable text.
+
+FOLLOW-UP:
+Confirm whether the team uses page numbers or file labels.</pre><p><strong>Common mistake:</strong> Rewriting the answer so aggressively that the original meaning or uncertainty disappears.</p></div></details>
+      <details class="format"><summary>8. Research and observation notes</summary><div class="format-body"><p><strong>Best for:</strong> fieldwork, site visits, experiments, user research, and systematic observation.</p><p>Separate what was directly observed from interpretation. Record date, setting, method, and relevant conditions. Use precise descriptions and avoid presenting assumptions as facts. Follow consent and privacy requirements for people, images, and sensitive records.</p><h4>Worked example</h4><pre>OBSERVATION: Document filing process
+DATE / TIME: 18 Oct 2026, 10:15
+SETTING: Records desk
+
+DIRECT OBSERVATION
+- Staff sorted documents by project code.
+- Two pages had no visible page number.
+- One folder label was partly obscured.
+
+INTERPRETATION / QUESTION
+- Missing numbers may make sequence checks harder.
+- Confirm the approved relabeling procedure.
+
+NEXT STEP
+- Check the written filing standard with the supervisor.</pre><p><strong>Key distinction:</strong> “The label was partly obscured” is an observation. “The staff member was careless” is a judgment and is not supported by that observation alone.</p></div></details>
+      <details class="format"><summary>9. Process and procedure notes</summary><div class="format-body"><p><strong>Best for:</strong> instructions, standard operating procedures, workflows, and repeatable tasks.</p><p>Record steps in the correct order. Identify prerequisites, warnings, decision points, and what a successful outcome looks like. If the process branches depending on a condition, show both paths clearly.</p><h4>Worked example</h4><pre>PROCESS: Handwritten document handover
+1. Check that all pages are present.
+2. Confirm page order and numbering.
+3. Review the title and required identifiers.
+4. Place pages in the approved folder.
+5. Complete the handover record if required.
+6. Deliver to the named recipient or secure location.
+7. Confirm receipt according to the instructions.
+
+IF A PAGE IS MISSING:
+Pause handover, record the issue, and notify
+the designated supervisor. Do not invent a replacement.</pre><p><strong>Common mistake:</strong> Leaving out a condition such as “only after approval.” Small omissions can change the procedure entirely.</p></div></details>
+      <details class="format"><summary>10. Diagram and flow notes</summary><div class="format-body"><p><strong>Best for:</strong> systems, workflows, relationships, and processes with clear decision points.</p><p>Use consistent symbols and arrows. Label each decision with a question, and label outgoing branches such as “Yes” and “No.” Diagrams should clarify the process, not make the reader decode a private system of symbols.</p><h4>Worked example</h4><pre>Receive pages
+     |
+Check page count
+     |
+Are all pages present?
+   /           \
+ Yes            No
+  |              |
+Review order   Flag issue
+  |              |
+File securely  Notify supervisor
+  |
+Confirm handover</pre><p><strong>Quality check:</strong> Read the diagram from start to finish. Every branch should lead to a clear next step or an explicitly stated endpoint.</p></div></details>
+      <details class="format"><summary>11. Summary notes</summary><div class="format-body"><p><strong>Best for:</strong> review sheets, executive summaries, and short records of longer material.</p><p>Keep the central message, most important supporting points, conclusions, and any action required. A summary should be shorter than the source, but not at the cost of reversing a conclusion or omitting a critical limitation.</p><h4>Worked example</h4><pre>TOPIC: Accurate record keeping
+- Label records consistently.
+- Preserve names, dates, and reference numbers.
+- Separate verified facts from assumptions.
+- Keep pages in order and restrict access when needed.
+CONCLUSION:
+A consistent process makes records easier to verify,
+retrieve, and hand over safely.</pre><p><strong>Common mistake:</strong> Including only the conclusion while leaving out the evidence or conditions that explain it.</p></div></details>
+      <details class="format"><summary>12. Hybrid notes</summary><div class="format-body"><p><strong>Best for:</strong> complex tasks where one format alone is not enough.</p><p>You may use an outline for the main content, a small table for figures, a diagram for sequence, and an action box for follow-up. The key is consistency: label each part and avoid duplicating content in ways that create conflicting versions.</p><h4>Worked example</h4><pre>TOPIC: Training session review
+
+MAIN POINTS (outline)
+1. Use a standard document title.
+2. Number pages before filing.
+3. Flag uncertain details for review.
+
+COMPARISON TABLE
+Issue            Risk              Control
+No page numbers  Wrong sequence    Number each page
+Unclear wording  Misinterpretation Ask for clarification
+
+FOLLOW-UP
+- Update the checklist.
+- Confirm approval with the administrator.</pre><p><strong>Common mistake:</strong> Using every visual format because it looks impressive. Choose only the formats that make the information easier to understand.</p></div></details>
+    </div>
+  </section>
+
+  <section class="section" id="handwritten">
+    <div class="section-head"><span class="kicker">04 · Handwritten work</span><h2>Handwritten notes: legibility, order, and <span class="highlight">filing</span></h2><p>Some assignments require notes to be written by hand and returned to an administrator or client after a specified number of hours or by a named deadline. In those cases, the handover instructions are part of the assignment, not an optional afterthought.</p></div>
+    <div class="two-col">
+      <div class="panel"><h3>Before handing in handwritten pages</h3><ol><li>Check that every page is present and readable.</li><li>Put pages in the correct sequence and number them if required.</li><li>Make the title and date easy to identify.</li><li>Use consistent headings and spacing.</li><li>Keep corrections legible. Do not obscure the original text with repeated scribbling.</li><li>Attach required supporting pages or approved forms.</li><li>Use the required folder, envelope, or filing location.</li><li>Deliver to the correct person through the approved method.</li><li>Record or confirm receipt if the instructions require it.</li></ol></div>
+      <div class="panel"><h3>What not to do</h3><ul><li>Do not assume a verbal deadline overrides the written brief without confirmation.</li><li>Do not leave loose pages unlabeled if they can be separated from the assignment.</li><li>Do not photograph, copy, or share confidential notes using an unapproved device or channel.</li><li>Do not silently replace an unclear fact with a guess.</li><li>Do not leave original documents in an unattended public area.</li><li>Do not claim that work was handed over if delivery has not actually occurred.</li></ul><div class="orange-callout"><strong>Handover note:</strong> If the brief says “return within four hours,” record the start time and calculate the deadline carefully. If the timing or recipient is unclear, get confirmation before the deadline becomes a tiny administrative disaster.</div></div>
+    </div>
+    <div class="photo-banner"><h3>Neat is useful. Accurate is essential.</h3><p>Use a consistent letter size, enough space between sections, and a clear distinction between headings and body notes. A page does not need decorative calligraphy; it needs to be read correctly by another person.</p></div>
+  </section>
+
+  <section class="section" id="quality">
+    <div class="section-head"><span class="kicker">05 · Accuracy and quality</span><h2>The details that make notes <span class="highlight">trustworthy</span></h2><p>Quality control is more than checking spelling. The most damaging errors often involve a changed number, a missing “not,” a wrong name, a mixed-up speaker, or a suggestion recorded as an agreed decision.</p></div>
+    <div class="table-wrap"><table><thead><tr><th>Check</th><th>Ask yourself</th><th>Example of a risk</th></tr></thead><tbody>
+      <tr><td><strong>Names and roles</strong></td><td>Are names spelled as provided, and are responsibilities assigned only when confirmed?</td><td>Recording the observer as the person responsible for an action.</td></tr>
+      <tr><td><strong>Numbers and units</strong></td><td>Does each figure have the right unit, date, label, and context?</td><td>Writing 15 instead of 50, or leaving out “per day.”</td></tr>
+      <tr><td><strong>Negation and conditions</strong></td><td>Did I preserve words such as “not,” “unless,” “only if,” and “except”?</td><td>Turning “do not approve until verified” into “approve after review.”</td></tr>
+      <tr><td><strong>Source and certainty</strong></td><td>Is this a verified fact, a speaker's claim, a suggestion, or an unresolved question?</td><td>Presenting an estimate as a confirmed result.</td></tr>
+      <tr><td><strong>Order and links</strong></td><td>Can the reader tell which detail belongs to which heading, table row, or step?</td><td>A number copied onto the wrong item.</td></tr>
+      <tr><td><strong>Privacy and access</strong></td><td>Am I handling only the information needed and using an approved storage method?</td><td>Sharing a photo of confidential notes in an unauthorized group.</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="section" id="questions">
+    <div class="section-head"><span class="kicker">06 · Detailed questions and answers</span><h2>Long-form explanations, <span class="highlight">one click away</span></h2><p>Each question opens to a fuller explanation, practical examples, and the reasoning behind the recommended approach. Open one at a time or expand the whole set using the controls.</p></div>
+    <div class="qa-intro"><img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=500&q=80" alt="Open notebook with pen"><div><strong>Study tip</strong><p style="margin:5px 0;color:var(--muted)">Try answering each question yourself before opening the explanation. Your brain learns more when it has to do a little work. Apparently even brains dislike being handed everything pre-chewed.</p></div></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px"><button class="btn btn-orange" id="expandAll">Expand all answers</button><button class="btn" style="background:#eaf3ff;color:#08458f" id="collapseAll">Collapse all answers</button></div>
+    <div class="qa-list" id="qaList">
+      <details class="qa"><summary><span class="qmark">Q1</span>What is the difference between note-taking and transcription?</summary><div class="answer"><p><strong>Note-taking</strong> selects and organizes the information that matters for a particular purpose. It normally produces a shortened record: key ideas, facts, decisions, tasks, definitions, or observations. The writer may use concise phrases, headings, bullets, diagrams, or tables, provided the meaning remains accurate.</p><p><strong>Transcription</strong> generally aims to represent spoken content in written form according to specified transcription rules. Depending on the assignment, it may preserve repetitions, fillers, speaker labels, timestamps, or other speech details. The transcriber does not simply choose a few highlights and discard the rest.</p><p>For example, in a 30-minute training session, notes might record five main principles and three action items. A transcript may record the spoken words in sequence. Neither approach is automatically better; they serve different purposes.</p><div class="answer-note"><strong>Remember:</strong> If the brief asks for notes, do not submit a transcript-like wall of every sentence. If it asks for a transcript, do not summarize the speaker's words as notes.</div></div></details>
+      <details class="qa"><summary><span class="qmark">Q2</span>How do I decide which information is important enough to write down?</summary><div class="answer"><p>Start with the purpose of the assignment. A student preparing for an examination needs definitions, concepts, examples, relationships, and likely review questions. A meeting note-taker needs decisions, action owners, deadlines, unresolved matters, and the context behind those actions. A researcher needs observations, conditions, methods, and source details.</p><p>Watch for signals such as a speaker introducing a topic, repeating an idea, defining a term, comparing two options, explaining cause and effect, correcting a misconception, giving a number, stating a decision, or describing a required action. These signals often mark information that readers will need later.</p><p>However, importance is not the same as loudness or repetition alone. A quiet correction to a figure may matter more than a long anecdote. A brief exception such as “unless the supervisor approves” can change the meaning of an entire procedure.</p><h4>A practical selection test</h4><ul><li>Would leaving this out make the main idea difficult to understand?</li><li>Could this detail change a decision, calculation, deadline, or action?</li><li>Will a reader need this information to verify or trace the point?</li><li>Is the detail required explicitly by the instructions?</li></ul><p>If the answer is yes to any of these, capture it accurately. If a point is interesting but irrelevant to the purpose, it may not need space in the final notes.</p></div></details>
+      <details class="qa"><summary><span class="qmark">Q3</span>What should I do when I miss a sentence or cannot hear a word clearly?</summary><div class="answer"><p>Do not stop paying attention to the whole session just to chase one missed phrase. Leave a clear placeholder such as “[unclear term]” or a question mark beside the relevant point, then continue capturing the next idea. If the session permits questions, ask for clarification at an appropriate moment. If the notes are based on a recording, replay the relevant section if that is allowed.</p><p>During review, use surrounding context to identify what kind of information is missing, but do not treat a plausible guess as confirmed fact. Context can help you ask a better question; it cannot guarantee that a name, number, formula, or technical term is correct.</p><p>For critical information, such as a dosage, financial amount, deadline, formula, or assigned responsibility, flag the uncertainty and request verification from an authorized source. If the task has a formal correction process, use it rather than silently rewriting the record.</p><div class="answer-note"><strong>Example:</strong> Write “Delivery due on [date unclear]” rather than inventing Friday because it sounds likely. A clearly marked gap is safer than a confidently written error.</div></div></details>
+      <details class="qa"><summary><span class="qmark">Q4</span>How can I write quickly without making my notes unreadable?</summary><div class="answer"><p>Use a repeatable structure before trying to increase speed. Prepare the heading and date, leave space for sections, and use short phrases rather than complete sentences when the meaning remains clear. Adopt a small set of familiar abbreviations, such as “e.g.” for “for example” or “w/” for “with,” only when they are appropriate for the audience and task.</p><p>Use bullets for separate ideas, numbering for ordered steps, arrows for clear relationships, and symbols only when you remember what they mean. If a symbol could be confused with another symbol, write the word instead. Technical or mathematical work may require exact notation and labels, so speed should never take priority over meaning.</p><p>It also helps to practice with short sessions. Compare your notes with the original material, identify which facts you missed, and see whether your abbreviations caused confusion. The aim is not maximum words per minute; it is maximum useful information captured accurately.</p><h4>Try this</h4><p>Instead of writing “The manager stated that every submitted form must be checked before the documents are placed in the archive,” you could write: “Manager: check every submitted form before archiving.” This is shorter while retaining the action and sequence. Do not shorten it to “forms archive check” because the relationships have vanished.</p></div></details>
+      <details class="qa"><summary><span class="qmark">Q5</span>Which note-taking format should I choose for a particular assignment?</summary><div class="answer"><p>Choose based on the structure of the information and what the reader needs to do with it. Use Cornell notes when later review and recall matter. Use an outline when the material has a clear hierarchy. Use sentence notes when information arrives rapidly and each point needs its own line. Use charting when you need to compare categories or record repeated fields.</p><p>Use a mind map for related concepts and brainstorming. Use meeting/action notes when people are making decisions or accepting tasks. Use question-and-answer notes when the source is organized around questions. Use research notes when the difference between direct observation and interpretation matters. Use procedure notes when order and conditions are essential.</p><p>You can combine formats if the task is complex, but every added structure should solve a real problem. A diagram may clarify a process, while a table records values and a short action box tracks follow-up. Avoid using a mind map for a process that needs precise step-by-step verification unless the diagram is specifically designed to show that sequence.</p><div class="answer-note"><strong>Priority order:</strong> Follow the supplied template first, meet the purpose second, and choose personal formatting preferences only after those requirements are satisfied.</div></div></details>
+      <details class="qa"><summary><span class="qmark">Q6</span>How should I record meetings without confusing suggestions, decisions, and actions?</summary><div class="answer"><p>Separate these categories visually. A suggestion is an idea someone proposes; a decision is an outcome that the group or authorized person actually agrees to; an action is a task assigned to a responsible person, ideally with a deadline. A discussion can include many suggestions without producing a decision.</p><p>For example, someone may say, “We could move the review to Thursday.” That is a suggestion until the group confirms it. If the chair says, “The review will take place Thursday at 10:00,” and the group accepts the change, record the decision with the date and time. If a coordinator is then assigned to notify participants by Tuesday, record the action, owner, and due date.</p><p>Do not infer agreement from silence unless the meeting rules explicitly say that silence constitutes agreement. Do not assign an action to the person who happened to mention it unless the group confirmed that responsibility. When something remains unresolved, record it as an open item and note who will confirm it if that is known.</p><p>Formal minutes may require specific wording, attendance details, review, or approval. Follow the organization's policy and approved template. Informal action notes should not be presented as approved minutes if they have not gone through that process.</p></div></details>
+      <details class="qa"><summary><span class="qmark">Q7</span>How do I take notes when the work must be handwritten and filed back to an administrator?</summary><div class="answer"><p>First, confirm the required format, writing materials, labeling rules, page-numbering expectations, filing location, recipient, and return time. If the administrator specifies a deadline measured from the start of the task, note the start time and calculate the due time rather than relying on memory. If the deadline is ambiguous, clarify it promptly.</p><p>During the task, use a consistent title and heading structure, leave adequate space, and keep the writing readable. Number pages when required and avoid placing important details too close to the edge where they may be cut off or hidden. If you make a correction, make it legible and follow any formal correction rules.</p><p>Before handover, count the pages, check their order, verify that any required identifiers are present, and ensure attachments are included. Put the work in the specified folder, envelope, or secure location. Deliver it to the named person or approved channel, and confirm receipt if required.</p><p>Confidentiality matters throughout the process. Do not take unauthorized photographs, leave documents in public areas, or share copies with people who are not authorized to see them. If pages are missing or damaged, report the issue rather than pretending the handover is complete.</p></div></details>
+      <details class="qa"><summary><span class="qmark">Q8</span>How should I use abbreviations, symbols, and short forms?</summary><div class="answer"><p>Abbreviations help when they are familiar, consistent, and unlikely to change the meaning. Use common forms only when appropriate for the audience. If a technical term is unfamiliar or the notes will be used as an official record, write the full term at first use and place the abbreviation in brackets if needed.</p><p>Symbols such as arrows, plus signs, and asterisks should have stable meanings. For instance, an arrow may indicate a sequence or a relationship, but the reader should not have to guess which one you intended. Use a legend for repeated custom symbols. Avoid inventing so many short forms that reviewing the notes becomes a code-breaking exercise.</p><p>Do not abbreviate names, figures, measurements, formulas, or critical instructions in ways that could cause ambiguity. Never omit a negative word or a condition just to save space. “Must not submit” and “must submit” differ by two tiny words and an enormous practical consequence.</p></div></details>
+      <details class="qa"><summary><span class="qmark">Q9</span>What does a professional final review look like?</summary><div class="answer"><p>Review the notes in layers. First, check coverage: are the major topics, decisions, and required sections present? Second, check accuracy: names, numbers, dates, units, labels, technical terms, and conditions. Third, check structure: do headings, indentation, tables, and diagrams communicate the relationships clearly? Fourth, check usability: can another person find the information quickly? Finally, check presentation and handling requirements.</p><p>For a meeting record, verify action owners and deadlines. For research notes, distinguish observations from interpretations and preserve source references. For procedural notes, confirm that the steps are in order and that exceptions are not missing. For handwritten work, inspect legibility and page sequence. For confidential work, verify that it is being stored and returned through the approved method.</p><p>Do not “correct” a statement just because it seems wrong. If the source appears to contain an error, mark it for confirmation or follow the authorized correction process. Your role is to produce a reliable record, not silently replace the source with your own preferred version.</p></div></details>
+      <details class="qa"><summary><span class="qmark">Q10</span>What are the most common note-taking mistakes, and how can I prevent them?</summary><div class="answer"><p>Common mistakes include writing too much without hierarchy, writing too little to preserve context, using inconsistent abbreviations, failing to label dates or sources, confusing a suggestion with a decision, mixing facts and opinions, omitting units, and leaving pages unnumbered when sequence matters. Another common error is spending so much time making notes visually attractive that the note-taker stops listening.</p><p>Prevent these errors by defining the purpose first, using a repeatable format, and reviewing notes soon after the session. Check critical details separately instead of relying on a general impression that the page “looks right.” Use placeholders for uncertainty, and ask for clarification when accuracy matters.</p><p>Finally, respect the brief. If the client asks for handwritten notes, do not deliver a typed summary. If the administrator provides a template, do not replace it with a personal design. If the task has a return deadline, plan the review and filing time into the work rather than treating handover as something to improvise at the end.</p></div></details>
+      <details class="qa"><summary><span class="qmark">Q11</span>How should I handle private or sensitive information in notes?</summary><div class="answer"><p>Record only the information needed for the assigned purpose. Follow the organization's rules about consent, confidentiality, retention, storage, copying, and access. Keep physical notes under control, avoid leaving them visible to unauthorized people, and use approved channels when returning or sharing them.</p><p>Do not photograph, upload, or forward notes simply because it is convenient. Names, contact details, financial information, personal comments, and workplace records can be sensitive even when they appear in ordinary notes. If you are unsure whether a detail is necessary or whether a channel is approved, ask the designated supervisor.</p><p>If a page is lost, sent to the wrong person, or exposed to someone unauthorized, report it promptly through the required process. Do not conceal the incident or try to solve it by deleting the evidence of what happened. A reliable workflow includes responsible handling, not just neat writing.</p></div></details>
+      <details class="qa"><summary><span class="qmark">Q12</span>How do I know when my notes are finished and ready to submit?</summary><div class="answer"><p>Notes are ready when they meet the task's requirements, preserve the necessary meaning, are organized and readable, and have passed a focused accuracy check. The document should contain the required headings and identifiers, all necessary pages and attachments, and no unresolved ambiguity that has been hidden by guesswork.</p><p>Use the stated completion criteria rather than your own sense that the page looks polished. A neat document may still be incomplete, and a short document may be excellent if it captures exactly what the task requires. Check the expected format, submission destination, recipient, deadline, and any confirmation process.</p><p>If something remains uncertain, disclose it clearly and follow the approved escalation or clarification process. Do not claim the task is complete if a required section, verification, or handover has not happened. Professionalism is partly the willingness to report a real limitation accurately.</p></div></details>
+    </div>
+  </section>
+
+  <section class="section" id="practice">
+    <div class="section-head"><span class="kicker">07 · Practice and self-assessment</span><h2>Test your understanding, then check your <span class="highlight">workflow</span></h2><p>Use the quiz to check your reasoning. Then use the checklist to review the steps you have completed. The checklist runs in this page only; it does not send, store, or submit your progress to PrimeTask Workspace.</p></div>
+    <div class="two-col">
+      <div class="quiz-card"><h3>Knowledge check</h3><p style="color:#d7e7ff">Choose one answer for each question, then score your attempt.</p>
+        <form id="quizForm">
+          <div class="quiz-q"><strong>1. What should you do when a critical figure is unclear?</strong><label><input type="radio" name="q1" value="a"> Guess from context and move on</label><label><input type="radio" name="q1" value="b"> Mark it for verification and seek clarification</label><label><input type="radio" name="q1" value="c"> Leave out the entire section</label></div>
+          <div class="quiz-q"><strong>2. Which format is especially useful for comparing repeated categories?</strong><label><input type="radio" name="q2" value="a"> Charting method</label><label><input type="radio" name="q2" value="b"> Free-form paragraph only</label><label><input type="radio" name="q2" value="c"> Unlabeled mind map</label></div>
+          <div class="quiz-q"><strong>3. In meeting notes, an idea becomes a decision when...</strong><label><input type="radio" name="q3" value="a"> Someone mentions it quickly</label><label><input type="radio" name="q3" value="b"> The note-taker likes the idea</label><label><input type="radio" name="q3" value="c"> It is actually agreed by the authorized group/person</label></div>
+          <div class="quiz-q"><strong>4. Before handing over handwritten pages, you should...</strong><label><input type="radio" name="q4" value="a"> Check page order, completeness, and required labels</label><label><input type="radio" name="q4" value="b"> Assume the recipient will organize everything</label><label><input type="radio" name="q4" value="c"> Photograph and share them for convenience</label></div>
+          <div class="quiz-q"><strong>5. The best note format is usually...</strong><label><input type="radio" name="q5" value="a"> The most decorative one</label><label><input type="radio" name="q5" value="b"> The one that fits the task and required instructions</label><label><input type="radio" name="q5" value="c"> Always Cornell notes, regardless of the task</label></div>
+          <button class="btn btn-orange" type="submit">Score my answers</button><button class="btn btn-outline" type="reset" id="resetQuiz">Reset quiz</button>
+        </form><div class="quiz-result" id="quizResult" role="status"></div>
+      </div>
+      <div class="panel"><h3>Submission readiness checklist</h3><p style="color:var(--muted)">Tick each item when it is complete. Progress is calculated locally in your current page.</p>
+        <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div><div class="progress-text" id="progressText">0 of 10 checks completed</div>
+        <div class="checklist" id="checklist">
+          <label class="check-item"><input type="checkbox">I followed the requested note format.</label>
+          <label class="check-item"><input type="checkbox">The title, topic, and date are clear.</label>
+          <label class="check-item"><input type="checkbox">Main ideas and required details are included.</label>
+          <label class="check-item"><input type="checkbox">Names, figures, dates, and units were checked.</label>
+          <label class="check-item"><input type="checkbox">Unclear information is flagged, not guessed.</label>
+          <label class="check-item"><input type="checkbox">Headings and sections are easy to follow.</label>
+          <label class="check-item"><input type="checkbox">Pages are complete and in the correct order.</label>
+          <label class="check-item"><input type="checkbox">Handwriting or text is legible.</label>
+          <label class="check-item"><input type="checkbox">Confidentiality and filing rules are followed.</label>
+          <label class="check-item"><input type="checkbox">Recipient, return method, and deadline are confirmed.</label>
+        </div>
+        <div class="orange-callout"><strong>Final reminder:</strong> Completing the checklist is a self-check, not an official approval or a submission receipt.</div>
+      </div>
+    </div>
+  </section>
+  <section class="section" id="glossary">
+    <div class="section-head"><span class="kicker">08 · Quick reference</span><h2>A compact glossary for revision</h2><p>Use these definitions to keep common terms consistent. Open a term to review its meaning.</p></div>
+    <div class="format-list">
+      <details class="format"><summary>Action item</summary><div class="format-body"><p>A specific task that needs to be completed. A useful action item states what must be done, who is responsible when known, and the due date when one has been agreed.</p></div></details>
+      <details class="format"><summary>Context</summary><div class="format-body"><p>The surrounding information that helps a reader understand what a fact or statement refers to, why it matters, and how it relates to other information.</p></div></details>
+      <details class="format"><summary>Source note</summary><div class="format-body"><p>A record of where information came from, such as a speaker, document title, page number, observation session, or approved reference. Source notes help readers verify details later.</p></div></details>
+      <details class="format"><summary>Open item</summary><div class="format-body"><p>A question, issue, or task that has not yet been resolved. Labeling it prevents uncertainty from being mistaken for a confirmed answer or decision.</p></div></details>
+    </div>
+  </section>
+</main>
+<footer><div class="footer-inner"><div><div class="footer-mark">PrimeTask Workspace · Learning Studio</div><p>Practical learning resources for clear, accurate, responsible work.</p></div><div><strong>Learn carefully. Record accurately. Hand over responsibly.</strong><p>Training material only. Always follow the task brief and applicable workplace policies.</p></div></div></footer>
+<script>
+const navToggle=document.getElementById('navToggle'),navLinks=document.getElementById('navLinks');
+navToggle.addEventListener('click',()=>{const open=navLinks.classList.toggle('open');navToggle.setAttribute('aria-expanded',String(open));});
+navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{navLinks.classList.remove('open');navToggle.setAttribute('aria-expanded','false');}));
+document.getElementById('expandAll').addEventListener('click',()=>document.querySelectorAll('#qaList details').forEach(d=>d.open=true));
+document.getElementById('collapseAll').addEventListener('click',()=>document.querySelectorAll('#qaList details').forEach(d=>d.open=false));
+const checkboxes=[...document.querySelectorAll('#checklist input[type="checkbox"]')],progressBar=document.getElementById('progressBar'),progressText=document.getElementById('progressText');
+function updateProgress(){const done=checkboxes.filter(c=>c.checked).length;progressBar.style.width=(done/checkboxes.length*100)+'%';progressText.textContent=`${done} of ${checkboxes.length} checks completed`;}
+checkboxes.forEach(c=>c.addEventListener('change',updateProgress));
+document.getElementById('quizForm').addEventListener('submit',e=>{e.preventDefault();const answers={q1:'b',q2:'a',q3:'c',q4:'a',q5:'b'};let score=0,answered=0;Object.entries(answers).forEach(([q,a])=>{const selected=document.querySelector(`input[name="${q}"]:checked`);if(selected){answered++;if(selected.value===a)score++;}});const result=document.getElementById('quizResult');result.classList.add('show');result.innerHTML=`<strong>You scored ${score} / 5.</strong><br>You answered ${answered} of 5 questions. ${score===5?'Excellent. You understand the key principles.':score>=3?'Good start. Review the explanations for any missed questions.':'Review the foundations and detailed answers, then try again.'}`;});
+document.getElementById('resetQuiz').addEventListener('click',()=>{const result=document.getElementById('quizResult');result.classList.remove('show');result.textContent='';});
+</script>
+</body>
+</html>

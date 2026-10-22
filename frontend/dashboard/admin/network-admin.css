@@ -178,17 +178,36 @@ body.network-admin {
   }
 }
 
-/* Actions stay at the end of the table without sticky positioning. */
+/* Withdrawal Actions column: consistent desktop and mobile layout. */
+.na-table-wrap {
+  overflow-x: auto;
+  position: relative;
+  max-width: 100%;
+}
+
+.na-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
 .na-table th.na-actions-column,
 .na-table td.na-actions-column {
+  position: sticky;
+  right: 0;
+  width: 125px;
   min-width: 125px;
+  background: #0a281b;
+  box-shadow: -5px 0 8px rgba(0, 0, 0, 0.25);
 }
 
 .na-table th.na-actions-column {
-  background: #0a281b;
+  z-index: 6;
 }
 
 .na-table td.na-actions-column {
+  z-index: 4;
   vertical-align: middle;
 }
 
@@ -202,13 +221,15 @@ body.network-admin {
 
 .na-withdrawal-actions .na-button {
   width: 100%;
-  min-height: 40px;
+  min-height: 42px;
+  padding: 8px 9px;
   white-space: nowrap;
 }
 
 @media (max-width: 560px) {
   .na-table th.na-actions-column,
   .na-table td.na-actions-column {
+    width: 115px;
     min-width: 115px;
     padding: 9px 8px;
   }
@@ -218,7 +239,6 @@ body.network-admin {
   }
 
   .na-withdrawal-actions .na-button {
-    padding: 8px 9px;
     font-size: 12px;
   }
 }

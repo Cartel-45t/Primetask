@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#071326">
+<title>PrimeTask Workspace | Transcription Learning Centre</title>
+<style>
+  :root {
+    --navy: #061326;
+    --navy-2: #0a1c34;
+    --panel: rgba(10, 27, 49, .88);
+    --panel-2: #102640;
+    --orange: #ff8a24;
+    --orange-light: #ffb15c;
+    --white: #f5f8fc;
+    --muted: #bdc9d8;
+    --line: rgba(255,255,255,.13);
+    --good: #8de0b2;
+    --warn: #ffd08b;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+  body {
+    margin: 0; color: var(--white); background: var(--navy);
+    font-family: Arial, Helvetica, sans-serif; line-height: 1.7;
+  }
+  a { color: var(--orange-light); }
+  button, input { font: inherit; }
+  .site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(4, 14, 29, .94); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-wrap {
+    max-width: 1180px; margin: auto; padding: 13px 22px;
+    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; color: white; font-weight: 800; letter-spacing: .2px; }
+  .brand-mark {
+    width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center;
+    color: #071326; font-weight: 900; background: linear-gradient(135deg, var(--orange-light), var(--orange));
+    box-shadow: 0 0 28px rgba(255,138,36,.22);
+  }
+  .brand small { display: block; color: var(--muted); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+  .nav-links { display: flex; gap: 17px; align-items: center; }
+  .nav-links a { color: #e9eef6; text-decoration: none; font-size: 13px; font-weight: 700; }
+  .nav-links a:hover { color: var(--orange-light); }
+  .menu-toggle { display: none; color: white; background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: 7px 11px; }
+  .hero {
+    min-height: 590px; display: flex; align-items: center; position: relative; overflow: hidden;
+    background:
+      linear-gradient(90deg, rgba(4,14,29,.97) 0%, rgba(4,14,29,.87) 48%, rgba(4,14,29,.46) 100%),
+      linear-gradient(0deg, var(--navy) 0%, transparent 40%),
+      url("https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=2000&q=85") center/cover no-repeat;
+  }
+  .hero:after {
+    content: ""; position: absolute; width: 330px; height: 330px; border: 1px solid rgba(255,138,36,.42);
+    border-radius: 50%; right: -100px; top: 70px; box-shadow: 0 0 0 32px rgba(255,138,36,.035), 0 0 0 68px rgba(255,138,36,.025);
+    pointer-events: none;
+  }
+  .hero-inner { width: 100%; max-width: 1180px; margin: auto; padding: 86px 22px 100px; position: relative; z-index: 1; }
+  .eyebrow { display: inline-flex; gap: 9px; align-items: center; color: var(--orange-light); text-transform: uppercase; letter-spacing: 2.5px; font-size: 11px; font-weight: 800; }
+  .eyebrow:before { content: ""; width: 28px; height: 2px; background: var(--orange); }
+  h1 { max-width: 800px; font-size: clamp(38px, 6vw, 72px); line-height: 1.04; letter-spacing: -2px; margin: 19px 0; }
+  h1 span { color: var(--orange); }
+  .hero p { max-width: 700px; color: #d7e0ec; font-size: 18px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .btn { display: inline-block; border-radius: 11px; padding: 12px 18px; text-decoration: none; font-weight: 800; border: 1px solid transparent; }
+  .btn-primary { background: var(--orange); color: #101b2b; }
+  .btn-secondary { color: white; border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.05); }
+  .hero-note { margin-top: 27px; font-size: 12px; color: #c4d0df; }
+  .hero-note strong { color: var(--orange-light); }
+  main { max-width: 1180px; margin: auto; padding: 0 22px 80px; }
+  section { padding-top: 72px; }
+  .section-heading { max-width: 790px; margin-bottom: 27px; }
+  .section-heading h2 { font-size: clamp(27px, 4vw, 42px); line-height: 1.15; margin: 10px 0 12px; letter-spacing: -.7px; }
+  .section-heading p { color: var(--muted); margin: 0; }
+  .accent { color: var(--orange-light); }
+  .callout {
+    border: 1px solid rgba(255,138,36,.38); border-left: 4px solid var(--orange);
+    border-radius: 13px; padding: 18px 20px; background: rgba(255,138,36,.075); color: #f3e5d7;
+  }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+  .card {
+    border: 1px solid var(--line); background: linear-gradient(145deg, rgba(16,38,64,.92), rgba(7,20,38,.94));
+    border-radius: var(--radius); padding: 22px; box-shadow: 0 16px 40px rgba(0,0,0,.12);
+  }
+  .card h3 { margin: 8px 0 10px; line-height: 1.25; font-size: 20px; }
+  .card p, .card li { color: var(--muted); font-size: 14px; }
+  .card ul { padding-left: 19px; margin-bottom: 0; }
+  .number { width: 39px; height: 39px; display: grid; place-items: center; border-radius: 12px; color: #071326; background: var(--orange); font-weight: 900; }
+  .tag { display: inline-block; border: 1px solid rgba(255,138,36,.36); color: var(--orange-light); border-radius: 99px; padding: 3px 9px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .list-panel { padding: 22px; border-radius: var(--radius); border: 1px solid var(--line); background: rgba(11,29,51,.72); }
+  .list-panel h3 { margin-top: 0; }
+  .list-panel ul { padding-left: 20px; color: var(--muted); }
+  .list-panel li { margin: 7px 0; }
+  .do h3 { color: var(--good); }
+  .dont h3 { color: #ffb0a5; }
+  .steps { counter-reset: step; display: grid; gap: 13px; }
+  .step { counter-increment: step; display: grid; grid-template-columns: 54px 1fr; gap: 16px; padding: 20px; background: rgba(11,29,51,.75); border: 1px solid var(--line); border-radius: 15px; }
+  .step:before { content: counter(step, decimal-leading-zero); color: var(--orange); font-size: 22px; font-weight: 900; }
+  .step h3 { margin: 0 0 5px; }
+  .step p { margin: 0; color: var(--muted); }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+  table { width: 100%; border-collapse: collapse; min-width: 620px; background: rgba(10,27,49,.78); }
+  th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: rgba(255,138,36,.13); color: var(--orange-light); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  td { color: var(--muted); font-size: 14px; }
+  tr:last-child td { border-bottom: 0; }
+  .sample-box { background: #f8fafc; color: #1b2736; border-radius: 16px; overflow: hidden; box-shadow: 0 18px 50px rgba(0,0,0,.2); }
+  .sample-top { background: #e9eef5; padding: 17px 22px; border-bottom: 1px solid #cbd5e1; }
+  .sample-top h3 { margin: 0 0 5px; color: #10213a; }
+  .sample-top p { margin: 0; color: #516176; font-size: 12px; }
+  .sample-body { padding: 23px; font-family: "Times New Roman", Times, serif; font-size: 12pt; line-height: 1.5; }
+  .sample-body .meta { margin-bottom: 18px; }
+  .sample-body .speaker { font-weight: bold; margin-top: 17px; }
+  .sample-body .timestamp { color: #44546a; margin: 3px 0 7px; }
+  .sample-body p { margin: 5px 0 10px; }
+  .copy-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 15px 0 0; }
+  .copy-btn { border: 0; border-radius: 10px; background: var(--orange); color: #071326; padding: 10px 14px; font-weight: 900; cursor: pointer; }
+  .small-note { color: var(--muted); font-size: 12px; }
+  .faq-list { display: grid; gap: 10px; }
+  details { border: 1px solid var(--line); background: rgba(11,29,51,.76); border-radius: 13px; padding: 16px 18px; }
+  summary { cursor: pointer; font-weight: 800; color: #f4f7fb; }
+  details p { color: var(--muted); margin-bottom: 0; }
+  .decor-band { margin-top: 70px; border-radius: 22px; padding: 32px; overflow: hidden; position: relative; background: linear-gradient(110deg, #ff8a24, #ffad58); color: #101c2c; }
+  .decor-band:after { content: "PTW"; position: absolute; right: 12px; bottom: -60px; font-size: 190px; line-height: 1; font-weight: 900; color: rgba(7,19,38,.08); pointer-events: none; }
+  .decor-band h2 { margin: 0 0 9px; font-size: clamp(26px,4vw,38px); line-height: 1.15; max-width: 760px; position: relative; z-index: 1; }
+  .decor-band p { max-width: 760px; position: relative; z-index: 1; }
+  footer { border-top: 1px solid var(--line); background: #030b17; padding: 30px 22px; color: var(--muted); }
+  .footer-inner { max-width: 1180px; margin: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+  footer strong { color: white; }
+  .footer-mark { color: var(--orange-light); font-weight: 800; }
+  .back-top { position: fixed; bottom: 20px; right: 18px; z-index: 20; display: none; border: 0; background: var(--orange); color: #071326; width: 44px; height: 44px; border-radius: 14px; font-weight: 900; box-shadow: 0 8px 24px rgba(0,0,0,.28); cursor: pointer; }
+  .back-top.show { display: block; }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .hero { min-height: 540px; } }
+  @media (max-width: 680px) {
+    .nav-wrap { padding: 11px 16px; }
+    .menu-toggle { display: block; }
+    .nav-links { display: none; position: absolute; top: 67px; left: 12px; right: 12px; padding: 15px; border: 1px solid var(--line); border-radius: 14px; background: #071629; flex-direction: column; align-items: stretch; gap: 0; }
+    .nav-links.open { display: flex; }
+    .nav-links a { padding: 10px 7px; border-bottom: 1px solid var(--line); }
+    .nav-links a:last-child { border-bottom: 0; }
+    .hero-inner { padding: 70px 18px 80px; }
+    h1 { letter-spacing: -1px; }
+    .hero p { font-size: 16px; }
+    main { padding-left: 16px; padding-right: 16px; }
+    section { padding-top: 55px; }
+    .grid, .two-col { grid-template-columns: 1fr; }
+    .card, .list-panel { padding: 19px; }
+    .step { grid-template-columns: 42px 1fr; gap: 10px; padding: 16px; }
+    .sample-body { padding: 17px; }
+    .decor-band { padding: 25px 20px; }
+  }
+
+.brand-mark img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
+</style>
+  <link rel="icon" type="image/jpeg" href="assets/primetask.jpg">
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <a class="brand" href="#top" aria-label="PrimeTask Workspace Transcription Learning Centre">
+      <span class="brand-mark"><img src="assets/primetask.jpg" alt="PrimeTask"></span>
+      <span>PrimeTask Workspace<small>Transcription Learning Centre</small></span>
+    </a>
+    <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navLinks">☰ Menu</button>
+    <nav class="nav-links" id="navLinks" aria-label="Main navigation">
+      <a href="#overview">Overview</a>
+      <a href="#types">Transcription types</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#formatting">Formatting</a>
+      <a href="#sample">Sample transcript</a>
+      <a href="#quality">Quality checklist</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero" id="top">
+  <div class="hero-inner">
+    <span class="eyebrow">Listen carefully. Write accurately.</span>
+    <h1>Transcription is more than <span>typing what you hear.</span></h1>
+    <p>This learning guide introduces the main transcription styles, explains when each one is used, and shows how to turn recorded speech into a clear, accurate, professional document. The goal is faithful meaning, consistent formatting, and no invented words.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#types">Explore transcription types ↓</a>
+      <a class="btn btn-secondary" href="#sample">View the sample format</a>
+    </div>
+    <div class="hero-note"><strong>PrimeTask Workspace</strong> · Learning resource · Company-standard document guidance</div>
+  </div>
+</div>
+
+<main>
+<section id="overview">
+  <div class="section-heading">
+    <span class="eyebrow">01 · Foundations</span>
+    <h2>What is <span class="accent">transcription?</span></h2>
+    <p>Transcription is the process of converting spoken content from audio or video into written text. The transcriber listens to the source, identifies the words and relevant sounds, organizes the material according to the requested style, and checks the finished document against the recording.</p>
+  </div>
+  <div class="callout"><strong>Core rule:</strong> the recording is the source of truth. Do not add information because it sounds sensible, remove information because it seems repetitive, or silently repair a speaker's claim. The job is to represent what was said according to the agreed transcription style.</div>
+  <div class="grid" style="margin-top:18px">
+    <article class="card"><div class="number">A</div><h3>Accuracy</h3><p>Capture the actual words, names, figures, technical terms, and relationships between ideas. Replay unclear sections instead of guessing.</p></article>
+    <article class="card"><div class="number">B</div><h3>Consistency</h3><p>Apply one set of rules throughout the document. Speaker labels, timestamps, punctuation, numbers, and terminology should follow the same pattern.</p></article>
+    <article class="card"><div class="number">C</div><h3>Confidentiality</h3><p>Handle recordings and transcripts only through authorized channels. Do not forward, publish, or reuse client material without permission.</p></article>
+  </div>
+</section>
+
+<section id="types">
+  <div class="section-heading">
+    <span class="eyebrow">02 · Transcription styles</span>
+    <h2>Know the type before you begin</h2>
+    <p>Different projects require different levels of detail. Always follow the client's instructions or the task brief. If the requested style is unclear, obtain clarification before making choices that could change the transcript.</p>
+  </div>
+  <div class="grid">
+    <article class="card">
+      <span class="tag">Full detail</span><h3>1. Strict / True Verbatim</h3>
+      <p>Strict verbatim records speech as closely as practical to how it occurs. It can include repeated words, filler sounds, false starts, stutters, grammatical slips, and meaningful non-speech vocalizations.</p>
+      <p><strong>Include:</strong> “I, I think we, uh, we should start again,” if those words and sounds are audible and relevant to the required standard.</p>
+      <p><strong>Do not:</strong> silently remove repetitions, polish grammar, replace informal wording with formal wording, or make a hesitant speaker sound fluent.</p>
+      <p><strong>Often used for:</strong> linguistic research, detailed interviews, some legal or investigative work, and analysis where the manner of speaking matters.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Readable fidelity</span><h3>2. Clean Verbatim</h3>
+      <p>Clean verbatim preserves the speaker's meaning and wording while removing non-essential speech clutter that does not affect meaning. Depending on the brief, this may include habitual fillers, accidental repeated words, and abandoned starts.</p>
+      <p><strong>Include:</strong> the complete intended message, natural phrasing, meaningful emphasis, and relevant corrections made by the speaker.</p>
+      <p><strong>Do not:</strong> rewrite sentences extensively, remove meaningful hesitation, change the speaker's position, or summarize a long explanation into a short statement.</p>
+      <p><strong>Example:</strong> “I, uh, wanted to, wanted to ask about the report” may become “I wanted to ask about the report” when the filler and repetition add no meaning.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Edited for meaning</span><h3>3. Intelligent / Edited Transcription</h3>
+      <p>Intelligent transcription creates a clear, readable version of spoken content while preserving its intended meaning. It may correct obvious speech disfluencies and organize awkward spoken phrasing, within the limits of the assignment.</p>
+      <p><strong>Include:</strong> accurate claims, complete key information, logical paragraphs, and standard written punctuation.</p>
+      <p><strong>Do not:</strong> introduce facts, improve the speaker's argument with your own ideas, change technical meaning, or remove important qualifications. Never turn a transcript into a summary unless asked.</p>
+      <p><strong>Often used for:</strong> business discussions, general interviews, educational material, and content intended for easy reading.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Time-linked</span><h3>4. Timestamped Transcription</h3>
+      <p>Timestamps mark the point in the recording where a word, phrase, sentence, speaker turn, or segment begins. The required interval depends on the task instructions.</p>
+      <p><strong>Common formats:</strong> <code>[00:01:12]</code> for a point in time, or <code>[00:01:12 --> 00:01:28]</code> for a segment with start and end times.</p>
+      <p><strong>Include:</strong> timecodes that match the recording, consistent formatting, and the requested timestamp frequency.</p>
+      <p><strong>Do not:</strong> estimate timecodes from memory, invent an end time, use inconsistent formats, or place timestamps so inaccurately that the passage cannot be located.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Speaker identification</span><h3>5. Speaker-Labeled Transcription</h3>
+      <p>Each speaker turn is identified with a consistent label. Use the supplied names if authorized and available. Otherwise, use neutral labels such as <strong>Male_1:</strong>, <strong>Female_1:</strong>, or <strong>Speaker_1:</strong>, according to the project convention.</p>
+      <p><strong>Include:</strong> a label whenever the speaker changes, stable numbering throughout, and separate turns when speakers alternate.</p>
+      <p><strong>Do not:</strong> guess a person's identity, change labels midway, combine two people into one speaker, or infer gender or identity from unreliable evidence. If the voice cannot be identified confidently, use the approved uncertain-speaker label.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Combined format</span><h3>6. Timestamped + Speaker-Labeled</h3>
+      <p>This format combines speaker identification with time-linked segments. It is useful when reviewers need to know both who said a passage and where it occurs in the recording.</p>
+      <p><strong>Example:</strong><br><code>Male_1:</code><br><code>[00:00:12 --> 00:00:25]</code><br>Today, we will review the main findings.</p>
+      <p><strong>Include:</strong> the speaker label, timestamp line, and corresponding spoken content in the requested order.</p>
+      <p><strong>Do not:</strong> put the timecode against the wrong passage, omit a speaker change, or let the timestamp convention drift from section to section.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Exact text</span><h3>7. Strict / Full Verbatim with Timestamps</h3>
+      <p>This combines detailed verbatim capture with timecodes. Fillers, repetitions, false starts, and relevant vocalizations are retained while timestamps anchor the speech to the source.</p>
+      <p><strong>Include:</strong> the detail required by the verbatim standard and accurate timecodes at the required points.</p>
+      <p><strong>Do not:</strong> clean up disfluencies just to make the document look polished, or sacrifice timecode accuracy for speed.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Edited text</span><h3>8. Clean Verbatim with Speaker Labels</h3>
+      <p>This is clean verbatim presented as separate, clearly labeled speaker turns. It keeps the exchange easy to follow without preserving every non-essential filler.</p>
+      <p><strong>Include:</strong> consistent labels and the full meaningful contribution of each speaker.</p>
+      <p><strong>Do not:</strong> merge separate speakers into one paragraph, attribute a statement to the wrong person, or edit the content into a summary.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Specialized</span><h3>9. Intelligent Transcription with Timestamps and Labels</h3>
+      <p>This format combines readable edited text, speaker labels, and timestamps. It can suit training sessions, presentations, interviews, and recorded discussions where navigation matters.</p>
+      <p><strong>Include:</strong> readable text, accurate speaker turns, and timecodes in the agreed structure.</p>
+      <p><strong>Do not:</strong> confuse editing with rewriting, remove caveats, or make a speaker's uncertain statement sound definite.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Specialized</span><h3>10. Dialogue / Interview Transcription</h3>
+      <p>Interview transcripts preserve the question-and-answer structure and clearly distinguish interviewer, interviewee, and any additional participant.</p>
+      <p><strong>Include:</strong> each turn, relevant interruptions, overlapping speech where requested, and consistent speaker labels.</p>
+      <p><strong>Do not:</strong> combine an answer with the question, rearrange the conversation for dramatic effect, or conceal a response that appears inconvenient.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Specialized</span><h3>11. Academic / Lecture Transcription</h3>
+      <p>Academic transcription captures explanations, definitions, examples, questions, and technical terminology. Mathematical and scientific material requires extra care because a small symbol or word can change the meaning.</p>
+      <p><strong>Include:</strong> equations and symbols in a readable, conventional form where the source supports them; preserve spoken connectors such as “squared,” “divided by,” and “the square root of.”</p>
+      <p><strong>Do not:</strong> guess an equation from context, silently correct a lecturer's calculation, or replace an unclear term with a plausible one. Mark genuine uncertainty according to the task rules.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Specialized</span><h3>12. Meeting / Conference Transcription</h3>
+      <p>Meeting transcripts capture contributions, decisions, questions, and action items in the form requested. Some projects require a full transcript; others specifically request edited meeting notes or a summary. These are different deliverables.</p>
+      <p><strong>Include:</strong> speaker changes, names or roles when verified, decisions as actually stated, and relevant cross-talk if required.</p>
+      <p><strong>Do not:</strong> call a summary a verbatim transcript, invent action owners, or record a proposal as an agreed decision unless the recording confirms it.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Specialized</span><h3>13. Caption / Subtitle-Ready Transcription</h3>
+      <p>This prepares spoken language for timed on-screen reading. The project may require line breaks, character limits, reading-speed rules, speaker identifiers, or non-speech sound labels.</p>
+      <p><strong>Include:</strong> accurate speech, appropriate segmentation, and synchronization rules provided by the client.</p>
+      <p><strong>Do not:</strong> assume a normal paragraph transcript is subtitle-ready, split phrases in confusing places, or remove meaning simply to fit a line without following the brief.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Specialized</span><h3>14. Audio Description of Non-Speech Events</h3>
+      <p>Some transcripts require relevant audible events such as laughter, applause, a door slam, or an extended pause. These descriptions should be neutral and consistent.</p>
+      <p><strong>Include:</strong> meaningful events that the brief asks you to capture, using labels such as <code>[laughter]</code> or <code>[applause]</code>.</p>
+      <p><strong>Do not:</strong> over-describe ordinary background noise, infer emotions without evidence, or label a sound as a specific source when you cannot identify it reliably.</p>
+    </article>
+    <article class="card">
+      <span class="tag">Specialized</span><h3>15. Multilingual / Code-Switching Transcription</h3>
+      <p>Speakers may move between languages or mix languages within a sentence. The transcript should represent the languages spoken according to the brief, including spelling and diacritics where possible.</p>
+      <p><strong>Include:</strong> the original language, approved spelling, and language-change labels if required.</p>
+      <p><strong>Do not:</strong> translate automatically when an original-language transcript was requested, replace unfamiliar words with guesses, or normalize dialect in a way that changes meaning.</p>
+    </article>
+  </div>
+</section>
+
+<section id="comparison">
+  <div class="section-heading">
+    <span class="eyebrow">03 · Choosing the right method</span>
+    <h2>Quick comparison guide</h2>
+    <p>The same recording can produce different valid documents depending on the task specification. The chosen style determines what to preserve and how to format it.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Style</th><th>Filler words / repetitions</th><th>Speaker labels</th><th>Timestamps</th><th>Editing level</th></tr></thead>
+      <tbody>
+        <tr><td>Strict verbatim</td><td>Retained according to brief</td><td>If requested</td><td>If requested</td><td>Minimal</td></tr>
+        <tr><td>Clean verbatim</td><td>Non-essential clutter may be removed</td><td>If requested</td><td>If requested</td><td>Light cleanup</td></tr>
+        <tr><td>Intelligent / edited</td><td>Usually removed if not meaningful</td><td>If requested</td><td>If requested</td><td>Readability-focused, meaning preserved</td></tr>
+        <tr><td>Timestamped</td><td>Depends on the selected text style</td><td>Optional or required</td><td>Required</td><td>Depends on the selected text style</td></tr>
+        <tr><td>Speaker-labeled</td><td>Depends on the selected text style</td><td>Required</td><td>Optional or required</td><td>Depends on the selected text style</td></tr>
+        <tr><td>Combined</td><td>Depends on the selected text style</td><td>Required</td><td>Required when specified</td><td>Depends on the selected text style</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small-note">This table is a general guide, not a substitute for the individual task instructions. Client rules take priority when they are clear and permitted.</p>
+</section>
+
+<section id="workflow">
+  <div class="section-heading">
+    <span class="eyebrow">04 · The working method</span>
+    <h2>How to transcribe a recording properly</h2>
+    <p>Quality comes from a repeatable process, not from typing quickly and hoping the audio agrees with you.</p>
+  </div>
+  <div class="steps">
+    <div class="step"><div><h3>Read the task brief first</h3><p>Identify the required transcription style, speaker-label convention, timestamp pattern, treatment of non-speech sounds, spelling preferences, file format, naming convention, and delivery instructions. Do not begin by assuming every project uses the same rules.</p></div></div>
+    <div class="step"><div><h3>Check the source file</h3><p>Confirm that the supplied audio or video opens and plays. Check that the recording appears complete and that the sound is usable. Report a damaged, missing, or clearly incomplete source rather than silently working around it.</p></div></div>
+    <div class="step"><div><h3>Listen to understand the context</h3><p>Listen to a passage before committing to difficult words. Context can help identify likely terms, but it is not permission to invent words that are not audible.</p></div></div>
+    <div class="step"><div><h3>Draft the spoken content</h3><p>Work in manageable sections. Capture words, speaker changes, figures, names, technical terms, and relevant vocal events. Follow the chosen verbatim or edited style from the beginning.</p></div></div>
+    <div class="step"><div><h3>Replay difficult passages</h3><p>Use playback controls to repeat unclear words and compare them with the surrounding sentence. Slow playback if useful, while remembering that excessive slowing can distort sounds. Do not replace uncertainty with a confident guess.</p></div></div>
+    <div class="step"><div><h3>Add labels and timestamps</h3><p>Apply the required speaker label and timecode format. Keep each timestamp attached to the passage it identifies. Check timecodes against the actual recording, especially after inserting or moving text.</p></div></div>
+    <div class="step"><div><h3>Format the transcript</h3><p>Apply the required header, company name, font, font size, spacing, paragraph layout, filename, and file type. Formatting is part of delivery, not decoration to be added if there is spare time.</p></div></div>
+    <div class="step"><div><h3>Proofread while listening again</h3><p>Follow the text while replaying the recording. Check omissions, repeated passages, speaker attribution, punctuation, numbers, names, mathematical notation, and timestamp placement.</p></div></div>
+    <div class="step"><div><h3>Save and inspect the final DOCX</h3><p>Open the saved document and verify that it is a real Word document, the content is complete, the layout is stable, and no text is clipped or missing. Use a clear filename and submit the requested file through the approved channel.</p></div></div>
+  </div>
+</section>
+
+<section id="rules">
+  <div class="section-heading">
+    <span class="eyebrow">05 · Good practice</span>
+    <h2>What to do, and what not to do</h2>
+  </div>
+  <div class="two-col">
+    <div class="list-panel do">
+      <h3>✓ Do this</h3>
+      <ul>
+        <li>Follow the exact task instructions and style.</li>
+        <li>Use repeated listening to resolve difficult speech.</li>
+        <li>Keep speaker labels stable and easy to distinguish.</li>
+        <li>Represent numbers, names, units, and technical terms carefully.</li>
+        <li>Use punctuation to clarify the speech without changing its meaning.</li>
+        <li>Mark unintelligible speech only when it genuinely cannot be recovered, using the required notation.</li>
+        <li>Keep the original meaning, uncertainty, and important qualifications.</li>
+        <li>Check the document against the source before submission.</li>
+        <li>Protect confidential recordings and files.</li>
+        <li>Raise source-quality problems or unclear instructions through the approved channel.</li>
+      </ul>
+    </div>
+    <div class="list-panel dont">
+      <h3>✕ Do not do this</h3>
+      <ul>
+        <li>Invent a word, speaker name, statistic, equation, or timestamp.</li>
+        <li>Use a guessed word merely because it makes the sentence sound better.</li>
+        <li>Change the speaker's opinion or correct factual claims without authorization.</li>
+        <li>Remove repetition or filler in a strict-verbatim assignment.</li>
+        <li>Keep every filler in a clean-verbatim assignment if the brief directs that non-essential clutter be removed.</li>
+        <li>Merge speakers or attach a statement to the wrong person.</li>
+        <li>Use inconsistent timecode formats or labels.</li>
+        <li>Submit a PDF, image, or plain-text file when DOCX is required.</li>
+        <li>Change font settings halfway through the document.</li>
+        <li>Copy another transcriber's work without authorization or expose source files publicly.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="unclear">
+  <div class="section-heading">
+    <span class="eyebrow">06 · Unclear speech</span>
+    <h2>Handling difficult or unintelligible audio</h2>
+    <p>Not every recording is clean. Noise, accents, overlapping speech, low volume, specialized vocabulary, and poor microphones can make words difficult to identify. A professional transcript distinguishes uncertainty from certainty.</p>
+  </div>
+  <div class="grid">
+    <article class="card"><h3>Replay in context</h3><p>Listen to the full sentence, then replay the difficult passage with a little surrounding audio. A short sound can be easier to recognize when heard as part of a phrase.</p></article>
+    <article class="card"><h3>Use reference material carefully</h3><p>Use approved glossaries, spellings, or supplied documents when available. A reference can verify a term, but it must not override what the recording actually says.</p></article>
+    <article class="card"><h3>Mark genuine uncertainty</h3><p>Use the project's prescribed label, such as <code>[unintelligible]</code> or <code>[unclear]</code>, and include a timestamp if required. Do not use these labels as shortcuts for passages that simply need more listening.</p></article>
+  </div>
+  <div class="callout" style="margin-top:17px"><strong>Important:</strong> do not guess the speaker's identity, infer a word from a preferred answer, or silently omit a difficult phrase. If the task provides a specific uncertainty notation, use that notation consistently.</div>
+</section>
+
+<section id="formatting">
+  <div class="section-heading">
+    <span class="eyebrow">07 · Document standard</span>
+    <h2>How the final transcript should look</h2>
+    <p>For PrimeTask Workspace submissions covered by this guide, prepare the final transcript as a Microsoft Word <strong>.docx</strong> document using the format below, unless the specific task instructions provide a different approved requirement.</p>
+  </div>
+  <div class="grid">
+    <article class="card"><h3>File type</h3><p><strong class="accent">DOCX only</strong></p><p>Save as a Word document with the <code>.docx</code> extension. Reopen the saved file to confirm that it works.</p></article>
+    <article class="card"><h3>Font and size</h3><p><strong class="accent">Times New Roman, 12 pt</strong></p><p>Apply the font consistently to the header and transcript body unless the task brief specifies an approved exception.</p></article>
+    <article class="card"><h3>Company identification</h3><p><strong class="accent">PrimeTask Workspace</strong></p><p>Use the company name exactly as shown. Do not substitute another brand or invent client details.</p></article>
+    <article class="card"><h3>Speaker format</h3><p><strong class="accent">Male_1:</strong></p><p>Use the required label followed by a colon. Put the spoken content on the following line when following the sample layout.</p></article>
+    <article class="card"><h3>Timestamp format</h3><p><strong class="accent">[00:00:00 --> 00:00:15]</strong></p><p>Use the specified timecode convention consistently. The sample is illustrative; the timecodes in a real document must come from the recording.</p></article>
+    <article class="card"><h3>Header and filename</h3><p><strong class="accent">Clear and complete</strong></p><p>Include the applicable title, client ID if supplied, company, transcriber, and date. Use a descriptive filename based on the assigned recording or task title.</p></article>
+  </div>
+  <div class="two-col" style="margin-top:18px">
+    <div class="list-panel">
+      <h3>Suggested document header</h3>
+      <p style="font-family:'Times New Roman',Times,serif;font-size:12pt;color:#e4edf8">Transcript Title: [Exact title]<br>Client ID: [Provided ID or approved blank]<br>Company: PrimeTask Workspace<br>Transcriber: [Assigned transcriber name]<br>Date: [Submission date]</p>
+      <p class="small-note">Only include fields that are required or supplied. Never fabricate a client ID, name, or date.</p>
+    </div>
+    <div class="list-panel">
+      <h3>Layout recommendations</h3>
+      <ul>
+        <li>Use clear paragraph breaks.</li>
+        <li>Keep speaker labels visually consistent.</li>
+        <li>Put timestamps on their own line when required by the template.</li>
+        <li>Use standard punctuation and readable spacing.</li>
+        <li>Keep mathematical expressions unambiguous.</li>
+        <li>Use a professional, descriptive filename.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="math">
+  <div class="section-heading">
+    <span class="eyebrow">08 · Technical material</span>
+    <h2>Mathematics, figures, and specialist terms</h2>
+    <p>Educational and technical recordings need careful listening because a tiny change can alter the meaning of a whole explanation.</p>
+  </div>
+  <div class="two-col">
+    <div class="list-panel">
+      <h3>Mathematical transcription</h3>
+      <ul>
+        <li>Distinguish “squared” from “cubed,” “plus” from “minus,” and “less than” from “greater than.”</li>
+        <li>Capture fractions, exponents, subscripts, Greek letters, and equation relationships as clearly as the source permits.</li>
+        <li>Preserve spoken mathematical connectors such as “divided by,” “multiplied by,” “the square root of,” and “is equal to.”</li>
+        <li>Check decimal points, negative signs, percentages, units, and variable names.</li>
+        <li>Use conventional notation only when the spoken content supports it and the notation will not alter the meaning.</li>
+      </ul>
+    </div>
+    <div class="list-panel">
+      <h3>What to avoid</h3>
+      <ul>
+        <li>Do not silently fix an arithmetic mistake made by the speaker.</li>
+        <li>Do not replace a spoken expression with a different formula because it seems more mathematically correct.</li>
+        <li>Do not guess a symbol or number that is not audible.</li>
+        <li>Do not omit examples or explanations simply because they repeat an earlier point.</li>
+        <li>Do not turn an explanation into a summary unless the task specifically asks for a summary.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="sample">
+  <div class="section-heading">
+    <span class="eyebrow">09 · Sample layout</span>
+    <h2>Example of a speaker-labeled, timestamped transcript</h2>
+    <p>This short example demonstrates the structure. In a real submission, replace the illustrative content and timecodes with the actual recording and use the transcription style specified for that task.</p>
+  </div>
+  <div class="sample-box" id="sampleDocument">
+    <div class="sample-top">
+      <h3>Transcript document preview</h3>
+      <p>Illustrative structure · DOCX submission standard · Times New Roman, 12 pt</p>
+    </div>
+    <div class="sample-body">
+      <div class="meta">
+        <p><strong>Transcript Title:</strong> Introduction to Statistical Hypothesis Testing</p>
+        <p><strong>Client ID:</strong> [Provided client ID]</p>
+        <p><strong>Company:</strong> PrimeTask Workspace</p>
+        <p><strong>Transcriber:</strong> [Assigned transcriber]</p>
+        <p><strong>Date:</strong> [Submission date]</p>
+      </div>
+      <div class="speaker">Male_1:</div>
+      <div class="timestamp">[00:00:00 --&gt; 00:00:12]</div>
+      <p>In this lesson, we are going to introduce the basic idea of a statistical hypothesis test and explain how the evidence is evaluated.</p>
+      <div class="speaker">Female_1:</div>
+      <div class="timestamp">[00:00:13 --&gt; 00:00:21]</div>
+      <p>So, are we comparing the sample result with a value stated in the null hypothesis?</p>
+      <div class="speaker">Male_1:</div>
+      <div class="timestamp">[00:00:22 --&gt; 00:00:34]</div>
+      <p>Exactly. We use the sample information and the chosen test procedure to determine whether the evidence supports rejecting the null hypothesis.</p>
+      <p style="margin-top:22px;text-align:center;font-weight:bold">END OF TRANSCRIPT</p>
+      <p style="text-align:center">© [Year] PrimeTask Workspace. All Rights Reserved.</p>
+    </div>
+  </div>
+  <div class="copy-row">
+    <span class="small-note">Use the preview to understand the layout. The actual deliverable must be saved as a DOCX file.</span>
+    <button class="copy-btn" id="copyTemplate">Copy header template</button>
+  </div>
+  <textarea id="headerTemplate" aria-label="Copyable transcript header template" style="position:absolute;left:-9999px;top:-9999px">Transcript Title: [Exact title]
+Client ID: [Provided client ID]
+Company: PrimeTask Workspace
+Transcriber: [Assigned transcriber]
+Date: [Submission date]
+
+Male_1:
+[00:00:00 --> 00:00:15]
+[Transcript text]
+
+END OF TRANSCRIPT
+© [Year] PrimeTask Workspace. All Rights Reserved.</textarea>
+</section>
+
+<section id="quality">
+  <div class="section-heading">
+    <span class="eyebrow">10 · Final review</span>
+    <h2>Submission quality checklist</h2>
+    <p>Use this list before sending the completed file. A transcript is not finished simply because the last sentence has been typed.</p>
+  </div>
+  <div class="two-col">
+    <div class="list-panel">
+      <h3>Content and accuracy</h3>
+      <label><input type="checkbox"> The full required recording has been transcribed.</label><br>
+      <label><input type="checkbox"> The requested transcription style has been followed.</label><br>
+      <label><input type="checkbox"> Speaker labels are accurate and consistent.</label><br>
+      <label><input type="checkbox"> Timestamps match the source where required.</label><br>
+      <label><input type="checkbox"> Names, numbers, and technical terms have been checked.</label><br>
+      <label><input type="checkbox"> Unclear passages are handled according to instructions.</label><br>
+      <label><input type="checkbox"> The text has been proofread while listening to the source.</label>
+    </div>
+    <div class="list-panel">
+      <h3>File and presentation</h3>
+      <label><input type="checkbox"> The file is saved as DOCX.</label><br>
+      <label><input type="checkbox"> Times New Roman, 12 pt is applied consistently.</label><br>
+      <label><input type="checkbox"> The title and required header fields are present.</label><br>
+      <label><input type="checkbox"> PrimeTask Workspace is written correctly.</label><br>
+      <label><input type="checkbox"> The filename clearly identifies the task.</label><br>
+      <label><input type="checkbox"> The saved file opens and the layout is intact.</label><br>
+      <label><input type="checkbox"> The file is being sent through the approved channel.</label>
+    </div>
+  </div>
+  <p class="small-note" style="margin-top:12px">These checklist boxes are local page controls. Their selections are not saved or sent anywhere.</p>
+</section>
+
+<section id="faq">
+  <div class="section-heading">
+    <span class="eyebrow">11 · Common questions</span>
+    <h2>Frequently asked questions</h2>
+  </div>
+  <div class="faq-list">
+    <details><summary>Should every transcript include timestamps?</summary><p>No. Include timestamps when the task requires them. A transcript can be speaker-labeled without timecodes, or timestamped without speaker labels. A combined format uses both.</p></details>
+    <details><summary>Should grammar always be corrected?</summary><p>No. Strict verbatim preserves speech details. Clean verbatim removes selected non-essential clutter. Intelligent transcription may improve readability, but it must preserve the speaker's meaning and must not invent or change claims.</p></details>
+    <details><summary>What if two speakers talk at once?</summary><p>Follow the task convention for overlapping speech. Keep each speaker distinct where possible. If words cannot be separated reliably, use the approved notation rather than assigning the words arbitrarily.</p></details>
+    <details><summary>What if a technical word cannot be identified?</summary><p>Replay it, check authorized reference material, and compare the sound with the context. If it remains unclear, mark it using the required uncertainty notation. Do not substitute a word just because it fits the topic.</p></details>
+    <details><summary>Can the transcript be submitted as PDF?</summary><p>This guide specifies DOCX for the covered PrimeTask Workspace submissions. Do not substitute PDF or another format unless the task instructions explicitly authorize it.</p></details>
+    <details><summary>Can a transcriber summarize a long answer?</summary><p>Not in a standard transcript. A summary is a different deliverable. Preserve the spoken content at the detail level required by the selected transcription style.</p></details>
+    <details><summary>What takes priority if the task brief differs from this guide?</summary><p>Follow the specific task instructions when they are clear and authorized. If two requirements conflict or an essential instruction is missing, ask the assigned reviewer or supervisor for clarification before submitting.</p></details>
+  </div>
+</section>
+
+<div class="decor-band">
+  <h2>Accuracy is the standard. Clarity is the craft.</h2>
+  <p>Every transcript should make the source easier to review without distorting what was said. Listen closely, follow the requested format, protect the source material, and verify the final document before submission.</p>
+  <strong>PrimeTask Workspace · Creating Opportunities and Delivering Excellence.</strong>
+</div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div><strong>PrimeTask Workspace</strong><br><span>Transcription Learning Centre</span></div>
+    <div class="footer-mark">Listen carefully. Transcribe faithfully.</div>
+    <div>© <span id="year"></span> PrimeTask Workspace. All Rights Reserved.</div>
+  </div>
+</footer>
+<button class="back-top" id="backTop" aria-label="Back to top">↑</button>
+<script>
+  const menuToggle = document.getElementById('menuToggle');
+  const navLinks = document.getElementById('navLinks');
+  menuToggle.addEventListener('click', () => {
+    const open = navLinks.classList.toggle('open');
+    menuToggle.setAttribute('aria-expanded', String(open));
+  });
+  navLinks.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+  const backTop = document.getElementById('backTop');
+  window.addEventListener('scroll', () => {
+    backTop.classList.toggle('show', window.scrollY > 500);
+  });
+  backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  document.getElementById('year').textContent = new Date().getFullYear();
+  document.getElementById('copyTemplate').addEventListener('click', async () => {
+    const text = document.getElementById('headerTemplate').value;
+    const button = document.getElementById('copyTemplate');
+    try {
+      await navigator.clipboard.writeText(text);
+      button.textContent = 'Template copied ✓';
+    } catch (error) {
+      const field = document.getElementById('headerTemplate');
+      field.style.position = 'static';
+      field.style.left = 'auto';
+      field.style.top = 'auto';
+      field.style.width = '100%';
+      field.style.height = '170px';
+      field.select();
+      button.textContent = 'Select and copy template';
+    }
+    setTimeout(() => button.textContent = 'Copy header template', 2400);
+  });
+</script>
+</body>
+</html>

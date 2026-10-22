@@ -698,12 +698,158 @@
 .wallet-message.error{background:#451a1a;color:#fecaca}
 .wallet-message.success{background:#123524;color:#bbf7d0}
 .withdrawal-history{margin-top:20px}
-.withdrawal-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #263247}
-.withdrawal-row p{margin:5px 0;overflow-wrap:anywhere}
+.withdrawal-table-wrap{width:100%;overflow-x:auto;border:1px solid #263247;border-radius:12px}
+.withdrawal-table{width:100%;min-width:650px;border-collapse:collapse;text-align:left}
+.withdrawal-table th{padding:13px 12px;background:#102746;color:#60a5fa;font-size:.76rem;font-weight:800;letter-spacing:.045em;white-space:nowrap}
+.withdrawal-table td{padding:14px 12px;border-top:1px solid #263247;color:#f8fafc;font-size:.88rem;white-space:nowrap}
+.withdrawal-table tbody tr:hover{background:#0b1930}
+.withdrawal-table .withdrawal-reference{color:#60a5fa;font-weight:700}
+.withdrawal-table .withdrawal-amount{font-weight:750;color:#fff}
+.withdrawal-table .withdrawal-phone{color:#e2e8f0}
+.withdrawal-table .withdrawal-status{display:inline-block;padding:5px 9px;border-radius:20px;background:#17243a;color:#f8fafc;font-size:.72rem;font-weight:800}
+.withdrawal-table .status-paid,.withdrawal-table .status-completed,.withdrawal-table .status-successful{background:#123524;color:#4ade80}
+.withdrawal-table .status-pending,.withdrawal-table .status-processing{background:#3a2514;color:#fb923c}
+.withdrawal-table .status-rejected,.withdrawal-table .status-failed{background:#253044;color:#e2e8f0}
 .withdrawal-meta{color:#94a3b8;font-size:.82rem}
-.withdrawal-status{align-self:flex-start;padding:5px 8px;border-radius:20px;background:#17243a;color:#cbd5e1;font-size:.75rem}
 
-</style>
+
+    /* Compact, full-width four-card wallet layout */
+    .stats {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+      width: 100%;
+    }
+
+    .stats > .card {
+      width: 100%;
+      min-width: 0;
+      padding: 15px 17px;
+      border-radius: 15px;
+    }
+
+    .stats .wallet-pocket {
+      min-height: 0;
+      padding: 16px 17px;
+    }
+
+    .wallet-pocket .pocket-topline {
+      margin-bottom: 10px;
+    }
+
+    .wallet-pocket .pocket-value {
+      margin: 4px 0 5px;
+      font-size: clamp(25px, 5vw, 32px);
+    }
+
+    .stats .stat-value {
+      margin: 8px 0 4px;
+      font-size: clamp(23px, 4vw, 29px);
+    }
+
+    .stats .wallet-action-card {
+      padding: 7px 12px;
+      background: rgba(8, 20, 38, .88);
+    }
+
+    .wallet-wide-action {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      width: 100%;
+      min-height: 54px;
+      padding: 5px 2px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: #eaf2ff;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .wallet-wide-action:focus-visible {
+      outline: 2px solid #60a5fa;
+      outline-offset: 3px;
+    }
+
+    .wallet-wide-action:disabled {
+      cursor: not-allowed;
+      opacity: .55;
+    }
+
+    .wallet-action-icon {
+      display: grid;
+      place-items: center;
+      flex: 0 0 39px;
+      width: 39px;
+      height: 39px;
+      border: 1px solid rgba(251, 146, 60, .25);
+      border-radius: 12px;
+      background: rgba(251, 146, 60, .12);
+      color: #fb923c;
+      font-size: 23px;
+    }
+
+    .wallet-action-icon.withdrawal-icon {
+      border-color: rgba(96, 165, 250, .25);
+      background: rgba(96, 165, 250, .12);
+      color: #60a5fa;
+    }
+
+    .wallet-action-copy {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .wallet-action-copy strong {
+      color: #f8fafc;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .wallet-action-copy small {
+      color: #9aabc0;
+      font-size: 11px;
+      font-weight: 400;
+    }
+
+    .wallet-action-arrow {
+      color: #94a3b8;
+      font-size: 25px;
+      line-height: 1;
+    }
+
+    .wallet-action-card .pocket-note {
+      margin: 4px 0 7px 52px;
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 640px) {
+      .stats {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 9px;
+      }
+
+      .stats > .card {
+        padding: 13px 14px;
+      }
+
+      .stats .wallet-pocket {
+        min-height: 0;
+        padding: 14px;
+      }
+
+      .stats .wallet-action-card {
+        padding: 6px 12px;
+      }
+    }
+
+  </style>
+  <link rel="icon" type="image/svg+xml" href="../assets/primetask-favicon.svg">
 </head>
 
 <body>
@@ -754,10 +900,6 @@
           <div class="welcome-tag">🏡 Your workspace, your next chapter</div>
           <h2>A place to work,<br><span>earn and grow.</span></h2>
           <p>Settle in, explore opportunities, and keep track of your progress. Your next step starts right here.</p>
-          <div class="welcome-actions">
-            <a class="btn btn-primary" href="services.html">Explore services <span>↗</span></a>
-            <a class="btn btn-secondary" href="#wallet">View my wallet</a>
-          </div>
         </div>
       </section>
 
@@ -772,38 +914,48 @@
       <section class="stats" id="wallet">
         <article class="card wallet-pocket">
           <div class="pocket-topline">
-            <span class="pocket-kicker"><span class="pocket-dot"></span> PRIME TASK POCKET</span>
+            <span class="pocket-kicker"><span class="pocket-dot"></span> ACCOUNT BALANCE</span>
             <span class="pocket-chip">USD <strong>$</strong></span>
-          </div>
-          <div class="stat-top pocket-balance-label">
-            <span class="stat-label">Available balance</span>
-            <span class="stat-icon" aria-hidden="true">◈</span>
           </div>
           <div class="stat-value pocket-value" id="availableBalance">Loading...</div>
           <div class="stat-foot pocket-foot">Funds currently available in your wallet</div>
-          <div class="pocket-actions">
-            <button class="pocket-action pocket-action-primary" id="addFundsAction" type="button">＋ Add funds</button>
-            <button class="pocket-action" id="withdrawAction" type="button">↗ Withdraw</button>
-          </div>
-          <p class="pocket-note">Payment and withdrawal features are being connected.</p>
         </article>
 
-        <article class="card">
-          <div class="stat-top">
-            <span class="stat-label">Pending earnings</span>
-            <span class="stat-icon">◷</span>
-          </div>
-          <div class="stat-value" id="pendingEarnings">Loading...</div>
-          <div class="stat-foot">Earnings awaiting completion</div>
-        </article>
-
-        <article class="card">
+        <article class="card earnings-card">
           <div class="stat-top">
             <span class="stat-label">Total earnings</span>
-            <span class="stat-icon">↗</span>
+            <span class="stat-icon" aria-hidden="true">↗</span>
           </div>
           <div class="stat-value" id="totalEarnings">Loading...</div>
           <div class="stat-foot">Recorded earnings to date</div>
+        </article>
+
+        <article class="card wallet-action-card">
+          <button class="wallet-wide-action pocket-action-primary"
+                  id="addFundsAction" type="button">
+            <span class="wallet-action-icon" aria-hidden="true">＋</span>
+            <span class="wallet-action-copy">
+              <strong>Fund Wallet</strong>
+              <small>Add funds to your wallet</small>
+            </span>
+            <span class="wallet-action-arrow" aria-hidden="true">›</span>
+          </button>
+        </article>
+
+        <article class="card wallet-action-card">
+          <button class="wallet-wide-action"
+                  id="withdrawAction" type="button" disabled>
+            <span class="wallet-action-icon withdrawal-icon" aria-hidden="true">↗</span>
+            <span class="wallet-action-copy">
+              <strong>Withdraw Funds</strong>
+              <small>Request a withdrawal</small>
+            </span>
+            <span class="wallet-action-arrow" aria-hidden="true">›</span>
+          </button>
+          <p class="pocket-note" id="withdrawalEligibilityNotice"
+             role="status" aria-live="polite">
+            Checking membership eligibility...
+          </p>
         </article>
       </section>
 
@@ -832,7 +984,7 @@
       </div>
 
       <section class="service-intro" aria-label="Service overview">
-        <a class="service-card" href="services.html">
+        <a class="service-card" href="https://primetask-workspace.vercel.app/dashboard/services/transcription/index.html">
           <div class="service-emoji">🎧</div>
           <div>
             <h4>Transcription and note-taking</h4>
@@ -876,8 +1028,8 @@
             <label>M-Pesa phone number
               <input id="depositPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="0712345678" required>
             </label>
-            <p class="wallet-help">Deposits are temporarily unavailable while secure payment verification is completed. No M-Pesa prompt will be sent.</p>
-            <button class="wallet-submit" id="depositSubmit" type="submit">Check deposit availability</button>
+            <p class="wallet-help">Enter your amount and M-Pesa number. Confirm the payment on your phone when prompted.</p>
+            <button class="wallet-submit" id="depositSubmit" type="submit">Deposit funds</button>
           </form>
         </section>
       </div>
@@ -983,7 +1135,59 @@
     });
 
     $("addFundsAction").addEventListener("click", () => openWalletModal("depositModal"));
-    $("withdrawAction").addEventListener("click", () => openWalletModal("withdrawalModal"));
+    let withdrawalMembershipEligible = false;
+
+    async function refreshWithdrawalEligibility() {
+      const button = $("withdrawAction");
+      const notice = $("withdrawalEligibilityNotice");
+
+      withdrawalMembershipEligible = false;
+      button.disabled = true;
+      notice.hidden = false;
+      notice.textContent = "Checking membership eligibility...";
+
+      try {
+        const root = apiRoot();
+        if (!root) throw new Error("Membership service is not configured.");
+
+        const data = await apiGet(root + "/membership");
+        const membership =
+          data.membership || data.currentMembership || data.current || null;
+
+        const now = Date.now();
+        const startsAt = membership && Date.parse(membership.startsAt);
+        const expiresAt = membership && Date.parse(membership.expiresAt);
+
+        withdrawalMembershipEligible = Boolean(
+          membership &&
+          membership.status === "active" &&
+          Number.isFinite(startsAt) &&
+          Number.isFinite(expiresAt) &&
+          startsAt <= now &&
+          expiresAt > now
+        );
+
+        notice.hidden = withdrawalMembershipEligible;
+        notice.textContent = withdrawalMembershipEligible
+          ? ""
+          : "Withdrawals require a currently active membership. Activate or renew your membership to withdraw.";
+      } catch (error) {
+        withdrawalMembershipEligible = false;
+        notice.hidden = false;
+        notice.textContent =
+          "Membership eligibility could not be verified. Withdrawals are disabled until verification succeeds.";
+      }
+
+      button.disabled = !withdrawalMembershipEligible;
+      return withdrawalMembershipEligible;
+    }
+
+    $("withdrawAction").addEventListener("click", () => {
+      if (!withdrawalMembershipEligible) return;
+      openWalletModal("withdrawalModal");
+    });
+
+    refreshWithdrawalEligibility();
 
     $("depositForm").addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -1006,7 +1210,7 @@
 
       const button = $("depositSubmit");
       button.disabled = true;
-      button.textContent = "Checking...";
+      button.textContent = "Sending request...";
 
       try {
         const key = window.crypto && window.crypto.randomUUID
@@ -1060,7 +1264,7 @@
         if (error.status === 503) {
           walletMessage(
             "depositMessage",
-            "Deposits are temporarily unavailable. No M-Pesa prompt was sent and no deposit was created.",
+            error.message || "The deposit request could not be processed. Check your deposit status before trying again.",
             "info"
           );
         } else {
@@ -1072,7 +1276,7 @@
         }
       } finally {
         button.disabled = false;
-        button.textContent = "Check deposit availability";
+        button.textContent = "Deposit funds";
       }
     });
 
@@ -1085,12 +1289,14 @@
     async function loadWithdrawalHistory() {
       const list = $("withdrawalList");
       const root = apiRoot();
+
       if (!root) {
         list.textContent = "API configuration is unavailable.";
         return;
       }
 
       list.textContent = "Loading withdrawal history...";
+
       try {
         const data = await apiGet(root + "/wallet/withdrawals/mine");
         const items = Array.isArray(data.withdrawals) ? data.withdrawals : [];
@@ -1104,41 +1310,77 @@
           return;
         }
 
-        items.forEach((item) => {
-          const row = document.createElement("div");
-          row.className = "withdrawal-row";
+        const wrapper = document.createElement("div");
+        wrapper.className = "withdrawal-table-wrap";
 
-          const details = document.createElement("div");
-          const amount = document.createElement("strong");
+        const table = document.createElement("table");
+        table.className = "withdrawal-table";
+
+        const thead = document.createElement("thead");
+        const headingRow = document.createElement("tr");
+
+        ["Reference", "Date", "Amount (USD)", "Phone Number", "Status"].forEach(label => {
+          const th = document.createElement("th");
+          th.scope = "col";
+          th.textContent = label;
+          headingRow.appendChild(th);
+        });
+
+        thead.appendChild(headingRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+
+        items.forEach(item => {
+          const row = document.createElement("tr");
+
+          const reference = item.reference ||
+            item.withdrawalReference ||
+            item.withdrawalId ||
+            item._id ||
+            item.id ||
+            "—";
+
           const value = Number.isFinite(Number(item.amount))
             ? Number(item.amount)
             : (Number(item.amountCents) || 0) / 100;
-          amount.textContent = money(value);
 
-          const phone = document.createElement("p");
-          phone.textContent = item.phoneNumber || "Phone unavailable";
-
-          const date = document.createElement("p");
-          date.className = "withdrawal-meta";
-          date.textContent = formatWalletDate(item.createdAt);
-
-          details.append(amount, phone, date);
-
-          if (item.adminNote) {
-            const note = document.createElement("p");
-            note.className = "withdrawal-meta";
-            note.textContent = "Admin note: " + item.adminNote;
-            details.appendChild(note);
-          }
-
-          const status = document.createElement("span");
           const rawStatus = String(item.status || "unknown").toLowerCase();
-          status.className = "withdrawal-status status-" + rawStatus.replace(/[^a-z0-9_-]/g, "");
-          status.textContent = rawStatus.replace(/[_-]+/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+          const statusLabel = rawStatus
+            .replace(/[_-]+/g, " ")
+            .replace(/\b\w/g, c => c.toUpperCase());
+          const statusClass = rawStatus.replace(/[^a-z0-9_-]/g, "");
 
-          row.append(details, status);
-          list.appendChild(row);
+          const values = [
+            { text: String(reference), className: "withdrawal-reference" },
+            { text: formatWalletDate(item.createdAt), className: "" },
+            { text: money(value), className: "withdrawal-amount" },
+            { text: item.phoneNumber || "Phone unavailable", className: "withdrawal-phone" },
+            { text: statusLabel, className: "" }
+          ];
+
+          values.forEach((cell, index) => {
+            const td = document.createElement("td");
+
+            if (index === 4) {
+              const badge = document.createElement("span");
+              badge.className = "withdrawal-status status-" + statusClass;
+              badge.textContent = cell.text;
+              td.appendChild(badge);
+            } else {
+              td.textContent = cell.text;
+              if (cell.className) td.className = cell.className;
+            }
+
+            row.appendChild(td);
+          });
+
+          tbody.appendChild(row);
         });
+
+        table.appendChild(tbody);
+        wrapper.appendChild(table);
+        list.appendChild(wrapper);
       } catch (error) {
         list.textContent = error.message || "Could not load withdrawal history.";
       }
@@ -1148,6 +1390,15 @@
 
     $("withdrawalForm").addEventListener("submit", async (event) => {
       event.preventDefault();
+
+      if (!(await refreshWithdrawalEligibility())) {
+        walletMessage(
+          "withdrawalMessage",
+          "An active membership is required to withdraw money.",
+          "error"
+        );
+        return;
+      }
 
       const amount = $("withdrawalAmount").value.trim();
       const number = Number(amount);
@@ -1183,7 +1434,7 @@
       } catch (error) {
         walletMessage("withdrawalMessage", error.message || "Withdrawal request failed.", "error");
       } finally {
-        button.disabled = false;
+        button.disabled = !withdrawalMembershipEligible;
         button.textContent = "Submit withdrawal request";
       }
     });
@@ -1257,7 +1508,7 @@
     async function loadWallet() {
       const root = apiRoot();
       if (!root) {
-        ["availableBalance", "pendingEarnings", "totalEarnings"].forEach(id => $(id).textContent = "Unavailable");
+        ["availableBalance", "totalEarnings"].forEach(id => $(id).textContent = "Unavailable");
         showNotice("The API URL is not configured for this domain. Configure assets/js/config.js before using the dashboard.");
         return;
       }
@@ -1267,10 +1518,9 @@
         const wallet = result.wallet || result.data || result;
 
         $("availableBalance").textContent = money(wallet.availableBalance);
-        $("pendingEarnings").textContent = money(wallet.pendingEarnings);
         $("totalEarnings").textContent = money(wallet.totalEarnings);
       } catch (error) {
-        ["availableBalance", "pendingEarnings", "totalEarnings"].forEach(id => $(id).textContent = "Unavailable");
+        ["availableBalance", "totalEarnings"].forEach(id => $(id).textContent = "Unavailable");
         showNotice(error.message || "Wallet details could not be loaded.");
       }
     }

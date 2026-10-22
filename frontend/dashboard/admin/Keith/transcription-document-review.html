@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>Document Review | PrimeTask Workspace</title>
+<style>
+:root{--navy:#14284a;--blue:#3268cf;--orange:#f08a32;--ink:#202b3b;--muted:#718096;--line:#e2e8f0;--bg:#f4f7fb;--white:#fff;--green:#16734c;--red:#b42332}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}
+.shell{max-width:1500px;margin:auto;padding:25px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:32px}
+.brand{display:flex;align-items:center;gap:12px;color:var(--navy);font-weight:900}
+.mark{width:45px;height:45px;border-radius:14px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:16px;position:relative}
+.mark:after{content:"";position:absolute;width:9px;height:9px;right:4px;top:4px;background:var(--orange);border-radius:50%}
+.small{font-size:10px;letter-spacing:1.2px;color:var(--muted);font-weight:800}
+.kicker{color:var(--blue);font-size:11px;letter-spacing:1.7px;text-transform:uppercase;font-weight:900}
+h1{font-size:clamp(29px,4vw,42px);letter-spacing:-1.4px;color:var(--navy);margin:7px 0}
+h2{font-size:18px;color:var(--navy);margin:0}
+h3{font-size:15px;color:var(--navy);margin:0}
+.intro{color:var(--muted);max-width:800px;margin:0}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:800;font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.primary{background:var(--navy);color:#fff}
+.blue{background:var(--blue);color:#fff}
+.soft{background:#eaf0fb;color:var(--navy)}
+.approve{background:#dff5e9;color:#176b49}
+.reject{background:#fde8e9;color:#a52635}
+.notice{margin:22px 0;padding:14px 16px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:12px;color:#5d6879;font-size:12px}
+.message{display:none;margin:15px 0;padding:12px 14px;border-radius:10px;font-size:13px;overflow-wrap:anywhere}
+.message.show{display:block}
+.error{background:#fff0f0;color:#a32732;border:1px solid #f1c7cb}
+.success{background:#e7f8ee;color:#146b46;border:1px solid #bce8cf}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}
+.stat,.panel{background:#fff;border:1px solid var(--line);border-radius:16px}
+.stat{padding:17px}
+.stat-label{font-size:10px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.8px}
+.stat-value{font-size:29px;font-weight:900;color:var(--navy);margin-top:5px}
+.stat-note{font-size:11px;color:var(--muted)}
+.workspace{display:grid;grid-template-columns:minmax(310px,.82fr) minmax(0,1.5fr);gap:18px;align-items:start}
+.panel{padding:19px;box-shadow:0 8px 24px #1d355708;min-width:0}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:15px}
+.sub{color:var(--muted);font-size:12px;margin:4px 0 0}
+.filters{display:grid;grid-template-columns:1fr;gap:9px;margin-bottom:13px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #d9e1ec;border-radius:10px;background:#fff;color:var(--ink);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3268cf1c}
+.queue{display:grid;gap:9px;max-height:650px;overflow:auto}
+.queue-item{border:1px solid var(--line);border-radius:12px;padding:13px;text-align:left;background:#fff;width:100%;color:var(--ink)}
+.queue-item.active{border-color:var(--blue);box-shadow:0 0 0 2px #3268cf19;background:#f8faff}
+.queue-item strong{display:block;color:var(--navy);overflow-wrap:anywhere}
+.queue-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:8px}
+.pill{display:inline-block;padding:4px 8px;border-radius:30px;font-size:10px;font-weight:900;text-transform:uppercase;background:#eaf0fb;color:#3158a1}
+.pill.submitted{background:#fff0d8;color:#87520c}
+.pill.approved{background:#def5e8;color:#176a48}
+.pill.rejected{background:#fde7e9;color:#a52e39}
+.detail-top{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;flex-wrap:wrap}
+.detail-id{font-size:11px;color:var(--muted);overflow-wrap:anywhere;margin-top:5px}
+.reward{background:#fff4e9;color:#8a4a0b;border:1px solid #ffddb8;padding:10px 13px;border-radius:12px;white-space:nowrap}
+.reward strong{display:block;font-size:22px;color:#6f3905}
+.meta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}
+.meta{padding:12px;border-radius:11px;background:#f6f8fc;min-width:0}
+.meta-label{font-size:10px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.6px}
+.meta-value{font-size:13px;color:var(--navy);font-weight:750;overflow-wrap:anywhere;margin-top:4px}
+.section{border-top:1px solid var(--line);padding-top:17px;margin-top:18px}
+.section-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.transcript{white-space:pre-wrap;overflow-wrap:anywhere;max-height:360px;overflow:auto;background:#fbfcfe;border:1px solid var(--line);padding:15px;border-radius:11px;font:13px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace}
+.muted{font-size:12px;color:var(--muted)}
+.review-area{margin-top:10px;min-height:110px;resize:vertical}
+.review-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.empty{padding:28px 14px;text-align:center;color:var(--muted);border:1px dashed #d4dce8;border-radius:12px}
+.empty strong{display:block;color:var(--navy);margin-bottom:4px}
+.hidden{display:none!important}
+a{color:var(--blue);overflow-wrap:anywhere}
+@media(max-width:900px){.workspace{grid-template-columns:1fr}.queue{max-height:350px}}
+@media(max-width:600px){.shell{padding:13px}.stats{grid-template-columns:1fr;gap:9px}.stat{padding:13px}.panel{padding:13px}.meta-grid{grid-template-columns:1fr}.top{margin-bottom:23px}.review-actions .btn{flex:1}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="top">
+  <div class="brand"><div class="mark">PT</div><div>PRIMETASK WORKSPACE<div class="small">ADMIN OPERATIONS / QUALITY CONTROL</div></div></div>
+  <button id="refresh" class="btn soft" type="button">↻ Refresh queue</button>
+</header>
+
+<div class="kicker">Transcription operations · Quality assurance</div>
+<h1>Document Review</h1>
+<p class="intro">Review submitted work, inspect transcript text, download the original DOCX, and record an approval decision with an auditable review note.</p>
+
+<div class="notice"><strong>Financial safeguard:</strong> approving a submission credits the worker’s wallet through the backend transaction. Rejection requires a clear reason and returns the job for revision. Review the selected record carefully before confirming a decision.</div>
+<div id="message" class="message" role="status" aria-live="polite"></div>
+
+<section class="stats">
+  <article class="stat"><div class="stat-label">Loaded records</div><div id="countAll" class="stat-value">—</div><div class="stat-note">For the selected status</div></article>
+  <article class="stat"><div class="stat-label">Awaiting review</div><div id="countPending" class="stat-value">—</div><div class="stat-note">Submissions not yet decided</div></article>
+  <article class="stat"><div class="stat-label">Available DOCX files</div><div id="countDocs" class="stat-value">—</div><div class="stat-note">Downloadable through the secure API</div></article>
+</section>
+
+<div class="workspace">
+  <section class="panel">
+    <div class="panel-head"><div><h2>Review queue</h2><p class="sub">Select a submission to inspect it.</p></div></div>
+    <div class="filters">
+      <input id="search" type="search" placeholder="Search member, job, or ID…" aria-label="Search submissions">
+      <select id="status" aria-label="Submission status">
+        <option value="submitted">Awaiting review</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+    <div id="queue" class="queue"><div class="empty">Loading submissions…</div></div>
+  </section>
+
+  <section class="panel" aria-live="polite">
+    <div id="noSelection" class="empty"><strong>Select a submission</strong>Its details and available review actions will appear here.</div>
+    <div id="reviewDetail" class="hidden">
+      <div class="detail-top">
+        <div><div class="kicker">Selected submission</div><h2 id="jobTitle">Submission details</h2><div id="submissionId" class="detail-id"></div></div>
+        <div class="reward"><span class="meta-label">Worker reward</span><strong id="reward">$0.00</strong><span class="muted">USD</span></div>
+      </div>
+      <div class="meta-grid">
+        <div class="meta"><div class="meta-label">Member</div><div id="memberName" class="meta-value">—</div></div>
+        <div class="meta"><div class="meta-label">Email</div><div id="memberEmail" class="meta-value">—</div></div>
+        <div class="meta"><div class="meta-label">Submitted</div><div id="submittedAt" class="meta-value">—</div></div>
+        <div class="meta"><div class="meta-label">Current status</div><div id="currentStatus" class="meta-value">—</div></div>
+        <div class="meta"><div class="meta-label">Job duration</div><div id="jobDuration" class="meta-value">—</div></div>
+        <div class="meta"><div class="meta-label">Document</div><div id="documentInfo" class="meta-value">—</div></div>
+      </div>
+
+      <div id="documentActions" class="section">
+        <div class="section-head"><h3>Submitted document</h3><button id="downloadDoc" class="btn blue" type="button">↓ Download DOCX</button></div>
+        <p id="documentName" class="muted">Original Word document supplied by the worker.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h3>Transcript text</h3><span id="textLength" class="muted"></span></div>
+        <div id="transcript" class="transcript">No transcript text supplied.</div>
+      </div>
+
+      <div id="linkSection" class="section hidden">
+        <h3>External submission link</h3><p id="submissionLink"></p>
+      </div>
+
+      <div id="previousReview" class="section hidden">
+        <h3>Previous review note</h3><p id="previousNote" class="muted"></p>
+      </div>
+
+      <div id="decisionSection" class="section">
+        <h3>Record review decision</h3>
+        <p class="sub">A rejection note is required. An approval can credit the listed reward to the member’s wallet.</p>
+        <label for="reviewNote" class="meta-label">Review note / feedback</label>
+        <textarea id="reviewNote" class="review-area" maxlength="2000" placeholder="For rejection, explain what must be corrected. For approval, add any useful review note."></textarea>
+        <div class="review-actions">
+          <button id="approve" class="btn approve" type="button">✓ Approve and credit reward</button>
+          <button id="reject" class="btn reject" type="button">↺ Reject for revision</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<p class="muted" style="margin-top:18px">Administrator access is enforced by the backend. This page does not expose Cloudinary document URLs or initiate M-Pesa payouts.</p>
+</main>
+
+<script src="assets/admin-navigation.js"></script>
+<script>
+"use strict";
+(() => {
+  const $ = id => document.getElementById(id);
+  const API_BASE = ["localhost","127.0.0.1"].includes(location.hostname)
+    ? "http://127.0.0.1:5001/api"
+    : "https://primetask-mdcx.onrender.com/api";
+
+  let submissions = [];
+  let selectedId = null;
+  let busy = false;
+  let downloading = false;
+
+  function esc(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[c]);
+  }
+  function money(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}) : "Not recorded";
+  }
+  function date(value) {
+    if (!value) return "Not recorded";
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? "Not recorded" : d.toLocaleString();
+  }
+  function showMessage(message, type) {
+    $("message").textContent = message;
+    $("message").className = "message show " + type;
+  }
+  function clearMessage() {
+    $("message").className = "message";
+    $("message").textContent = "";
+  }
+  async function request(url, options = {}) {
+    const response = await fetch(API_BASE + url, {
+      credentials:"include",
+      ...options,
+      headers:{"Accept":"application/json",...(options.headers || {})}
+    });
+    const type = response.headers.get("content-type") || "";
+    let data = null;
+    if (type.includes("application/json")) {
+      try { data = await response.json(); } catch {}
+    }
+    if (!response.ok) {
+      throw new Error((data && (data.message || data.error)) || "Request failed (HTTP " + response.status + ").");
+    }
+    return {response,data};
+  }
+  function memberName(item) {
+    const u = item.user || {};
+    return [u.firstName,u.lastName].filter(Boolean).join(" ") || u.username || "Member not available";
+  }
+  function searchable(item) {
+    return [
+      item.id,item.status,item.documentOriginalName,item.transcriptText,
+      item.user && item.user.username,item.user && item.user.email,
+      item.job && item.job.title
+    ].filter(Boolean).join(" ").toLowerCase();
+  }
+  function currentItem() {
+    return submissions.find(item => item.id === selectedId) || null;
+  }
+  function renderQueue() {
+    const q = $("search").value.trim().toLowerCase();
+    const list = submissions.filter(item => !q || searchable(item).includes(q));
+    if (!list.length) {
+      $("queue").innerHTML = '<div class="empty"><strong>No submissions found</strong>Try another search or status filter.</div>';
+      return;
+    }
+    $("queue").innerHTML = list.map(item => {
+      const active = item.id === selectedId ? " active" : "";
+      const status = esc(item.status || "unknown");
+      return '<button type="button" class="queue-item'+active+'" data-id="'+esc(item.id)+'">'+
+        '<strong>'+esc(item.job && item.job.title || "Untitled transcription job")+'</strong>'+
+        '<span class="muted">'+esc(memberName(item))+'</span>'+
+        '<div class="queue-meta"><span class="pill '+status+'">'+esc(status)+'</span><span class="muted">'+esc(date(item.createdAt))+'</span></div>'+
+        '<div class="queue-meta"><span class="muted">'+esc(item.id)+'</span><strong>'+esc(money(item.reward))+'</strong></div>'+
+        '</button>';
+    }).join("");
+  }
+  function renderDetail() {
+    const item = currentItem();
+    const hasSelection = Boolean(item);
+    $("noSelection").classList.toggle("hidden",hasSelection);
+    $("reviewDetail").classList.toggle("hidden",!hasSelection);
+    if (!item) return;
+
+    $("jobTitle").textContent = item.job && item.job.title || "Untitled transcription job";
+    $("submissionId").textContent = "Submission ID: " + item.id;
+    $("reward").textContent = money(item.reward);
+    $("memberName").textContent = memberName(item);
+    $("memberEmail").textContent = item.user && item.user.email || "Not recorded";
+    $("submittedAt").textContent = date(item.createdAt);
+    $("currentStatus").textContent = item.status || "Unknown";
+    $("jobDuration").textContent = Number.isFinite(Number(item.job && item.job.durationMinutes))
+      ? Number(item.job.durationMinutes) + " minutes" : "Not recorded";
+    $("documentInfo").textContent = item.documentAvailable
+      ? "DOCX available" + (item.documentBytes ? " · " + (item.documentBytes/1024).toFixed(1) + " KB" : "")
+      : "No DOCX attached";
+    $("documentName").textContent = item.documentOriginalName || "Original filename not provided.";
+    $("downloadDoc").disabled = !item.documentAvailable || downloading;
+    $("downloadDoc").textContent = downloading ? "Preparing download…" : "↓ Download DOCX";
+    $("documentActions").classList.toggle("hidden",!item.documentAvailable);
+    $("transcript").textContent = item.transcriptText || "No transcript text supplied. Review the attached document if available.";
+    $("textLength").textContent = item.transcriptText ? item.transcriptText.length.toLocaleString() + " characters" : "No text";
+    $("linkSection").classList.toggle("hidden",!item.submissionLink);
+    if (item.submissionLink) {
+      const link = document.createElement("a");
+      link.href = item.submissionLink;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = item.submissionLink;
+      $("submissionLink").replaceChildren(link);
+    }
+    $("previousReview").classList.toggle("hidden",!item.reviewNote);
+    $("previousNote").textContent = item.reviewNote || "";
+    const canReview = item.status === "submitted";
+    $("decisionSection").classList.toggle("hidden",!canReview);
+    $("approve").disabled = busy || !canReview;
+    $("reject").disabled = busy || !canReview;
+    if (!canReview) $("reviewNote").value = item.reviewNote || "";
+  }
+  async function load() {
+    if (busy) return;
+    busy = true;
+    $("refresh").disabled = true;
+    clearMessage();
+    $("queue").innerHTML = '<div class="empty">Loading records from the server…</div>';
+    try {
+      const status = $("status").value;
+      const {data} = await request("/admin/transcription/submissions?status=" + encodeURIComponent(status));
+      if (!data || data.success !== true || !Array.isArray(data.submissions)) {
+        throw new Error("The server response did not contain a submissions list.");
+      }
+      submissions = data.submissions;
+      $("countAll").textContent = submissions.length;
+      $("countPending").textContent = submissions.filter(item => item.status === "submitted").length;
+      $("countDocs").textContent = submissions.filter(item => item.documentAvailable).length;
+      if (!submissions.some(item => item.id === selectedId)) {
+        selectedId = submissions.length ? submissions[0].id : null;
+      }
+      renderQueue();
+      renderDetail();
+    } catch (error) {
+      submissions = [];
+      selectedId = null;
+      $("countAll").textContent = $("countPending").textContent = $("countDocs").textContent = "—";
+      renderDetail();
+      $("queue").innerHTML = '<div class="empty"><strong>Could not load submissions</strong>'+esc(error.message)+'</div>';
+      showMessage(error.message + " Check the admin session and backend availability.", "error");
+    } finally {
+      busy = false;
+      $("refresh").disabled = false;
+      renderDetail();
+    }
+  }
+  async function downloadDocument() {
+    const item = currentItem();
+    if (!item || !item.documentAvailable || downloading) return;
+    downloading = true;
+    renderDetail();
+    clearMessage();
+    try {
+      const response = await fetch(API_BASE + "/admin/transcription/submissions/" + encodeURIComponent(item.id) + "/document", {
+        credentials:"include",
+        headers:{"Accept":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
+      });
+      if (!response.ok) {
+        let message = "Document download failed (HTTP " + response.status + ").";
+        try {
+          const data = await response.json();
+          if (data.message) message = data.message;
+        } catch {}
+        throw new Error(message);
+      }
+      const blob = await response.blob();
+      if (!blob.size) throw new Error("The downloaded document was empty.");
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const safeName = (item.documentOriginalName || "submission.docx").split(/[\\/]/).pop().replace(/[^A-Za-z0-9._ -]/g,"_") || "submission.docx";
+      a.download = safeName.toLowerCase().endsWith(".docx") ? safeName : safeName + ".docx";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showMessage("DOCX download started.", "success");
+    } catch (error) {
+      showMessage(error.message, "error");
+    } finally {
+      downloading = false;
+      renderDetail();
+    }
+  }
+  async function decide(decision) {
+    const item = currentItem();
+    if (!item || item.status !== "submitted" || busy) return;
+    const note = $("reviewNote").value.trim();
+    if (decision === "reject" && !note) {
+      showMessage("A review note is required when rejecting a submission.", "error");
+      $("reviewNote").focus();
+      return;
+    }
+    const verb = decision === "approve" ? "approve this submission and credit " + money(item.reward) + " to the worker's wallet" : "reject this submission and return the job for revision";
+    if (!window.confirm("Confirm you want to " + verb + "?\n\nSubmission: " + item.id)) return;
+
+    busy = true;
+    $("approve").disabled = $("reject").disabled = $("refresh").disabled = true;
+    clearMessage();
+    try {
+      const {data} = await request("/admin/transcription/submissions/" + encodeURIComponent(item.id) + "/review", {
+        method:"PATCH",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({decision,reviewNote:note})
+      });
+      if (data && data.success === false) throw new Error(data.message || "The review was not accepted.");
+      showMessage(decision === "approve"
+        ? "Submission approved. The backend confirmed the review request."
+        : "Submission rejected. The backend confirmed the review request.", "success");
+      selectedId = null;
+      $("reviewNote").value = "";
+      busy = false;
+      await load();
+    } catch (error) {
+      showMessage(error.message + " Refresh the queue before retrying to avoid repeating a completed decision.", "error");
+    } finally {
+      busy = false;
+      $("refresh").disabled = false;
+      renderQueue();
+      renderDetail();
+    }
+  }
+
+  $("queue").addEventListener("click",event => {
+    const button = event.target.closest("[data-id]");
+    if (!button) return;
+    selectedId = button.dataset.id;
+    renderQueue();
+    renderDetail();
+    clearMessage();
+  });
+  $("refresh").addEventListener("click",load);
+  $("search").addEventListener("input",renderQueue);
+  $("status").addEventListener("change",() => {
+    selectedId = null;
+    $("reviewNote").value = "";
+    load();
+  });
+  $("downloadDoc").addEventListener("click",downloadDocument);
+  $("approve").addEventListener("click",() => decide("approve"));
+  $("reject").addEventListener("click",() => decide("reject"));
+  load();
+})();
+</script>
+</body>
+</html>

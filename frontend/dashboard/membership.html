@@ -24,6 +24,9 @@ p{margin:7px 0}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .plan-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:15px}
 .plan{padding:17px;background:#081426;border:1px solid #29415f;border-radius:12px;min-width:0}
+.checkout-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}
+.checkout-actions button{flex:1 1 145px}
+.wallet-balance{padding:12px 14px;margin:12px 0;border:1px solid #29415f;border-radius:10px;background:#081426;font-weight:700;overflow-wrap:anywhere}
 .price{font-size:25px;font-weight:800;margin:10px 0}
 .tag{display:inline-block;padding:4px 9px;border-radius:20px;background:#142944;color:#bfdbfe;font-size:12px}
 .list{padding-left:20px;color:#cbd7e8}
@@ -145,6 +148,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
   main { padding-top: 64px; }
 }
 </style>
+  <link rel="icon" type="image/jpeg" href="../assets/primetask.jpg">
 </head>
 <body>
 
@@ -180,6 +184,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 <section class="card" aria-labelledby="plansHeading">
 <h2 id="plansHeading">Available plans</h2>
 <p class="muted">Plan details are displayed from the membership service.</p>
+<p id="walletBalance" class="wallet-balance" role="status" aria-live="polite">Loading available wallet balance...</p>
 <div id="plans" class="plan-grid">
 <p class="muted">Loading plans...</p>
 </div>
@@ -353,11 +358,22 @@ function showPlans(data) {
     button.type = "submit";
     button.textContent = "Purchase membership";
     button.disabled = !planId || !(Number.isSafeInteger(kes) && kes > 0);
-    form.appendChild(button);
+    const walletButton = document.createElement("button");
+    walletButton.type = "button";
+    walletButton.textContent = "Buy with Wallet";
+    walletButton.disabled = !planId;
+    const actions = document.createElement("div");
+    actions.className = "checkout-actions";
+    actions.append(button, walletButton);
+    form.appendChild(actions);
 
     const status = addTextElement(form, "p", "", "notice");
     status.setAttribute("role", "status");
     status.setAttribute("aria-live", "polite");
+
+    walletButton.addEventListener("click", () => {
+      purchaseMembershipWithWallet(planId, walletButton, status);
+    });
 
     form.addEventListener("submit", event => {
       event.preventDefault();
@@ -375,6 +391,88 @@ function createIdempotencyKey() {
       ? crypto.randomUUID()
       : Date.now().toString(36) + "-" + Math.random().toString(36).slice(2);
   return "membership-" + randomPart;
+}
+
+async function refreshWalletBalance() {
+  const element = $("walletBalance");
+
+  try {
+    const data = await request(apiRoot() + "/wallet");
+    const wallet = data.wallet || data.data || data;
+    const balance = Number(wallet.availableBalance);
+
+    if (!Number.isFinite(balance) || balance < 0) {
+      throw new Error("The wallet balance response was invalid.");
+    }
+
+    element.textContent = "Available wallet balance: " +
+      formatPrice(balance, wallet.currency || "USD");
+    element.className = "wallet-balance";
+    return wallet;
+  } catch (error) {
+    element.textContent = "Wallet balance unavailable. " +
+      (error.message || "Please reload the page.");
+    element.className = "wallet-balance notice error";
+    throw error;
+  }
+}
+
+async function purchaseMembershipWithWallet(planId, button, status) {
+  if (!planId || button.disabled) return;
+
+  // Always generate a fresh key for each user-initiated attempt.
+  const idempotencyKey = createIdempotencyKey();
+  button.disabled = true;
+  button.textContent = "Processing wallet payment...";
+  status.className = "notice";
+  status.textContent = "Checking your wallet and activating membership...";
+
+  let completed = false;
+
+  try {
+    const result = await request(apiRoot() + "/membership/purchases/wallet", {
+      method: "POST",
+      headers: { "Idempotency-Key": idempotencyKey },
+      body: JSON.stringify({ planId })
+    });
+
+    const membership = result.membership || {};
+    status.className = "notice success";
+    status.textContent = (result.message || "Wallet purchase completed.") +
+      (membership.expiresAt
+        ? " Membership expires: " + formatDate(membership.expiresAt) + "."
+        : "");
+
+    button.textContent = "Membership activated";
+    completed = true;
+
+    const refreshes = await Promise.allSettled([
+      refreshWalletBalance(),
+      request(apiRoot() + "/membership").then(data => {
+        showCurrent(data);
+        showHistory(data);
+      })
+    ]);
+
+    if (refreshes.some(item => item.status === "rejected")) {
+      status.textContent +=
+        " Your purchase succeeded, but some displayed details could not refresh. Reload the page to verify them.";
+    }
+  } catch (error) {
+    status.className = "notice error";
+    status.textContent = error.message ||
+      "Wallet purchase could not be completed.";
+
+    if (error.code === "INSUFFICIENT_WALLET_BALANCE" || error.status === 402) {
+      status.textContent +=
+        " Fund your wallet, then retry. A new attempt will use a fresh reference.";
+      refreshWalletBalance().catch(() => {});
+    }
+
+    button.textContent = "Retry with Wallet";
+  } finally {
+    if (!completed) button.disabled = false;
+  }
 }
 
 async function purchaseMembership(form, button, status) {
@@ -467,11 +565,13 @@ async function init() {
 
     const results = await Promise.allSettled([
       request(`${root}/membership/plans`),
-      request(`${root}/membership`)
+      request(`${root}/membership`),
+      refreshWalletBalance()
     ]);
 
     const planResult = results[0];
     const membershipResult = results[1];
+    const walletResult = results[2];
     let errors = [];
 
     if (planResult.status === "fulfilled") {
@@ -491,7 +591,12 @@ async function init() {
       errors.push("Membership details could not be loaded.");
     }
 
-    message.textContent = errors.length ? errors.join(" ") : "Membership information loaded.";
+    if (walletResult.status === "rejected") {
+      errors.push("Wallet balance could not be loaded.");
+    }
+
+    message.textContent = errors.length ? errors.join(" ") :
+      "Membership information and wallet balance loaded.";
     message.className = errors.length ? "notice error" : "notice success";
   } catch (error) {
     message.textContent = error.message || "Membership page could not be loaded.";

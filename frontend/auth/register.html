@@ -209,7 +209,10 @@ input.invalid{border-color:var(--danger)}
 @media(prefers-reduced-motion:reduce){
   *,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+.brand-mark img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
 </style>
+  <link rel="icon" type="image/jpeg" href="../assets/primetask.jpg">
 </head>
 
 <body>
@@ -217,7 +220,7 @@ input.invalid{border-color:var(--danger)}
 
   <section class="visual" aria-label="PrimeTask Workspace introduction">
     <a class="brand" href="../index.html">
-      <span class="brand-mark">P</span>
+      <span class="brand-mark"><img src="../assets/primetask.jpg" alt="PrimeTask"></span>
       <span class="brand-name">PrimeTask Workspace
         <small>Creating Opportunities and Delivering Excellence.</small>
       </span>
@@ -244,7 +247,7 @@ input.invalid{border-color:var(--danger)}
     <div class="form-wrap">
 
       <a class="mobile-brand" href="../index.html">
-        <span class="brand-mark">P</span>
+        <span class="brand-mark"><img src="../assets/primetask.jpg" alt="PrimeTask"></span>
         <span class="brand-name">PrimeTask Workspace
           <small style="color:#91a5c2;font-size:10px">Work. Learn. Grow.</small>
         </span>
@@ -261,7 +264,7 @@ input.invalid{border-color:var(--danger)}
       </div>
 
       <div id="sponsorNotice" style="display:none;margin:-5px 0 20px;padding:13px 15px;border:1px solid #2379ee66;border-radius:12px;background:#0a1b32;color:#dbeaff;font-size:13px;line-height:1.6">
-        Referral sponsor: <strong id="sponsorName"></strong>
+        upline: <strong id="sponsorName"></strong>
       </div>
 
       <form id="registerForm" novalidate>
@@ -337,10 +340,6 @@ input.invalid{border-color:var(--danger)}
         <a href="login.html">Log in to PrimeTask →</a>
       </div>
 
-      <div class="security-note">
-        <strong>Account security matters.</strong><br>
-        Your password should be unique to this account. A real deployment must send it to a secure backend over HTTPS, hash it server-side and verify registration before activating an account.
-      </div>
 
       <div class="footer">
         © <span id="year"></span> PrimeTask Workspace.<br>
@@ -481,7 +480,7 @@ input.invalid{border-color:var(--danger)}
 
     if (!endpoint) {
       showMessage(
-        "Your details passed the browser checks, but registration is not connected to a server yet. No account has been created. Connect the registration API before accepting real users.",
+        "Unable to connect to the registration service. Please refresh the page and try again.",
         "error"
       );
       return;

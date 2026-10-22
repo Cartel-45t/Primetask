@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080713">
+<title>Submission Arena | PrimeTask Transcription</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080713;--panel:rgba(15,13,34,.92);--line:#7352b65c;--purple:#b68aff;--blue:#59d5ff;--orange:#ff7b2b;--gold:#ffe19a;--text:#f8f6ff;--muted:#a7a0c3;--green:#6dffc0;--red:#ff6c89}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Rajdhani,sans-serif}
+a{color:inherit;text-decoration:none}button,input,select{font:inherit}
+body:before{content:"";position:fixed;inset:0;z-index:-3;background:radial-gradient(ellipse at 75% 20%,#382267 0%,#19112f 35%,#080713 76%)}
+body:after{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:linear-gradient(90deg,#080713eF,#080713a8 65%,#08071385),linear-gradient(0deg,#080713,transparent 75%)}
+header{position:sticky;top:0;z-index:10;background:#080713ed;backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.topline{height:3px;background:linear-gradient(90deg,#ff7b2b,#ffe19a,#b68aff,#59d5ff,#ff7b2b)}
+.head{max-width:1450px;margin:auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px}
+.orb{height:43px;width:43px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 25%,#fff 0%,#ffe19a 18%,#ff7b2b 45%,#8525a9 78%);color:#1a0b2c;font:900 20px Orbitron;box-shadow:0 0 23px #a55cff55}
+.brand strong{font:800 12px Orbitron;letter-spacing:1px}.brand small{display:block;color:var(--purple);font-size:11px;letter-spacing:1.5px;margin-top:4px}
+nav{display:flex;gap:5px;flex-wrap:wrap}
+nav a{padding:10px 11px;color:#c6bddf;border:1px solid transparent;font:700 9px Orbitron;letter-spacing:.6px}
+nav a:hover,nav a.active{color:#fff;border-color:#b68aff7a;background:#a16bff18}
+main{max-width:1450px;margin:auto;padding:25px 22px 60px}
+.kicker{display:flex;align-items:center;gap:10px;color:var(--purple);font:700 10px Orbitron;letter-spacing:3px;text-transform:uppercase}
+.kicker:before{content:"";width:26px;height:2px;background:var(--orange);box-shadow:0 0 12px var(--orange)}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,390px);gap:22px;align-items:center;min-height:320px;padding:22px 0 30px}
+.hero-copy{position:relative;z-index:1}
+h1{font:900 clamp(34px,5.7vw,70px)/1.06 Orbitron;letter-spacing:-2px;margin:18px 0}
+h1 span{display:block;color:var(--purple);text-shadow:0 0 25px #a16bff62}
+.hero p{font-size:19px;line-height:1.5;color:#d5cdec;max-width:660px}
+.hero-art{position:relative;min-height:280px;display:flex;align-items:center;justify-content:center}
+.hero-art .portrait{width:100%;height:290px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 0 25px #8c55ff55);position:relative;z-index:1}
+.art-ring{position:absolute;width:240px;height:240px;border:1px solid #b68aff66;border-radius:50%;box-shadow:0 0 0 15px #a16bff0c,0 0 0 32px #a16bff08,0 0 55px #a16bff20}
+.art-caption{position:absolute;bottom:4px;right:5px;z-index:2;font:800 9px Orbitron;letter-spacing:2px;color:var(--gold);background:#100a23d9;border:1px solid #b68aff66;padding:8px 10px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin:5px 0 20px}
+input,select{background:#0d0a20;color:var(--text);border:1px solid #514072;padding:12px;outline:none;min-width:0}
+input:focus,select:focus{border-color:var(--purple);box-shadow:0 0 0 2px #b68aff18}
+#search{flex:1 1 230px}
+#status-filter{flex:0 1 190px}
+button{cursor:pointer}
+.btn{border:1px solid #7555ad;background:#17102c;color:white;padding:11px 15px;font:800 9px Orbitron;letter-spacing:.8px}
+.btn.hot{background:linear-gradient(110deg,#ff6828,#ffb54b);border-color:#ffd08e;color:#230d08}
+.btn:disabled{opacity:.55;cursor:wait}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.stat{padding:17px;background:var(--panel);border:1px solid var(--line);position:relative;overflow:hidden}
+.stat:after{content:"";position:absolute;right:-27px;bottom:-38px;width:90px;height:90px;border:1px solid #b68aff35;border-radius:50%;box-shadow:0 0 0 13px #b68aff09}
+.stat span{display:block;color:var(--muted);font:700 9px Orbitron;letter-spacing:1px}
+.stat strong{display:block;margin-top:10px;font:800 clamp(24px,3vw,35px) Orbitron}
+.stat:nth-child(1) strong{color:var(--blue)}.stat:nth-child(2) strong{color:var(--gold)}.stat:nth-child(3) strong{color:var(--green)}.stat:nth-child(4) strong{color:var(--orange)}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:14px;margin:22px 0 15px}
+.section-head h2{font:800 15px Orbitron;letter-spacing:1px;margin:8px 0 0}
+.section-head p{color:var(--muted);font-size:13px;margin:0}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.card{min-width:0;background:var(--panel);border:1px solid var(--line);overflow:hidden;transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-3px);border-color:#b68affb5}
+.card-art{height:165px;position:relative;overflow:hidden;background:radial-gradient(ellipse at center,#342054,#100b22 72%)}
+.card-art img{width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 0 15px #a16bff2e);transition:transform .3s}
+.card:hover .card-art img{transform:scale(1.04)}
+.card-art:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#100b22 0%,transparent 55%)}
+.card-art-label{position:absolute;bottom:10px;left:12px;z-index:1;font:800 9px Orbitron;letter-spacing:1.3px;color:var(--gold)}
+.card-body{padding:15px}
+.card-title{font:800 12px Orbitron;margin:0 0 8px;overflow-wrap:anywhere}
+.meta{display:flex;gap:9px;flex-wrap:wrap;color:var(--muted);font-size:12px}
+.status{display:inline-block;margin-top:12px;padding:5px 8px;border:1px solid #6e5b8b;color:#d5c5f5;font:700 9px Orbitron}
+.status.submitted,.status.pending_review{color:var(--gold);border-color:#ffe19a66}
+.status.approved,.status.completed{color:var(--green);border-color:#6dffc066}
+.status.rejected{color:var(--red);border-color:#ff6c8966}
+.card-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.card-actions button{flex:1 1 auto}
+.empty{grid-column:1/-1;padding:32px 16px;text-align:center;color:var(--muted);border:1px dashed #514072;background:#100b1c}
+#message{min-height:23px;margin:12px 0;color:var(--muted);font-size:13px}
+#message.error{color:var(--red)}#message.success{color:var(--green)}
+.gallery{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:17px}
+.gallery figure{margin:0;overflow:hidden;border:1px solid var(--line);background:#100b20}
+.gallery img{width:100%;height:145px;object-fit:contain;display:block;background:radial-gradient(ellipse,#2b1b4a,#0b0818)}
+.gallery figcaption{padding:10px;font:700 9px Orbitron;letter-spacing:.5px;color:#d6c9f2}
+footer{max-width:1450px;margin:auto;padding:0 22px 24px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#8e83a9;font-size:12px}
+@media(max-width:1000px){.head{align-items:flex-start;flex-direction:column}.hero{grid-template-columns:1fr minmax(190px,290px)}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.head{padding:11px 13px}nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:4px}nav a{text-align:center;padding:10px 3px;font-size:8px}main{padding:18px 13px 40px}.hero{grid-template-columns:1fr;padding:24px 0 12px;gap:0}.hero-art{min-height:155px;justify-content:flex-end;margin-top:-10px}.hero-art .portrait{height:170px;width:65%}.art-ring{width:130px;height:130px;right:9%;}.art-caption{right:0;bottom:0}h1{font-size:clamp(31px,9vw,46px);letter-spacing:-1px}.hero p{font-size:17px}.stats{gap:8px}.stat{padding:13px}.stat span{font-size:8px}.stat strong{font-size:24px}.cards{grid-template-columns:1fr}.card-art{height:180px}.gallery img{height:120px}.section-head h2{font-size:13px}.section-head p{font-size:11px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="topline"></div>
+  <div class="head">
+    <a class="brand" href="transcription-overview.html">
+      <span class="orb">超</span>
+      <span><strong>PRIMETASK // SUBMISSION ARENA</strong><small>UNIVERSE 7 · REVIEW DIVISION</small></span>
+    </a>
+    <nav aria-label="Transcription navigation">
+      <a href="transcription-overview.html">SCOUTER</a>
+      <a href="jobs.html">MISSIONS</a>
+      <a class="active" href="submissions.html">SUBMISSIONS</a>
+      <a href="transcription.html">OPERATIONS</a>
+      <a href="transcription-overview.html#purchases">PACKAGES</a>
+      <a href="transcription-overview.html#withdrawals">PAYOUTS</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="kicker">Warriors have submitted their work</div>
+      <h1>THE REVIEW<span>ARENA.</span></h1>
+      <p>Inspect submitted work, track the review queue, and keep approval decisions accountable. Even a Super Saiyan has to follow the submission requirements.</p>
+      <div class="tools">
+        <button class="btn hot" id="refresh" type="button">↻ SCAN SUBMISSIONS</button>
+        <a class="btn" href="transcription.html">OPEN ADMIN OPERATIONS</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div class="art-ring"></div>
+      <img class="portrait" src="https://dragonball-api.com/characters/1.webp" alt="Dragon Ball character artwork" onerror="this.style.display='none'">
+      <span class="art-caption">REVIEW POWER: MAXIMUM</span>
+    </div>
+  </section>
+
+  <section class="stats" aria-label="Submission statistics">
+    <article class="stat"><span>TOTAL SUBMISSIONS</span><strong id="total">—</strong></article>
+    <article class="stat"><span>AWAITING REVIEW</span><strong id="pending">—</strong></article>
+    <article class="stat"><span>APPROVED</span><strong id="approved">—</strong></article>
+    <article class="stat"><span>REJECTED</span><strong id="rejected">—</strong></article>
+  </section>
+
+  <div class="section-head">
+    <div>
+      <div class="kicker">Submission intelligence</div>
+      <h2>WORKER SUBMISSION ARCHIVE</h2>
+    </div>
+    <p id="updated">Waiting for API</p>
+  </div>
+
+  <div class="tools">
+    <input id="search" type="search" placeholder="Search title, worker, or mission..." aria-label="Search submissions">
+    <select id="filter" aria-label="Filter submission status">
+      <option value="">ALL STATUSES</option>
+      <option value="submitted">SUBMITTED</option>
+      <option value="approved">APPROVED</option>
+      <option value="rejected">REJECTED</option>
+    </select>
+  </div>
+
+  <div id="cards" class="cards">
+    <div class="empty">Loading the submission archive…</div>
+  </div>
+  <div id="message" role="status" aria-live="polite"></div>
+
+  <section>
+    <div class="section-head">
+      <div>
+        <div class="kicker">Saiyan gallery</div>
+        <h2>POWERFUL WORK. CLEAN EXECUTION.</h2>
+      </div>
+      <p>Image artwork only · No video backgrounds</p>
+    </div>
+    <div class="gallery">
+      <figure>
+        <img src="https://dragonball-api.com/characters/1.webp" alt="Dragon Ball character artwork" loading="lazy" onerror="this.style.opacity='.15'">
+        <figcaption>THE WARRIOR'S DISCIPLINE</figcaption>
+      </figure>
+      <figure>
+        <img src="https://dragonball-api.com/characters/2.webp" alt="Dragon Ball character artwork" loading="lazy" onerror="this.style.opacity='.15'">
+        <figcaption>FOCUS UNDER PRESSURE</figcaption>
+      </figure>
+      <figure>
+        <img src="https://dragonball-api.com/characters/3.webp" alt="Dragon Ball character artwork" loading="lazy" onerror="this.style.opacity='.15'">
+        <figcaption>LEVEL UP YOUR STANDARDS</figcaption>
+      </figure>
+      <figure>
+        <img src="https://dragonball-api.com/characters/4.webp" alt="Dragon Ball character artwork" loading="lazy" onerror="this.style.opacity='.15'">
+        <figcaption>EVERY DETAIL COUNTS</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>PRIMETASK TRANSCRIPTION · SUBMISSION ARENA</span>
+  <span>VERIFY THE WORK. RECORD THE DECISION.</span>
+</footer>
+
+<script src="../../../assets/js/config.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const API_BASE = String(
+    window.PTW_API_BASE ||
+    window.PTW_CONFIG?.API_BASE ||
+    window.PTW_CONFIG?.apiBase ||
+    ""
+  ).replace(/\/+$/, "");
+
+  const $ = id => document.getElementById(id);
+  let records = [];
+  let busy = false;
+
+  function showMessage(message, type = "") {
+    $("message").textContent = message;
+    $("message").className = type;
+  }
+
+  function getArray(payload) {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.submissions)) return payload.submissions;
+    if (Array.isArray(payload?.data)) return payload.data;
+    if (Array.isArray(payload?.data?.submissions)) return payload.data.submissions;
+    if (Array.isArray(payload?.results)) return payload.results;
+    return null;
+  }
+
+  function statusOf(item) {
+    return String(item.status || "unknown").toLowerCase().replace(/\s+/g, "_");
+  }
+
+  function identifier(item) {
+    return item._id || item.id || item.submissionId || "";
+  }
+
+  function rewardOf(item) {
+    const cents = item.rewardCents ?? item.amountCents ?? item.earningsCents;
+    if (cents !== undefined && cents !== null) return Number(cents) / 100;
+    const amount = Number(item.rewardUsd ?? item.amountUsd ?? item.reward ?? item.amount);
+    return Number.isFinite(amount) ? amount : null;
+  }
+
+  function safeText(value, fallback = "Not provided") {
+    return value === undefined || value === null || value === "" ? fallback : String(value);
+  }
+
+  async function request(path, options = {}) {
+    if (!API_BASE) throw new Error("PTW_API_BASE is missing from assets/js/config.js.");
+
+    const response = await fetch(API_BASE + path, {
+      credentials: "include",
+      cache: "no-store",
+      ...options,
+      headers: {
+        Accept: "application/json",
+        ...(options.body ? {"Content-Type":"application/json"} : {}),
+        ...(options.headers || {})
+      }
+    });
+
+    let payload = {};
+    try { payload = await response.json(); } catch {}
+
+    if (!response.ok || payload.success === false) {
+      const message = payload.message || payload.error || "Request failed (" + response.status + ").";
+      throw new Error(response.status === 401 || response.status === 403
+        ? "Admin authentication required. Sign in with your authorized PrimeTask admin session."
+        : message);
+    }
+    return payload;
+  }
+
+  function updateStats() {
+    $("total").textContent = records.length.toLocaleString();
+    $("pending").textContent = records.filter(x => ["submitted","pending_review"].includes(statusOf(x))).length.toLocaleString();
+    $("approved").textContent = records.filter(x => statusOf(x) === "approved").length.toLocaleString();
+    $("rejected").textContent = records.filter(x => statusOf(x) === "rejected").length.toLocaleString();
+  }
+
+  function makeButton(label, action, style = "") {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "btn " + style;
+    button.textContent = label;
+    button.addEventListener("click", action);
+    return button;
+  }
+
+  function render() {
+    updateStats();
+    const query = $("search").value.trim().toLowerCase();
+    const filter = $("filter").value;
+    const list = $("cards");
+    list.replaceChildren();
+
+    const filtered = records.filter(item => {
+      const worker = item.worker?.name || item.user?.name || item.userName || item.workerName || "";
+      const job = item.job?.title || item.jobTitle || item.title || "";
+      const haystack = [worker, job, item.description, item.status, identifier(item)].join(" ").toLowerCase();
+      return (!query || haystack.includes(query)) && (!filter || statusOf(item) === filter);
+    });
+
+    if (!filtered.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = records.length
+        ? "No submissions match these filters."
+        : "No submission records were returned by the API.";
+      list.appendChild(empty);
+      return;
+    }
+
+    filtered.forEach((item, index) => {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const art = document.createElement("div");
+      art.className = "card-art";
+      const img = document.createElement("img");
+      img.src = "https://dragonball-api.com/characters/" + ((index % 4) + 1) + ".webp";
+      img.alt = "Dragon Ball character artwork";
+      img.loading = "lazy";
+      img.onerror = () => { img.style.opacity = ".12"; };
+      const artLabel = document.createElement("span");
+      artLabel.className = "card-art-label";
+      artLabel.textContent = "SUBMISSION #" + String(index + 1).padStart(3, "0");
+      art.append(img, artLabel);
+
+      const body = document.createElement("div");
+      body.className = "card-body";
+
+      const title = document.createElement("h3");
+      title.className = "card-title";
+      title.textContent = safeText(item.job?.title || item.jobTitle || item.title, "Transcription submission");
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      const worker = document.createElement("span");
+      worker.textContent = "Worker: " + safeText(item.worker?.name || item.user?.name || item.userName || item.workerName, "Unlisted");
+      const date = document.createElement("span");
+      const dateValue = item.submittedAt || item.createdAt || item.created_at;
+      date.textContent = dateValue && !Number.isNaN(Date.parse(dateValue))
+        ? new Date(dateValue).toLocaleDateString()
+        : "Date unavailable";
+      meta.append(worker, date);
+
+      const status = document.createElement("span");
+      status.className = "status " + statusOf(item);
+      status.textContent = statusOf(item).replace(/_/g, " ").toUpperCase();
+
+      body.append(title, meta, status);
+
+      const amount = rewardOf(item);
+      if (amount !== null) {
+        const reward = document.createElement("p");
+        reward.style.color = "var(--gold)";
+        reward.style.fontFamily = "Orbitron";
+        reward.style.fontSize = "12px";
+        reward.textContent = "Reward: $" + amount.toFixed(2) + " USD";
+        body.appendChild(reward);
+      }
+
+      const fileUrl = item.fileUrl || item.fileURL || item.documentUrl || item.audioUrl || item.submissionUrl;
+      if (fileUrl) {
+        const link = document.createElement("a");
+        link.href = fileUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.className = "btn";
+        link.style.display = "inline-block";
+        link.style.marginTop = "12px";
+        link.textContent = "OPEN SUBMITTED FILE ↗";
+        body.appendChild(link);
+      }
+
+      const id = identifier(item);
+      if (id && ["submitted", "pending_review"].includes(statusOf(item))) {
+        const actions = document.createElement("div");
+        actions.className = "card-actions";
+        actions.append(
+          makeButton("APPROVE", () => reviewSubmission(id, "approve"), "hot"),
+          makeButton("REJECT", () => reviewSubmission(id, "reject"))
+        );
+        body.appendChild(actions);
+      }
+
+      card.append(art, body);
+      list.appendChild(card);
+    });
+  }
+
+  async function loadSubmissions() {
+    if (busy) return;
+    busy = true;
+    $("refresh").disabled = true;
+    showMessage("Scanning the submission archive…");
+
+    try {
+      const payload = await request("/admin/transcription/submissions");
+      const result = getArray(payload);
+      if (!result) throw new Error("The endpoint responded, but no submissions array was found in its response.");
+      records = result;
+      render();
+      showMessage("Submission archive synchronized: " + records.length + " record(s).", "success");
+      $("updated").textContent = "LAST SCAN: " + new Date().toLocaleString();
+    } catch (error) {
+      records = [];
+      render();
+      showMessage(error.message || "Unable to load submissions.", "error");
+    } finally {
+      busy = false;
+      $("refresh").disabled = false;
+    }
+  }
+
+  async function reviewSubmission(id, decision) {
+    const label = decision === "approve" ? "approve" : "reject";
+    if (!confirm("Are you sure you want to " + label + " this submission?")) return;
+
+    showMessage("Submitting review decision…");
+    try {
+      await request("/admin/transcription/submissions/" + encodeURIComponent(id) + "/review", {
+        method: "PATCH",
+        body: JSON.stringify({decision})
+      });
+      showMessage("Review decision saved.", "success");
+      await loadSubmissions();
+    } catch (error) {
+      showMessage(error.message || "The review action failed. Verify the backend review route.", "error");
+    }
+  }
+
+  $("refresh").addEventListener("click", loadSubmissions);
+  $("search").addEventListener("input", render);
+  $("filter").addEventListener("change", render);
+  loadSubmissions();
+})();
+</script>
+</body>
+</html>

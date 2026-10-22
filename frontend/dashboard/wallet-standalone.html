@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071329">
+<title>Wallet | PrimeTask Workspace</title>
+<style>
+:root {
+  --bg:#07101f;
+  --panel:#101d32;
+  --panel2:#14243b;
+  --line:#263955;
+  --text:#f5f8ff;
+  --muted:#9cacc4;
+  --blue:#5b9cff;
+  --orange:#ff913d;
+  --green:#55d6a0;
+  --red:#ff7185;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+header{border-bottom:1px solid var(--line);background:#091528}
+.nav{max-width:1250px;margin:auto;padding:17px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand{font-weight:800;letter-spacing:.3px}
+.brand span{color:var(--orange)}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+nav a{font-size:13px;color:var(--muted);padding:9px 11px;border-radius:7px}
+nav a:hover,nav a.active{background:#1a2b45;color:white}
+main{max-width:1250px;margin:auto;padding:30px 22px 55px}
+.eyebrow{color:var(--orange);font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase}
+h1{font-size:clamp(30px,5vw,44px);margin:10px 0}
+.intro{color:var(--muted);line-height:1.7;max-width:650px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+.btn{border:1px solid var(--line);background:var(--panel2);color:white;padding:12px 16px;border-radius:7px;cursor:pointer;font-weight:700}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#211204}
+.btn:disabled{opacity:.5;cursor:wait}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:24px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;min-width:0}
+.card-label{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.7px;text-transform:uppercase}
+.amount{font-size:clamp(22px,3vw,31px);font-weight:800;margin-top:13px;overflow-wrap:anywhere}
+.amount.blue{color:var(--blue)}
+.amount.green{color:var(--green)}
+.amount.orange{color:var(--orange)}
+.section{margin-top:32px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h2{font-size:19px;margin:0}
+.panel{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:15px 17px;border-bottom:1px solid var(--line);font-size:13px}
+th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px}
+td{overflow-wrap:anywhere}
+tr:last-child td{border-bottom:0}
+.status{display:inline-block;padding:5px 8px;border-radius:5px;background:#22334a;color:#d5e4fb;font-size:11px}
+.status.paid,.status.completed,.status.approved{color:var(--green)}
+.status.pending,.status.pending_review{color:#ffd18b}
+.status.rejected,.status.failed{color:var(--red)}
+.notice{margin-top:18px;padding:13px 15px;border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:13px;line-height:1.6}
+#message{margin:14px 0;color:var(--muted);font-size:13px;line-height:1.5}
+#message.error{color:var(--red)}
+#message.success{color:var(--green)}
+.empty{text-align:center;padding:28px;color:var(--muted)}
+footer{max-width:1250px;margin:auto;padding:0 22px 24px;color:var(--muted);font-size:12px}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){
+ .nav{padding:15px}
+ nav{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}
+ nav a{text-align:center;padding:10px 4px;font-size:12px}
+ main{padding:24px 14px 40px}
+ .grid{gap:9px}
+ .card{padding:14px}
+ .amount{font-size:22px}
+ .panel{overflow-x:auto}
+ table{min-width:540px}
+ th,td{padding:12px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="index.html">PrimeTask <span>Workspace</span></a>
+    <nav aria-label="Main navigation">
+      <a href="index.html">Dashboard</a>
+      <a href="referrals.html">Referrals</a>
+      <a class="active" href="wallet-standalone.html">Wallet</a>
+      <a href="membership.html">Membership</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="eyebrow">Personal financial centre</div>
+  <h1>Your wallet.</h1>
+  <p class="intro">Track your available balance, earnings, and withdrawals in one place. All wallet figures are displayed in USD and loaded from your authenticated PrimeTask account.</p>
+
+  <div class="actions">
+    <button class="btn primary" id="refresh" type="button">Refresh wallet</button>
+    <a class="btn" href="referrals.html">Referral activity</a>
+  </div>
+
+  <section class="grid" aria-label="Wallet balances">
+    <article class="card">
+      <div class="card-label">Available balance</div>
+      <div class="amount blue" id="available">Loading…</div>
+    </article>
+    <article class="card">
+      <div class="card-label">Lifetime earnings</div>
+      <div class="amount green" id="earnings">Loading…</div>
+    </article>
+    <article class="card">
+      <div class="card-label">Total withdrawals</div>
+      <div class="amount orange" id="withdrawn">Loading…</div>
+    </article>
+    <article class="card">
+      <div class="card-label">Pending earnings</div>
+      <div class="amount" id="pending">Loading…</div>
+    </article>
+  </section>
+
+  <div id="message" role="status" aria-live="polite">Connecting to your PrimeTask wallet…</div>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Withdrawal history</h2>
+    </div>
+    <div class="panel">
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Amount</th><th>Status</th><th>Reference</th></tr>
+        </thead>
+        <tbody id="withdrawals">
+          <tr><td colspan="4" class="empty">Loading withdrawal records…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Wallet transactions</h2>
+    </div>
+    <div class="panel">
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Transaction</th><th>Amount</th><th>Status</th></tr>
+        </thead>
+        <tbody id="transactions">
+          <tr><td colspan="4" class="empty">Loading transaction records…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="notice">
+    Wallet records are read from the backend. Pending earnings are shown separately from available funds. This page does not manufacture balances or mark a payment as successful without backend confirmation.
+  </div>
+</main>
+
+<footer>PrimeTask Workspace · Secure wallet overview</footer>
+
+<script src="../assets/js/config.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const base = String(
+    window.PTW_API_BASE ||
+    window.PTW_CONFIG?.API_BASE ||
+    window.PTW_CONFIG?.apiBase ||
+    ""
+  ).replace(/\/+$/, "");
+
+  const $ = id => document.getElementById(id);
+
+  function message(text, type = "") {
+    $("message").textContent = text;
+    $("message").className = type;
+  }
+
+  function money(cents) {
+    if (cents === undefined || cents === null || !Number.isFinite(Number(cents))) {
+      return "Unavailable";
+    }
+    return "$" + (Number(cents) / 100).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function dateText(value) {
+    if (!value) return "—";
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString();
+  }
+
+  function statusClass(status) {
+    return String(status || "unknown").toLowerCase().replace(/\s+/g, "_");
+  }
+
+  function addCell(row, value, className = "") {
+    const cell = document.createElement("td");
+    cell.textContent = value === undefined || value === null || value === ""
+      ? "—"
+      : String(value);
+    if (className) cell.className = className;
+    row.appendChild(cell);
+  }
+
+  function showRows(target, items, columns, emptyText) {
+    const tbody = $(target);
+    tbody.replaceChildren();
+
+    if (!Array.isArray(items) || !items.length) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = columns;
+      cell.className = "empty";
+      cell.textContent = emptyText;
+      row.appendChild(cell);
+      tbody.appendChild(row);
+      return;
+    }
+
+    items.forEach(item => {
+      const row = document.createElement("tr");
+      const status = item.status || item.paymentStatus || "unknown";
+
+      if (target === "withdrawals") {
+        addCell(row, dateText(item.createdAt || item.requestedAt));
+        addCell(row, money(item.amountCents));
+        const statusCell = document.createElement("td");
+        const badge = document.createElement("span");
+        badge.className = "status " + statusClass(status);
+        badge.textContent = String(status).replace(/_/g, " ");
+        statusCell.appendChild(badge);
+        row.appendChild(statusCell);
+        addCell(row, item.reference || item._id || item.id);
+      } else {
+        addCell(row, dateText(item.createdAt || item.timestamp));
+        addCell(row, item.description || item.type || item.transactionType || "Wallet activity");
+        const cents = item.amountCents ?? item.amount;
+        addCell(row, cents === undefined ? "—" : money(cents));
+        const statusCell = document.createElement("td");
+        const badge = document.createElement("span");
+        badge.className = "status " + statusClass(status);
+        badge.textContent = String(status).replace(/_/g, " ");
+        statusCell.appendChild(badge);
+        row.appendChild(statusCell);
+      }
+      tbody.appendChild(row);
+    });
+  }
+
+  async function api(path) {
+    if (!base) throw new Error("API base URL is missing from frontend/assets/js/config.js.");
+
+    const response = await fetch(base + path, {
+      credentials: "include",
+      cache: "no-store",
+      headers: {Accept: "application/json"}
+    });
+
+    let payload = {};
+    try { payload = await response.json(); } catch {}
+
+    if (!response.ok || payload.success === false) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("Your session is not authorized. Sign in to PrimeTask Workspace and reload this page.");
+      }
+      throw new Error(payload.message || payload.error || "Wallet request failed (" + response.status + ").");
+    }
+    return payload;
+  }
+
+  function findWallet(payload) {
+    return payload.wallet || payload.data?.wallet || payload.data || payload;
+  }
+
+  function findList(payload, keys) {
+    if (Array.isArray(payload)) return payload;
+    for (const key of keys) {
+      if (Array.isArray(payload[key])) return payload[key];
+      if (Array.isArray(payload.data?.[key])) return payload.data[key];
+    }
+    return [];
+  }
+
+  async function load() {
+    $("refresh").disabled = true;
+    message("Refreshing wallet data…");
+
+    try {
+      const walletPayload = await api("/wallet");
+      const wallet = findWallet(walletPayload);
+
+      $("available").textContent = money(wallet.availableBalanceCents);
+      $("earnings").textContent = money(wallet.totalEarningsCents);
+      $("withdrawn").textContent = money(wallet.totalWithdrawalsCents);
+      $("pending").textContent = money(wallet.pendingEarningsCents);
+
+      const withdrawalPayload = await api("/wallet/withdrawals");
+      const withdrawalItems = findList(withdrawalPayload, ["withdrawals", "items", "records"]);
+      showRows("withdrawals", withdrawalItems, 4, "No withdrawal records returned.");
+
+      let transactionItems = [];
+      try {
+        const transactionPayload = await api("/wallet/transactions");
+        transactionItems = findList(transactionPayload, ["transactions", "items", "records"]);
+      } catch (error) {
+        const tbody = $("transactions");
+        tbody.replaceChildren();
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 4;
+        cell.className = "empty";
+        cell.textContent = "Transaction history endpoint is not available yet. Wallet balances and withdrawal history were loaded separately.";
+        row.appendChild(cell);
+        tbody.appendChild(row);
+      }
+
+      if (transactionItems.length) {
+        showRows("transactions", transactionItems, 4, "No transaction records returned.");
+      }
+
+      message("Wallet data refreshed from PrimeTask Workspace.", "success");
+    } catch (error) {
+      message(error.message || "Unable to load wallet information.", "error");
+      ["available", "earnings", "withdrawn", "pending"].forEach(id => {
+        if ($ (id).textContent === "Loading…") $(id).textContent = "Unavailable";
+      });
+    } finally {
+      $("refresh").disabled = false;
+    }
+  }
+
+  $("refresh").addEventListener("click", load);
+  load();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#082b66">
+<title>PrimeTask | Data Entry Field Guide</title>
+<style>
+:root{--navy:#06265c;--blue:#0b55c8;--sky:#eaf4ff;--ink:#132746;--muted:#5b6d86;--line:#d7e4f2;--paper:#fff;--wash:#f4f8fd;--orange:#ff8a18;--green:#087f5b;--shadow:0 12px 34px #082b6610}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f1f6fc;color:var(--ink);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}button{cursor:pointer}
+.topbar{height:68px;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,4vw,54px);position:sticky;top:0;z-index:10;box-shadow:0 5px 20px #031b4426}
+.brand{display:flex;align-items:center;gap:11px;font-weight:850;letter-spacing:-.3px}.brandmark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#fff 0 48%,#7dc6ff 49%);display:grid;place-items:center;color:var(--navy);font-weight:1000;font-size:17px}.brand small{display:block;font-size:9px;letter-spacing:2px;color:#a9d5ff;line-height:1}
+.topnav{display:flex;align-items:center;gap:22px;font-size:13px;color:#d6e8ff}.topnav a:hover{color:#fff}.topnav .pill{background:var(--orange);color:#092b60;padding:9px 14px;border-radius:7px;font-weight:800}
+.layout{display:grid;grid-template-columns:238px minmax(0,1fr);max-width:1600px;margin:auto;min-height:calc(100vh - 68px)}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:24px 15px;position:sticky;top:68px;height:calc(100vh - 68px);overflow:auto}
+.side-label{text-transform:uppercase;letter-spacing:1.6px;font-size:10px;font-weight:850;color:#8091a8;padding:0 12px;margin:15px 0 8px}
+.side-link{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:#526783;font-size:13px;margin:3px 0}.side-link .ico{width:24px;height:24px;border-radius:7px;background:#edf5ff;color:var(--blue);display:grid;place-items:center;font-weight:850}.side-link.active{background:#e8f2ff;color:var(--navy);font-weight:800;border-left:3px solid var(--blue)}.side-note{background:#082b66;color:#fff;border-radius:13px;padding:15px;margin:26px 4px 0;font-size:12px}.side-note b{display:block;font-size:14px;margin-bottom:6px}.side-note span{color:#c4ddff}
+main{min-width:0;padding:24px clamp(14px,3vw,38px) 48px}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:850;color:var(--blue)}
+.hero{position:relative;overflow:hidden;border-radius:18px;background:var(--navy);color:white;display:grid;grid-template-columns:1.12fr .88fr;min-height:340px;box-shadow:var(--shadow)}
+.hero-copy{padding:clamp(25px,4vw,48px);position:relative;z-index:1}.hero h1{font-size:clamp(32px,4vw,52px);line-height:1.04;letter-spacing:-1.8px;margin:13px 0 16px;max-width:650px}.hero h1 em{font-style:normal;color:#72d5ff}.hero p{color:#d2e4ff;max-width:590px;margin:0 0 24px}.hero-actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:8px;padding:11px 16px;background:var(--orange);color:#092b60;font-weight:850;font-size:13px}.btn.secondary{background:#ffffff14;border:1px solid #ffffff40;color:#fff}.hero-meta{display:flex;gap:18px;flex-wrap:wrap;color:#c0dcff;font-size:11px;margin-top:24px}.hero-visual{min-height:280px;background:linear-gradient(90deg,#06265c 0%,#06265c20 25%,#06265c00 60%),url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85') center/cover;position:relative}.hero-visual:after{content:"SHEET 01  /  PRACTICE DATA";position:absolute;bottom:22px;right:22px;background:#061d48df;border:1px solid #6da9e6;padding:9px 12px;border-radius:6px;font-size:10px;letter-spacing:1.5px;color:#d8ebff}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 28px}.metric{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 17px;box-shadow:var(--shadow)}.metric span{font-size:11px;color:var(--muted);display:block}.metric strong{display:block;font-size:23px;color:var(--navy);letter-spacing:-.7px}.metric small{color:#087f5b;font-size:11px}
+.section{margin:30px 0}.section-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:14px}.section-head h2{font-size:25px;letter-spacing:-.7px;margin:3px 0 0;color:var(--navy)}.section-head p{color:var(--muted);margin:5px 0 0;max-width:700px;font-size:13px}.section-head .eyebrow{font-size:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}.panel-pad{padding:20px}.panel h3{font-size:17px;color:var(--navy);margin:0 0 8px}.muted{color:var(--muted);font-size:13px}.photo-card{display:grid;grid-template-columns:40% 60%;min-height:215px}.photo-card img{width:100%;height:100%;object-fit:cover;min-height:215px}.photo-card .panel-pad{padding:22px}.mini-list{list-style:none;padding:0;margin:13px 0 0}.mini-list li{display:flex;gap:9px;margin:8px 0;font-size:12px;color:#405775}.check{width:18px;height:18px;flex:0 0 18px;border-radius:50%;background:#e2f6ef;color:var(--green);display:grid;place-items:center;font-weight:900;font-size:11px}
+.tool-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.tool{padding:17px;background:#fff;border:1px solid var(--line);border-radius:12px}.tool-icon{width:39px;height:39px;background:#eaf4ff;color:var(--blue);border-radius:11px;display:grid;place-items:center;font-size:19px;margin-bottom:11px}.tool h3{font-size:14px;margin:0 0 5px;color:var(--navy)}.tool p{font-size:12px;color:var(--muted);margin:0 0 12px}.tool a{font-size:11px;color:var(--blue);font-weight:850}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;background:#082b66;border-radius:14px;overflow:hidden;color:#fff}.step{padding:21px 16px;border-right:1px solid #315080;min-height:178px}.step:last-child{border:0}.step-num{width:30px;height:30px;border-radius:9px;background:var(--orange);color:#092b60;display:grid;place-items:center;font-weight:900;margin-bottom:15px}.step h3{font-size:13px;margin:0 0 7px}.step p{font-size:11px;color:#c7ddfb;margin:0}
+.sheet-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:#f7fbff;border-bottom:1px solid var(--line);flex-wrap:wrap}.sheet-toolbar h3{margin:0}.sheet-actions{display:flex;gap:7px;flex-wrap:wrap}.small-btn{background:white;border:1px solid #b9cce3;color:var(--navy);padding:7px 10px;border-radius:7px;font-size:11px;font-weight:800}.small-btn.primary{background:var(--blue);border-color:var(--blue);color:white}
+.table-wrap{overflow:auto;max-height:360px}table{width:100%;border-collapse:collapse;min-width:650px;font-size:12px}th{background:#eaf3ff;color:#173d70;text-align:left;font-size:11px;position:sticky;top:0;z-index:1}th,td{border-bottom:1px solid #e1eaf4;border-right:1px solid #e8eff7;padding:10px 12px}td[contenteditable=true]{background:#fff}td[contenteditable=true]:focus{outline:2px solid #5b9cff;outline-offset:-2px;background:#f4f9ff}.table-foot{display:flex;justify-content:space-between;padding:10px 15px;color:#70839d;font-size:11px;background:#fbfdff;gap:10px;flex-wrap:wrap}
+.callout{border-left:4px solid var(--orange);background:#fff7ed;padding:14px 16px;border-radius:0 9px 9px 0;color:#69421d;font-size:12px;margin-top:13px}
+.mobile-guide{display:grid;grid-template-columns:.75fr 1.25fr;gap:18px;align-items:stretch}.mobile-photo{min-height:310px;border-radius:14px;background:url('https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=900&q=85') center/cover}.numbered{counter-reset:item;list-style:none;padding:0;margin:12px 0}.numbered li{counter-increment:item;display:flex;gap:12px;margin:13px 0;font-size:13px}.numbered li:before{content:counter(item,decimal-leading-zero);font-size:11px;font-weight:900;color:var(--blue);background:#e7f2ff;border-radius:7px;padding:5px 6px;height:fit-content}.numbered b{display:block;color:var(--navy);margin-bottom:2px}.numbered span{color:var(--muted);font-size:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;padding:12px 15px;border-bottom:1px solid var(--line)}.tab{border:1px solid transparent;background:transparent;color:#536984;padding:8px 11px;border-radius:7px;font-size:12px;font-weight:800}.tab.active{background:#e8f2ff;color:var(--blue);border-color:#c9e0ff}.dataset-note{padding:12px 16px;font-size:12px;color:#506783;background:#f8fbff;border-bottom:1px solid var(--line)}
+.exercise-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.exercise{background:#fff;border:1px solid var(--line);border-radius:12px;padding:17px}.exercise .tag{display:inline-block;background:#e8f2ff;color:var(--blue);padding:4px 7px;border-radius:5px;font-size:10px;font-weight:900}.exercise h3{font-size:15px;margin:12px 0 6px;color:var(--navy)}.exercise p{font-size:12px;color:var(--muted);min-height:48px}.exercise button{border:0;background:#eaf3ff;color:var(--blue);font-weight:850;font-size:11px;padding:8px 11px;border-radius:7px}
+details{border:1px solid var(--line);border-radius:10px;background:#fff;margin:8px 0;padding:13px 16px}summary{font-weight:800;color:var(--navy);cursor:pointer;font-size:13px}details p{color:var(--muted);font-size:12px;margin-bottom:0}
+footer{margin-top:40px;background:#06265c;color:#c6ddfb;padding:24px;border-radius:14px;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;font-size:11px}footer b{color:white}
+.progress{height:6px;background:#dbe8f7;border-radius:99px;overflow:hidden;margin-top:9px}.progress div{height:100%;width:15%;background:var(--blue);transition:width .25s}
+.toast{position:fixed;bottom:20px;right:20px;background:#082b66;color:white;padding:12px 16px;border-radius:9px;box-shadow:var(--shadow);font-size:12px;display:none;z-index:30}
+@media(max-width:1050px){.layout{grid-template-columns:200px minmax(0,1fr)}.hero{grid-template-columns:1fr}.hero-visual{min-height:200px}.steps{grid-template-columns:repeat(3,1fr)}.step:nth-child(3){border-right:0}.metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.topbar{height:auto;min-height:62px;padding:12px 16px}.topnav a:not(.pill){display:none}.layout{display:block}.sidebar{position:static;height:auto;display:flex;gap:5px;overflow:auto;padding:9px 12px;border-right:0;border-bottom:1px solid var(--line)}.side-label,.side-note{display:none}.side-link{white-space:nowrap;padding:8px 10px;margin:0}.side-link .ico{display:none}main{padding:14px}.hero-copy{padding:25px 22px}.hero h1{font-size:36px}.hero-visual{min-height:165px}.grid2,.mobile-guide{grid-template-columns:1fr}.photo-card{grid-template-columns:1fr}.photo-card img{height:170px;min-height:170px}.tool-row{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.step:nth-child(2n){border-right:0}.step{min-height:150px}.exercise-grid{grid-template-columns:1fr}.section-head{align-items:start;flex-direction:column}.mobile-photo{min-height:200px}.metrics{gap:8px}.metric{padding:12px}.metric strong{font-size:20px}}
+@media print{.topbar,.sidebar,.hero-actions,.sheet-actions,.small-btn,footer{display:none!important}.layout{display:block}main{padding:0}.hero{print-color-adjust:exact}.panel,.metric,.exercise{break-inside:avoid;box-shadow:none}body{background:#fff}}
+</style>
+  <link rel="icon" type="image/jpeg" href="assets/primetask.jpg">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#top"><span class="brandmark">P</span><span>PrimeTask <small>WORKSPACE</small></span></a>
+  <nav class="topnav"><a href="#workflow">Workflow</a><a href="#practice">Practice datasets</a><a href="#mobile">Phone guide</a><a class="pill" href="#practice">Open practice sheet ↗</a></nav>
+</header>
+<div class="layout" id="top">
+<aside class="sidebar">
+  <div class="side-label">Field guide</div>
+  <a class="side-link active" href="#top"><span class="ico">⌂</span>Overview</a>
+  <a class="side-link" href="#tools"><span class="ico">▦</span>Tools & apps</a>
+  <a class="side-link" href="#workflow"><span class="ico">↗</span>Workflow</a>
+  <a class="side-link" href="#practice"><span class="ico">▤</span>Sample datasets</a>
+  <a class="side-link" href="#mobile"><span class="ico">▯</span>Google Sheets on phone</a>
+  <a class="side-link" href="#quality"><span class="ico">✓</span>Quality control</a>
+  <a class="side-link" href="#exercises"><span class="ico">◎</span>Practice tasks</a>
+  <a class="side-link" href="#faq"><span class="ico">?</span>Help desk</a>
+  <div class="side-note"><b>Learn by doing.</b><span>Edit the practice table, switch datasets, then export your work as CSV. No pretend magic, just useful practice.</span><div class="progress"><div id="progressBar"></div></div><span id="progressText">1 of 7 sections explored</span></div>
+</aside>
+<main>
+<section class="hero">
+  <div class="hero-copy"><div class="eyebrow" style="color:#8adfff">PrimeTask learning lab / 01</div><h1>Make data clean.<br><em>Make work count.</em></h1><p>A practical field guide to accurate data entry, spreadsheet handling, and quality checks. Learn the workflow, use sample records, and practise with the tools people actually use on phones and computers.</p><div class="hero-actions"><a class="btn" href="#practice">Start with a dataset ↘</a><a class="btn secondary" href="#mobile">Use Sheets on mobile</a></div><div class="hero-meta"><span>◉ Beginner friendly</span><span>▤ Editable sample sheets</span><span>✓ Quality-first workflow</span></div></div>
+  <div class="hero-visual" role="img" aria-label="Workspace with laptop for spreadsheet practice"></div>
+</section>
+<div class="metrics">
+  <div class="metric"><span>Core workflow</span><strong>5 steps</strong><small>From instructions to final check</small></div>
+  <div class="metric"><span>Practice data</span><strong>3 sets</strong><small>Contacts, inventory, survey</small></div>
+  <div class="metric"><span>Quality habits</span><strong>4 checks</strong><small>Accuracy, format, duplicates, privacy</small></div>
+  <div class="metric"><span>Recommended phone tool</span><strong>Sheets</strong><small>Cloud-based spreadsheet app</small></div>
+</div>
+<section class="section" id="tools">
+  <div class="section-head"><div><div class="eyebrow">01 / Choose your tools</div><h2>The right tool for the job</h2><p>Do not force every task into one app. Follow the project instructions first, then choose the simplest tool that supports the required format.</p></div></div>
+  <div class="tool-row">
+    <article class="tool"><div class="tool-icon">▦</div><h3>Google Sheets</h3><p>Useful for shared spreadsheets, cloud saving, filters, simple formulas, and editing on a phone.</p><a href="https://sheets.google.com" target="_blank" rel="noreferrer">Open Google Sheets ↗</a></article>
+    <article class="tool"><div class="tool-icon">▧</div><h3>Microsoft Excel</h3><p>Strong spreadsheet features for larger datasets, formulas, validation, and structured reporting.</p><a href="https://www.microsoft.com/microsoft-365/excel" target="_blank" rel="noreferrer">Explore Excel ↗</a></article>
+    <article class="tool"><div class="tool-icon">☁</div><h3>Google Drive</h3><p>Store approved source files and organize working copies. Keep access restricted to authorized people.</p><a href="https://drive.google.com" target="_blank" rel="noreferrer">Open Drive ↗</a></article>
+  </div>
+  <div class="grid2" style="margin-top:15px">
+    <article class="panel photo-card"><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80" alt="Laptop workspace"><div class="panel-pad"><div class="eyebrow">Desktop workflow</div><h3>Best for large tables</h3><p class="muted">Use a computer when you need wide columns, keyboard shortcuts, bulk cleanup, or careful comparison across many records.</p><ul class="mini-list"><li><span class="check">✓</span> Freeze header rows</li><li><span class="check">✓</span> Use filters and validation</li><li><span class="check">✓</span> Keep a clean source copy</li></ul></div></article>
+    <article class="panel photo-card"><img src="https://images.unsplash.com/photo-1512499617640-c74ae3a79d37?auto=format&fit=crop&w=800&q=80" alt="Smartphone in hand"><div class="panel-pad"><div class="eyebrow">Mobile workflow</div><h3>Best for small tasks on the go</h3><p class="muted">A phone works for short lists, quick updates, and simple forms. For long or complex tables, a larger screen reduces mistakes.</p><ul class="mini-list"><li><span class="check">✓</span> Install the official Sheets app</li><li><span class="check">✓</span> Zoom before editing narrow cells</li><li><span class="check">✓</span> Confirm sync before closing</li></ul></div></article>
+  </div>
+</section>
+<section class="section" id="workflow">
+  <div class="section-head"><div><div class="eyebrow">02 / Repeatable method</div><h2>A five-step data entry workflow</h2><p>Accuracy is a process, not a personality trait. Use the same sequence each time so important checks do not get skipped when you are tired or rushing.</p></div></div>
+  <div class="steps">
+    <article class="step"><div class="step-num">01</div><h3>Read the brief</h3><p>Identify the source, required fields, output format, deadline, and any special rules.</p></article>
+    <article class="step"><div class="step-num">02</div><h3>Prepare the sheet</h3><p>Use one clear header row, consistent columns, and the approved file name.</p></article>
+    <article class="step"><div class="step-num">03</div><h3>Enter faithfully</h3><p>Copy the source accurately. Do not guess missing values or silently rewrite records.</p></article>
+    <article class="step"><div class="step-num">04</div><h3>Validate the data</h3><p>Check formats, missing values, duplicates, spelling, and totals where relevant.</p></article>
+    <article class="step"><div class="step-num">05</div><h3>Save and submit</h3><p>Use the required format, verify the file opens, and follow submission instructions.</p></article>
+  </div>
+</section>
+<section class="section" id="practice">
+  <div class="section-head"><div><div class="eyebrow">03 / Practice workbench</div><h2>Editable sample datasets</h2><p>These are fictional training records, not real customer information. Tap any cell to edit it, switch dataset tabs, then download the current table as a CSV file.</p></div></div>
+  <div class="panel">
+    <div class="tabs" role="tablist"><button class="tab active" data-set="contacts">Customer contacts</button><button class="tab" data-set="inventory">Inventory register</button><button class="tab" data-set="survey">Survey responses</button></div>
+    <div class="dataset-note" id="datasetNote">Task: check email formatting, consistent country names, and missing phone numbers. Do not invent information to fill blanks.</div>
+    <div class="sheet-toolbar"><h3 id="tableTitle">Customer contacts / practice copy</h3><div class="sheet-actions"><button class="small-btn" id="resetData">Reset sample</button><button class="small-btn" id="addRow">+ Add row</button><button class="small-btn primary" id="downloadCsv">Download CSV ↓</button></div></div>
+    <div class="table-wrap"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
+    <div class="table-foot"><span id="rowCount">5 training records</span><span>Blue outline = active cell · Edits stay in this page until reset</span></div>
+  </div>
+  <div class="callout"><b>Training rule:</b> When a source is unclear, flag the row for review. Never invent a phone number, email address, price, or answer just to make a sheet look complete.</div>
+</section>
+<section class="section" id="mobile">
+  <div class="section-head"><div><div class="eyebrow">04 / Mobile field notes</div><h2>Google Sheets on your phone</h2><p>Small screens make column mix-ups ridiculously easy. Slow down and use a simple repeatable routine.</p></div></div>
+  <div class="panel panel-pad mobile-guide">
+    <div class="mobile-photo" role="img" aria-label="Mobile device being used for work"></div>
+    <div><h3>Set up your phone before entering records</h3><ol class="numbered">
+      <li><div><b>Install the official app</b><span>Get Google Sheets from Google Play or the Apple App Store. Check the publisher before installing.</span></div></li>
+      <li><div><b>Sign in to the approved account</b><span>Use the account authorized for the task. Do not copy work files into a personal account if policy forbids it.</span></div></li>
+      <li><div><b>Open the correct spreadsheet</b><span>Check the file name and tab name before typing. Similar-looking sheets are a classic source of avoidable chaos.</span></div></li>
+      <li><div><b>Tap one cell and enter one value</b><span>Confirm the column heading and row label before typing. Avoid pasting a whole block until you know its alignment.</span></div></li>
+      <li><div><b>Review and confirm saving</b><span>Scroll through the rows, check changed cells, and wait for sync before closing the app.</span></div></li>
+    </ol><a class="btn" style="display:inline-block" href="https://support.google.com/docs/answer/6000292" target="_blank" rel="noreferrer">Google Sheets mobile help ↗</a></div>
+  </div>
+</section>
+<section class="section" id="quality">
+  <div class="section-head"><div><div class="eyebrow">05 / Quality control</div><h2>Four checks before you submit</h2><p>Use this checklist at the end of every batch. Tick items as you complete them; progress is saved only for this page session.</p></div></div>
+  <div class="grid2">
+    <div class="panel panel-pad"><h3>Final review checklist</h3>
+      <label style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #e8eef6;font-size:13px"><input type="checkbox" class="quality-check"> <span><b>Accuracy:</b> values match the source exactly.</span></label>
+      <label style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #e8eef6;font-size:13px"><input type="checkbox" class="quality-check"> <span><b>Completeness:</b> required fields are filled or flagged.</span></label>
+      <label style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #e8eef6;font-size:13px"><input type="checkbox" class="quality-check"> <span><b>Consistency:</b> dates, names, categories, and number formats follow one rule.</span></label>
+      <label style="display:flex;gap:10px;padding:11px 0;font-size:13px"><input type="checkbox" class="quality-check"> <span><b>Confidentiality:</b> the file is stored and shared only as authorized.</span></label>
+    </div>
+    <div class="panel panel-pad"><h3>Common mistakes and the fix</h3>
+      <details open><summary>Dates interpreted differently</summary><p>Confirm the required date format, such as YYYY-MM-DD. Do not assume 04/05 means the same date in every region.</p></details>
+      <details><summary>Leading zeros disappear</summary><p>IDs, postal codes, and some phone numbers are identifiers, not quantities. Format the column as plain text when appropriate.</p></details>
+      <details><summary>Duplicate records</summary><p>Compare stable identifiers before removing anything. Two people can share a name, and two similar rows are not automatically duplicates.</p></details>
+      <details><summary>Blank fields</summary><p>Use the project’s approved blank, “Not provided,” or review marker. Never fabricate a value.</p></details>
+    </div>
+  </div>
+</section>
+<section class="section" id="exercises">
+  <div class="section-head"><div><div class="eyebrow">06 / Skills practice</div><h2>Short exercises with a clear goal</h2><p>Complete each task using the sample table above. These are practice prompts, not claims about a real client assignment.</p></div></div>
+  <div class="exercise-grid">
+    <article class="exercise"><span class="tag">TASK 01 · 10 MIN</span><h3>Standardize the records</h3><p>Make capitalization and date formats consistent without changing the meaning of the source data.</p><button onclick="showTask('Standardize the records: choose one capitalization rule and one date format. Apply it consistently, then review every edited cell against the source.')">View task steps ↗</button></article>
+    <article class="exercise"><span class="tag">TASK 02 · 8 MIN</span><h3>Find possible duplicates</h3><p>Identify records that may refer to the same item. Explain what evidence would confirm a duplicate.</p><button onclick="showTask('Duplicate check: compare unique IDs first, then supporting fields. Mark possible duplicates for review rather than deleting uncertain rows.')">View task steps ↗</button></article>
+    <article class="exercise"><span class="tag">TASK 03 · 12 MIN</span><h3>Run a submission check</h3><p>Review required fields, file naming, and output format before a pretend handover.</p><button onclick="showTask('Submission check: verify required columns, inspect blanks, confirm file name and format, reopen the exported CSV, and record any unresolved issues.')">View task steps ↗</button></article>
+  </div>
+  <div class="panel panel-pad" id="taskOutput" style="display:none;margin-top:12px"><h3>Exercise instructions</h3><p id="taskText" class="muted"></p><button class="small-btn" onclick="document.getElementById('taskOutput').style.display='none'">Close instructions</button></div>
+</section>
+<section class="section" id="faq">
+  <div class="section-head"><div><div class="eyebrow">07 / Help desk</div><h2>Questions people actually run into</h2></div></div>
+  <details><summary>Should I correct a spelling mistake in the source?</summary><p>Follow the task brief. If transcription must be exact, preserve the source and flag the suspected error. If normalization is requested, apply the documented rule consistently.</p></details>
+  <details><summary>Can I use a phone for every data-entry job?</summary><p>No. Phones are useful for small tasks, but long tables, precise formatting, bulk validation, and large files are usually safer on a computer.</p></details>
+  <details><summary>What if the instructions conflict with the sample?</summary><p>Pause and ask the authorized supervisor which instruction takes priority. Do not silently choose the rule you prefer.</p></details>
+  <details><summary>What should I submit?</summary><p>Submit only the requested file type, naming format, and destination. If the task requires XLSX, do not replace it with CSV unless the instructions allow that.</p></details>
+</section>
+<footer><div><b>PrimeTask Workspace</b><br>Data Entry Field Guide · Learn carefully. Deliver accurately.</div><div>Independent practice frontend · Sample records are fictional<br>External links and photos require an internet connection.</div></footer>
+</main></div>
+<div class="toast" id="toast"></div>
+<script>
+const datasets={
+contacts:{title:"Customer contacts / practice copy",note:"Task: check email formatting, consistent country names, and missing phone numbers. Do not invent information to fill blanks.",headers:["Record ID","Full name","Email","Phone","Country","Status"],rows:[
+["C-1001","Amina Otieno","amina@example.com","+254 700 111 222","Kenya","Verified"],
+["C-1002","Brian Mwangi","brian@example.com","+254 711 222 333","Kenya","Review"],
+["C-1003","Lina Chen","lina@example.com","+86 138 0000 0000","China","Verified"],
+["C-1004","Sam Patel","sam.patel@example.com","","India","Missing phone"],
+["C-1005","Maria Rossi","maria@example.com","+39 333 123 456","Italy","Verified"]]},
+inventory:{title:"Inventory register / practice copy",note:"Task: check quantities, SKU consistency, and stock status. Quantity is numeric; SKU is an identifier and should not be altered.",headers:["SKU","Item name","Category","Quantity","Unit price (USD)","Stock status"],rows:[
+["SKU-001","Notebook A5","Stationery","42","2.50","In stock"],
+["SKU-002","Blue pen","Stationery","120","0.80","In stock"],
+["SKU-003","USB drive 32GB","Electronics","8","6.99","Low stock"],
+["SKU-004","Desk organizer","Office","0","4.50","Out of stock"],
+["SKU-005","Laptop stand","Accessories","17","14.00","In stock"]]},
+survey:{title:"Survey responses / practice copy",note:"Task: preserve respondent wording, use the specified response categories, and flag unanswered fields instead of guessing.",headers:["Response ID","Age band","Preferred tool","Ease score (1-5)","Comment","Complete"],rows:[
+["R-201","18–24","Google Sheets","4","Easy to use on my phone","Yes"],
+["R-202","25–34","Excel","5","Helpful for large tables","Yes"],
+["R-203","18–24","Google Sheets","3","Small cells are difficult","Yes"],
+["R-204","35–44","Other","","Not sure yet","No"],
+["R-205","25–34","Excel","4","Would like more practice","Yes"]]}
+};
+let current="contacts";
+function renderTable(){const d=datasets[current];document.getElementById("tableTitle").textContent=d.title;document.getElementById("datasetNote").textContent=d.note;const th=document.querySelector("#dataTable thead"),tb=document.querySelector("#dataTable tbody");th.innerHTML="<tr>"+d.headers.map(h=>"<th>"+escapeHtml(h)+"</th>").join("")+"</tr>";tb.innerHTML=d.rows.map(row=>"<tr>"+row.map(v=>"<td contenteditable='true' spellcheck='false'>"+escapeHtml(v)+"</td>").join("")+"</tr>").join("");document.getElementById("rowCount").textContent=d.rows.length+" training records";document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.set===current));}
+function escapeHtml(v){return String(v).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function saveCurrent(){const rows=[...document.querySelectorAll("#dataTable tbody tr")].map(tr=>[...tr.cells].map(td=>td.innerText.trim()));datasets[current].rows=rows;document.getElementById("rowCount").textContent=rows.length+" training records · edited";}
+function toast(s){const t=document.getElementById("toast");t.textContent=s;t.style.display="block";clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.style.display="none",2600);}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{saveCurrent();current=b.dataset.set;renderTable();}));
+document.getElementById("dataTable").addEventListener("input",saveCurrent);
+document.getElementById("resetData").addEventListener("click",()=>{current=current;location.reload();});
+document.getElementById("addRow").addEventListener("click",()=>{saveCurrent();datasets[current].rows.push(datasets[current].headers.map(()=> ""));renderTable();const cells=document.querySelectorAll("#dataTable tbody tr:last-child td");if(cells[0])cells[0].focus();toast("Blank practice row added. Enter only values supported by your source.");});
+document.getElementById("downloadCsv").addEventListener("click",()=>{saveCurrent();const d=datasets[current];const csv=[d.headers,...d.rows].map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\r\n");const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8;"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=current+"-practice.csv";a.click();URL.revokeObjectURL(url);toast("CSV export prepared.");});
+function showTask(s){document.getElementById("taskText").textContent=s;document.getElementById("taskOutput").style.display="block";document.getElementById("taskOutput").scrollIntoView({behavior:"smooth",block:"nearest"});}
+const sections=[...document.querySelectorAll("main section")];const seen=new Set();const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){seen.add(e.target.id);document.getElementById("progressBar").style.width=(seen.size/7*100)+"%";document.getElementById("progressText").textContent=Math.min(seen.size,7)+" of 7 sections explored";}})},{threshold:.15});sections.forEach(s=>observer.observe(s));
+document.querySelectorAll(".quality-check").forEach(c=>c.addEventListener("change",()=>{const n=[...document.querySelectorAll(".quality-check")].filter(x=>x.checked).length;toast(n+" of 4 quality checks completed.");}));
+renderTable();
+</script>
+</body>
+</html>

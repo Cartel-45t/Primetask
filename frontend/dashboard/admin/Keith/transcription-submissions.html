@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f8fafc">
+<title>Transcription Submissions | PrimeTask Admin</title>
+<style>
+:root{--navy:#14284a;--blue:#3268cf;--orange:#f08a32;--ink:#202b3b;--muted:#718096;--line:#e2e8f0;--bg:#f4f7fb;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.shell{max-width:1450px;margin:auto;padding:24px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:850;color:var(--navy)}
+.mark{width:44px;height:44px;background:var(--navy);color:#fff;border-radius:14px;display:grid;place-items:center;font-weight:900;position:relative}
+.mark:after{content:"";width:9px;height:9px;border-radius:50%;background:var(--orange);position:absolute;right:4px;top:4px}
+.small{font-size:11px;letter-spacing:1px;color:var(--muted);font-weight:750}
+.kicker{font-size:11px;font-weight:850;letter-spacing:1.8px;color:var(--blue);text-transform:uppercase}
+h1{font-size:clamp(29px,4vw,41px);letter-spacing:-1px;color:var(--navy);margin:8px 0}
+h2{font-size:18px;color:var(--navy);margin:0}
+.intro{max-width:750px;color:var(--muted);margin:0}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:800}
+.primary{background:var(--navy);color:white}
+.blue{background:var(--blue);color:white}
+.soft{background:#eaf0fb;color:var(--navy)}
+.orange{background:#ffb66a;color:#38210b}
+button:disabled{opacity:.55;cursor:wait}
+.notice{margin:22px 0;background:white;border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:12px;padding:14px 16px;color:#5c687b;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+.stat,.panel{background:white;border:1px solid var(--line);border-radius:16px}
+.stat{padding:18px}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:850;color:var(--muted)}
+.stat-value{font-size:29px;font-weight:900;color:var(--navy);margin:7px 0 1px;overflow-wrap:anywhere}
+.stat-note{font-size:12px;color:var(--muted)}
+.panel{padding:20px;box-shadow:0 8px 24px #1d355708}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.sub{font-size:13px;color:var(--muted);margin:4px 0 0}
+.filters{display:flex;gap:9px;flex-wrap:wrap}
+input,select{padding:10px 12px;border:1px solid #d9e1ec;border-radius:10px;background:white;color:var(--ink);outline:none;max-width:100%}
+input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3268cf1c}
+.search{min-width:240px}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:820px}
+th{background:#f6f8fc;color:#718096;font-size:10px;letter-spacing:.7px;text-transform:uppercase;text-align:left}
+th,td{padding:14px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+td{font-size:13px}
+td strong{display:block;color:var(--navy)}
+.muted{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.pill{display:inline-block;border-radius:30px;padding:5px 9px;font-size:10px;font-weight:850;letter-spacing:.3px;text-transform:uppercase;background:#eaf0fb;color:#3158a1}
+.pending{background:#fff0d8;color:#87520c}
+.approved,.completed{background:#def5e8;color:#176a48}
+.rejected,.failed{background:#fde7e9;color:#a52e39}
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+.empty{text-align:center;padding:35px 12px;color:var(--muted)}
+.empty strong{display:block;color:var(--navy);margin-bottom:5px}
+.message{display:none;padding:12px 14px;margin:15px 0;border-radius:10px;font-size:13px}
+.message.show{display:block}
+.error{background:#fff0f0;color:#a32732;border:1px solid #f1c7cb}
+.success{background:#e7f8ee;color:#146b46;border:1px solid #bce8cf}
+.modal-bg{display:none;position:fixed;inset:0;z-index:20;background:#0b183b99;padding:16px;align-items:center;justify-content:center;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal{background:#fff;width:min(100%,650px);max-height:90vh;overflow-y:auto;border-radius:18px;padding:22px;box-shadow:0 25px 80px #0003}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px}
+.detail{padding:12px 0;border-bottom:1px solid var(--line)}
+.detail-label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.detail-value{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:4px}
+@media(max-width:700px){.shell{padding:13px}.stats{grid-template-columns:1fr;gap:9px}.stat{padding:14px}.stat-value{font-size:25px}.panel{padding:14px}.search,input,select{width:100%;min-width:0}.filters{width:100%}.filters>*{flex:1}.modal{padding:16px}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div class="brand"><div class="mark">PT</div><div>PRIMETASK WORKSPACE<div class="small">ADMIN OPERATIONS / TRANSCRIPTION</div></div></div>
+    <button id="refresh" class="btn soft" type="button">↻ Refresh submissions</button>
+  </header>
+
+  <div class="kicker">Quality control · Submitted work</div>
+  <h1>Transcription Submissions</h1>
+  <p class="intro">Inspect submitted transcription work, identify its associated job and member, and review the available submission details.</p>
+
+  <div class="notice"><strong>Review safety:</strong> this page is read-only until the exact submission-review endpoint and its required fields are confirmed. Opening a record does not approve it, reject it, or change a member's earnings.</div>
+  <div id="message" class="message" role="status" aria-live="polite"></div>
+
+  <section class="stats">
+    <article class="stat"><div class="stat-label">Submissions loaded</div><div id="total" class="stat-value">—</div><div class="stat-note">Records returned by the server</div></article>
+    <article class="stat"><div class="stat-label">Awaiting review</div><div id="pending" class="stat-value">—</div><div class="stat-note">Based on recorded statuses</div></article>
+    <article class="stat"><div class="stat-label">Completed / approved</div><div id="done" class="stat-value">—</div><div class="stat-note">Based on recorded statuses</div></article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>Submission register</h2><p class="sub">Search by member, job, submission ID, or status.</p></div>
+      <div class="filters">
+        <input id="search" class="search" type="search" placeholder="Search submissions…" aria-label="Search submissions">
+        <select id="status" aria-label="Filter submission status">
+          <option value="">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="submitted">Submitted</option>
+          <option value="under_review">Under review</option>
+          <option value="approved">Approved</option>
+          <option value="completed">Completed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Submission</th><th>Member</th><th>Job</th><th>Status</th><th>Submitted</th><th>Details</th></tr></thead>
+        <tbody id="submissionRows"><tr><td colspan="6" class="empty">Loading submissions…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+  <p class="muted">Only fields returned by the backend are displayed. Missing values are labelled rather than invented.</p>
+</main>
+
+<div id="modalBg" class="modal-bg" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <section class="modal">
+    <div class="modal-head"><h2 id="modalTitle">Submission details</h2><button id="closeModal" class="btn soft" type="button">Close</button></div>
+    <div id="modalContent"></div>
+  </section>
+</div>
+
+<script src="assets/admin-navigation.js"></script>
+<script>
+"use strict";
+(() => {
+  const $ = id => document.getElementById(id);
+  const rows = $("submissionRows");
+  const modalBg = $("modalBg");
+  let submissions = [];
+  let busy = false;
+
+  const API_BASE = (() => {
+    const host = location.hostname;
+    return host === "localhost" || host === "127.0.0.1"
+      ? "http://127.0.0.1:5001/api"
+      : "https://primetask-mdcx.onrender.com/api";
+  })();
+
+  function esc(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[c]);
+  }
+  function first(obj, keys) {
+    for (const key of keys) {
+      const value = obj && obj[key];
+      if (value !== undefined && value !== null && value !== "") return value;
+    }
+    return null;
+  }
+  function statusOf(item) {
+    return String(first(item,["status","reviewStatus","state"]) || "unknown")
+      .toLowerCase().replace(/[\s-]+/g,"_");
+  }
+  function pretty(value) {
+    return String(value || "Unknown").replace(/[_-]+/g," ")
+      .replace(/\b\w/g,c => c.toUpperCase());
+  }
+  function date(value) {
+    if (!value) return "Not recorded";
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? "Not recorded" :
+      parsed.toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});
+  }
+  function userOf(item) {
+    const user = first(item,["user","userId","worker","member","submittedBy"]);
+    if (user && typeof user === "object") return user;
+    return {};
+  }
+  function jobOf(item) {
+    const job = first(item,["job","jobId","transcriptionJob"]);
+    if (job && typeof job === "object") return job;
+    return {};
+  }
+  function showMessage(text,type) {
+    $("message").textContent = text;
+    $("message").className = "message show " + type;
+  }
+  function searchText(item) {
+    const user = userOf(item), job = jobOf(item);
+    return [
+      first(item,["_id","id","submissionId","reference"]),
+      first(item,["status","reviewStatus"]),
+      first(user,["username","name","email"]),
+      first(job,["title","name","jobTitle","_id","id"]),
+      first(item,["notes","comments","transcriptText","content","text"])
+    ].filter(Boolean).join(" ").toLowerCase();
+  }
+  function render() {
+    const query = $("search").value.trim().toLowerCase();
+    const selected = $("status").value;
+    const list = submissions.filter(item =>
+      (!selected || statusOf(item) === selected) &&
+      (!query || searchText(item).includes(query))
+    );
+    if (!list.length) {
+      rows.innerHTML = '<tr><td colspan="6"><div class="empty"><strong>No matching submissions</strong>Try another search or status filter.</div></td></tr>';
+      return;
+    }
+    rows.innerHTML = list.map(item => {
+      const id = first(item,["_id","id","submissionId","reference"]) || "ID unavailable";
+      const user = userOf(item), job = jobOf(item), state = statusOf(item);
+      const username = first(user,["username","name","fullName"]) || first(item,["username","workerName","memberName"]) || "Member not specified";
+      const email = first(user,["email"]) || first(item,["userEmail","email"]);
+      const jobTitle = first(job,["title","name","jobTitle"]) || first(item,["jobTitle","title"]) || "Job not specified";
+      const created = first(item,["submittedAt","submitted_at","createdAt","created_at","updatedAt"]);
+      let cls = "";
+      if (["approved","completed","accepted"].includes(state)) cls = "approved";
+      else if (["rejected","failed"].includes(state)) cls = "rejected";
+      else if (["pending","submitted","under_review","in_review"].includes(state)) cls = "pending";
+      return '<tr><td><strong>'+esc(id)+'</strong><span class="muted">'+esc(first(item,["fileName","filename","documentName"]) || "No filename supplied")+'</span></td>'+
+        '<td><strong>'+esc(username)+'</strong><span class="muted">'+esc(email || "No email supplied")+'</span></td>'+
+        '<td><strong>'+esc(jobTitle)+'</strong><span class="muted">'+esc(first(job,["_id","id"]) || first(item,["jobId"]) || "")+'</span></td>'+
+        '<td><span class="pill '+cls+'">'+esc(pretty(state))+'</span></td>'+
+        '<td>'+esc(date(created))+'</td>'+
+        '<td><button class="btn soft" type="button" data-details="'+esc(id)+'">View details</button></td></tr>';
+    }).join("");
+  }
+
+  function addDetail(label,value) {
+    if (value === undefined || value === null || value === "") return "";
+    if (typeof value === "object") value = JSON.stringify(value,null,2);
+    return '<div class="detail"><div class="detail-label">'+esc(label)+'</div><div class="detail-value">'+esc(value)+'</div></div>';
+  }
+  function openDetails(id) {
+    const item = submissions.find(row => String(first(row,["_id","id","submissionId","reference"])) === String(id));
+    if (!item) return;
+    const user = userOf(item), job = jobOf(item);
+    $("modalTitle").textContent = "Submission " + id;
+    let html = "";
+    html += addDetail("Status",pretty(statusOf(item)));
+    html += addDetail("Member",first(user,["username","name","fullName"]) || first(item,["username","workerName","memberName"]));
+    html += addDetail("Member email",first(user,["email"]) || first(item,["userEmail","email"]));
+    html += addDetail("Job title",first(job,["title","name","jobTitle"]) || first(item,["jobTitle","title"]));
+    html += addDetail("Job ID",first(job,["_id","id"]) || first(item,["jobId"]));
+    html += addDetail("Filename",first(item,["fileName","filename","documentName","originalName"]));
+    html += addDetail("Submission date",date(first(item,["submittedAt","submitted_at","createdAt","created_at"])));
+    html += addDetail("Last updated",date(first(item,["updatedAt","updated_at"])));
+    html += addDetail("Submission notes",first(item,["notes","comments","description"]));
+    html += addDetail("Review note",first(item,["reviewNote","adminNote","feedback"]));
+    html += addDetail("Document / file URL",first(item,["fileUrl","documentUrl","downloadUrl","submissionUrl","url"]));
+    html += addDetail("Transcript text",first(item,["transcriptText","content","text"]));
+    if (!html) html = '<p class="muted">No detail fields were provided.</p>';
+    $("modalContent").innerHTML = html;
+    modalBg.classList.add("open");
+  }
+
+  async function load() {
+    if (busy) return;
+    busy = true;
+    $("refresh").disabled = true;
+    $("message").className = "message";
+    rows.innerHTML = '<tr><td colspan="6" class="empty">Loading submissions from the server…</td></tr>';
+    try {
+      const response = await fetch(API_BASE + "/admin/transcription/submissions", {
+        credentials:"include",
+        headers:{"Accept":"application/json"}
+      });
+      let data;
+      try { data = await response.json(); }
+      catch { throw new Error("The API returned a response that could not be read."); }
+      if (!response.ok || data.success === false) {
+        throw new Error(data.message || data.error || "Unable to load submissions (HTTP "+response.status+").");
+      }
+      const list = Array.isArray(data) ? data :
+        Array.isArray(data.submissions) ? data.submissions :
+        Array.isArray(data.data) ? data.data :
+        Array.isArray(data.results) ? data.results : null;
+      if (!list) throw new Error("The endpoint response did not contain a recognised submissions array.");
+      submissions = list;
+      $("total").textContent = submissions.length;
+      $("pending").textContent = submissions.filter(item =>
+        ["pending","submitted","under_review","in_review"].includes(statusOf(item))
+      ).length;
+      $("done").textContent = submissions.filter(item =>
+        ["approved","completed","accepted"].includes(statusOf(item))
+      ).length;
+      render();
+    } catch (error) {
+      $("total").textContent = $("pending").textContent = $("done").textContent = "—";
+      rows.innerHTML = '<tr><td colspan="6"><div class="empty"><strong>Submissions could not be loaded</strong>'+esc(error.message)+'<p class="muted">Confirm the actual endpoint and admin session before changing authentication.</p></div></td></tr>';
+      showMessage(error.message,"error");
+    } finally {
+      busy = false;
+      $("refresh").disabled = false;
+    }
+  }
+
+  rows.addEventListener("click",event => {
+    const button = event.target.closest("[data-details]");
+    if (button) openDetails(button.dataset.details);
+  });
+  $("refresh").addEventListener("click",load);
+  $("search").addEventListener("input",render);
+  $("status").addEventListener("change",render);
+  $("closeModal").addEventListener("click",() => modalBg.classList.remove("open"));
+  modalBg.addEventListener("click",event => {
+    if (event.target === modalBg) modalBg.classList.remove("open");
+  });
+  document.addEventListener("keydown",event => {
+    if (event.key === "Escape") modalBg.classList.remove("open");
+  });
+  load();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080412">
+<title>Mission Board | PrimeTask Transcription</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080412;--panel:rgba(15,9,31,.9);--line:#7b50c65c;--purple:#bd79ff;--blue:#58c7ff;--orange:#ff7a28;--gold:#ffe39b;--white:#f8f5ff;--muted:#aaa1c6;--green:#6dffc2;--red:#ff698b}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--white);font-family:Rajdhani,sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}
+#bg{position:fixed;inset:0;z-index:-4;background:radial-gradient(ellipse at 75% 25%,#482276 0%,#1b1037 35%,#080412 76%);overflow:hidden}
+#bg iframe{position:absolute;left:50%;top:50%;width:177.78vh;height:100vh;min-width:100%;min-height:56.25vw;transform:translate(-50%,-50%);border:0;opacity:.34;pointer-events:none;filter:saturate(1.5)}
+#bg:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,4,18,.94),rgba(8,4,18,.73) 60%,rgba(8,4,18,.45)),linear-gradient(0deg,#080412,transparent 70%)}
+.auras{position:fixed;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 95% 20%,#7d37ff24,transparent 35%),radial-gradient(ellipse at 4% 90%,#ff6b1720,transparent 30%)}
+header{position:sticky;top:0;z-index:10;background:#080412eF;border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}
+.topbar{height:3px;background:linear-gradient(90deg,#ff6429,#ffe39b,#bd79ff,#58c7ff,#ff6429)}
+.head{max-width:1450px;margin:auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px}
+.emblem{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#fff 0%,#ffdb79 17%,#ff7a28 45%,#7e20b8 75%);color:#190b2c;font-family:Orbitron;font-weight:900;font-size:20px;box-shadow:0 0 25px #a44cff66}
+.brand strong{font:800 12px Orbitron;letter-spacing:1px}.brand small{display:block;color:var(--purple);font-size:11px;letter-spacing:2px;margin-top:4px}
+nav{display:flex;gap:5px;flex-wrap:wrap}
+nav a{font:700 9px Orbitron;letter-spacing:.7px;padding:11px 12px;color:#c3b8df;border:1px solid transparent}
+nav a:hover,nav a.active{color:#fff;border-color:#bd79ff7a;background:#8b38ff1c}
+main{max-width:1450px;margin:auto;padding:28px 22px 60px}
+.kicker{font:700 10px Orbitron;letter-spacing:3px;color:var(--purple);text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.kicker:before{content:"";width:26px;height:2px;background:var(--orange);box-shadow:0 0 12px var(--orange)}
+.hero{position:relative;min-height:300px;display:flex;align-items:center;padding:30px 0 38px}
+.hero-copy{position:relative;z-index:1;max-width:790px}
+h1{font:900 clamp(34px,6vw,74px)/1.04 Orbitron;letter-spacing:-2px;margin:18px 0}
+h1 span{display:block;color:var(--purple);text-shadow:0 0 28px #9b51ff66}
+.hero p{font-size:19px;line-height:1.45;color:#d5cbea;max-width:600px}
+.hero-stamp{position:absolute;right:4%;top:14%;width:230px;height:230px;border:2px solid #bd79ff45;clip-path:polygon(50% 0,95% 25%,95% 75%,50% 100%,5% 75%,5% 25%);display:grid;place-items:center;transform:rotate(10deg);background:linear-gradient(135deg,#9c52ff0c,#ff7a280c)}
+.hero-stamp span{font:900 85px Orbitron;color:#fff;text-shadow:0 0 15px var(--purple),0 0 48px #7a2dff}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:23px}
+.btn{border:1px solid #bd79ff72;background:#170e2b;color:#fff;padding:12px 17px;font:800 10px Orbitron;letter-spacing:1px;cursor:pointer}
+.btn.hot{background:linear-gradient(110deg,#ff6527,#ffb34e);color:#200b08;border-color:#ffd08e}
+.btn:hover{filter:brightness(1.15)}
+.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(290px,.75fr);gap:16px;align-items:start}
+.panel{border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(12px);padding:20px;min-width:0}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+.panel-head h2{font:800 13px Orbitron;letter-spacing:1px;margin:0}
+.tag{font:700 9px Orbitron;color:var(--purple);border:1px solid #bd79ff55;padding:6px 8px;white-space:nowrap}
+.filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:15px}
+input,select,textarea{width:100%;min-width:0;color:var(--white);background:#0a0718;border:1px solid #4b356d;padding:11px 12px;outline:none;border-radius:0}
+input:focus,select:focus,textarea:focus{border-color:var(--purple);box-shadow:0 0 0 2px #bd79ff1c}
+.filters input{flex:1 1 180px}.filters select{flex:0 1 180px}
+select option{background:#100a21}
+.job-list{display:grid;gap:10px}
+.job{border:1px solid #4b356d;background:linear-gradient(110deg,#160e2a,#0c081a);padding:15px}
+.job-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.job h3{font:700 12px Orbitron;margin:0 0 8px;overflow-wrap:anywhere}
+.job-meta{font-size:13px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap}
+.job-reward{font:800 17px Orbitron;color:var(--gold);white-space:nowrap}
+.pill{display:inline-block;font:700 9px Orbitron;letter-spacing:.4px;padding:5px 7px;border:1px solid #7e64a0;color:#cbb9f0;margin-top:12px}
+.pill.open{color:var(--green);border-color:#6dffc266}.pill.draft{color:var(--gold);border-color:#ffe39b66}.pill.completed{color:var(--blue);border-color:#58c7ff66}.pill.closed,.pill.rejected{color:var(--red);border-color:#ff698b66}
+.job-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.small-btn{padding:7px 10px;border:1px solid #5e477f;background:#17102a;color:#eee4ff;font:700 9px Orbitron;cursor:pointer}
+.small-btn:hover{border-color:var(--purple)}
+.empty{padding:28px 14px;text-align:center;color:var(--muted);border:1px dashed #4b356d;font-size:15px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:grid;gap:6px}.field.full{grid-column:1/-1}
+.field label{font:700 9px Orbitron;letter-spacing:.8px;color:#c7b7e4;text-transform:uppercase}
+.field textarea{min-height:95px;resize:vertical}
+.help{font-size:12px;color:var(--muted);line-height:1.4}
+#message{min-height:22px;color:var(--muted);font-size:13px;margin-top:10px}
+#message.error{color:var(--red)}#message.success{color:var(--green)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{padding:13px;background:#110a20;border:1px solid #4b356d}
+.stat span{font:700 8px Orbitron;letter-spacing:.7px;color:var(--muted);display:block}
+.stat strong{font:800 23px Orbitron;display:block;margin-top:9px;color:var(--purple)}
+.tournament{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tournament a{padding:13px;border:1px solid #4b356d;background:#100a21}
+.tournament a strong{font:700 10px Orbitron;display:block}.tournament a small{display:block;color:var(--muted);font-size:12px;margin-top:6px}
+footer{max-width:1450px;margin:auto;padding:0 22px 25px;color:#8e83a9;font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:1000px){.head{align-items:flex-start;flex-direction:column}nav{width:100%}nav a{padding:9px}.layout{grid-template-columns:1fr}.hero-stamp{right:0;width:160px;height:160px}.hero-stamp span{font-size:58px}}
+@media(max-width:600px){main{padding:20px 13px 40px}.head{padding:12px 13px}nav{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}nav a{text-align:center;font-size:8px;padding:10px 3px}.hero{min-height:280px;padding:30px 0}.hero-stamp{width:90px;height:90px;top:5%;right:0;opacity:.35}.hero-stamp span{font-size:32px}h1{font-size:clamp(32px,9vw,47px);letter-spacing:-1px}.hero p{font-size:17px;max-width:95%}.panel{padding:14px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.stats{gap:6px}.stat{padding:10px}.stat span{font-size:7px}.stat strong{font-size:18px}.job-top{flex-direction:column}.job-reward{font-size:16px}.tournament{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="bg">
+  <iframe src="https://www.youtube-nocookie.com/embed/KO39d_NdTHQ?autoplay=1&mute=1&controls=0&loop=1&playlist=KO39d_NdTHQ&playsinline=1&rel=0&modestbranding=1"
+    title="Dragon Ball Super transformation background" allow="autoplay; encrypted-media; picture-in-picture"
+    referrerpolicy="strict-origin-when-cross-origin"></iframe>
+</div>
+<div class="auras"></div>
+
+<header>
+  <div class="topbar"></div>
+  <div class="head">
+    <a class="brand" href="transcription-overview.html">
+      <span class="emblem">超</span>
+      <span><strong>PRIMETASK // MISSION BOARD</strong><small>UNIVERSE 7 · TRANSCRIPTION DIVISION</small></span>
+    </a>
+    <nav aria-label="Transcription navigation">
+      <a href="transcription-overview.html">SCOUTER</a>
+      <a class="active" href="jobs.html">MISSION BOARD</a>
+      <a href="transcription.html">OPERATIONS</a>
+      <a href="transcription-overview.html#submissions">SUBMISSIONS</a>
+      <a href="transcription-overview.html#purchases">PACKAGES</a>
+      <a href="transcription-overview.html#withdrawals">PAYOUTS</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="kicker">Tournament of Power · Mission control</div>
+      <h1>THE MISSION<span>BOARD.</span></h1>
+      <p>Deploy transcription missions, set the USD reward, and keep every assignment accountable. No power level is an excuse for messy records.</p>
+      <div class="actions">
+        <button class="btn hot" id="new-mission" type="button">＋ CREATE MISSION</button>
+        <button class="btn" id="reload" type="button">↻ SCOUT FOR UPDATES</button>
+      </div>
+    </div>
+    <div class="hero-stamp" aria-hidden="true"><span>超</span></div>
+  </section>
+
+  <div class="stats">
+    <div class="stat"><span>TOTAL MISSIONS</span><strong id="stat-total">—</strong></div>
+    <div class="stat"><span>OPEN MISSIONS</span><strong id="stat-open">—</strong></div>
+    <div class="stat"><span>COMPLETED</span><strong id="stat-completed">—</strong></div>
+  </div>
+
+  <div class="layout">
+    <section class="panel">
+      <div class="panel-head"><h2>ACTIVE MISSION ARCHIVE</h2><span class="tag">LIVE API</span></div>
+      <div class="filters">
+        <input id="search" type="search" placeholder="Search mission title or description..." aria-label="Search missions">
+        <select id="status-filter" aria-label="Filter by status">
+          <option value="">ALL STATUSES</option>
+          <option value="draft">DRAFT</option>
+          <option value="open">OPEN</option>
+          <option value="awarded">AWARDED</option>
+          <option value="submitted">SUBMITTED</option>
+          <option value="completed">COMPLETED</option>
+          <option value="closed">CLOSED</option>
+        </select>
+      </div>
+      <div id="job-list" class="job-list"><div class="empty">Synchronizing with mission control…</div></div>
+      <div id="message" role="status" aria-live="polite"></div>
+    </section>
+
+    <aside class="panel" id="create-panel">
+      <div class="panel-head"><h2>ISSUE A NEW MISSION</h2><span class="tag">ADMIN</span></div>
+      <p class="help">Set the job details and reward in USD. The server remains the authority for validation and permissions. A form is not a magical substitute for backend security, sadly.</p>
+      <form id="job-form">
+        <div class="form-grid">
+          <div class="field full"><label for="title">Mission title</label><input id="title" name="title" required maxlength="140" placeholder="e.g. Clean verbatim interview"></div>
+          <div class="field full"><label for="description">Mission instructions</label><textarea id="description" name="description" required maxlength="10000" placeholder="Describe the task, formatting, and submission requirements"></textarea></div>
+          <div class="field"><label for="reward">Reward (USD)</label><input id="reward" name="reward" type="number" min="0.01" step="0.01" required placeholder="6.00"></div>
+          <div class="field"><label for="status">Initial status</label><select id="status" name="status"><option value="draft">DRAFT</option><option value="open">OPEN</option></select></div>
+          <div class="field full"><label for="deadline">Deadline (optional)</label><input id="deadline" name="deadline" type="datetime-local"></div>
+          <div class="field full"><button class="btn hot" id="submit-job" type="submit">⚡ DEPLOY MISSION</button></div>
+        </div>
+      </form>
+      <p class="help">If the backend expects different field names or a different job-creation route, this page will show the server error instead of pretending the mission was created.</p>
+    </aside>
+  </div>
+
+  <section class="panel" style="margin-top:16px">
+    <div class="panel-head"><h2>UNIVERSE 7 SHORTCUTS</h2><span class="tag">NAVIGATION</span></div>
+    <div class="tournament">
+      <a href="transcription-overview.html"><strong>◈ SCOUTER OVERVIEW</strong><small>Live jobs, submissions and verified purchase metrics</small></a>
+      <a href="transcription.html"><strong>◈ ADMIN OPERATIONS</strong><small>Existing transcription administration tools</small></a>
+      <a href="transcription-overview.html#submissions"><strong>◈ SUBMISSION INTEL</strong><small>Jump to the overview submission section</small></a>
+      <a href="transcription-overview.html#withdrawals"><strong>◈ PAYOUT CONTROL</strong><small>Pending withdrawals and USD amounts</small></a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>PRIMETASK TRANSCRIPTION · MISSION BOARD</span>
+  <span id="updated">SCOUTER NOT YET SYNCHRONIZED</span>
+</footer>
+
+<script src="../../../assets/js/config.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const API_BASE = String(
+    window.PTW_API_BASE ||
+    window.PTW_CONFIG?.API_BASE ||
+    window.PTW_CONFIG?.apiBase ||
+    ""
+  ).replace(/\/+$/, "");
+
+  const $ = id => document.getElementById(id);
+  let jobs = [];
+  let busy = false;
+
+  const asArray = data => {
+    if (Array.isArray(data)) return data;
+    if (Array.isArray(data?.jobs)) return data.jobs;
+    if (Array.isArray(data?.data)) return data.data;
+    if (Array.isArray(data?.data?.jobs)) return data.data.jobs;
+    if (Array.isArray(data?.results)) return data.results;
+    return null;
+  };
+
+  const money = value => {
+    const n = Number(value);
+    return Number.isFinite(n)
+      ? "$" + n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})
+      : "—";
+  };
+
+  function getReward(job) {
+    const cents = job.rewardCents ?? job.rewardAmountCents ?? job.amountCents ?? job.priceCents;
+    if (cents !== undefined && cents !== null) return Number(cents) / 100;
+    return Number(job.rewardUsd ?? job.rewardUSD ?? job.reward ?? job.amountUsd ?? job.amount ?? job.price ?? 0);
+  }
+
+  function getStatus(job) {
+    return String(job.status || "unknown").toLowerCase().replace(/\s+/g, "_");
+  }
+
+  function showMessage(text, type = "") {
+    $("message").textContent = text;
+    $("message").className = type;
+  }
+
+  async function request(path, options = {}) {
+    if (!API_BASE) throw new Error("PTW_API_BASE is missing from assets/js/config.js.");
+    const response = await fetch(API_BASE + path, {
+      credentials: "include",
+      cache: "no-store",
+      ...options,
+      headers: {
+        Accept: "application/json",
+        ...(options.body ? {"Content-Type":"application/json"} : {}),
+        ...(options.headers || {})
+      }
+    });
+
+    let payload;
+    try { payload = await response.json(); }
+    catch { payload = {}; }
+
+    if (!response.ok || payload.success === false) {
+      const message = payload.message || payload.error || ("Request failed (" + response.status + ").");
+      throw new Error(response.status === 401 || response.status === 403
+        ? "Admin session required. Sign in with your authorized PrimeTask admin account."
+        : message);
+    }
+    return payload;
+  }
+
+  function render() {
+    const query = $("search").value.trim().toLowerCase();
+    const filter = $("status-filter").value;
+    const filtered = jobs.filter(job => {
+      const text = [job.title, job.name, job.description, job.instructions, job.status].join(" ").toLowerCase();
+      return (!query || text.includes(query)) && (!filter || getStatus(job) === filter);
+    });
+
+    $("stat-total").textContent = jobs.length.toLocaleString();
+    $("stat-open").textContent = jobs.filter(job => getStatus(job) === "open").length.toLocaleString();
+    $("stat-completed").textContent = jobs.filter(job => getStatus(job) === "completed").length.toLocaleString();
+
+    const list = $("job-list");
+    list.replaceChildren();
+
+    if (!filtered.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = jobs.length
+        ? "No missions match these filters."
+        : "No missions returned by the API. Check the route or create the first mission.";
+      list.appendChild(empty);
+      return;
+    }
+
+    filtered.forEach(job => {
+      const card = document.createElement("article");
+      card.className = "job";
+
+      const top = document.createElement("div");
+      top.className = "job-top";
+      const left = document.createElement("div");
+      const title = document.createElement("h3");
+      title.textContent = job.title || job.name || "Untitled mission";
+      const meta = document.createElement("div");
+      meta.className = "job-meta";
+      const id = job._id || job.id || job.jobId || "";
+      const idText = document.createElement("span");
+      idText.textContent = id ? "ID: " + id : "Mission record";
+      const date = document.createElement("span");
+      const created = job.createdAt || job.created_at;
+      date.textContent = created && !Number.isNaN(Date.parse(created))
+        ? new Date(created).toLocaleDateString()
+        : "Date not supplied";
+      meta.append(idText, date);
+      left.append(title, meta);
+
+      const reward = document.createElement("div");
+      reward.className = "job-reward";
+      reward.textContent = money(getReward(job));
+      top.append(left, reward);
+      card.appendChild(top);
+
+      if (job.description || job.instructions) {
+        const desc = document.createElement("p");
+        desc.className = "help";
+        desc.style.margin = "12px 0 0";
+        const raw = String(job.description || job.instructions);
+        desc.textContent = raw.length > 240 ? raw.slice(0, 240) + "…" : raw;
+        card.appendChild(desc);
+      }
+
+      const status = getStatus(job);
+      const pill = document.createElement("span");
+      pill.className = "pill " + status;
+      pill.textContent = status.replace(/_/g, " ").toUpperCase();
+      card.appendChild(pill);
+
+      if (id) {
+        const controls = document.createElement("div");
+        controls.className = "job-actions";
+
+        if (status === "draft") {
+          const openBtn = document.createElement("button");
+          openBtn.className = "small-btn";
+          openBtn.type = "button";
+          openBtn.textContent = "PUBLISH MISSION";
+          openBtn.addEventListener("click", () => changeStatus(id, "open"));
+          controls.appendChild(openBtn);
+        }
+
+        if (status === "open") {
+          const closeBtn = document.createElement("button");
+          closeBtn.className = "small-btn";
+          closeBtn.type = "button";
+          closeBtn.textContent = "CLOSE MISSION";
+          closeBtn.addEventListener("click", () => changeStatus(id, "closed"));
+          controls.appendChild(closeBtn);
+        }
+
+        if (controls.childElementCount) card.appendChild(controls);
+      }
+
+      list.appendChild(card);
+    });
+  }
+
+  async function loadJobs() {
+    if (busy) return;
+    busy = true;
+    $("reload").disabled = true;
+    showMessage("Scanning the mission archive…");
+
+    try {
+      // This endpoint must be backed by the authenticated transcription admin router.
+      const payload = await request("/admin/transcription/jobs");
+      const found = asArray(payload);
+      if (!found) {
+        throw new Error("The jobs endpoint responded, but its payload did not contain a jobs array. Inspect the API response shape.");
+      }
+      jobs = found;
+      render();
+      showMessage("Mission archive synchronized: " + jobs.length + " record(s).", "success");
+      $("updated").textContent = "LAST SCAN: " + new Date().toLocaleString();
+    } catch (error) {
+      jobs = [];
+      render();
+      showMessage(error.message || "Could not load missions.", "error");
+    } finally {
+      busy = false;
+      $("reload").disabled = false;
+    }
+  }
+
+  async function changeStatus(id, status) {
+    if (!confirm("Change this mission status to " + status.toUpperCase() + "?")) return;
+    showMessage("Updating mission status…");
+    try {
+      // Kept explicit so backend route mismatches are visible, not silently faked.
+      await request("/admin/transcription/jobs/" + encodeURIComponent(id), {
+        method: "PATCH",
+        body: JSON.stringify({status})
+      });
+      showMessage("Mission status updated.", "success");
+      await loadJobs();
+    } catch (error) {
+      showMessage(error.message || "Could not update mission status.", "error");
+    }
+  }
+
+  $("job-form").addEventListener("submit", async event => {
+    event.preventDefault();
+    const submit = $("submit-job");
+    submit.disabled = true;
+    showMessage("Deploying mission…");
+
+    const reward = Number($("reward").value);
+    if (!Number.isFinite(reward) || reward <= 0) {
+      showMessage("Enter a reward greater than zero USD.", "error");
+      submit.disabled = false;
+      return;
+    }
+
+    const body = {
+      title: $("title").value.trim(),
+      description: $("description").value.trim(),
+      rewardUsd: reward,
+      currency: "USD",
+      status: $("status").value
+    };
+
+    if ($("deadline").value) {
+      const date = new Date($("deadline").value);
+      if (Number.isNaN(date.getTime())) {
+        showMessage("The deadline is not a valid date.", "error");
+        submit.disabled = false;
+        return;
+      }
+      body.deadline = date.toISOString();
+    }
+
+    try {
+      await request("/admin/transcription/jobs", {
+        method: "POST",
+        body: JSON.stringify(body)
+      });
+      $("job-form").reset();
+      showMessage("Mission deployed successfully.", "success");
+      await loadJobs();
+    } catch (error) {
+      showMessage(error.message || "Mission deployment failed.", "error");
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  $("new-mission").addEventListener("click", () => {
+    $("create-panel").scrollIntoView({behavior:"smooth", block:"start"});
+    $("title").focus({preventScroll:true});
+  });
+  $("reload").addEventListener("click", loadJobs);
+  $("search").addEventListener("input", render);
+  $("status-filter").addEventListener("change", render);
+
+  loadJobs();
+})();
+</script>
+</body>
+</html>

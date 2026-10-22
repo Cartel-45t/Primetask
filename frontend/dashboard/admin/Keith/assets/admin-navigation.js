@@ -16,7 +16,13 @@
     ["platform-revenue.html", "Platform Revenue", "$"],
     ["audit-logs.html", "Audit Logs", "≡"],
     ["settings.html", "Settings", "⚙"],
-    ["transcription.html", "Transcription Admin", "▤"]
+    ["transcription-overview.html", "Transcription Overview", "▦"],
+    ["transcription.html", "Transcription Admin", "▤"],
+    ["transcription-job-posting.html", "Post Transcription Jobs", "+"],
+    ["transcription-jobs.html", "Transcription Jobs", "▦"],
+    ["transcription-audio-library.html", "Audio Library", "♫"],
+    ["transcription-document-review.html", "Document Review", "✓"],
+    ["transcription-reports.html", "Transcription Reports", "▥"],
   ];
 
   const currentPath = window.location.pathname.replace(/\/+$/, "");

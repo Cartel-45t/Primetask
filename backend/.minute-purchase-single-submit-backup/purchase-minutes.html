@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071426">
+<meta name="description" content="PrimeTask Workspace transcription - Purchase Minutes">
+<title>Purchase Minutes | PrimeTask Workspace</title>
+<link rel="stylesheet" href="assets/style.css">
+  <link rel="icon" type="image/svg+xml" href="../../../assets/primetask-favicon.svg">
+</head>
+<body class="page-minutes">
+<div class="shell">
+<header class="topbar">
+<a class="brand" href="index.html">
+<span><span class="brand-name">PrimeTask Workspace</span><span class="brand-sub">Transcription workspace</span></span>
+</a>
+<div class="menu-wrap">
+<button class="menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="pageMenu">☰</button>
+<nav class="menu" id="pageMenu" aria-label="Transcription pages"><a href="index.html" class="">Dashboard</a><a href="available-jobs.html" class="">Available jobs</a><a href="my-jobs.html" class="">My jobs / submissions</a><a href="purchase-minutes.html" class="active">Purchase minutes</a><a href="wallet.html" class="">Wallet & withdrawals</a><a href="payouts.html" class="">My payouts</a></nav>
+</div>
+</header>
+<main>
+<section style="padding:12px 0 10px">
+  <div class="eyebrow">Audio practice and transcription time</div>
+  <h1>Purchase your <span>minutes.</span></h1>
+  <p>Choose a package and review its USD price and M-Pesa amount.</p>
+</section>
+<div id="minuteNotice" class="notice" role="status">Loading available packages…</div>
+<section class="card" style="margin:18px 0">
+  <h2>Available packages</h2>
+  <div id="minutePackages" class="grid"></div>
+  <form id="minutePurchaseForm" style="margin-top:20px">
+    <label for="minutePackage"><strong>Select package</strong></label>
+    <select id="minutePackage" required style="display:block;width:100%;padding:12px;margin:8px 0 16px">
+      <option value="">Loading packages…</option>
+    </select>
+    <label for="minutePhone"><strong>M-Pesa phone number</strong></label>
+    <input id="minutePhone" type="tel" inputmode="tel" autocomplete="tel"
+      placeholder="0712345678 or 254712345678" maxlength="20" required
+      style="display:block;width:100%;padding:12px;margin:8px 0 16px">
+    <div id="minuteSelectedSummary" class="notice">Select a package to review its price.</div>
+    <button id="minutePurchaseButton" class="btn" type="submit" disabled>Create purchase record</button>
+  </form>
+  <p><strong>Payment notice:</strong> this creates a purchase record only. M-Pesa initiation is disabled. Do not send money based on this page.</p>
+</section>
+<section class="card" style="margin:18px 0">
+  <h2>My minute purchases</h2>
+  <div id="minutePurchaseHistory" aria-live="polite">Loading purchase history…</div>
+  <button id="refreshMinutePurchases" class="btn" type="button" style="margin-top:12px">Refresh history</button>
+</section>
+<footer>© <span data-year></span> PrimeTask Workspace · Financial accounting uses USD. M-Pesa verification uses the expected KSh amount.</footer>
+</main>
+</div>
+<script src="../../../assets/js/config.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/purchase-minutes.js"></script>
+</body>
+</html>

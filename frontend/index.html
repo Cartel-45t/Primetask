@@ -37,6 +37,7 @@ header{height:78px;padding:0 6%;background:rgba(5,11,24,.97);border-bottom:1px s
 .brand{display:flex;align-items:center;gap:10px;color:#fff;flex-shrink:0}
 .brand-icon{width:41px;height:41px;display:grid;place-items:center;border-radius:11px;background:linear-gradient(145deg,#4389ff,#1851c9);font-family:var(--heading);font-weight:800;font-size:15px;letter-spacing:-2px}
 .brand-icon span{color:#cce0ff}
+.brand-icon img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
 .brand-text{display:flex;flex-direction:column;line-height:1.2}
 .brand-text strong{font-family:var(--heading);font-size:17px;letter-spacing:-.6px}
 .brand-text small{font-size:8px;color:#8fa5c7;letter-spacing:2.3px;margin-top:4px}
@@ -277,6 +278,7 @@ footer{background:#030815;color:white;padding:58px 8% 0}
  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
 </style>
+  <link rel="icon" type="image/jpeg" href="assets/primetask.jpg">
 </head>
 
 <body>
@@ -288,7 +290,7 @@ footer{background:#030815;color:white;padding:58px 8% 0}
 
 <header>
   <a href="index.html" class="brand" aria-label="PrimeTask Workspace home">
-    <span class="brand-icon">P<span>T</span></span>
+    <span class="brand-icon"><img src="assets/primetask.jpg" alt="PrimeTask icon"></span>
     <span class="brand-text">
       <strong>PrimeTask</strong>
       <small>WORKSPACE</small>
@@ -581,7 +583,7 @@ footer{background:#030815;color:white;padding:58px 8% 0}
   <div class="footer-main">
     <div class="footer-brand">
       <a href="index.html" class="brand">
-        <span class="brand-icon">P<span>T</span></span>
+        <span class="brand-icon"><img src="assets/primetask.jpg" alt="PrimeTask icon"></span>
         <span class="brand-text"><strong>PrimeTask</strong><small>WORKSPACE</small></span>
       </a>
       <p>Creating Opportunities and Delivering Excellence.</p>

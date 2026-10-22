@@ -1,44 +1,16 @@
 "use strict";
 
 const express = require("express");
-const multer = require("multer");
+const crypto = require("node:crypto");
+const path = require("node:path");
 const cloudinary = require("cloudinary").v2;
-const { Readable } = require("node:stream");
 const requireAuth = require("../middleware/requireAuth");
 
 const router = express.Router();
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-const AUDIO_MIME_TYPES = new Set([
-  "audio/mpeg",
-  "audio/mp3",
-  "audio/wav",
-  "audio/x-wav",
-  "audio/mp4",
-  "audio/x-m4a",
-  "audio/ogg",
-  "audio/flac",
-  "audio/webm"
-]);
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 100 * 1024 * 1024,
-    files: 7
-  },
-  fileFilter(req, file, callback) {
-    if (!AUDIO_MIME_TYPES.has(file.mimetype)) {
-      return callback(new Error("UNSUPPORTED_AUDIO_TYPE"));
-    }
-    callback(null, true);
-  }
-});
+const AUDIO_FOLDER = "primetask-workspace/transcription/audio";
+const MAX_AUDIO_BYTES = 100 * 1024 * 1024;
+const ALLOWED_FORMATS = ["mp3", "wav", "m4a", "ogg", "flac", "webm"];
 
 function cloudinaryReady() {
   return Boolean(
@@ -48,324 +20,201 @@ function cloudinaryReady() {
   );
 }
 
-function detectAudioType(buffer) {
-  if (!buffer || buffer.length < 12) return null;
-
-  if (
-    buffer.subarray(0, 3).toString("ascii") === "ID3" ||
-    (buffer[0] === 0xff && (buffer[1] & 0xe0) === 0xe0)
-  ) return "mp3";
-
-  if (
-    buffer.toString("ascii", 0, 4) === "RIFF" &&
-    buffer.toString("ascii", 8, 12) === "WAVE"
-  ) return "wav";
-
-  if (buffer.toString("ascii", 4, 8) === "ftyp") return "mp4";
-
-  if (buffer.toString("ascii", 0, 4) === "OggS") return "ogg";
-
-  if (buffer.toString("ascii", 0, 4) === "fLaC") return "flac";
-
-  if (
-    buffer[0] === 0x1a &&
-    buffer[1] === 0x45 &&
-    buffer[2] === 0xdf &&
-    buffer[3] === 0xa3
-  ) return "webm";
-
-  return null;
-}
-
-function uploadAudio(buffer) {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: "primetask-workspace/transcription/audio",
-        resource_type: "video",
-        type: "authenticated",
-        use_filename: false,
-        unique_filename: true,
-        overwrite: false,
-        allowed_formats: [
-          "mp3", "wav", "m4a", "ogg", "flac", "webm"
-        ]
-      },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve(result);
-      }
-    );
-
-    Readable.from(buffer).pipe(stream);
+function configureCloudinary() {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
   });
 }
 
-router.post(
-  "/audio",
-  requireAuth,
-  (req, res, next) => {
-    if (!["admin", "founder"].includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: "Administrator access required."
-      });
-    }
-
-    if (!cloudinaryReady()) {
-      return res.status(503).json({
-        success: false,
-        message: "Audio storage is not configured on the server."
-      });
-    }
-
-    next();
-  },
-  (req, res, next) => {
-    upload.single("audio")(req, res, error => {
-      if (!error) return next();
-
-      if (error instanceof multer.MulterError) {
-        const message = error.code === "LIMIT_FILE_SIZE"
-          ? "Audio must be 100 MB or smaller."
-          : "Upload one audio file at a time.";
-
-        return res.status(400).json({
-          success: false,
-          message
-        });
-      }
-
-      return res.status(400).json({
-        success: false,
-        message: error.message === "UNSUPPORTED_AUDIO_TYPE"
-          ? "Unsupported audio type. Upload MP3, WAV, M4A, OGG, FLAC, or WebM audio."
-          : "Audio upload could not be processed."
-      });
+function adminOnly(req, res, next) {
+  const audioDebug = req.path === "/audio/signature";
+  if (audioDebug) {
+    console.log("[audio-signature-debug] admin check entered", {
+      role: req.user?.role,
+      cloudinaryConfigured: cloudinaryReady()
     });
-  },
-  async (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "Choose an audio file to upload."
-      });
-    }
-
-    const detectedType = detectAudioType(req.file.buffer);
-
-    const compatibleTypes = {
-      "audio/mpeg": ["mp3"],
-      "audio/mp3": ["mp3"],
-      "audio/wav": ["wav"],
-      "audio/x-wav": ["wav"],
-      "audio/mp4": ["mp4"],
-      "audio/x-m4a": ["mp4"],
-      "audio/ogg": ["ogg"],
-      "audio/flac": ["flac"],
-      "audio/webm": ["webm"]
-    };
-
-    if (!detectedType || !compatibleTypes[req.file.mimetype]?.includes(detectedType)) {
-      return res.status(400).json({
-        success: false,
-        message: "The file content does not match a supported audio format."
-      });
-    }
-
-    try {
-      const result = await uploadAudio(req.file.buffer);
-
-      if (
-        result.resource_type !== "video" ||
-        result.type !== "authenticated" ||
-        !result.public_id ||
-        !result.public_id.startsWith("primetask-workspace/transcription/audio/")
-      ) {
-        if (result.public_id) {
-          await cloudinary.uploader.destroy(result.public_id, {
-            resource_type: "video",
-            type: result.type || "authenticated",
-            invalidate: true
-          }).catch(() => {});
-        }
-
-        throw new Error("Cloudinary returned an unexpected asset configuration.");
-      }
-
-      return res.status(201).json({
-        success: true,
-        message: "Audio uploaded securely.",
-        asset: {
-          originalName: req.file.originalname,
-          publicId: result.public_id,
-          resourceType: result.resource_type,
-          deliveryType: result.type,
-          format: result.format,
-          bytes: result.bytes,
-          durationSeconds: result.duration || null
-        }
-      });
-    } catch (error) {
-      console.error("Transcription audio upload error:", error.message);
-
-      return res.status(502).json({
-        success: false,
-        message: "Audio could not be stored. Check Cloudinary configuration and upload settings."
-      });
-    }
   }
-);
+  if (!["admin", "founder"].includes(req.user?.role)) {
+    return res.status(403).json({
+      success: false,
+      message: "Administrator access required."
+    });
+  }
 
+  if (!cloudinaryReady()) {
+    return res.status(503).json({
+      success: false,
+      message: "Audio storage is not configured on the server."
+    });
+  }
+
+  configureCloudinary();
+  next();
+}
+
+function isExpectedPublicId(publicId) {
+  return typeof publicId === "string" &&
+    publicId.startsWith(AUDIO_FOLDER + "/") &&
+    /^primetask-workspace\/transcription\/audio\/[A-Za-z0-9_-]+$/.test(publicId);
+}
+
+function safeOriginalName(value) {
+  if (typeof value !== "string" || !value.trim()) return "audio";
+  return path.basename(value.trim()).slice(0, 180);
+}
 
 /*
- * POST /api/admin/transcription/assets/audio/batch
- * Accepts 1–7 protected audio uploads. Each file is content-checked.
+ * POST /api/admin/transcription/assets/audio/signature
+ * Generates a signature for one specific protected Cloudinary asset.
+ * The Cloudinary API secret never leaves this server.
  */
-router.post(
-  "/audio/batch",
-  requireAuth,
-  (req, res, next) => {
-    if (!["admin", "founder"].includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: "Administrator access required."
-      });
-    }
+router.post("/audio/signature", requireAuth, adminOnly, (req, res) => {
+  console.log("[audio-signature-debug] signature handler entered");
+  const originalName = safeOriginalName(req.body?.originalName);
+  const extension = path.extname(originalName).slice(1).toLowerCase();
+  const size = Number(req.body?.size);
 
-    if (!cloudinaryReady()) {
-      return res.status(503).json({
-        success: false,
-        message: "Audio storage is not configured on the server."
-      });
-    }
-
-    next();
-  },
-  (req, res, next) => {
-    upload.array("audio", 7)(req, res, error => {
-      if (!error) return next();
-
-      if (error instanceof multer.MulterError) {
-        let message = "Batch upload could not be processed.";
-        if (error.code === "LIMIT_FILE_SIZE") {
-          message = "Each audio file must be 100 MB or smaller.";
-        } else if (
-          error.code === "LIMIT_FILE_COUNT" ||
-          error.code === "LIMIT_UNEXPECTED_FILE"
-        ) {
-          message = "Upload between 1 and 7 audio files using the audio field.";
-        }
-
-        return res.status(400).json({ success: false, message });
-      }
-
-      return res.status(400).json({
-        success: false,
-        message: error.message === "UNSUPPORTED_AUDIO_TYPE"
-          ? "Every file must be MP3, WAV, M4A, OGG, FLAC, or WebM audio."
-          : "Batch upload could not be processed."
-      });
+  if (!ALLOWED_FORMATS.includes(extension)) {
+    return res.status(400).json({
+      success: false,
+      message: "Unsupported audio format. Use MP3, WAV, M4A, OGG, FLAC, or WebM."
     });
-  },
-  async (req, res) => {
-    const files = req.files || [];
-
-    if (!files.length || files.length > 7) {
-      return res.status(400).json({
-        success: false,
-        message: "Choose between 1 and 7 audio files."
-      });
-    }
-
-    const compatibleTypes = {
-      "audio/mpeg": ["mp3"],
-      "audio/mp3": ["mp3"],
-      "audio/wav": ["wav"],
-      "audio/x-wav": ["wav"],
-      "audio/mp4": ["mp4"],
-      "audio/x-m4a": ["mp4"],
-      "audio/ogg": ["ogg"],
-      "audio/flac": ["flac"],
-      "audio/webm": ["webm"]
-    };
-
-    for (const file of files) {
-      const detectedType = detectAudioType(file.buffer);
-      if (
-        !detectedType ||
-        !compatibleTypes[file.mimetype]?.includes(detectedType)
-      ) {
-        return res.status(400).json({
-          success: false,
-          message: `File "${file.originalname}" does not match a supported audio format. No files in this batch were uploaded.`
-        });
-      }
-    }
-
-    const uploaded = [];
-
-    try {
-      for (const file of files) {
-        const result = await uploadAudio(file.buffer);
-
-        const validAsset =
-          result &&
-          result.resource_type === "video" &&
-          result.type === "authenticated" &&
-          typeof result.public_id === "string" &&
-          result.public_id.startsWith(
-            "primetask-workspace/transcription/audio/"
-          );
-
-        if (!validAsset) {
-          if (result?.public_id) {
-            await cloudinary.uploader.destroy(result.public_id, {
-              resource_type: "video",
-              type: result.type || "authenticated",
-              invalidate: true
-            }).catch(() => {});
-          }
-          throw new Error("Unexpected protected audio asset configuration.");
-        }
-
-        uploaded.push({
-          originalName: file.originalname,
-          publicId: result.public_id,
-          resourceType: result.resource_type,
-          deliveryType: result.type,
-          format: result.format,
-          bytes: result.bytes,
-          durationSeconds: result.duration || null
-        });
-      }
-
-      return res.status(201).json({
-        success: true,
-        message: `${uploaded.length} audio file(s) uploaded securely.`,
-        assets: uploaded
-      });
-    } catch (error) {
-      console.error("Transcription batch audio upload error:", error.message);
-
-      // Avoid leaving partial batches in Cloudinary after a failed upload.
-      await Promise.allSettled(
-        uploaded.map(asset =>
-          cloudinary.uploader.destroy(asset.publicId, {
-            resource_type: "video",
-            type: "authenticated",
-            invalidate: true
-          })
-        )
-      );
-
-      return res.status(502).json({
-        success: false,
-        message: "The audio batch could not be stored. No jobs were created."
-      });
-    }
   }
-);
 
+  if (!Number.isSafeInteger(size) || size < 1 || size > MAX_AUDIO_BYTES) {
+    return res.status(400).json({
+      success: false,
+      message: "Audio must be larger than zero bytes and no more than 100 MB."
+    });
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const publicId = `${AUDIO_FOLDER}/${crypto.randomUUID()}`;
+
+  const params = {
+    timestamp,
+    public_id: publicId,
+    type: "authenticated",
+    overwrite: false,
+    allowed_formats: ALLOWED_FORMATS.join(",")
+  };
+
+  try {
+    const signature = cloudinary.utils.api_sign_request(
+      params,
+      process.env.CLOUDINARY_API_SECRET
+    );
+    console.log("[audio-signature-debug] signature generated successfully");
+
+    return res.json({
+      success: true,
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKey: process.env.CLOUDINARY_API_KEY,
+      signature,
+      params
+    });
+  } catch (error) {
+    console.error("Cloudinary signing error:", error.message);
+    return res.status(502).json({
+      success: false,
+      message: "Could not authorize the audio upload."
+    });
+  }
+});
+
+/*
+ * POST /api/admin/transcription/assets/audio/verify
+ * Never trust browser-supplied Cloudinary metadata. Fetch the asset
+ * through Cloudinary's authenticated API before accepting it.
+ */
+router.post("/audio/verify", requireAuth, adminOnly, async (req, res) => {
+  const publicId = req.body?.publicId;
+  const originalName = safeOriginalName(req.body?.originalName);
+
+  if (!isExpectedPublicId(publicId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid audio asset reference."
+    });
+  }
+
+  try {
+    const asset = await cloudinary.api.resource(publicId, {
+      resource_type: "video",
+      type: "authenticated",
+      media_metadata: true,
+    });
+
+    const format = String(asset.format || "").toLowerCase();
+    const bytes = Number(asset.bytes);
+    console.error("[Cloudinary audio diagnostic]", {
+      resourceType: asset.resource_type,
+      deliveryType: asset.type,
+      format: asset.format,
+      bytes: asset.bytes,
+      duration: asset.duration,
+      audioDuration: asset.audio_duration,
+      metadataKeys: Object.keys(asset).filter(key =>
+        /duration|audio|format|resource_type|^type$|^bytes$|public_id/i.test(key)
+      )
+    });
+
+    const durationSeconds = Number(asset.duration);
+
+    if (
+      asset.public_id !== publicId ||
+      asset.resource_type !== "video" ||
+      asset.type !== "authenticated" ||
+      !ALLOWED_FORMATS.includes(format) ||
+      !Number.isSafeInteger(bytes) ||
+      bytes < 1 ||
+      bytes > MAX_AUDIO_BYTES
+    ) {
+      return res.status(422).json({
+        success: false,
+        message: "Cloudinary asset verification failed."
+      });
+    }
+
+    if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+      return res.status(422).json({
+        success: false,
+        message: "Cloudinary did not return a verifiable audio duration."
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Audio uploaded and verified securely.",
+      asset: {
+        originalName,
+        publicId: asset.public_id,
+        resourceType: asset.resource_type,
+        deliveryType: asset.type,
+        format,
+        bytes,
+        durationSeconds
+      }
+    });
+  } catch (error) {
+    const status = Number(error.http_code || error.statusCode);
+
+    if (status === 404) {
+      return res.status(404).json({
+        success: false,
+        message: "The uploaded Cloudinary asset was not found."
+      });
+    }
+
+    console.error("Cloudinary audio verification error:", error.message);
+
+    return res.status(502).json({
+      success: false,
+      message: "Could not verify the uploaded audio with Cloudinary."
+    });
+  }
+});
 
 module.exports = router;

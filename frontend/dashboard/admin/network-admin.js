@@ -44,7 +44,7 @@
     deposits: {
       title: "Deposit records",
       url: "/admin/reports/deposits",
-      columns: ["user", "amountUsd", "currency", "expectedAmountKes", "status", "phoneNumber", "mpesaReceipt", "createdAt", "completedAt"],
+      columns: ["requestId", "user", "amountUsd", "currency", "expectedAmountKes", "paymentMode", "status", "phoneNumber", "mpesaReceipt", "walletTransactionId", "createdAt", "completedAt"],
       filters: { status: ["pending", "completed", "failed", "cancelled"] }
     },
 

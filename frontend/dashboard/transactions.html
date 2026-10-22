@@ -147,6 +147,7 @@ th{font-size:12px;color:#9aacc4}
 }
 
 </style>
+  <link rel="icon" type="image/jpeg" href="../assets/primetask.jpg">
 </head>
 <body>
 
@@ -173,13 +174,26 @@ th{font-size:12px;color:#9aacc4}
 <p class="muted">Manage your PrimeTask Workspace account.</p>
 
 <section class="card">
+<h2>Investigate a deposit</h2>
+<p class="muted">Enter a deposit request ID to inspect its saved status and Safaricom callback result.</p>
+<form id="depositLookupForm" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+  <input id="depositRequestId" name="requestId" type="text"
+    placeholder="DP-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    autocomplete="off" required
+    style="flex:1;min-width:220px;padding:11px;border:1px solid #29415f;border-radius:9px;background:#071326;color:#e8eef8;font:inherit">
+  <button class="action" id="lookupDepositButton" type="submit">Check deposit</button>
+</form>
+<div id="depositLookupResult" aria-live="polite" style="margin-top:16px"></div>
+</section>
+
+<section class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
 <div><h2>Transaction history</h2><p class="muted">Amounts are displayed in USD.</p></div>
 <button class="action" id="refreshTransactions" type="button">Refresh</button>
 </div>
 <p id="message" role="status" style="margin-top:18px">Loading transactions...</p>
 <div class="table-wrap">
-<table><thead><tr><th>Description</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+<table><thead><tr><th>Description</th><th>Date</th><th>Amount</th><th>Status</th><th>Deposit Request ID</th></tr></thead>
 <tbody id="transactionList"></tbody></table>
 </div>
 </section>
@@ -222,41 +236,246 @@ const message = document.getElementById("message");
 const refresh = document.getElementById("refreshTransactions");
 const usd = value => new Intl.NumberFormat("en-US", {
   style: "currency", currency: "USD"
-}).format((Number(value) || 0) / 100);
+}).format(Number(value) || 0);
+
+const lookupForm = document.getElementById("depositLookupForm");
+const lookupInput = document.getElementById("depositRequestId");
+const lookupButton = document.getElementById("lookupDepositButton");
+const lookupResult = document.getElementById("depositLookupResult");
+
+lookupForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const requestId = lookupInput.value.trim();
+  if (!/^DP-[0-9a-f-]{36}$/i.test(requestId)) {
+    lookupResult.className = "error";
+    lookupResult.textContent = "Enter a valid DP- deposit request ID.";
+    return;
+  }
+
+  lookupButton.disabled = true;
+  lookupResult.className = "muted";
+  lookupResult.textContent = "Checking the saved deposit and callback record...";
+
+  try {
+    const result = await apiGet(
+      `${apiRoot()}/wallet/deposits/diagnostic/${encodeURIComponent(requestId)}`
+    );
+
+    const deposit = result.deposit || {};
+    const callback = result.callback || null;
+    lookupResult.replaceChildren();
+
+    const heading = document.createElement("h3");
+    heading.textContent = "Deposit diagnostic";
+    lookupResult.appendChild(heading);
+
+    const grid = document.createElement("div");
+    grid.className = "field-grid";
+
+    const addField = (label, value) => {
+      const field = document.createElement("div");
+      field.className = "field";
+      const small = document.createElement("small");
+      small.textContent = label;
+      const content = document.createElement("strong");
+      content.textContent = value === null || value === undefined || value === ""
+        ? "Not recorded"
+        : String(value);
+      field.append(small, content);
+      grid.appendChild(field);
+    };
+
+    addField("Request ID", deposit.requestId || requestId);
+    addField("Deposit status", deposit.status || "Not recorded");
+    addField("Payment mode", deposit.paymentMode || "Not recorded");
+    addField("Safaricom result code",
+      callback && callback.resultCode !== undefined
+        ? callback.resultCode
+        : deposit.resultCode);
+    addField("Safaricom result description",
+      (callback && callback.resultDescription) || deposit.resultDescription);
+    addField("Callback processing status",
+      callback && callback.processingStatus);
+    addField("Callback received at",
+      callback && callback.receivedAt
+        ? new Date(callback.receivedAt).toLocaleString()
+        : "Not recorded");
+    addField("Deposit created at",
+      deposit.createdAt ? new Date(deposit.createdAt).toLocaleString() : "Not recorded");
+    lookupResult.appendChild(grid);
+
+    const note = document.createElement("p");
+    note.className = "muted";
+    note.style.marginTop = "14px";
+    note.textContent = callback
+      ? "This result comes from the saved callback associated with the deposit's checkout request."
+      : "No matching callback record was returned. This does not prove payment succeeded.";
+    lookupResult.appendChild(note);
+  } catch (error) {
+    lookupResult.className = "error";
+    lookupResult.textContent = error.message ||
+      "Could not retrieve this deposit's diagnostic record.";
+  } finally {
+    lookupButton.disabled = false;
+  }
+});
 
 async function loadTransactions() {
   refresh.disabled = true;
   list.replaceChildren();
   message.className = "";
-  message.textContent = "Loading transactions...";
+  message.textContent = "Loading transactions and deposit history...";
+
   try {
-    const result = await apiGet(
-      `${apiRoot()}/wallet/transactions?limit=50&page=1`
+    const [transactionResult, depositResult] = await Promise.allSettled([
+      apiGet(`${apiRoot()}/wallet/transactions?limit=50&page=1`),
+      apiGet(`${apiRoot()}/wallet/deposits/diagnostic/recent`)
+    ]);
+
+    const transactionData = transactionResult.status === "fulfilled"
+      ? transactionResult.value
+      : null;
+
+    const depositData = depositResult.status === "fulfilled"
+      ? depositResult.value
+      : null;
+
+    const transactions = transactionData
+      ? (transactionData.transactions || transactionData.data || [])
+      : [];
+
+    const deposits = depositData && Array.isArray(depositData.deposits)
+      ? depositData.deposits
+      : [];
+
+    if (transactionResult.status === "rejected" &&
+        depositResult.status === "rejected") {
+      throw transactionResult.reason || depositResult.reason ||
+        new Error("Could not load transaction history.");
+    }
+
+    const depositIds = new Set(
+      deposits.map(item => item.requestId).filter(Boolean)
     );
-    const rows = result.transactions || result.data || [];
-    if (!Array.isArray(rows) || !rows.length) {
-      message.textContent = "No transactions found yet.";
+
+    const entries = [];
+
+    for (const item of transactions) {
+      const reference = item.requestId || item.reference || item.referenceId || "";
+      if (reference && depositIds.has(reference)) continue;
+
+      entries.push({
+        description: item.description || item.type || "Wallet transaction",
+        date: item.createdAt,
+        amount: item.amount,
+        status: item.status || "Recorded",
+        requestId: reference,
+        callbackDescription: ""
+      });
+    }
+
+    for (const item of deposits) {
+      entries.push({
+        description: "Wallet deposit",
+        date: item.createdAt,
+        amount: item.amount,
+        status: item.status || "Pending",
+        requestId: item.requestId || "",
+        callbackDescription:
+          (item.callback && item.callback.resultDescription) ||
+          item.resultDescription ||
+          ""
+      });
+    }
+
+    entries.sort((a, b) =>
+      new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()
+    );
+
+    if (!entries.length) {
+      message.textContent =
+        "No transactions or deposit requests found for this account.";
       return;
     }
-    message.textContent = `${rows.length} transaction(s) loaded.`;
-    for (const item of rows) {
+
+    message.textContent =
+      `${entries.length} record(s) loaded` +
+      (depositResult.status === "rejected"
+        ? ". Deposit history is temporarily unavailable."
+        : ".");
+
+    if (depositResult.status === "rejected") {
+      message.textContent += " " +
+        "Refresh later to retrieve deposit request IDs.";
+    }
+
+    for (const item of entries) {
       const row = document.createElement("tr");
-      const values = [
-        item.description || item.type || "Wallet transaction",
-        item.createdAt ? new Date(item.createdAt).toLocaleString() : "Date unavailable",
-        usd(item.amount),
-        item.status || "Recorded"
-      ];
-      for (const value of values) {
-        const cell = document.createElement("td");
-        cell.textContent = String(value);
-        row.appendChild(cell);
+
+      const descriptionCell = document.createElement("td");
+      descriptionCell.textContent = item.description;
+      if (item.callbackDescription) {
+        const detail = document.createElement("small");
+        detail.style.display = "block";
+        detail.style.color = "#fca5a5";
+        detail.style.marginTop = "4px";
+        detail.textContent = item.callbackDescription;
+        descriptionCell.appendChild(detail);
       }
+      row.appendChild(descriptionCell);
+
+      const dateCell = document.createElement("td");
+      dateCell.textContent = item.date
+        ? new Date(item.date).toLocaleString()
+        : "Date unavailable";
+      row.appendChild(dateCell);
+
+      const amountCell = document.createElement("td");
+      amountCell.textContent =
+        item.amount === undefined || item.amount === null
+          ? "Unavailable"
+          : usd(item.amount);
+      row.appendChild(amountCell);
+
+      const statusCell = document.createElement("td");
+      statusCell.textContent = item.status;
+      row.appendChild(statusCell);
+
+      const referenceCell = document.createElement("td");
+
+      if (item.requestId && /^DP-[0-9a-f-]{36}$/i.test(item.requestId)) {
+        const reference = document.createElement("code");
+        reference.textContent = item.requestId;
+        reference.style.display = "block";
+        reference.style.overflowWrap = "anywhere";
+        referenceCell.appendChild(reference);
+
+        const copy = document.createElement("button");
+        copy.type = "button";
+        copy.className = "action";
+        copy.style.marginTop = "7px";
+        copy.textContent = "Copy ID";
+        copy.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(item.requestId);
+            copy.textContent = "Copied";
+          } catch (_) {
+            copy.textContent = "Copy unavailable";
+          }
+        });
+        referenceCell.appendChild(copy);
+      } else {
+        referenceCell.textContent = "Not available";
+      }
+
+      row.appendChild(referenceCell);
       list.appendChild(row);
     }
   } catch (error) {
     message.className = "error";
-    message.textContent = error.message || "Could not load transactions.";
+    message.textContent =
+      error.message || "Could not load transaction history.";
   } finally {
     refresh.disabled = false;
   }

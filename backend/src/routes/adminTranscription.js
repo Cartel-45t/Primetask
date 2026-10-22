@@ -224,7 +224,8 @@ router.post("/jobs", async (req, res) => {
     const [asset, settings] = await Promise.all([
       cloudinary.api.resource(publicId, {
         resource_type: "video",
-        type: "authenticated"
+        type: "authenticated",
+      media_metadata: true,
       }),
       TranscriptionSettings.findOne({ key: "transcription" })
     ]);
@@ -477,7 +478,8 @@ router.get("/jobs/:id/audio", async (req, res) => {
 
     const asset = await cloudinary.api.resource(publicId, {
       resource_type: "video",
-      type: "authenticated"
+      type: "authenticated",
+      media_metadata: true,
     });
 
     const format = String(asset.format || "").toLowerCase();
@@ -640,7 +642,7 @@ router.get("/submissions/:id/document", async (req, res) => {
     const publicId = submission.documentPublicId;
     const asset = await cloudinary.api.resource(publicId, {
       resource_type: "raw",
-      type: "authenticated"
+      type: "authenticated",
     });
 
     if (

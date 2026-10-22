@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>Membership | PrimeTask Workspace</title>
+
+<style>
+:root{
+  --navy:#172b4d;
+  --blue:#2563eb;
+  --blue-light:#eff6ff;
+  --orange:#f97316;
+  --green:#15803d;
+  --red:#dc2626;
+  --ink:#243247;
+  --muted:#64748b;
+  --line:#e2e8f0;
+  --surface:#ffffff;
+  --background:#f6f8fc;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--ink);
+  background:var(--background);
+}
+a{text-decoration:none;color:inherit}
+button{font:inherit;cursor:pointer}
+header{
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+.nav{
+  max-width:1200px;
+  margin:auto;
+  padding:17px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
+}
+.brand{
+  color:var(--navy);
+  font-weight:800;
+  font-size:19px;
+}
+.brand span{color:var(--blue)}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav a{
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:13px;
+  color:var(--muted);
+}
+nav a:hover,nav a.active{
+  background:var(--blue-light);
+  color:var(--blue);
+}
+main{
+  max-width:1200px;
+  margin:auto;
+  padding:38px 24px 60px;
+}
+.breadcrumb{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:24px;
+}
+.hero{
+  background:linear-gradient(120deg,#fff 55%,#eff6ff);
+  border:1px solid #dbeafe;
+  border-radius:18px;
+  padding:clamp(25px,5vw,48px);
+}
+.eyebrow{
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:1.8px;
+  text-transform:uppercase;
+  color:var(--blue);
+}
+h1{
+  color:var(--navy);
+  font-size:clamp(32px,5vw,48px);
+  letter-spacing:-1.4px;
+  margin:13px 0;
+}
+.hero p{
+  color:var(--muted);
+  line-height:1.8;
+  max-width:650px;
+  margin:0;
+}
+.hero-mark{
+  width:48px;
+  height:5px;
+  background:var(--orange);
+  border-radius:10px;
+  margin-top:24px;
+}
+.section{margin-top:38px}
+.section-heading{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:17px;
+}
+h2{margin:0;color:var(--navy);font-size:23px}
+.section-heading p{
+  color:var(--muted);
+  margin:8px 0 0;
+  font-size:14px;
+  line-height:1.6;
+}
+.current{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:22px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:18px;
+}
+.current-label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-weight:800;
+  color:var(--muted);
+}
+.current-name{
+  margin-top:8px;
+  font-size:22px;
+  font-weight:800;
+  color:var(--navy);
+}
+.current-details{margin-top:7px;color:var(--muted);font-size:13px}
+.pill{
+  display:inline-block;
+  padding:7px 10px;
+  border-radius:30px;
+  font-size:11px;
+  font-weight:800;
+  background:#f1f5f9;
+  color:#475569;
+}
+.pill.active{background:#dcfce7;color:var(--green)}
+.pill.pending{background:#fff7ed;color:#c2410c}
+.pill.expired{background:#fee2e2;color:var(--red)}
+.plans{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px;
+}
+.plan{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:24px;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  position:relative;
+}
+.plan.featured{
+  border:2px solid var(--blue);
+  box-shadow:0 8px 28px rgba(37,99,235,.08);
+}
+.plan-label{
+  color:var(--blue);
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+.plan h3{font-size:22px;color:var(--navy);margin:12px 0 8px}
+.price{
+  font-size:34px;
+  font-weight:800;
+  color:var(--navy);
+  margin:10px 0 4px;
+  overflow-wrap:anywhere;
+}
+.price small{font-size:13px;font-weight:500;color:var(--muted)}
+.plan-description{
+  font-size:13px;
+  line-height:1.7;
+  color:var(--muted);
+  min-height:44px;
+}
+.plan ul{
+  list-style:none;
+  padding:0;
+  margin:20px 0 24px;
+  flex:1;
+}
+.plan li{
+  font-size:13px;
+  line-height:1.6;
+  padding:10px 0;
+  border-bottom:1px solid #f1f5f9;
+}
+.plan li::before{
+  content:"✓";
+  color:var(--green);
+  font-weight:900;
+  margin-right:9px;
+}
+.btn{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:12px 15px;
+  border-radius:8px;
+  font-weight:700;
+  font-size:13px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--navy);
+}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.orange{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.info-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:15px;
+}
+.info-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:20px;
+}
+.info-card .number{
+  color:var(--orange);
+  font-size:20px;
+  font-weight:800;
+}
+.info-card h3{font-size:15px;color:var(--navy);margin:12px 0 8px}
+.info-card p{font-size:13px;color:var(--muted);line-height:1.7;margin:0}
+.notice{
+  padding:15px 17px;
+  border-radius:9px;
+  border:1px solid #bfdbfe;
+  background:#eff6ff;
+  color:#1e40af;
+  font-size:13px;
+  line-height:1.7;
+  margin-top:20px;
+}
+#message{font-size:13px;color:var(--muted);margin-top:17px;line-height:1.6}
+#message.error{color:var(--red)}
+#message.success{color:var(--green)}
+footer{
+  background:#fff;
+  border-top:1px solid var(--line);
+  padding:24px;
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+}
+@media(max-width:850px){
+  .plans{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .info-grid{grid-template-columns:1fr}
+}
+@media(max-width:580px){
+  .nav{padding:15px}
+  nav{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}
+  nav a{text-align:center;padding:10px 3px;font-size:12px}
+  main{padding:24px 14px 40px}
+  .plans{grid-template-columns:1fr}
+  .plan-description{min-height:0}
+  .current{grid-template-columns:1fr}
+  .current .pill{justify-self:start}
+  .hero{border-radius:13px}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="index.html">PrimeTask <span>Workspace</span></a>
+    <nav aria-label="Main navigation">
+      <a href="index.html">Dashboard</a>
+      <a href="referrals.html">Referrals</a>
+      <a href="wallet-standalone.html">Wallet</a>
+      <a class="active" href="membership-standalone.html">Membership</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="breadcrumb">Workspace / Membership</div>
+
+  <section class="hero">
+    <div class="eyebrow">Membership centre</div>
+    <h1>Your next level starts here.</h1>
+    <p>
+      Manage your PrimeTask Workspace membership, review the options
+      available to your account, and keep track of your current membership
+      status. Membership purchases are intended to use your PTW wallet.
+    </p>
+    <div class="hero-mark"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-heading">
+      <div>
+        <h2>Your membership</h2>
+        <p>Your account's current membership information.</p>
+      </div>
+      <button class="btn" id="refresh" type="button">Refresh details</button>
+    </div>
+
+    <div class="current">
+      <div>
+        <div class="current-label">Current plan</div>
+        <div class="current-name" id="currentName">Loading membership…</div>
+        <div class="current-details" id="currentDetails">
+          Retrieving information from your account.
+        </div>
+      </div>
+      <span class="pill" id="currentStatus">Checking</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-heading">
+      <div>
+        <h2>Membership options</h2>
+        <p>Plan names, prices, and benefits should reflect the official PTW membership configuration.</p>
+      </div>
+    </div>
+
+    <div class="plans" id="plans">
+      <article class="plan">
+        <div class="plan-label">Membership plans</div>
+        <h3>Loading available options</h3>
+        <p class="plan-description">Retrieving configured plans from the backend.</p>
+      </article>
+    </div>
+    <div id="message" role="status" aria-live="polite">
+      Connecting to PrimeTask Workspace…
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-heading">
+      <div>
+        <h2>Membership essentials</h2>
+        <p>Clear rules make a better membership experience. A radical concept, apparently.</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <article class="info-card">
+        <div class="number">01</div>
+        <h3>Wallet-based purchasing</h3>
+        <p>Membership purchases should be paid from your available PTW wallet balance, subject to the backend's eligibility checks.</p>
+      </article>
+      <article class="info-card">
+        <div class="number">02</div>
+        <h3>Verified account records</h3>
+        <p>Your displayed membership status should come from your authenticated account, not a value stored only in the browser.</p>
+      </article>
+      <article class="info-card">
+        <div class="number">03</div>
+        <h3>Transparent pricing</h3>
+        <p>Membership prices on this page use USD. No exchange-rate conversions are performed by the interface.</p>
+      </article>
+    </div>
+
+    <div class="notice">
+      This page does not fabricate membership plans or trigger an unverified purchase.
+      Purchase actions should only be enabled after matching the exact membership
+      purchase endpoint and request format implemented by the PTW backend.
+    </div>
+  </section>
+</main>
+
+<footer>PrimeTask Workspace · Membership centre</footer>
+
+<script src="../assets/js/config.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const base = String(
+    window.PTW_API_BASE ||
+    window.PTW_CONFIG?.API_BASE ||
+    window.PTW_CONFIG?.apiBase ||
+    ""
+  ).replace(/\/+$/, "");
+
+  const $ = id => document.getElementById(id);
+
+  function setMessage(text, type = "") {
+    $("message").textContent = text;
+    $("message").className = type;
+  }
+
+  async function api(path) {
+    if (!base) {
+      throw new Error("API base URL is missing from frontend/assets/js/config.js.");
+    }
+
+    const response = await fetch(base + path, {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+      headers: {Accept: "application/json"}
+    });
+
+    let data = {};
+    try { data = await response.json(); } catch {}
+
+    if (!response.ok || data.success === false) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("Please sign in to PrimeTask Workspace to view your membership.");
+      }
+      throw new Error(data.message || data.error || "Membership request failed (" + response.status + ").");
+    }
+
+    return data;
+  }
+
+  function unwrap(data) {
+    return data.data || data.membership || data;
+  }
+
+  function firstValue(objects, keys) {
+    for (const object of objects) {
+      if (!object || typeof object !== "object") continue;
+      for (const key of keys) {
+        if (object[key] !== undefined && object[key] !== null) return object[key];
+      }
+    }
+    return undefined;
+  }
+
+  function formatPrice(value, currency) {
+    if (value === undefined || value === null || value === "") return "Price unavailable";
+    const amount = Number(value);
+    if (!Number.isFinite(amount)) return String(value);
+
+    const unit = String(currency || "USD").toUpperCase();
+    if (unit !== "USD") return String(value) + " " + unit;
+
+    return "$" + amount.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function statusClass(value) {
+    const status = String(value || "unknown").toLowerCase();
+    if (["active", "approved", "completed"].includes(status)) return "pill active";
+    if (["pending", "pending_review", "processing"].includes(status)) return "pill pending";
+    if (["expired", "cancelled", "rejected", "inactive"].includes(status)) return "pill expired";
+    return "pill";
+  }
+
+  function renderCurrent(payload) {
+    const outer = unwrap(payload);
+    const objects = [outer, outer?.currentMembership, outer?.current, outer?.userMembership];
+
+    const name = firstValue(objects, ["planName", "membershipName", "name", "tier", "plan"]);
+    const status = firstValue(objects, ["status", "membershipStatus", "state"]);
+    const expires = firstValue(objects, ["expiresAt", "expiryDate", "endDate", "validUntil"]);
+    const started = firstValue(objects, ["startedAt", "startDate", "purchasedAt", "createdAt"]);
+
+    $("currentName").textContent =
+      typeof name === "string" ? name : name?.name || "Membership details unavailable";
+
+    $("currentDetails").textContent = [
+      started ? "Started: " + new Date(started).toLocaleDateString() : "",
+      expires ? "Expires: " + new Date(expires).toLocaleDateString() : ""
+    ].filter(Boolean).join(" · ") || "Membership dates were not provided by the API.";
+
+    $("currentStatus").textContent = String(status || "Unknown").replace(/_/g, " ");
+    $("currentStatus").className = statusClass(status);
+  }
+
+  function renderPlans(payload) {
+    const outer = unwrap(payload);
+    let plans = Array.isArray(outer) ? outer :
+      outer.plans || outer.memberships || outer.availablePlans ||
+      outer.data?.plans || [];
+
+    if (!Array.isArray(plans) || !plans.length) {
+      $("plans").innerHTML = "";
+      const card = document.createElement("article");
+      card.className = "plan";
+      const title = document.createElement("h3");
+      title.textContent = "Plans unavailable";
+      const desc = document.createElement("p");
+      desc.className = "plan-description";
+      desc.textContent = "The API did not return a recognizable list of membership plans. No example prices or invented tiers have been displayed.";
+      card.append(title, desc);
+      $("plans").appendChild(card);
+      return;
+    }
+
+    $("plans").replaceChildren();
+
+    plans.forEach((plan, index) => {
+      const card = document.createElement("article");
+      card.className = "plan" + (index === 1 ? " featured" : "");
+
+      const label = document.createElement("div");
+      label.className = "plan-label";
+      label.textContent = plan.label || (index === 1 ? "Membership option" : "Available plan");
+
+      const title = document.createElement("h3");
+      title.textContent = plan.name || plan.planName || plan.title || "Membership";
+
+      const price = document.createElement("div");
+      price.className = "price";
+
+      const rawPrice = plan.price ?? plan.priceUsd ?? plan.amount ?? plan.priceCents;
+      let displayPrice = rawPrice;
+
+      if (plan.priceCents !== undefined && plan.price === undefined && plan.amount === undefined && plan.priceUsd === undefined) {
+        displayPrice = Number(plan.priceCents) / 100;
+      }
+
+      price.textContent = formatPrice(displayPrice, plan.currency || "USD");
+
+      const description = document.createElement("p");
+      description.className = "plan-description";
+      description.textContent = plan.description || plan.summary || "See the official membership terms for this plan.";
+
+      const features = document.createElement("ul");
+      const rawFeatures = plan.features || plan.benefits || [];
+      const items = Array.isArray(rawFeatures) ? rawFeatures : [];
+
+      if (items.length) {
+        items.forEach(feature => {
+          const li = document.createElement("li");
+          li.textContent = typeof feature === "string"
+            ? feature
+            : feature.name || feature.description || "Included benefit";
+          features.appendChild(li);
+        });
+      } else {
+        const li = document.createElement("li");
+        li.textContent = "Membership terms apply";
+        features.appendChild(li);
+      }
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "btn" + (index === 1 ? " primary" : "");
+      button.textContent = "Purchase action not configured";
+      button.disabled = true;
+      button.title = "The backend purchase contract must be verified before enabling purchases.";
+
+      card.append(label, title, price, description, features, button);
+      $("plans").appendChild(card);
+    });
+  }
+
+  async function load() {
+    $("refresh").disabled = true;
+    setMessage("Refreshing membership information…");
+
+    try {
+      const results = await Promise.allSettled([
+        api("/membership"),
+        api("/membership/plans")
+      ]);
+
+      const current = results[0];
+      const plans = results[1];
+
+      if (current.status === "fulfilled") {
+        renderCurrent(current.value);
+      } else {
+        $("currentName").textContent = "Unable to retrieve membership";
+        $("currentDetails").textContent = current.reason?.message || "Membership information could not be loaded.";
+        $("currentStatus").textContent = "Unavailable";
+        $("currentStatus").className = "pill expired";
+      }
+
+      if (plans.status === "fulfilled") {
+        renderPlans(plans.value);
+      } else {
+        $("plans").replaceChildren();
+        const card = document.createElement("article");
+        card.className = "plan";
+        const title = document.createElement("h3");
+        title.textContent = "Plans could not be loaded";
+        const desc = document.createElement("p");
+        desc.className = "plan-description";
+        desc.textContent = plans.reason?.message || "The membership plans endpoint did not respond successfully.";
+        card.append(title, desc);
+        $("plans").appendChild(card);
+      }
+
+      if (current.status === "fulfilled" && plans.status === "fulfilled") {
+        setMessage("Membership information refreshed.", "success");
+      } else {
+        setMessage("Some membership information could not be loaded. Check the backend route responses before enabling purchases.", "error");
+      }
+    } catch (error) {
+      setMessage(error.message || "Unable to load membership information.", "error");
+    } finally {
+      $("refresh").disabled = false;
+    }
+  }
+
+  $("refresh").addEventListener("click", load);
+  load();
+})();
+</script>
+</body>
+</html>

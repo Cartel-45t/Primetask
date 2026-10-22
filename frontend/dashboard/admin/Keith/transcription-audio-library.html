@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>Audio Library | PrimeTask Workspace</title>
+<style>
+:root {
+  --navy:#142747;
+  --blue:#3569d4;
+  --orange:#f28b35;
+  --ink:#202b3c;
+  --muted:#758197;
+  --line:#e2e8f1;
+  --bg:#f4f7fc;
+  --white:#fff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif
+}
+button,input{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}
+.shell{max-width:1250px;margin:auto;padding:25px}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:15px;flex-wrap:wrap;margin-bottom:35px
+}
+.brand{display:flex;align-items:center;gap:12px;color:var(--navy);font-weight:900}
+.logo{
+  width:46px;height:46px;display:grid;place-items:center;
+  border-radius:14px;background:var(--navy);color:white;
+  position:relative;font-size:15px
+}
+.logo:after{
+  content:"";position:absolute;width:9px;height:9px;
+  border-radius:50%;background:var(--orange);right:5px;top:5px
+}
+.muted{color:var(--muted);font-size:12px}
+.kicker{
+  color:var(--blue);font-size:11px;font-weight:900;
+  letter-spacing:1.8px;text-transform:uppercase
+}
+h1{
+  color:var(--navy);font-size:clamp(30px,5vw,48px);
+  line-height:1.08;letter-spacing:-1.6px;margin:10px 0
+}
+.intro{max-width:690px;color:var(--muted);margin:0}
+.layout{
+  display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.8fr);
+  gap:20px;margin-top:28px;align-items:start
+}
+.panel{
+  background:white;border:1px solid var(--line);border-radius:20px;
+  padding:23px;box-shadow:0 12px 35px #14274708
+}
+.panel h2{color:var(--navy);font-size:19px;margin:0}
+.sub{color:var(--muted);font-size:13px;margin:5px 0 20px}
+.drop{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:260px;padding:25px;border:2px dashed #c7d5ed;
+  border-radius:17px;background:#f8faff;text-align:center;
+  transition:border-color .15s,background .15s
+}
+.drop.drag{border-color:var(--blue);background:#edf3ff}
+.audio-icon{
+  width:65px;height:65px;border-radius:20px;background:#e7efff;
+  color:var(--blue);display:grid;place-items:center;font-size:29px;
+  margin-bottom:15px
+}
+.drop strong{font-size:17px;color:var(--navy)}
+.drop p{font-size:13px;color:var(--muted);margin:7px 0 16px}
+.btn{
+  border:0;border-radius:11px;padding:12px 17px;
+  font-weight:800;font-size:13px
+}
+.primary{background:var(--navy);color:white}
+.secondary{background:#eaf0fc;color:var(--navy)}
+.orange{background:var(--orange);color:#38220e}
+#file{display:none}
+.selected{
+  display:none;margin-top:15px;padding:14px;border:1px solid var(--line);
+  border-radius:13px;gap:12px;align-items:center
+}
+.selected.show{display:flex}
+.file-icon{
+  width:42px;height:42px;display:grid;place-items:center;
+  border-radius:12px;background:#fff0df;color:#985315;flex-shrink:0
+}
+.file-info{min-width:0;flex:1}
+.file-name{font-weight:800;color:var(--navy);overflow-wrap:anywhere}
+.file-meta{font-size:12px;color:var(--muted)}
+.remove{
+  border:0;background:#f1f4f9;border-radius:9px;padding:8px 10px;
+  color:var(--navy)
+}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px}
+.actions button{flex:1;min-width:135px}
+.message{
+  display:none;padding:13px 15px;border-radius:12px;
+  margin-top:17px;font-size:13px;overflow-wrap:anywhere
+}
+.message.show{display:block}
+.message.error{background:#fff0f0;color:#a32732;border:1px solid #f1c7cb}
+.message.success{background:#e7f8ee;color:#146b46;border:1px solid #bce8cf}
+.message.info{background:#eaf1ff;color:#244d9c;border:1px solid #ccdaf8}
+.receipt{
+  display:none;margin-top:18px;padding:18px;border:1px solid #bce8cf;
+  background:#f4fff8;border-radius:15px
+}
+.receipt.show{display:block}
+.receipt h3{margin:0 0 10px;color:#176c49;font-size:16px}
+.receipt dl{margin:0}
+.receipt dt{
+  color:var(--muted);font-size:10px;text-transform:uppercase;
+  letter-spacing:.8px;font-weight:900;margin-top:12px
+}
+.receipt dd{margin:3px 0 0;overflow-wrap:anywhere;font-size:12px;color:var(--ink)}
+.copy{
+  margin-top:14px;border:1px solid #bce8cf;background:white;
+  color:#176c49;border-radius:9px;padding:9px 12px;font-weight:800
+}
+.side-title{font-size:12px;font-weight:900;color:var(--navy);margin-bottom:13px}
+.format-list{display:grid;gap:9px}
+.format{
+  display:flex;justify-content:space-between;gap:12px;align-items:center;
+  border:1px solid var(--line);border-radius:11px;padding:11px 12px
+}
+.format strong{font-size:13px;color:var(--navy)}
+.format span{font-size:11px;color:var(--muted)}
+.rule{
+  height:1px;background:var(--line);margin:22px 0
+}
+.note{
+  background:#fff7ed;border:1px solid #f8d7b2;border-radius:12px;
+  padding:13px;color:#85501e;font-size:12px
+}
+.footer{margin:20px 2px;color:var(--muted);font-size:12px}
+@media(max-width:760px){
+  .shell{padding:15px}
+  .layout{grid-template-columns:1fr}
+  .panel{padding:17px}
+  .drop{min-height:220px}
+  .topbar{margin-bottom:26px}
+}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">PT</div>
+      <div>PRIMETASK WORKSPACE<div class="muted">ADMINISTRATION / AUDIO ASSETS</div></div>
+    </div>
+    <button class="btn secondary" id="reset" type="button">Reset workspace</button>
+  </header>
+
+  <div class="kicker">Transcription operations · Secure media</div>
+  <h1>Audio Library</h1>
+  <p class="intro">
+    Upload source recordings for transcription jobs. Files are validated
+    and stored as authenticated Cloudinary assets rather than public audio links.
+  </p>
+
+  <div class="layout">
+    <section class="panel">
+      <h2>Import a recording</h2>
+      <p class="sub">Choose one supported audio file, review it, then upload it securely.</p>
+
+      <div class="drop" id="drop">
+        <div class="audio-icon" aria-hidden="true">♫</div>
+        <strong>Bring an audio file into the workspace</strong>
+        <p>Tap below to browse your device, or drop a file here.</p>
+        <button class="btn primary" id="choose" type="button">Choose audio file</button>
+        <input id="file" type="file"
+          accept=".mp3,.wav,.m4a,.ogg,.flac,.webm,audio/mpeg,audio/wav,audio/mp4,audio/ogg,audio/flac,audio/webm">
+      </div>
+
+      <div class="selected" id="selected">
+        <div class="file-icon">♫</div>
+        <div class="file-info">
+          <div class="file-name" id="fileName"></div>
+          <div class="file-meta" id="fileMeta"></div>
+        </div>
+        <button class="remove" id="remove" type="button" aria-label="Remove selected file">Remove</button>
+      </div>
+
+      <div class="actions">
+        <button class="btn orange" id="upload" type="button" disabled>Upload securely</button>
+        <button class="btn secondary" id="clear" type="button">Clear selection</button>
+      </div>
+
+      <div class="message" id="message" role="status" aria-live="polite"></div>
+
+      <section class="receipt" id="receipt">
+        <h3>✓ Secure upload confirmed</h3>
+        <p class="muted">The server returned this asset receipt. Keep the asset ID for job creation.</p>
+        <dl>
+          <dt>Asset ID</dt><dd id="assetId"></dd>
+          <dt>Format</dt><dd id="assetFormat"></dd>
+          <dt>File size</dt><dd id="assetBytes"></dd>
+          <dt>Duration</dt><dd id="assetDuration"></dd>
+          <dt>Storage type</dt><dd id="assetType"></dd>
+        </dl>
+        <button class="copy" id="copyId" type="button">Copy asset ID</button>
+      </section>
+    </section>
+
+    <aside class="panel">
+      <div class="side-title">SUPPORTED FORMATS</div>
+      <div class="format-list">
+        <div class="format"><strong>MP3</strong><span>.mp3</span></div>
+        <div class="format"><strong>Wave audio</strong><span>.wav</span></div>
+        <div class="format"><strong>MPEG-4 audio</strong><span>.m4a</span></div>
+        <div class="format"><strong>Ogg audio</strong><span>.ogg</span></div>
+        <div class="format"><strong>Free Lossless Audio Codec</strong><span>.flac</span></div>
+        <div class="format"><strong>WebM audio</strong><span>.webm</span></div>
+      </div>
+
+      <div class="rule"></div>
+      <div class="side-title">UPLOAD REQUIREMENTS</div>
+      <p class="muted">Maximum file size: 100 MB. Only one audio file can be uploaded per request.</p>
+      <p class="muted">The server checks the file content and its MIME type. Renaming an unsupported file will not make it valid. Humans do keep trying that.</p>
+
+      <div class="note">
+        <strong>Library limitation</strong><br>
+        This page uploads assets and shows the receipt returned by the server.
+        The current API does not provide a list endpoint for browsing all stored audio assets.
+      </div>
+    </aside>
+  </div>
+
+  <p class="footer">PrimeTask Workspace · Transcription Administration · Secure upload interface</p>
+</main>
+
+<script src="assets/admin-navigation.js"></script>
+<script src="assets/cloudinary-audio-upload.js"></script>
+<script>
+"use strict";
+(() => {
+  const $ = id => document.getElementById(id);
+  const fileInput = $("file");
+  const drop = $("drop");
+  const selected = $("selected");
+  const uploadButton = $("upload");
+  const message = $("message");
+  let currentFile = null;
+  let lastAssetId = "";
+
+  const API_BASE = (
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1"
+  ) ? "http://127.0.0.1:5001/api"
+    : "https://primetask-mdcx.onrender.com/api";
+
+  const allowedExtensions = /\.(mp3|wav|m4a|ogg|flac|webm)$/i;
+  const allowedMime = new Set([
+    "audio/mpeg","audio/mp3","audio/wav","audio/x-wav",
+    "audio/mp4","audio/x-m4a","audio/ogg","audio/flac","audio/webm"
+  ]);
+  const maxBytes = 100 * 1024 * 1024;
+
+  function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    })[c]);
+  }
+
+  function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+  }
+
+  function showMessage(text, type) {
+    message.textContent = text;
+    message.className = "message show " + type;
+  }
+
+  function hideMessage() {
+    message.textContent = "";
+    message.className = "message";
+  }
+
+  function chooseFile(file) {
+    hideMessage();
+    $("receipt").classList.remove("show");
+    lastAssetId = "";
+
+    if (!file) return;
+    if (!allowedExtensions.test(file.name)) {
+      currentFile = null;
+      fileInput.value = "";
+      updateSelection();
+      showMessage("Unsupported file extension. Choose MP3, WAV, M4A, OGG, FLAC, or WebM.", "error");
+      return;
+    }
+    if (file.size > maxBytes) {
+      currentFile = null;
+      fileInput.value = "";
+      updateSelection();
+      showMessage("This file exceeds the 100 MB upload limit.", "error");
+      return;
+    }
+    if (file.size === 0) {
+      currentFile = null;
+      fileInput.value = "";
+      updateSelection();
+      showMessage("The selected file is empty.", "error");
+      return;
+    }
+    if (file.type && !allowedMime.has(file.type.toLowerCase())) {
+      currentFile = null;
+      fileInput.value = "";
+      updateSelection();
+      showMessage("The browser reports an unsupported audio type. Select a valid audio file.", "error");
+      return;
+    }
+
+    currentFile = file;
+    updateSelection();
+  }
+
+  function updateSelection() {
+    if (!currentFile) {
+      selected.classList.remove("show");
+      $("fileName").textContent = "";
+      $("fileMeta").textContent = "";
+      uploadButton.disabled = true;
+      return;
+    }
+    selected.classList.add("show");
+    $("fileName").textContent = currentFile.name;
+    $("fileMeta").textContent = formatBytes(currentFile.size) +
+      (currentFile.type ? " · " + currentFile.type : "");
+    uploadButton.disabled = false;
+  }
+
+  function clearSelection() {
+    currentFile = null;
+    fileInput.value = "";
+    updateSelection();
+    hideMessage();
+  }
+
+  $("choose").addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => chooseFile(fileInput.files[0]));
+  $("remove").addEventListener("click", clearSelection);
+  $("clear").addEventListener("click", clearSelection);
+
+  $("reset").addEventListener("click", () => {
+    if (uploadButton.disabled === false && uploadButton.dataset.busy === "true") return;
+    clearSelection();
+    $("receipt").classList.remove("show");
+    lastAssetId = "";
+  });
+
+  ["dragenter","dragover"].forEach(eventName => drop.addEventListener(eventName, event => {
+    event.preventDefault();
+    drop.classList.add("drag");
+  }));
+  ["dragleave","drop"].forEach(eventName => drop.addEventListener(eventName, event => {
+    event.preventDefault();
+    drop.classList.remove("drag");
+  }));
+  drop.addEventListener("drop", event => {
+    const file = event.dataTransfer && event.dataTransfer.files[0];
+    if (file) chooseFile(file);
+  });
+
+  uploadButton.addEventListener("click", async () => {
+    if (!currentFile || uploadButton.dataset.busy === "true") return;
+
+    uploadButton.dataset.busy = "true";
+    uploadButton.disabled = true;
+    uploadButton.textContent = "Uploading…";
+    hideMessage();
+    $("receipt").classList.remove("show");
+
+    try {
+      if (!window.PTWCloudinaryAudioUpload) {
+        throw new Error("The secure audio uploader did not load. Refresh the page and try again.");
+      }
+
+      const asset = await window.PTWCloudinaryAudioUpload.upload(currentFile, API_BASE);
+      lastAssetId = asset.publicId;
+      $("assetId").textContent = asset.publicId;
+      $("assetFormat").textContent = asset.format || "Not reported";
+      $("assetBytes").textContent = Number.isFinite(Number(asset.bytes))
+        ? formatBytes(Number(asset.bytes)) : "Not reported";
+      $("assetDuration").textContent = Number.isFinite(Number(asset.durationSeconds))
+        ? Math.round(Number(asset.durationSeconds)) + " seconds"
+        : "Not reported";
+      $("assetType").textContent =
+        (asset.resourceType || "unknown") + " / " + (asset.deliveryType || "unknown");
+
+      $("receipt").classList.add("show");
+      showMessage("The server confirmed the upload. Copy the asset ID when creating the transcription job.", "success");
+      clearSelection();
+    } catch (error) {
+      showMessage(error.message || "Upload failed. Check your connection and try again.", "error");
+    } finally {
+      uploadButton.dataset.busy = "false";
+      uploadButton.textContent = "Upload securely";
+      uploadButton.disabled = !currentFile;
+    }
+  });
+
+  $("copyId").addEventListener("click", async () => {
+    if (!lastAssetId) return;
+    try {
+      await navigator.clipboard.writeText(lastAssetId);
+      showMessage("Asset ID copied.", "success");
+    } catch (_) {
+      showMessage("Clipboard access was blocked. Select and copy the asset ID shown above.", "info");
+    }
+  });
+})();
+</script>
+</body>
+</html>

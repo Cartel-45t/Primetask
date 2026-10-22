@@ -19,6 +19,8 @@
     apiBase = metaBase;
   } else if (isLocal) {
     apiBase = "http://127.0.0.1:5001/api";
+  } else {
+    apiBase = "https://primetask-mdcx.onrender.com/api";
   }
 
   apiBase = apiBase.replace(/\/+$/, "");

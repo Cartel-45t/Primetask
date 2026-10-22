@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#102b50">
+<title>Transcription Reports | PrimeTask Workspace</title>
+<style>
+:root{--navy:#102b50;--blue:#2563eb;--orange:#f97316;--ink:#17243a;--muted:#64748b;--line:#e2e8f0;--bg:#f3f6fb;--white:#fff;--green:#15803d;--red:#dc2626}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif}
+button{font:inherit;cursor:pointer}
+main{max-width:1400px;margin:auto;padding:25px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;color:var(--blue);text-transform:uppercase}
+h1{font-size:clamp(27px,4vw,39px);letter-spacing:-1.2px;margin:7px 0}
+.subtitle{color:var(--muted);font-size:14px;line-height:1.6}
+.actions{display:flex;gap:9px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:white;color:var(--navy);padding:11px 15px;border-radius:10px;font-weight:750}
+.btn.primary{background:var(--navy);border-color:var(--navy);color:white}
+.btn:disabled{opacity:.5;cursor:wait}
+.statusline{display:flex;align-items:center;gap:9px;background:white;border:1px solid var(--line);border-radius:12px;padding:12px 15px;margin-bottom:18px;font-size:12px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:#94a3b8;flex-shrink:0}
+.dot.ok{background:#16a34a}.dot.bad{background:#dc2626}
+.section-title{font-size:17px;font-weight:850;margin:27px 0 13px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:19px;min-width:0;box-shadow:0 3px 12px #102b5008}
+.card-head{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.label{font-size:12px;font-weight:700;color:var(--muted)}
+.icon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#eff6ff;color:var(--blue);font-weight:900}
+.value{font-size:clamp(25px,3vw,34px);font-weight:850;letter-spacing:-1px;margin:17px 0 5px;overflow-wrap:anywhere}
+.note{font-size:12px;color:var(--muted);line-height:1.5}
+.orange{color:var(--orange)}.green{color:var(--green)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:21px;min-width:0}
+.panel h2{font-size:16px;margin:0 0 6px}
+.panel p{font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 19px}
+.metric-row{margin:15px 0}
+.metric-label{display:flex;justify-content:space-between;gap:12px;font-size:12px;margin-bottom:7px}
+.metric-label span:first-child{color:#475569;overflow-wrap:anywhere}
+.metric-label strong{font-variant-numeric:tabular-nums}
+.track{height:8px;border-radius:99px;background:#edf1f7;overflow:hidden}
+.fill{height:100%;border-radius:99px;background:var(--blue);width:0;transition:width .2s}
+.fill.orange-fill{background:var(--orange)}.fill.green-fill{background:#16a34a}.fill.red-fill{background:#ef4444}
+.notice{margin-top:17px;padding:14px;border-radius:12px;background:#fff7ed;color:#9a3412;font-size:12px;line-height:1.6;border:1px solid #fed7aa}
+.footer{margin-top:22px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:11px}
+.empty{color:var(--muted);font-size:13px;padding:15px 0}
+#error{display:none;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;padding:14px;border-radius:12px;margin-bottom:15px;font-size:13px;line-height:1.6}
+@media(max-width:950px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){main{padding:15px}.grid,.two{grid-template-columns:1fr}.card{padding:16px}.panel{padding:17px}.top{align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <div>
+      <div class="eyebrow">PrimeTask Workspace / Operations</div>
+      <h1>Transcription Reports<span class="orange">.</span></h1>
+      <div class="subtitle">A live operational snapshot of jobs, reviews, withdrawals and verified purchases.</div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="export" type="button">↓ Export CSV</button>
+      <button class="btn primary" id="refresh" type="button">↻ Refresh report</button>
+    </div>
+  </header>
+
+  <div class="statusline">
+    <span class="dot" id="dot"></span>
+    <span id="connection">Waiting for report data…</span>
+    <span style="margin-left:auto" id="updated">Not yet updated</span>
+  </div>
+  <div id="error" role="alert"></div>
+
+  <div class="section-title">Operational overview</div>
+  <section class="grid">
+    <article class="card">
+      <div class="card-head"><span class="label">Total jobs</span><span class="icon">J</span></div>
+      <div class="value" id="jobsTotal">—</div>
+      <div class="note" id="jobsNote">Awaiting API data</div>
+    </article>
+    <article class="card">
+      <div class="card-head"><span class="label">Submissions</span><span class="icon">S</span></div>
+      <div class="value" id="subTotal">—</div>
+      <div class="note" id="subNote">Awaiting API data</div>
+    </article>
+    <article class="card">
+      <div class="card-head"><span class="label">Withdrawals</span><span class="icon">W</span></div>
+      <div class="value" id="withdrawTotal">—</div>
+      <div class="note" id="withdrawNote">Awaiting API data</div>
+    </article>
+    <article class="card">
+      <div class="card-head"><span class="label">Verified purchases</span><span class="icon">✓</span></div>
+      <div class="value" id="purchaseTotal">—</div>
+      <div class="note" id="purchaseNote">Awaiting API data</div>
+    </article>
+  </section>
+
+  <div class="section-title">Financial snapshot</div>
+  <section class="grid">
+    <article class="card">
+      <div class="card-head"><span class="label">Verified purchase revenue</span><span class="icon">$</span></div>
+      <div class="value green" id="revenue">—</div>
+      <div class="note">USD · verified minute purchases only</div>
+    </article>
+    <article class="card">
+      <div class="card-head"><span class="label">Minutes sold</span><span class="icon">M</span></div>
+      <div class="value" id="minutes">—</div>
+      <div class="note">Minutes included in verified purchases</div>
+    </article>
+    <article class="card">
+      <div class="card-head"><span class="label">Pending withdrawals</span><span class="icon">!</span></div>
+      <div class="value orange" id="pendingCount">—</div>
+      <div class="note" id="pendingAmount">Pending amount: —</div>
+    </article>
+    <article class="card">
+      <div class="card-head"><span class="label">Purchase records</span><span class="icon">P</span></div>
+      <div class="value" id="purchaseRecords">—</div>
+      <div class="note">All purchase statuses, not just verified</div>
+    </article>
+  </section>
+
+  <div class="section-title">Status breakdown</div>
+  <section class="two">
+    <article class="panel">
+      <h2>Jobs and submissions</h2>
+      <p>Counts by status returned by the transcription overview endpoint.</p>
+      <div id="jobBreakdown"><div class="empty">Loading job statuses…</div></div>
+      <div style="height:1px;background:var(--line);margin:21px 0"></div>
+      <div id="submissionBreakdown"><div class="empty">Loading submission statuses…</div></div>
+    </article>
+    <article class="panel">
+      <h2>Withdrawals and purchases</h2>
+      <p>Record counts by status. These bars compare counts, not dollar amounts.</p>
+      <div id="withdrawBreakdown"><div class="empty">Loading withdrawal statuses…</div></div>
+      <div style="height:1px;background:var(--line);margin:21px 0"></div>
+      <div id="purchaseBreakdown"><div class="empty">Loading purchase statuses…</div></div>
+    </article>
+  </section>
+
+  <div class="notice">
+    <strong>Accounting note:</strong> verified purchase revenue is not platform profit and is not worker earnings. This endpoint does not provide a complete profit-and-loss statement. All financial values shown here are USD.
+  </div>
+  <footer class="footer">
+    <span>PrimeTask Workspace · Transcription Administration</span>
+    <span id="generated">Report timestamp: unavailable</span>
+  </footer>
+</main>
+
+<script src="assets/admin-navigation.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const API_BASE = location.hostname === "127.0.0.1" ||
+                   location.hostname === "localhost"
+    ? "http://127.0.0.1:5001/api"
+    : "https://primetask-mdcx.onrender.com/api";
+
+  const $ = id => document.getElementById(id);
+  let report = null;
+  let loading = false;
+
+  const number = value => Number(value || 0).toLocaleString("en-US");
+  const usd = value => "$" + Number(value || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2, maximumFractionDigits: 2
+  });
+  const titleCase = value => String(value || "unknown")
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, letter => letter.toUpperCase());
+
+  function setText(id, value) {
+    $(id).textContent = value;
+  }
+
+  function showError(message) {
+    $("error").textContent = message;
+    $("error").style.display = "block";
+    $("dot").className = "dot bad";
+    setText("connection", "Report could not be loaded");
+  }
+
+  function renderBars(id, groups, colors = {}) {
+    const root = $(id);
+    root.replaceChildren();
+    const entries = Object.entries(groups || {});
+    if (!entries.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "No records returned for this category.";
+      root.appendChild(empty);
+      return;
+    }
+
+    const max = Math.max(1, ...entries.map(([, count]) => Number(count) || 0));
+    entries.sort((a, b) => (Number(b[1]) || 0) - (Number(a[1]) || 0));
+
+    for (const [status, rawCount] of entries) {
+      const count = Number(rawCount) || 0;
+      const row = document.createElement("div");
+      row.className = "metric-row";
+
+      const label = document.createElement("div");
+      label.className = "metric-label";
+      const name = document.createElement("span");
+      name.textContent = titleCase(status);
+      const value = document.createElement("strong");
+      value.textContent = number(count);
+      label.append(name, value);
+
+      const track = document.createElement("div");
+      track.className = "track";
+      const fill = document.createElement("div");
+      fill.className = "fill " + (colors[status] || "");
+      fill.style.width = (count / max * 100) + "%";
+      track.appendChild(fill);
+      row.append(label, track);
+      root.appendChild(row);
+    }
+  }
+
+  function render(data) {
+    report = data;
+    const jobs = data.jobs || {};
+    const submissions = data.submissions || {};
+    const withdrawals = data.withdrawals || {};
+    const purchases = data.minutePurchases || {};
+
+    setText("jobsTotal", number(jobs.total));
+    setText("jobsNote", number(jobs.byStatus?.open) + " open · " +
+      number(jobs.byStatus?.completed) + " completed");
+
+    setText("subTotal", number(submissions.total));
+    setText("subNote", number(submissions.byStatus?.submitted) + " awaiting review · " +
+      number(submissions.byStatus?.approved) + " approved");
+
+    setText("withdrawTotal", number(withdrawals.total));
+    setText("withdrawNote", number(withdrawals.byStatus?.paid) + " paid · " +
+      number(withdrawals.byStatus?.rejected) + " rejected");
+
+    setText("purchaseTotal", number(purchases.verifiedCount));
+    setText("purchaseNote", "Verified records out of " + number(purchases.total) + " purchases");
+
+    setText("revenue", usd(purchases.verifiedRevenueUsd));
+    setText("minutes", number(purchases.verifiedMinutesSold));
+    setText("pendingCount", number(withdrawals.pendingCount));
+    setText("pendingAmount", "Pending amount: " + usd(withdrawals.pendingAmountUsd));
+    setText("purchaseRecords", number(purchases.total));
+
+    renderBars("jobBreakdown", jobs.byStatus, {completed:"green-fill", cancelled:"red-fill"});
+    renderBars("submissionBreakdown", submissions.byStatus, {
+      approved:"green-fill", rejected:"red-fill", submitted:"orange-fill"
+    });
+    renderBars("withdrawBreakdown", withdrawals.byStatus, {
+      paid:"green-fill", rejected:"red-fill", pending_review:"orange-fill"
+    });
+    renderBars("purchaseBreakdown", purchases.byStatus, {
+      verified:"green-fill", failed:"red-fill", pending:"orange-fill"
+    });
+
+    const timestamp = data.generatedAt ? new Date(data.generatedAt) : new Date();
+    const formatted = Number.isNaN(timestamp.getTime())
+      ? "Timestamp unavailable"
+      : timestamp.toLocaleString();
+    setText("generated", "Report generated: " + formatted);
+    setText("updated", "Updated " + formatted);
+    setText("connection", "Connected · live API data");
+    $("dot").className = "dot ok";
+    $("error").style.display = "none";
+  }
+
+  async function refresh() {
+    if (loading) return;
+    loading = true;
+    $("refresh").disabled = true;
+    setText("refresh", "Loading…");
+
+    try {
+      const response = await fetch(API_BASE + "/admin/transcription/overview", {
+        method: "GET",
+        credentials: "include",
+        headers: {Accept: "application/json"},
+        cache: "no-store"
+      });
+
+      let body;
+      try {
+        body = await response.json();
+      } catch {
+        throw new Error("The server returned a non-JSON response.");
+      }
+
+      if (!response.ok || !body.success) {
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("Access denied. Sign in with an authorized admin or founder account.");
+        }
+        throw new Error(body.message || "The report endpoint returned an error (HTTP " + response.status + ").");
+      }
+
+      render(body);
+    } catch (error) {
+      showError((error && error.message) || "Could not connect to the transcription API.");
+    } finally {
+      loading = false;
+      $("refresh").disabled = false;
+      setText("refresh", "↻ Refresh report");
+    }
+  }
+
+  function exportCSV() {
+    if (!report) {
+      showError("Load the report successfully before exporting it.");
+      return;
+    }
+
+    const rows = [
+      ["PrimeTask Workspace - Transcription Report"],
+      ["Generated at", report.generatedAt || ""],
+      ["Currency", "USD"],
+      [],
+      ["Metric", "Value"],
+      ["Total jobs", report.jobs?.total ?? 0],
+      ["Total submissions", report.submissions?.total ?? 0],
+      ["Total withdrawals", report.withdrawals?.total ?? 0],
+      ["Pending withdrawal count", report.withdrawals?.pendingCount ?? 0],
+      ["Pending withdrawal amount USD", report.withdrawals?.pendingAmountUsd ?? 0],
+      ["Total minute purchases", report.minutePurchases?.total ?? 0],
+      ["Verified purchases", report.minutePurchases?.verifiedCount ?? 0],
+      ["Verified minutes sold", report.minutePurchases?.verifiedMinutesSold ?? 0],
+      ["Verified purchase revenue USD", report.minutePurchases?.verifiedRevenueUsd ?? 0],
+      [],
+      ["Category", "Status", "Count"],
+      ...["jobs", "submissions", "withdrawals", "minutePurchases"].flatMap(key =>
+        Object.entries(report[key]?.byStatus || {}).map(([status, count]) =>
+          [key, status, count]
+        )
+      )
+    ];
+
+    const csv = rows.map(row => row.map(value => {
+      const safe = String(value ?? "");
+      return '"' + safe.replace(/"/g, '""') + '"';
+    }).join(",")).join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "primetask-transcription-report.csv";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  $("refresh").addEventListener("click", refresh);
+  $("export").addEventListener("click", exportCSV);
+  refresh();
+})();
+</script>
+</body>
+</html>

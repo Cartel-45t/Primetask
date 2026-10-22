@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07101f">
+<title>Post Transcription Jobs | PrimeTask Workspace</title>
+<style>
+:root{color-scheme:dark;--bg:#070d18;--panel:#0d1728;--panel2:#111f34;--line:#263750;--text:#edf4ff;--muted:#93a5be;--orange:#ff922e;--blue:#4b8bff;--green:#49d6a0;--red:#ff747e}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 85% 0%,#132744 0,transparent 42%),var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.shell{max-width:1050px;margin:auto;padding:22px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.brand{font-weight:850;letter-spacing:.7px;display:flex;gap:11px;align-items:center}
+.logo{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#142743;border:1px solid #314766;font-weight:900;color:white}
+.logo span{color:var(--orange)}
+.small{font-size:11px;color:var(--muted);letter-spacing:1.2px}
+h1{font-size:clamp(27px,5vw,39px);line-height:1.12;letter-spacing:-1px;margin:8px 0 10px}
+h2{font-size:17px;margin:0}
+p{color:var(--muted)}
+.lead{max-width:700px;margin:0 0 22px}
+.panel{background:linear-gradient(145deg,#101c30,#0a1423);border:1px solid var(--line);border-radius:18px;padding:20px;margin:16px 0;box-shadow:0 15px 35px #0002}
+.panelhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:17px}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.field{min-width:0}
+.field.full{grid-column:1/-1}
+label{display:block;font-weight:750;font-size:12px;margin-bottom:7px;color:#dce8fb}
+input,textarea,select{width:100%;min-width:0;background:#07111f;border:1px solid #30415b;border-radius:10px;padding:11px 12px;color:var(--text);outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #4b8bff20}
+textarea{min-height:100px;resize:vertical}
+.help{font-size:11px;color:var(--muted);margin-top:6px}
+.uploadbox{border:1px dashed #486181;background:#081323;border-radius:14px;padding:17px}
+.filemeta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin-top:10px}
+.preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:17px}
+.metric{background:#07111f;border:1px solid var(--line);border-radius:12px;padding:13px}
+.metric span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px}
+.metric strong{display:block;font-size:22px;margin-top:5px;overflow-wrap:anywhere}
+.metric.total strong{color:var(--orange)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{border:0;border-radius:10px;padding:12px 17px;font-weight:850}
+.primary{background:var(--orange);color:#251608}
+.secondary{background:#1a2b44;color:#e4edfc;border:1px solid #344968}
+button:disabled{opacity:.55;cursor:wait}
+.message{display:none;padding:12px 14px;border-radius:10px;margin:14px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.message.show{display:block}
+.error{display:block;background:#30161e;border:1px solid #71323e;color:#ffbdc3}
+.success{display:block;background:#0d2b25;border:1px solid #23694f;color:#a5f3d0}
+.results{display:grid;gap:9px;margin-top:15px}
+.result{padding:12px;border:1px solid var(--line);border-radius:10px;background:#081322}
+.result strong{display:block;overflow-wrap:anywhere}
+.result small{color:var(--muted)}
+.tag{display:inline-block;border-radius:20px;background:#192c46;padding:3px 8px;font-size:10px;margin-top:7px}
+.tag.ok{background:#10372c;color:#9cf0c9}
+.tag.bad{background:#401b25;color:#ffb9c1}
+.note{font-size:12px;border-left:3px solid var(--blue);padding:9px 12px;background:#0a1729;border-radius:0 8px 8px 0}
+@media(max-width:650px){.shell{padding:13px}.panel{padding:15px}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.preview{grid-template-columns:1fr}.metric strong{font-size:20px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="top">
+  <div class="brand"><div class="logo">P<span>T</span></div><div>PRIMETASK WORKSPACE<div class="small">ADMIN / TRANSCRIPTION OPERATIONS</div></div></div>
+  <a href="transcription-jobs.html" style="color:#a9caff;text-decoration:none;font-weight:750">View job register ↗</a>
+</header>
+
+<div class="small">WORK QUEUE / JOB CREATION</div>
+<h1>Post transcription jobs</h1>
+<p class="lead">Upload up to seven audio files, set one reward per job, and publish immediately or schedule the batch. Audio duration is verified by the server before each job is created.</p>
+<div id="message" class="message" role="status" aria-live="polite"></div>
+
+<form id="jobForm">
+<section class="panel">
+  <div class="panelhead"><h2>01 / Audio batch</h2><span class="small">1–7 FILES · MAX 100 MB EACH</span></div>
+  <div class="uploadbox">
+    <label for="audioFiles">Choose audio files</label>
+    <input id="audioFiles" name="audio" type="file" accept=".mp3,.wav,.m4a,.ogg,.flac,.webm,audio/*" multiple required>
+    <div class="help">Supported: MP3, WAV, M4A, OGG, FLAC, WebM. Each filename becomes its job title after cleanup.</div>
+    <div id="fileMeta" class="filemeta"><span>No files selected</span><span>0 / 7</span></div>
+  </div>
+  <div class="preview">
+    <div class="metric"><span>Selected files</span><strong id="fileCount">0</strong></div>
+    <div class="metric"><span>Reward per job</span><strong id="rewardPreview">$0.00</strong></div>
+    <div class="metric total"><span>Batch payout preview</span><strong id="batchTotal">$0.00</strong></div>
+  </div>
+  <p class="help">Payout preview is selected file count × reward per job. It is not a wallet debit or proof of payment.</p>
+</section>
+
+<section class="panel">
+  <div class="panelhead"><h2>02 / Job details</h2><span class="small">SHARED BY THIS BATCH</span></div>
+  <div class="fields">
+    <div class="field">
+      <label for="rewardUsd">Reward per job (USD, whole dollars)</label>
+      <input id="rewardUsd" type="number" min="1" max="1000000" step="1" value="6" required>
+      <div class="help">Stored as integer USD cents. No currency conversion.</div>
+    </div>
+    <div class="field">
+      <label for="publishMode">Publication</label>
+      <select id="publishMode">
+        <option value="now">Publish immediately</option>
+        <option value="schedule">Schedule publication</option>
+      </select>
+    </div>
+    <div class="field" id="scheduleField" hidden>
+      <label for="publishAt">Publish date and time</label>
+      <input id="publishAt" type="datetime-local">
+      <div class="help">Scheduled jobs stay hidden from workers until publication time.</div>
+    </div>
+    <div class="field">
+      <label for="dueAt">Completion deadline (optional)</label>
+      <input id="dueAt" type="datetime-local">
+      <div class="help">Separate from publication. Leaving this empty adds no deadline.</div>
+    </div>
+    <div class="field full">
+      <label for="description">Job description</label>
+      <textarea id="description" maxlength="10000" required placeholder="Describe the work and the expected deliverable."></textarea>
+    </div>
+    <div class="field full">
+      <label for="instructions">Worker instructions</label>
+      <textarea id="instructions" maxlength="10000" required placeholder="Formatting, speaker labels, submission format, quality rules, and any job-specific requirements."></textarea>
+    </div>
+  </div>
+  <div class="note">Each accepted job retains the existing one-hour assignment window. This page does not change that timer.</div>
+  <div class="actions">
+    <button class="btn primary" id="submitBtn" type="submit">Upload audio and create jobs</button>
+    <button class="btn secondary" id="resetBtn" type="reset">Clear form</button>
+  </div>
+</section>
+</form>
+
+<section class="panel">
+  <div class="panelhead"><h2>03 / Batch results</h2><span class="small" id="resultSummary">WAITING</span></div>
+  <div id="results" class="results"><p>No jobs created in this session yet.</p></div>
+</section>
+</main>
+
+<script src="assets/admin-navigation.js"></script>
+<script src="assets/cloudinary-audio-upload.js"></script>
+<script>
+"use strict";
+(() => {
+  const $ = id => document.getElementById(id);
+  const form = $("jobForm");
+  const filesInput = $("audioFiles");
+  const rewardInput = $("rewardUsd");
+  const modeInput = $("publishMode");
+  const scheduleField = $("scheduleField");
+  const publishInput = $("publishAt");
+  const dueInput = $("dueAt");
+  const message = $("message");
+  const results = $("results");
+  const submitBtn = $("submitBtn");
+
+  const API_BASE = (() => {
+    const host = location.hostname;
+    return host === "localhost" || host === "127.0.0.1"
+      ? "http://127.0.0.1:5001/api"
+      : "https://primetask-mdcx.onrender.com/api";
+  })();
+
+  const money = amount => new Intl.NumberFormat("en-US", {
+    style: "currency", currency: "USD"
+  }).format(amount);
+
+  function setMessage(text, kind) {
+    message.textContent = text;
+    message.className = "message show " + kind;
+  }
+
+  function selectedFiles() {
+    return Array.from(filesInput.files || []);
+  }
+
+  function refreshPreview() {
+    const files = selectedFiles();
+    const reward = Number(rewardInput.value);
+    const validReward = Number.isSafeInteger(reward) && reward > 0;
+    $("fileCount").textContent = String(files.length);
+    $("rewardPreview").textContent = validReward ? money(reward) : "—";
+    $("batchTotal").textContent = validReward ? money(files.length * reward) : "—";
+    $("fileMeta").innerHTML =
+      "<span>" + (files.length
+        ? files.map(file => file.name).join(" · ")
+        : "No files selected") + "</span><span>" + files.length + " / 7</span>";
+  }
+
+  function filenameTitle(filename) {
+    const name = String(filename || "")
+      .replace(/\.[^.]+$/, "")
+      .replace(/[_-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    return name.slice(0, 180) || "Transcription job";
+  }
+
+  function localDateToISO(value) {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date.toISOString();
+  }
+
+  async function api(path, options = {}) {
+    const response = await fetch(API_BASE + path, {
+      credentials: "include",
+      ...options
+    });
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+    if (!response.ok || data.success === false) {
+      throw new Error(data.message || ("Request failed (" + response.status + ")"));
+    }
+    return data;
+  }
+
+  function renderResults(items) {
+    results.innerHTML = "";
+    if (!items.length) {
+      results.innerHTML = "<p>No result records received.</p>";
+      return;
+    }
+
+    for (const item of items) {
+      const article = document.createElement("article");
+      article.className = "result";
+
+      const title = document.createElement("strong");
+      title.textContent = item.title || item.filename || "Audio file";
+      article.appendChild(title);
+
+      const details = document.createElement("small");
+      details.textContent = item.detail || "";
+      article.appendChild(details);
+
+      const tag = document.createElement("span");
+      tag.className = "tag " + (item.ok ? "ok" : "bad");
+      tag.textContent = item.ok ? "CREATED" : "FAILED";
+      article.appendChild(tag);
+
+      results.appendChild(article);
+    }
+  }
+
+  filesInput.addEventListener("change", () => {
+    if (selectedFiles().length > 7) {
+      filesInput.value = "";
+      setMessage("Select no more than seven files per batch.", "error");
+    }
+    refreshPreview();
+  });
+  rewardInput.addEventListener("input", refreshPreview);
+  modeInput.addEventListener("change", () => {
+    scheduleField.hidden = modeInput.value !== "schedule";
+    publishInput.required = modeInput.value === "schedule";
+  });
+
+  form.addEventListener("reset", () => {
+    setTimeout(() => {
+      scheduleField.hidden = true;
+      publishInput.required = false;
+      message.className = "message";
+      refreshPreview();
+    }, 0);
+  });
+
+  $("resetBtn").addEventListener("click", () => {
+    if (submitBtn.disabled) return;
+    results.innerHTML = "<p>No jobs created in this session yet.</p>";
+    $("resultSummary").textContent = "WAITING";
+  });
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (submitBtn.disabled) return;
+
+    const files = selectedFiles();
+    const rewardUsd = Number(rewardInput.value);
+    const description = $("description").value.trim();
+    const instructions = $("instructions").value.trim();
+
+    if (!files.length || files.length > 7) {
+      setMessage("Choose between one and seven audio files.", "error");
+      return;
+    }
+    if (!Number.isSafeInteger(rewardUsd) || rewardUsd < 1) {
+      setMessage("Reward must be a positive whole USD amount.", "error");
+      return;
+    }
+    if (!description || !instructions) {
+      setMessage("Enter both the job description and worker instructions.", "error");
+      return;
+    }
+
+    let publishAt = null;
+    if (modeInput.value === "schedule") {
+      publishAt = localDateToISO(publishInput.value);
+      if (!publishAt || new Date(publishAt) <= new Date()) {
+        setMessage("Choose a valid future publication date and time.", "error");
+        return;
+      }
+    }
+
+    let dueAt = null;
+    if (dueInput.value) {
+      dueAt = localDateToISO(dueInput.value);
+      if (!dueAt || new Date(dueAt) <= new Date()) {
+        setMessage("The completion deadline must be a valid future date and time.", "error");
+        return;
+      }
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Uploading batch…";
+    $("resultSummary").textContent = "PROCESSING";
+    results.innerHTML = "";
+    const outcomes = [];
+
+    try {
+      if (!window.PTWCloudinaryAudioUpload) {
+        throw new Error("The secure audio uploader did not load. Refresh the page and try again.");
+      }
+
+      const assets = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        submitBtn.textContent = "Uploading " + (i + 1) + " of " + files.length + "…";
+        setMessage("Uploading " + file.name + " directly to protected Cloudinary storage…", "success");
+        const asset = await window.PTWCloudinaryAudioUpload.upload(file, API_BASE);
+        assets.push(asset);
+      }
+
+      if (assets.length !== files.length) {
+        throw new Error("The server did not confirm every audio upload. No job creation was attempted.");
+      }
+
+      submitBtn.textContent = "Creating " + assets.length + " job(s)…";
+
+      for (const asset of assets) {
+        const title = filenameTitle(asset.originalName);
+        try {
+          const payload = {
+            title,
+            description,
+            instructions,
+            audioPublicId: asset.publicId,
+            rewardUsd
+          };
+          if (publishAt) payload.publishAt = publishAt;
+          if (dueAt) payload.dueAt = dueAt;
+
+          const created = await api("/admin/transcription/jobs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          const job = created.job || {};
+          outcomes.push({
+            ok: true,
+            title: job.title || title,
+            detail: "Verified duration: " +
+              (job.durationMinutes ?? asset.durationMinutes ?? "pending") +
+              " minute(s) · Reward: " + money(rewardUsd) +
+              (publishAt ? " · Scheduled" : " · Published now")
+          });
+        } catch (error) {
+          outcomes.push({
+            ok: false,
+            title,
+            detail: "Audio uploaded but job creation failed: " + error.message +
+              ". Asset ID: " + asset.publicId
+          });
+        }
+      }
+
+      renderResults(outcomes);
+      const successes = outcomes.filter(item => item.ok).length;
+      const failures = outcomes.length - successes;
+      $("resultSummary").textContent = successes + " CREATED · " + failures + " FAILED";
+
+      if (failures) {
+        setMessage(
+          successes + " job(s) created; " + failures +
+          " failed. Review each result before retrying. Failed jobs may have uploaded assets that remain in storage.",
+          "error"
+        );
+      } else {
+        setMessage(
+          successes + " job(s) created successfully. Reward exposure preview: " +
+          money(successes * rewardUsd) + ".",
+          "success"
+        );
+      }
+    } catch (error) {
+      setMessage(error.message || "Batch upload failed.", "error");
+      $("resultSummary").textContent = "UPLOAD FAILED";
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Upload audio and create jobs";
+    }
+  });
+
+  refreshPreview();
+})();
+</script>
+</body>
+</html>

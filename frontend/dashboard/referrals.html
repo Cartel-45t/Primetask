@@ -169,6 +169,7 @@ h2,h3,p{margin-top:0}
   .ptw-menu-toggle { width: 40px; height: 40px; }
 }
 </style>
+  <link rel="icon" type="image/jpeg" href="../assets/primetask.jpg">
 </head>
 <body>
 
@@ -283,10 +284,29 @@ async function loadReferral() {
   try {
     const result = await apiGet(window.PTW_REFERRAL_API_ME);
     const referral = result.referral || result.data || {};
-    if (typeof referral.referralLink !== "string" || !referral.referralLink) {
-      throw new Error("The server did not return a referral link.");
+    const isLocalFrontend = ["localhost", "127.0.0.1"].includes(
+      window.location.hostname
+    );
+    const referralUsername =
+      typeof referral.username === "string" ? referral.username.trim() : "";
+
+    let referralLink =
+      typeof referral.referralLink === "string"
+        ? referral.referralLink.trim()
+        : "";
+
+    // Local development must use the local registration page,
+    // even when the running API still returns an old production URL.
+    if (isLocalFrontend && /^[a-z0-9_]{3,30}$/i.test(referralUsername)) {
+      referralLink =
+        `${window.location.origin}/register/${encodeURIComponent(referralUsername)}`;
     }
-    $("referralLink").value = referral.referralLink;
+
+    if (!referralLink) {
+      throw new Error("The server did not return a usable referral link.");
+    }
+
+    $("referralLink").value = referralLink;
     $("copyReferralLink").disabled = false;
     $("directReferralCount").textContent =
       Number.isFinite(Number(referral.directReferrals)) ? String(Number(referral.directReferrals)) : "0";

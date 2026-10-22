@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050611">
+<title>PrimeTask Transcription | Saiyan Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050611;--panel:rgba(8,12,29,.84);--line:rgba(76,177,255,.27);
+  --blue:#32b8ff;--cyan:#8ceaff;--orange:#ff7b21;--gold:#ffd76a;
+  --text:#f3f7ff;--muted:#9caac5;--green:#62ffbb;--red:#ff647c;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden}
+button,a{font:inherit}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer}
+#ki-bg{position:fixed;inset:0;width:100%;height:100%;z-index:-4;overflow:hidden;background:#050611}
+#ki-bg iframe{position:absolute;top:50%;left:50%;width:177.78vh;height:100vh;min-width:100%;min-height:56.25vw;transform:translate(-50%,-50%);border:0;pointer-events:none;filter:saturate(1.25) contrast(1.08)}
+#ki-bg:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,5,17,.96) 0%,rgba(3,5,17,.76) 47%,rgba(3,5,17,.45) 100%),linear-gradient(0deg,#050611 0%,transparent 60%,rgba(2,4,15,.5) 100%)}
+#ki-fallback{position:absolute;inset:0;background:radial-gradient(ellipse at 70% 45%,#154f99 0%,#151a4b 22%,#090a20 55%,#050611 100%);z-index:-5}
+.aura{position:fixed;inset:0;pointer-events:none;z-index:-2;background:radial-gradient(ellipse at 76% 40%,rgba(24,142,255,.12),transparent 44%),radial-gradient(ellipse at 5% 80%,rgba(255,103,22,.08),transparent 38%)}
+.scanlines{position:fixed;inset:0;pointer-events:none;z-index:4;opacity:.12;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(120,180,255,.12) 4px)}
+header{position:sticky;top:0;z-index:20;background:rgba(4,6,18,.91);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.topline{height:3px;background:linear-gradient(90deg,#ff7b21,#ffd76a,#43d5ff,#496aff,#ff7b21)}
+.navwrap{max-width:1500px;margin:auto;padding:12px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.brand-orb{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;font-family:Orbitron,sans-serif;font-weight:900;color:#fff;background:radial-gradient(circle at 35% 25%,#fff4b5 0%,#ffb52c 22%,#ff6c17 55%,#8d1a17 100%);box-shadow:0 0 22px #ff7b2155,inset 0 0 8px #fff7}
+.brand-name{font-family:Orbitron,sans-serif;font-size:13px;font-weight:900;letter-spacing:1px}
+.brand-sub{font-size:11px;color:var(--cyan);letter-spacing:2px;text-transform:uppercase}
+nav{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+nav a{font-family:Orbitron,sans-serif;font-size:9px;font-weight:700;letter-spacing:.7px;padding:11px 12px;color:#b9c9e7;border:1px solid transparent;border-radius:3px;transition:.2s}
+nav a:hover,nav a.active{color:white;background:#148cff19;border-color:#36baff88;box-shadow:inset 0 -2px var(--blue)}
+.nav-status{display:flex;align-items:center;gap:7px;color:var(--green);font-size:12px;white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+main{max-width:1500px;margin:auto;padding:30px 24px 70px}
+.eyebrow{display:flex;align-items:center;gap:10px;color:var(--cyan);font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase}
+.eyebrow:before{content:"";width:28px;height:2px;background:var(--orange);box-shadow:0 0 12px var(--orange)}
+.hero{min-height:350px;display:flex;align-items:center;position:relative;padding:38px 0 44px}
+.hero-copy{max-width:780px;position:relative;z-index:2}
+h1{font-family:Orbitron,sans-serif;font-size:clamp(30px,5.4vw,72px);line-height:1.08;letter-spacing:-2px;margin:18px 0}
+h1 span{display:block;color:var(--orange);text-shadow:0 0 24px #ff6c1745}
+.hero p{max-width:590px;color:#d2def4;font-size:19px;line-height:1.55;margin:0 0 24px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:13px 18px;border:1px solid var(--line);background:#09152b;color:white;font-family:Orbitron,sans-serif;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px))}
+.btn.primary{background:linear-gradient(110deg,#ff6817,#ff9b26);color:#180a04;border-color:#ffc274;box-shadow:0 0 24px #ff791d2a}
+.btn:hover{filter:brightness(1.18);transform:translateY(-1px)}
+.hero-mark{position:absolute;right:4%;top:18%;width:230px;height:230px;border:1px solid #5cbfff33;border-radius:50%;display:grid;place-items:center;opacity:.85}
+.hero-mark:before,.hero-mark:after{content:"";position:absolute;border:1px solid #5cbfff44;border-radius:50%;inset:17px}
+.hero-mark:after{inset:36px;border-color:#ff9c424c}
+.hero-mark span{font-family:Orbitron,sans-serif;font-size:74px;font-weight:900;color:#fff;text-shadow:0 0 14px #35baff,0 0 45px #168aff}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:22px 0 15px}
+.section-head h2{font-family:Orbitron,sans-serif;font-size:17px;letter-spacing:1px;margin:8px 0 0}
+.section-head p{color:var(--muted);font-size:14px;margin:0}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.metric{min-height:130px;padding:20px;background:linear-gradient(135deg,rgba(12,24,49,.94),rgba(5,8,23,.88));border:1px solid var(--line);position:relative;overflow:hidden}
+.metric:after{content:"";position:absolute;width:95px;height:95px;border:1px solid #40bdff20;border-radius:50%;right:-37px;bottom:-45px;box-shadow:0 0 0 12px #40bdff08,0 0 0 26px #40bdff05}
+.metric-label{font-family:Orbitron,sans-serif;color:#aabbd8;font-size:9px;letter-spacing:1.4px;text-transform:uppercase}
+.metric-value{font-family:Orbitron,sans-serif;font-size:clamp(25px,3vw,37px);font-weight:800;margin:12px 0 5px;line-height:1.1}
+.metric-foot{color:var(--muted);font-size:13px}
+.metric:nth-child(1) .metric-value{color:var(--cyan)}
+.metric:nth-child(2) .metric-value{color:var(--gold)}
+.metric:nth-child(3) .metric-value{color:var(--orange)}
+.metric:nth-child(4) .metric-value{color:var(--green)}
+.content-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-top:20px}
+.panel{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(12px);padding:21px;min-width:0}
+.panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+.panel-title h3{font-family:Orbitron,sans-serif;font-size:12px;letter-spacing:1px;margin:0}
+.tag{font-family:Orbitron,sans-serif;font-size:9px;letter-spacing:.7px;color:var(--cyan);border:1px solid #36baff50;padding:6px 8px}
+.status-list{display:grid;gap:12px}
+.status-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.status-name{font-size:15px;color:#d7e3f8}
+.status-num{font-family:Orbitron,sans-serif;font-size:13px}
+.bar{height:5px;background:#17243d;margin-top:7px;overflow:hidden}
+.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#1e86ff,#7ceaff);box-shadow:0 0 12px #2bb7ff77;transition:width .5s}
+.bar.orange span{background:linear-gradient(90deg,#ff6d1d,#ffd36c)}
+.bar.green span{background:linear-gradient(90deg,#00b986,#83ffca)}
+.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.quick{min-height:92px;display:flex;flex-direction:column;justify-content:space-between;padding:14px;border:1px solid #35527c;background:#0a1428;transition:.2s}
+.quick:hover{border-color:var(--blue);background:#102344}
+.quick-icon{font-size:20px}
+.quick strong{font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:.5px}
+.quick small{color:var(--muted);font-size:12px}
+.video-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+.video-card{background:#080c1b;border:1px solid var(--line);overflow:hidden}
+.video-frame{position:relative;aspect-ratio:16/9;background:#03050c}
+.video-frame iframe{width:100%;height:100%;border:0;display:block}
+.video-info{padding:13px}
+.video-info strong{display:block;font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:.5px;margin-bottom:5px}
+.video-info span{font-size:12px;color:var(--muted)}
+.footer-line{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:26px;padding-top:18px;color:#8d9db9;font-size:12px}
+#notice{font-size:13px;color:var(--muted);margin-top:12px;min-height:20px}
+#notice.error{color:var(--red)}
+#notice.ok{color:var(--green)}
+.refresh{border:0;background:transparent;color:var(--cyan);font-size:12px}
+@media(max-width:1050px){.navwrap{align-items:flex-start;flex-direction:column}.nav-status{display:none}nav{justify-content:flex-start}nav a{padding:9px}.hero-mark{right:1%;width:180px;height:180px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.content-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.navwrap{padding:11px 14px;gap:11px}nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:5px}nav a{text-align:center;font-size:8px;padding:10px 4px}main{padding:18px 14px 45px}.hero{min-height:300px;padding:35px 0}.hero-mark{width:105px;height:105px;top:10%;right:1%;opacity:.36}.hero-mark span{font-size:35px}.hero-mark:before{inset:8px}.hero-mark:after{inset:17px}h1{font-size:clamp(29px,9vw,47px);letter-spacing:-1px;max-width:95%}.hero p{font-size:17px;max-width:95%}.eyebrow{font-size:9px;letter-spacing:2px}.metrics{gap:9px}.metric{padding:14px;min-height:115px}.metric-label{font-size:8px;letter-spacing:.8px}.metric-value{font-size:25px}.metric-foot{font-size:12px}.panel{padding:15px}.section-head h2{font-size:14px}.section-head p{font-size:12px}.video-grid{grid-template-columns:1fr}.video-frame{aspect-ratio:16/9}.quick{min-height:88px;padding:12px}.footer-line{font-size:11px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="ki-fallback"></div>
+<div id="ki-bg" aria-hidden="true">
+  <iframe
+    src="https://www.youtube-nocookie.com/embed/BgWp8nOL_kE?autoplay=1&mute=1&controls=0&loop=1&playlist=BgWp8nOL_kE&playsinline=1&rel=0&modestbranding=1"
+    title="Dragon Ball Super Kamehameha background"
+    allow="autoplay; encrypted-media; picture-in-picture"
+    referrerpolicy="strict-origin-when-cross-origin">
+  </iframe>
+</div>
+<div class="aura"></div>
+<div class="scanlines"></div>
+
+<header>
+  <div class="topline"></div>
+  <div class="navwrap">
+    <a class="brand" href="transcription-overview.html">
+      <div class="brand-orb">悟</div>
+      <div>
+        <div class="brand-name">PRIMETASK</div>
+        <div class="brand-sub">Saiyan Operations // Transcription</div>
+      </div>
+    </a>
+    <nav aria-label="Transcription navigation">
+      <a class="active" href="transcription-overview.html">OVERVIEW</a>
+      <a href="transcription.html">OPERATIONS</a>
+      <a href="#jobs">JOBS</a>
+      <a href="#submissions">SUBMISSIONS</a>
+      <a href="#purchases">PURCHASES</a>
+      <a href="#withdrawals">WITHDRAWALS</a>
+    </nav>
+    <div class="nav-status"><span class="dot"></span><span id="connection-label">CONNECTING TO HQ</span></div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">Saiyan command centre · Admin access</div>
+      <h1>POWER UP.<span>GET TO WORK.</span></h1>
+      <p>Every assignment. Every submission. Every dollar tracked. Welcome to the transcription command centre. Push your limits, keep the numbers honest, and break through the next level.</p>
+      <div class="hero-actions">
+        <a class="btn primary" href="transcription.html">⚡ ENTER OPERATIONS</a>
+        <a class="btn" href="#live-intel">▼ VIEW LIVE INTEL</a>
+      </div>
+    </div>
+    <div class="hero-mark" aria-hidden="true"><span>悟</span></div>
+  </section>
+
+  <section id="live-intel">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Power level monitoring</div>
+        <h2>LIVE OPERATIONS INTEL</h2>
+      </div>
+      <button class="refresh" id="refresh-btn" type="button">↻ REFRESH SCOUTER</button>
+    </div>
+
+    <div class="metrics">
+      <article class="metric">
+        <div class="metric-label">Total missions / jobs</div>
+        <div class="metric-value" id="jobs-total">—</div>
+        <div class="metric-foot" id="jobs-foot">Awaiting secured API</div>
+      </article>
+      <article class="metric">
+        <div class="metric-label">Submissions received</div>
+        <div class="metric-value" id="submissions-total">—</div>
+        <div class="metric-foot" id="submissions-foot">Awaiting secured API</div>
+      </article>
+      <article class="metric">
+        <div class="metric-label">Withdrawals pending</div>
+        <div class="metric-value" id="withdrawals-pending">—</div>
+        <div class="metric-foot" id="withdrawals-foot">USD pending review</div>
+      </article>
+      <article class="metric">
+        <div class="metric-label">Verified purchase revenue</div>
+        <div class="metric-value" id="revenue-total">—</div>
+        <div class="metric-foot" id="purchases-foot">Verified records only · USD</div>
+      </article>
+    </div>
+    <div id="notice" role="status" aria-live="polite"></div>
+  </section>
+
+  <div class="content-grid">
+    <section class="panel" id="jobs">
+      <div class="panel-title"><h3>MISSION STATUS</h3><span class="tag">JOBS</span></div>
+      <div class="status-list">
+        <div><div class="status-row"><span class="status-name">Open missions</span><strong class="status-num" id="jobs-open">—</strong></div><div class="bar"><span id="bar-open"></span></div></div>
+        <div><div class="status-row"><span class="status-name">Awarded</span><strong class="status-num" id="jobs-awarded">—</strong></div><div class="bar"><span id="bar-awarded"></span></div></div>
+        <div><div class="status-row"><span class="status-name">Submitted for review</span><strong class="status-num" id="jobs-submitted">—</strong></div><div class="bar orange"><span id="bar-submitted"></span></div></div>
+        <div><div class="status-row"><span class="status-name">Completed</span><strong class="status-num" id="jobs-completed">—</strong></div><div class="bar green"><span id="bar-completed"></span></div></div>
+      </div>
+    </section>
+
+    <section class="panel" id="submissions">
+      <div class="panel-title"><h3>ADMIN QUICK ACCESS</h3><span class="tag">CONTROL</span></div>
+      <div class="quick-grid">
+        <a class="quick" href="transcription.html"><span class="quick-icon">⚔️</span><strong>MISSION CONTROL</strong><small>Create and manage jobs</small></a>
+        <a class="quick" href="transcription.html"><span class="quick-icon">📋</span><strong>SUBMISSION REVIEW</strong><small>Review worker deliveries</small></a>
+        <a class="quick" href="transcription.html"><span class="quick-icon">💠</span><strong>MINUTE PACKAGES</strong><small>Manage available packages</small></a>
+        <a class="quick" href="transcription.html"><span class="quick-icon">💰</span><strong>PAYOUT CONTROL</strong><small>Review withdrawal requests</small></a>
+      </div>
+    </section>
+  </div>
+
+  <section id="purchases">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Saiyan archive</div>
+        <h2>TRANSFORMATIONS & SIGNATURE MOVES</h2>
+      </div>
+      <p>Official Dragon Ball Super clips</p>
+    </div>
+    <div class="video-grid">
+      <article class="video-card">
+        <div class="video-frame">
+          <iframe src="https://www.youtube-nocookie.com/embed/BgWp8nOL_kE?rel=0&modestbranding=1" title="Dragon Ball Super official Kamehameha clip" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+        <div class="video-info"><strong>KAMEHAMEHA</strong><span>Goku vs Kefla · Official Crunchyroll clip</span></div>
+      </article>
+      <article class="video-card">
+        <div class="video-frame">
+          <iframe src="https://www.youtube-nocookie.com/embed/lN4-tZmgc4M?rel=0&modestbranding=1" title="Dragon Ball Super official Super Saiyan Blue clip" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+        <div class="video-info"><strong>SUPER SAIYAN BLUE</strong><span>Goku powers up · Official Crunchyroll clip</span></div>
+      </article>
+      <article class="video-card">
+        <div class="video-frame">
+          <iframe src="https://www.youtube-nocookie.com/embed/KO39d_NdTHQ?rel=0&modestbranding=1" title="Dragon Ball Super official New Color clip" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+        <div class="video-info"><strong>NEW FORM. NEW POWER.</strong><span>Dragon Ball Super · Official Crunchyroll clip</span></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="panel" id="withdrawals" style="margin-top:20px">
+    <div class="panel-title"><h3>WITHDRAWAL INTELLIGENCE</h3><span class="tag">USD ONLY</span></div>
+    <div class="status-list">
+      <div class="status-row"><span class="status-name">Pending withdrawal requests</span><strong class="status-num" id="withdrawals-count">—</strong></div>
+      <div class="status-row"><span class="status-name">Pending amount</span><strong class="status-num" style="color:var(--orange)" id="withdrawals-amount">$—</strong></div>
+      <div class="status-row"><span class="status-name">Verified minutes sold</span><strong class="status-num" id="minutes-sold">—</strong></div>
+      <div class="status-row"><span class="status-name">Verified purchases</span><strong class="status-num" id="verified-purchases">—</strong></div>
+    </div>
+  </section>
+
+  <footer class="footer-line">
+    <span>PRIMETASK TRANSCRIPTION · SAIYAN OPERATIONS</span>
+    <span id="last-updated">SCOUTER NOT YET SYNCHRONIZED</span>
+    <span>Stay sharp. Verify every transaction.</span>
+  </footer>
+</main>
+
+<script src="../../../assets/js/config.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  const API_BASE = String(
+    window.PTW_API_BASE ||
+    window.PTW_CONFIG?.API_BASE ||
+    window.PTW_CONFIG?.apiBase ||
+    ""
+  ).replace(/\/+$/, "");
+
+  const $ = id => document.getElementById(id);
+  const number = value => Number.isFinite(Number(value)) ? Number(value).toLocaleString() : "0";
+  const usd = value => "$" + (Number.isFinite(Number(value)) ? Number(value) : 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2, maximumFractionDigits: 2
+  });
+
+  function setText(id, value) {
+    const node = $(id);
+    if (node) node.textContent = value;
+  }
+
+  function setBar(id, value, total) {
+    const node = $(id);
+    if (!node) return;
+    const percent = total > 0 ? Math.max(0, Math.min(100, Number(value || 0) / total * 100)) : 0;
+    node.style.width = percent + "%";
+  }
+
+  function statusCount(group, status) {
+    return Number(group?.byStatus?.[status] ?? 0);
+  }
+
+  async function loadOverview() {
+    const notice = $("notice");
+    const button = $("refresh-btn");
+    button.disabled = true;
+    button.textContent = "↻ SCANNING...";
+    notice.className = "";
+    notice.textContent = "";
+
+    try {
+      if (!API_BASE) {
+        throw new Error("PTW_API_BASE is not configured in assets/js/config.js.");
+      }
+
+      const response = await fetch(API_BASE + "/admin/transcription/overview", {
+        method: "GET",
+        credentials: "include",
+        headers: { "Accept": "application/json" },
+        cache: "no-store"
+      });
+
+      let payload;
+      try { payload = await response.json(); }
+      catch { throw new Error("The API returned an unreadable response."); }
+
+      if (!response.ok || payload?.success !== true) {
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("Admin authentication required. Sign in with your authorized PrimeTask admin session.");
+        }
+        throw new Error(payload?.message || payload?.error || "Overview API request failed (" + response.status + ").");
+      }
+
+      const jobs = payload.jobs || {};
+      const submissions = payload.submissions || {};
+      const withdrawals = payload.withdrawals || {};
+      const purchases = payload.minutePurchases || {};
+
+      const jobTotal = Number(jobs.total || 0);
+      const submissionTotal = Number(submissions.total || 0);
+      const pendingWithdrawals = Number(withdrawals.pendingCount ?? statusCount(withdrawals, "pending_review"));
+      const pendingAmount = Number(withdrawals.pendingAmountUsd || 0);
+      const verifiedRevenue = Number(purchases.verifiedRevenueUsd || 0);
+
+      setText("jobs-total", number(jobTotal));
+      setText("submissions-total", number(submissionTotal));
+      setText("withdrawals-pending", number(pendingWithdrawals));
+      setText("revenue-total", usd(verifiedRevenue));
+      setText("jobs-foot", number(statusCount(jobs, "open")) + " open missions");
+      setText("submissions-foot", number(statusCount(submissions, "submitted")) + " awaiting review");
+      setText("withdrawals-foot", usd(pendingAmount) + " pending review");
+      setText("purchases-foot", number(purchases.verifiedCount || 0) + " verified purchases");
+
+      const open = statusCount(jobs, "open");
+      const awarded = statusCount(jobs, "awarded");
+      const submitted = statusCount(jobs, "submitted");
+      const completed = statusCount(jobs, "completed");
+
+      setText("jobs-open", number(open));
+      setText("jobs-awarded", number(awarded));
+      setText("jobs-submitted", number(submitted));
+      setText("jobs-completed", number(completed));
+
+      setBar("bar-open", open, jobTotal);
+      setBar("bar-awarded", awarded, jobTotal);
+      setBar("bar-submitted", submitted, jobTotal);
+      setBar("bar-completed", completed, jobTotal);
+
+      setText("withdrawals-count", number(pendingWithdrawals));
+      setText("withdrawals-amount", usd(pendingAmount));
+      setText("minutes-sold", number(purchases.verifiedMinutesSold || 0));
+      setText("verified-purchases", number(purchases.verifiedCount || 0));
+      setText("connection-label", "HQ CONNECTED");
+      setText("last-updated", "LAST SCAN: " + new Date().toLocaleString());
+      notice.className = "ok";
+      notice.textContent = "Scouter synchronized. Metrics loaded from the protected transcription API.";
+    } catch (error) {
+      setText("connection-label", "HQ CONNECTION FAILED");
+      notice.className = "error";
+      notice.textContent = error.message || "Unable to load transcription overview.";
+    } finally {
+      button.disabled = false;
+      button.textContent = "↻ REFRESH SCOUTER";
+    }
+  }
+
+  $("refresh-btn").addEventListener("click", loadOverview);
+  loadOverview();
+})();
+</script>
+</body>
+</html>
