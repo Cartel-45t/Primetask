@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
     const wallet = await Wallet.findOneAndUpdate(
       { userId: req.user._id },
       { $setOnInsert: { userId: req.user._id } },
-      { new: true, upsert: true, setDefaultsOnInsert: true }
+      { returnDocument: "after", upsert: true, setDefaultsOnInsert: true }
     );
 
     return res.json({
@@ -121,7 +121,7 @@ router.post('/withdrawals', async (req, res) => {
           availableBalanceCents: { $gte: amountCents }
         },
         { $inc: { availableBalanceCents: -amountCents } },
-        { new: true, session }
+        { returnDocument: "after", session }
       );
 
       if (!wallet) {

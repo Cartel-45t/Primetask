@@ -328,7 +328,7 @@ router.patch("/", requireAuth, async (req, res) => {
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { $set: updates },
-      { new: true, runValidators: true }
+      { returnDocument: "after", runValidators: true }
     )
       .select(PROFILE_FIELDS)
       .populate({ path: "referredBy", select: "username firstName lastName" })

@@ -27,7 +27,7 @@ async function getOrCreateSettings() {
   return PlatformSetting.findOneAndUpdate(
     { key: "platform" },
     { $setOnInsert: { key: "platform" } },
-    { new: true, upsert: true, setDefaultsOnInsert: true }
+    { returnDocument: "after", upsert: true, setDefaultsOnInsert: true }
   );
 }
 

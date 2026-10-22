@@ -869,7 +869,7 @@ router.patch("/submissions/:id/review", async (req, res) => {
         { userId: submission.userId },
         { $setOnInsert: { userId: submission.userId } },
         {
-          new: true,
+          returnDocument: "after",
           upsert: true,
           setDefaultsOnInsert: true,
           session
@@ -904,7 +904,7 @@ router.patch("/submissions/:id/review", async (req, res) => {
             totalEarningsCents: submission.rewardCents
           }
         },
-        { new: true, session }
+        { returnDocument: "after", session }
       );
 
       if (!creditedWallet) {
@@ -1090,7 +1090,7 @@ router.patch("/withdrawals/:id/review", async (req, res) => {
             ...(decision === "paid" ? { mpesaReceipt } : {})
           }
         },
-        { new: true, session, runValidators: true }
+        { returnDocument: "after", session, runValidators: true }
       );
 
       if (!withdrawal) {
@@ -1130,7 +1130,7 @@ router.patch("/withdrawals/:id/review", async (req, res) => {
           {
             $inc: { totalWithdrawalsCents: withdrawal.amountCents }
           },
-          { new: true, session }
+          { returnDocument: "after", session }
         );
 
         if (!wallet) {
@@ -1149,7 +1149,7 @@ router.patch("/withdrawals/:id/review", async (req, res) => {
           {
             $inc: { availableBalanceCents: withdrawal.amountCents }
           },
-          { new: true, session }
+          { returnDocument: "after", session }
         );
 
         if (!wallet) {

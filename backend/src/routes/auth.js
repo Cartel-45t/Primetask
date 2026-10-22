@@ -278,9 +278,13 @@ router.post("/login", async (req, res) => {
     }
 
     if (user.status !== "active") {
+      const message = user.status === "suspended"
+        ? "This account has been suspended."
+        : "This account is inactive and requires activation.";
+
       return res.status(403).json({
         success: false,
-        message: "This account is currently suspended."
+        message
       });
     }
 

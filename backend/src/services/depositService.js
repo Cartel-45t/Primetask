@@ -464,7 +464,7 @@ async function completeSimulatedDeposit({ requestId, outcome }) {
               resultDescription: "Local simulated payment failure."
             }
           },
-          { new: true, session, runValidators: true }
+          { returnDocument: "after", session, runValidators: true }
         );
 
         if (!failed) {
@@ -497,7 +497,7 @@ async function completeSimulatedDeposit({ requestId, outcome }) {
             completedAt
           }
         },
-        { new: true, session, runValidators: true }
+        { returnDocument: "after", session, runValidators: true }
       );
 
       if (!updated) {
@@ -518,7 +518,7 @@ async function completeSimulatedDeposit({ requestId, outcome }) {
         },
         {
           upsert: true,
-          new: true,
+          returnDocument: "after",
           setDefaultsOnInsert: true,
           runValidators: true,
           session

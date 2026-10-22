@@ -13,6 +13,15 @@ const MembershipPurchase = require("../models/MembershipPurchase");
 const Withdrawal = require("../models/Withdrawal");
 const AdminAuditLog = require("../models/AdminAuditLog");
 
+const TranscriptionWallet = require("../models/TranscriptionWallet");
+const TranscriptionWalletTransaction = require("../models/TranscriptionWalletTransaction");
+const TranscriptionWithdrawal = require("../models/TranscriptionWithdrawal");
+const TranscriptionMinuteWallet = require("../models/TranscriptionMinuteWallet");
+const TranscriptionMinuteTransaction = require("../models/TranscriptionMinuteTransaction");
+const TranscriptionMinutePurchase = require("../models/TranscriptionMinutePurchase");
+const TranscriptionJob = require("../models/TranscriptionJob");
+const TranscriptionSubmission = require("../models/TranscriptionSubmission");
+
 const router = express.Router();
 
 router.use(requireAuth);
@@ -232,22 +241,34 @@ router.get("/:id", async (req, res) => {
       transactions,
       withdrawals,
       purchases,
-      auditLogs
+      auditLogs,
+      transcriptionWallet,
+      transcriptionTransactions,
+      transcriptionWithdrawals,
+      minuteWallet,
+      minuteTransactions,
+      minutePurchases,
+      transcriptionJobs,
+      transcriptionSubmissions
     ] = await Promise.all([
       Wallet.findOne({ userId: user._id }).lean(),
+
       Membership.find({ userId: user._id })
         .populate("planId", "name key priceCents currency")
         .sort({ createdAt: -1 })
         .limit(50)
         .lean(),
+
       WalletTransaction.find({ userId: user._id })
         .sort({ createdAt: -1 })
         .limit(100)
         .lean(),
+
       Withdrawal.find({ userId: user._id })
         .sort({ createdAt: -1 })
         .limit(50)
         .lean(),
+
       MembershipPurchase.find({ purchaserUserId: user._id })
         .select(
           "purchaseReference planKey priceCents currency expectedAmountKes paymentStatus mpesaReceipt createdAt verifiedAt activatedAt"
@@ -255,8 +276,54 @@ router.get("/:id", async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(50)
         .lean(),
+
       AdminAuditLog.find({ targetUserId: user._id })
         .populate("adminId", "username firstName lastName")
+        .sort({ createdAt: -1 })
+        .limit(100)
+        .lean(),
+
+      TranscriptionWallet.findOne({ userId: user._id }).lean(),
+
+      TranscriptionWalletTransaction.find({ userId: user._id })
+        .sort({ createdAt: -1 })
+        .limit(100)
+        .lean(),
+
+      TranscriptionWithdrawal.find({ userId: user._id })
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .lean(),
+
+      TranscriptionMinuteWallet.findOne({ userId: user._id }).lean(),
+
+      TranscriptionMinuteTransaction.find({ userId: user._id })
+        .sort({ createdAt: -1 })
+        .limit(100)
+        .lean(),
+
+      TranscriptionMinutePurchase.find({ userId: user._id })
+        .select(
+          "purchaseReference packageName minutes priceCents currency expectedAmountKes paymentStatus verifiedAmountKes mpesaReceipt verificationMethod evidenceSource evidenceReference createdAt verifiedAt failureCode failureDescription"
+        )
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .lean(),
+
+      TranscriptionJob.find({ assignedUserId: user._id })
+        .select(
+          "title description durationMinutes rewardCents status claimedAt assignmentExpiresAt dueAt completedAt createdAt updatedAt"
+        )
+        .sort({ updatedAt: -1 })
+        .limit(100)
+        .lean(),
+
+      TranscriptionSubmission.find({ userId: user._id })
+        .select(
+          "jobId transcriptText submissionLink documentOriginalName documentBytes documentFormat revisionCount status reviewNote reviewedBy reviewedAt reviewHistory rewardCents walletTransactionId createdAt updatedAt"
+        )
+        .populate("jobId", "title durationMinutes status")
+        .populate("reviewedBy", "username firstName lastName")
         .sort({ createdAt: -1 })
         .limit(100)
         .lean()
@@ -274,6 +341,55 @@ router.get("/:id", async (req, res) => {
           totalWithdrawals: usd(wallet?.totalWithdrawalsCents)
         },
         memberships,
+
+        transcriptionWallet: {
+          currency: "USD",
+          availableBalance: usd(transcriptionWallet?.availableBalanceCents),
+          pendingEarnings: usd(transcriptionWallet?.pendingEarningsCents),
+          totalEarnings: usd(transcriptionWallet?.totalEarningsCents),
+          totalWithdrawals: usd(transcriptionWallet?.totalWithdrawalsCents)
+        },
+
+        transcriptionTransactions: transcriptionTransactions.map(transaction => ({
+          ...transaction,
+          amount: usd(transaction.amountCents),
+          currency: "USD"
+        })),
+
+        transcriptionWithdrawals: transcriptionWithdrawals.map(withdrawal => ({
+          ...withdrawal,
+          amount: usd(withdrawal.amountCents),
+          currency: "USD"
+        })),
+
+        transcriptionMinutes: {
+          availableMinutes: Number(minuteWallet?.availableMinutes || 0),
+          reservedMinutes: Number(minuteWallet?.reservedMinutes || 0),
+          totalPurchasedMinutes: Number(minuteWallet?.totalPurchasedMinutes || 0),
+          totalSpentMinutes: Number(minuteWallet?.totalSpentMinutes || 0),
+          totalRefundedMinutes: Number(minuteWallet?.totalRefundedMinutes || 0)
+        },
+
+        minuteTransactions,
+
+        minutePurchases: minutePurchases.map(purchase => ({
+          ...purchase,
+          price: usd(purchase.priceCents),
+          currency: "USD"
+        })),
+
+        transcriptionJobs: transcriptionJobs.map(job => ({
+          ...job,
+          reward: usd(job.rewardCents),
+          currency: "USD"
+        })),
+
+        transcriptionSubmissions: transcriptionSubmissions.map(submission => ({
+          ...submission,
+          reward: usd(submission.rewardCents),
+          currency: "USD"
+        })),
+
         transactions: transactions.map(transaction => ({
           ...transaction,
           amount: usd(transaction.amountCents),
@@ -371,10 +487,10 @@ router.patch("/:id", async (req, res) => {
     }
 
     if ("status" in updates &&
-        !["active", "suspended"].includes(updates.status)) {
+        !["active", "inactive", "suspended"].includes(updates.status)) {
       return res.status(400).json({
         success: false,
-        message: "Status must be active or suspended."
+        message: "Status must be active, inactive, or suspended."
       });
     }
 

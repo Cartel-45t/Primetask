@@ -163,7 +163,7 @@ router.post("/:purchaseId/verify", async (req, res) => {
           }
         },
         {
-          new: true,
+          returnDocument: "after",
           upsert: true,
           session,
           runValidators: true,

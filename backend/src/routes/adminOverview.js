@@ -30,6 +30,7 @@ router.get("/", async (req, res) => {
     const [
       totalUsers,
       activeUsers,
+      inactiveUsers,
       suspendedUsers,
       adminUsers,
       activeMemberships,
@@ -46,6 +47,7 @@ router.get("/", async (req, res) => {
     ] = await Promise.all([
       User.countDocuments({}),
       User.countDocuments({ status: "active" }),
+      User.countDocuments({ status: "inactive" }),
       User.countDocuments({ status: "suspended" }),
       User.countDocuments({ role: { $in: ["admin", "founder"] } }),
       Membership.countDocuments({ status: "active" }),
@@ -111,6 +113,7 @@ router.get("/", async (req, res) => {
       stats: {
         totalUsers,
         activeUsers,
+        inactiveUsers,
         suspendedUsers,
         adminUsers,
         activeMemberships,

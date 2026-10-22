@@ -93,7 +93,7 @@ async function fulfilMembershipPurchase(purchaseId, options = {}) {
             availableBalanceCents: { $gte: purchase.priceCents }
           },
           { $inc: { availableBalanceCents: -purchase.priceCents } },
-          { new: true, session }
+          { returnDocument: "after", session }
         );
 
         if (!debit) throw codedError("INSUFFICIENT_WALLET_BALANCE");
@@ -207,7 +207,7 @@ async function fulfilMembershipPurchase(purchaseId, options = {}) {
             },
             {
               upsert: true,
-              new: true,
+              returnDocument: "after",
               session,
               setDefaultsOnInsert: true
             }

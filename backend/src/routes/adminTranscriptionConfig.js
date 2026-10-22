@@ -23,7 +23,7 @@ async function getSettings() {
   return Settings.findOneAndUpdate(
     { key: "transcription" },
     { $setOnInsert: { key: "transcription" } },
-    { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: true }
+    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true, runValidators: true }
   );
 }
 
