@@ -10,6 +10,8 @@ const requireAuth = require("../middleware/requireAuth");
 const requireServiceAccess = require("../middleware/requireServiceAccess");
 const TranscriptionJob = require("../models/TranscriptionJob");
 const TranscriptionSubmission = require("../models/TranscriptionSubmission");
+const TranscriptionMinuteWallet = require("../models/TranscriptionMinuteWallet");
+const TranscriptionMinuteTransaction = require("../models/TranscriptionMinuteTransaction");
 
 const router = express.Router();
 
@@ -24,24 +26,105 @@ const ASSIGNMENT_WINDOW_MS = 60 * 60 * 1000;
 async function releaseExpiredAssignments() {
   const now = new Date();
 
-  await TranscriptionJob.updateMany(
-    {
-      status: "awarded",
-      $or: [
-        { assignmentExpiresAt: { $lte: now } },
-        { assignmentExpiresAt: null },
-        { claimedAt: null }
-      ]
-    },
-    {
-      $set: {
-        status: "open",
-        assignedUserId: null,
-        claimedAt: null,
-        assignmentExpiresAt: null
-      }
+  const expiredJobs = await TranscriptionJob.find({
+    status: "awarded",
+    $or: [
+      { assignmentExpiresAt: { $lte: now } },
+      { assignmentExpiresAt: null },
+      { claimedAt: null }
+    ]
+  }).select("_id").lean();
+
+  for (const expired of expiredJobs) {
+    const session = await mongoose.startSession();
+
+    try {
+      await session.withTransaction(async () => {
+        const job = await TranscriptionJob.findOneAndUpdate(
+          {
+            _id: expired._id,
+            status: "awarded",
+            $or: [
+              { assignmentExpiresAt: { $lte: now } },
+              { assignmentExpiresAt: null },
+              { claimedAt: null }
+            ]
+          },
+          {
+            $set: {
+              status: "open",
+              assignedUserId: null,
+              claimedAt: null,
+              assignmentExpiresAt: null
+            }
+          },
+          { returnDocument: "after", session }
+        );
+
+        // Another request may already have released this assignment.
+        if (!job) return;
+
+        const reservation = await TranscriptionMinuteTransaction.findOne({
+          jobId: job._id,
+          type: "job_reservation"
+        }).session(session);
+
+        // Legacy assignments may not have minute reservations.
+        if (!reservation) return;
+
+        const [debit, priorRelease] = await Promise.all([
+          TranscriptionMinuteTransaction.findOne({
+            jobId: job._id,
+            type: "job_debit"
+          }).session(session),
+          TranscriptionMinuteTransaction.findOne({
+            jobId: job._id,
+            type: "reservation_release"
+          }).session(session)
+        ]);
+
+        // Never refund minutes already spent or released.
+        if (debit || priorRelease) return;
+
+        const wallet = await TranscriptionMinuteWallet.findOneAndUpdate(
+          {
+            _id: reservation.walletId,
+            userId: reservation.userId,
+            reservedMinutes: { $gte: reservation.minutes }
+          },
+          {
+            $inc: {
+              reservedMinutes: -reservation.minutes,
+              availableMinutes: reservation.minutes
+            }
+          },
+          {
+            returnDocument: "after",
+            session,
+            runValidators: true
+          }
+        );
+
+        if (!wallet) {
+          throw new Error(
+            `MINUTE_RESERVATION_WALLET_MISMATCH:${job._id}`
+          );
+        }
+
+        await TranscriptionMinuteTransaction.create([{
+          userId: reservation.userId,
+          walletId: reservation.walletId,
+          type: "reservation_release",
+          minutes: reservation.minutes,
+          reference: `TRANSCRIPTION-MINUTE-RELEASE-${job._id}`,
+          jobId: job._id,
+          description: "Released minutes for an expired assignment."
+        }], { session });
+      });
+    } finally {
+      await session.endSession();
     }
-  );
+  }
 }
 
 function publicJob(job) {
@@ -353,19 +436,30 @@ router.get("/jobs/:id", async (req, res) => {
 /* POST /api/transcription/jobs/:id/claim */
 router.post("/jobs/:id/claim", requireServiceAccess("transcription"), async (req, res) => {
   if (!isValidId(req.params.id)) {
-    return res.status(400).json({ success: false, message: "Invalid job ID." });
+    return res.status(400).json({
+      success: false,
+      message: "Invalid job ID."
+    });
   }
+
+  let session;
 
   try {
     await releaseExpiredAssignments();
 
-    const claimedAt = new Date();
-    const assignmentExpiresAt = new Date(
-      claimedAt.getTime() + ASSIGNMENT_WINDOW_MS
-    );
+    session = await mongoose.startSession();
 
-    const job = await TranscriptionJob.findOneAndUpdate(
-      {
+    let claimedJob = null;
+    let availableMinutes = 0;
+    let requiredMinutes = 0;
+
+    await session.withTransaction(async () => {
+      const claimedAt = new Date();
+      const assignmentExpiresAt = new Date(
+        claimedAt.getTime() + ASSIGNMENT_WINDOW_MS
+      );
+
+      const eligibleJob = await TranscriptionJob.findOne({
         _id: req.params.id,
         status: "open",
         assignedUserId: null,
@@ -374,29 +468,133 @@ router.post("/jobs/:id/claim", requireServiceAccess("transcription"), async (req
           { publishAt: { $exists: false } },
           { publishAt: { $lte: claimedAt } }
         ]
-      },
-      {
-        $set: {
-          status: "awarded",
-          assignedUserId: req.user._id,
-          claimedAt,
-          assignmentExpiresAt
-        }
-      },
-      { new: true, runValidators: true }
-    );
+      }).session(session);
 
-    if (!job) {
-      return res.status(409).json({
+      if (!eligibleJob) {
+        const error = new Error("This job is no longer available.");
+        error.statusCode = 409;
+        throw error;
+      }
+
+      requiredMinutes = eligibleJob.durationMinutes;
+
+      const currentWallet = await TranscriptionMinuteWallet.findOne({
+        userId: req.user._id
+      }).session(session);
+
+      availableMinutes = currentWallet?.availableMinutes || 0;
+
+      if (availableMinutes < requiredMinutes) {
+        const error = new Error("Insufficient minutes for this job.");
+        error.statusCode = 400;
+        error.availableMinutes = availableMinutes;
+        error.requiredMinutes = requiredMinutes;
+        throw error;
+      }
+
+      const wallet = await TranscriptionMinuteWallet.findOneAndUpdate(
+        {
+          userId: req.user._id,
+          availableMinutes: { $gte: requiredMinutes }
+        },
+        {
+          $inc: {
+            availableMinutes: -requiredMinutes,
+            reservedMinutes: requiredMinutes
+          }
+        },
+        {
+          returnDocument: "after",
+          session,
+          runValidators: true
+        }
+      );
+
+      if (!wallet) {
+        const error = new Error("Your minute balance changed. Please try again.");
+        error.statusCode = 409;
+        throw error;
+      }
+
+      claimedJob = await TranscriptionJob.findOneAndUpdate(
+        {
+          _id: req.params.id,
+          status: "open",
+          assignedUserId: null,
+          $or: [
+            { publishAt: null },
+            { publishAt: { $exists: false } },
+            { publishAt: { $lte: claimedAt } }
+          ]
+        },
+        {
+          $set: {
+            status: "awarded",
+            assignedUserId: req.user._id,
+            claimedAt,
+            assignmentExpiresAt
+          }
+        },
+        { returnDocument: "after", runValidators: true, session }
+      );
+
+      if (!claimedJob) {
+        const error = new Error("This job is no longer available.");
+        error.statusCode = 409;
+        throw error;
+      }
+
+      await TranscriptionMinuteTransaction.create([{
+        userId: req.user._id,
+        walletId: wallet._id,
+        type: "job_reservation",
+        minutes: requiredMinutes,
+        reference: `TRANSCRIPTION-MINUTE-RESERVATION-${claimedJob._id}`,
+        jobId: claimedJob._id,
+        description: `Reserved minutes for: ${claimedJob.title}`
+      }], { session });
+    });
+
+    return res.json({
+      success: true,
+      message: "Job awarded. Minutes have been reserved for this assignment.",
+      job: publicJob(claimedJob),
+      minutes: {
+        reserved: requiredMinutes,
+        available: availableMinutes - requiredMinutes
+      }
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({
         success: false,
-        message: "This job is no longer available."
+        message: error.message,
+        ...(Number.isSafeInteger(error.availableMinutes)
+          ? { availableMinutes: error.availableMinutes }
+          : {}),
+        ...(Number.isSafeInteger(error.requiredMinutes)
+          ? { requiredMinutes: error.requiredMinutes }
+          : {})
       });
     }
 
-    return res.json({ success: true, message: "Job awarded to your account.", job: publicJob(job) });
-  } catch (error) {
+    if (
+      /transaction numbers are only allowed|replica set|mongos|does not support transactions/i
+        .test(error?.message || "")
+    ) {
+      return res.status(503).json({
+        success: false,
+        message: "MongoDB transaction support is required. No job was claimed."
+      });
+    }
+
     console.error("Transcription claim error:", error.message);
-    return res.status(500).json({ success: false, message: "Could not claim this job." });
+    return res.status(500).json({
+      success: false,
+      message: "Could not claim this job."
+    });
+  } finally {
+    if (session) await session.endSession();
   }
 });
 
@@ -710,7 +908,7 @@ router.post(
                 assignmentExpiresAt: null
               }
             },
-            { new: true, session }
+            { returnDocument: "after", session }
           );
 
           if (!claimedJob) {
@@ -719,6 +917,58 @@ router.post(
             );
             error.statusCode = 409;
             throw error;
+          }
+
+          const reservation = await TranscriptionMinuteTransaction.findOne({
+            jobId: claimedJob._id,
+            type: "job_reservation"
+          }).session(session);
+
+          if (reservation) {
+            const existingDebit = await TranscriptionMinuteTransaction.findOne({
+              jobId: claimedJob._id,
+              type: "job_debit"
+            }).session(session);
+
+            // A rejected submission may be revised, but must never be charged twice.
+            if (!existingDebit) {
+              const wallet = await TranscriptionMinuteWallet.findOneAndUpdate(
+                {
+                  _id: reservation.walletId,
+                  userId: reservation.userId,
+                  reservedMinutes: { $gte: reservation.minutes }
+                },
+                {
+                  $inc: {
+                    reservedMinutes: -reservation.minutes,
+                    totalSpentMinutes: reservation.minutes
+                  }
+                },
+                {
+                  returnDocument: "after",
+                  session,
+                  runValidators: true
+                }
+              );
+
+              if (!wallet) {
+                const error = new Error(
+                  "The reserved minute balance could not be verified. No submission was confirmed."
+                );
+                error.statusCode = 409;
+                throw error;
+              }
+
+              await TranscriptionMinuteTransaction.create([{
+                userId: reservation.userId,
+                walletId: reservation.walletId,
+                type: "job_debit",
+                minutes: reservation.minutes,
+                reference: `TRANSCRIPTION-MINUTE-DEBIT-${claimedJob._id}`,
+                jobId: claimedJob._id,
+                description: `Minutes consumed for: ${claimedJob.title}`
+              }], { session });
+            }
           }
 
           const submission = await TranscriptionSubmission.findOne({
