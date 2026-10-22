@@ -8,6 +8,10 @@ const { verifyAndFulfilMembershipCallback } = require("../services/membershipDar
 const {
   verifyAndCompleteDepositCallback
 } = require("../services/depositDarajaVerificationService");
+// Callback data is untrusted and must never independently authorize a wallet credit.
+const {
+  verifyAndCreditTranscriptionMinutePurchase
+} = require("../services/transcriptionMinuteDarajaVerificationService");
 
 const router = express.Router();
 
@@ -230,47 +234,98 @@ router.post("/stk", async (req, res) => {
         });
       }
 
-      // Transcription callbacks are evidence only. Never credit minutes here.
+      // The event is persisted before this point. Callback data alone
+      // never credits minutes; the service independently queries Daraja.
       const minutePurchase = await MinutePurchase.findOne({
         checkoutRequestId
       });
 
-      await DarajaCallbackEvent.updateOne(
-        { eventKey },
-        {
-          $set: {
-            processingStatus: "reconciliation_required"
+      if (minutePurchase) {
+        let verification = {
+          verified: false,
+          reason: resultCode === 0
+            ? "CALLBACK_REQUIRES_RECONCILIATION"
+            : "PAYMENT_NOT_SUCCESSFUL"
+        };
+
+        if (resultCode === 0) {
+          try {
+            verification = await verifyAndCreditTranscriptionMinutePurchase({
+              purchaseId: minutePurchase._id,
+              checkoutRequestId,
+              merchantRequestId,
+              resultCode,
+              metadata
+            });
+          } catch (verificationError) {
+            console.error(
+              "Transcription minute payment verification failed safely:",
+              verificationError.message
+            );
+            verification = {
+              verified: false,
+              reason: verificationError.code || "VERIFICATION_ERROR"
+            };
           }
         }
-      );
 
-      if (minutePurchase) {
-        // Do not overwrite verified, failed, or cancelled purchases.
-        await MinutePurchase.updateOne(
-          {
-            _id: minutePurchase._id,
-            paymentStatus: "pending"
-          },
-          {
-            $set: {
-              paymentStatus: "verification_required",
-              failureCode: "CALLBACK_REQUIRES_RECONCILIATION",
-              failureDescription:
-                "A Daraja callback was received. Callback data is untrusted; independently reconcile the payment before crediting minutes."
+        if (verification.verified) {
+          await DarajaCallbackEvent.updateOne(
+            { eventKey },
+            { $set: { processingStatus: "processed" } }
+          );
+
+          console.info(
+            "Transcription minute purchase verified:",
+            String(minutePurchase._id)
+          );
+
+          return res.status(200).json({
+            ResultCode: 0,
+            ResultDesc: "Payment verified; transcription minutes credited"
+          });
+        }
+
+        await Promise.all([
+          DarajaCallbackEvent.updateOne(
+            { eventKey },
+            { $set: { processingStatus: "reconciliation_required" } }
+          ),
+          MinutePurchase.updateOne(
+            {
+              _id: minutePurchase._id,
+              paymentStatus: { $in: ["pending", "verification_required"] }
+            },
+            {
+              $set: {
+                paymentStatus: "verification_required",
+                failureCode: String(
+                  verification.reason || "CALLBACK_REQUIRES_RECONCILIATION"
+                ).slice(0, 100),
+                failureDescription: resultCode === 0
+                  ? "Automatic payment verification has not completed. The purchase remains unresolved and will be retried."
+                  : "Safaricom reported an unsuccessful payment. No minutes were credited; reconcile the payment status before retrying."
+              }
             }
-          }
-        );
+          )
+        ]);
 
         console.info(
-          "Transcription minute callback stored for reconciliation:",
-          String(minutePurchase._id)
+          "Transcription minute callback deferred:",
+          String(minutePurchase._id),
+          verification.reason || "UNCONFIRMED"
         );
 
         return res.status(200).json({
           ResultCode: 0,
-          ResultDesc: "Callback stored for payment reconciliation"
+          ResultDesc: "Callback stored; payment verification is pending"
         });
       }
+
+      await DarajaCallbackEvent.updateOne(
+        { eventKey },
+        { $set: { processingStatus: "reconciliation_required" } }
+      );
 
       console.warn(
         "Daraja callback stored for an unknown checkout ID."

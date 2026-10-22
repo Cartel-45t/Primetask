@@ -14,6 +14,7 @@ const withdrawalRoutes = require("./routes/withdrawals");
 const referralRoutes = require("./routes/referrals");
 const depositRoutes = require("./routes/deposits");
 const { startDepositRecoveryWorker } = require("./services/depositRecoveryWorker");
+const { startTranscriptionMinuteRecoveryWorker } = require("./services/transcriptionMinuteRecoveryWorker");
 const depositDiagnosticsRoutes = require("./routes/depositDiagnostics");
 const darajaCallbackRoutes = require("./routes/darajaCallbacks");
 const membershipRoutes = require("./routes/membership");
@@ -145,6 +146,7 @@ async function startServer() {
     console.log("MongoDB connected successfully.");
 
     startDepositRecoveryWorker();
+    startTranscriptionMinuteRecoveryWorker();
 
     httpServer = app.listen(PORT, "0.0.0.0", () => {
       console.log(`PrimeTask Workspace API running on port ${PORT}.`);

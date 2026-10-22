@@ -33,10 +33,32 @@ const purchaseModel = {
     return { ...purchase };
   },
 
+  findById(id) {
+    return {
+      lean: async () => {
+        if (String(id) !== PURCHASE_ID || !purchase) {
+          return null;
+        }
+
+        return { ...purchase };
+      }
+    };
+  },
+
   async updateOne(filter, update) {
+    const statusFilter = filter.paymentStatus;
+    const allowedStatuses = Array.isArray(statusFilter)
+      ? statusFilter
+      : Array.isArray(statusFilter?.$in)
+        ? statusFilter.$in
+        : statusFilter
+          ? [statusFilter]
+          : null;
+
     if (
       String(filter._id) !== PURCHASE_ID ||
-      purchase.paymentStatus !== filter.paymentStatus
+      !purchase ||
+      (allowedStatuses && !allowedStatuses.includes(purchase.paymentStatus))
     ) {
       return { modifiedCount: 0 };
     }
@@ -143,6 +165,8 @@ function resetState(status = "pending") {
   purchase = {
     _id: PURCHASE_ID,
     checkoutRequestId: CHECKOUT_ID,
+    merchantRequestId: "merchant-test-1",
+    phoneNumber: "254712345678",
     paymentStatus: status,
     minutes: 60,
     expectedAmountKes: 650,

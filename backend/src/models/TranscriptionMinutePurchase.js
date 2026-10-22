@@ -128,12 +128,12 @@ const schema = new mongoose.Schema({
   },
   verificationMethod: {
     type: String,
-    enum: ["admin_manual_reconciliation"],
+    enum: ["admin_manual_reconciliation", "provider_confirmation"],
     default: null
   },
   evidenceSource: {
     type: String,
-    enum: ["safaricom_portal", "safaricom_statement"],
+    enum: ["safaricom_portal", "safaricom_statement", "daraja_provider_confirmation"],
     default: null
   },
   evidenceReference: {

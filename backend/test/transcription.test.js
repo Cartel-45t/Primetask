@@ -448,27 +448,27 @@ test("assigned worker can stream audio with HTTP range support",
   }
 );
 
-test("transcription wallet accepts USD and integer cents", () => {
+test("transcription wallet accepts USD and integer cents", async () => {
   const wallet = new TranscriptionWallet({
     userId: new mongoose.Types.ObjectId(),
     currency: "USD",
     availableBalanceCents: 1250
   });
 
-  assert.equal(wallet.validateSync(), undefined);
+  await wallet.validate();
   assert.equal(wallet.availableBalanceCents, 1250);
 });
 
-test("transcription wallet rejects unsupported currency", () => {
+test("transcription wallet rejects unsupported currency", async () => {
   const wallet = new TranscriptionWallet({
     userId: new mongoose.Types.ObjectId(),
     currency: "KES"
   });
 
-  assert.ok(wallet.validateSync()?.errors.currency);
+  await assert.rejects(wallet.validate(), error => Boolean(error.errors.currency));
 });
 
-test("transcription ledger rejects fractional cents", () => {
+test("transcription ledger rejects fractional cents", async () => {
   const transaction = new TranscriptionWalletTransaction({
     userId: new mongoose.Types.ObjectId(),
     type: "earning",
@@ -477,10 +477,10 @@ test("transcription ledger rejects fractional cents", () => {
     currency: "USD"
   });
 
-  assert.ok(transaction.validateSync()?.errors.amountCents);
+  await assert.rejects(transaction.validate(), error => Boolean(error.errors.amountCents));
 });
 
-test("transcription withdrawal rejects invalid Kenyan M-Pesa phone", () => {
+test("transcription withdrawal rejects invalid Kenyan M-Pesa phone", async () => {
   const withdrawal = new TranscriptionWithdrawal({
     requestId: "TEST-TRANSCRIPTION-WITHDRAWAL-1",
     userId: new mongoose.Types.ObjectId(),
@@ -489,10 +489,10 @@ test("transcription withdrawal rejects invalid Kenyan M-Pesa phone", () => {
     currency: "USD"
   });
 
-  assert.ok(withdrawal.validateSync()?.errors.phoneNumber);
+  await assert.rejects(withdrawal.validate(), error => Boolean(error.errors.phoneNumber));
 });
 
-test("transcription withdrawal rejects amounts below six USD", () => {
+test("transcription withdrawal rejects amounts below six USD", async () => {
   const withdrawal = new TranscriptionWithdrawal({
     requestId: "TEST-TRANSCRIPTION-WITHDRAWAL-2",
     userId: new mongoose.Types.ObjectId(),
@@ -501,9 +501,9 @@ test("transcription withdrawal rejects amounts below six USD", () => {
     currency: "USD"
   });
 
-  assert.ok(withdrawal.validateSync()?.errors.amountCents);
+  await assert.rejects(withdrawal.validate(), error => Boolean(error.errors.amountCents));
 });
-test("transcription withdrawal accepts the six USD minimum", () => {
+test("transcription withdrawal accepts the six USD minimum", async () => {
   const withdrawal = new TranscriptionWithdrawal({
     requestId: "TEST-TRANSCRIPTION-WITHDRAWAL-3",
     userId: new mongoose.Types.ObjectId(),
@@ -512,5 +512,5 @@ test("transcription withdrawal accepts the six USD minimum", () => {
     currency: "USD"
   });
 
-  assert.equal(withdrawal.validateSync(), undefined);
+  await withdrawal.validate();
 });

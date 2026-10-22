@@ -6,6 +6,7 @@ const { randomUUID } = require("node:crypto");
 const requireAuth = require("../middleware/requireAuth");
 const MinutePackage = require("../models/TranscriptionMinutePackage");
 const MinutePurchase = require("../models/TranscriptionMinutePurchase");
+const MinuteWallet = require("../models/TranscriptionMinuteWallet");
 const darajaService = require("../services/transcriptionDarajaService");
 
 const router = express.Router();
@@ -40,6 +41,34 @@ function publicPurchase(doc) {
     updatedAt: doc.updatedAt
   };
 }
+
+router.get("/wallet", async (req, res) => {
+  try {
+    const wallet = await MinuteWallet.findOneAndUpdate(
+      { userId: req.user._id },
+      { $setOnInsert: { userId: req.user._id } },
+      { returnDocument: "after", upsert: true, setDefaultsOnInsert: true }
+    ).lean();
+
+    return res.json({
+      success: true,
+      wallet: {
+        availableMinutes: wallet.availableMinutes,
+        reservedMinutes: wallet.reservedMinutes,
+        totalPurchasedMinutes: wallet.totalPurchasedMinutes,
+        totalSpentMinutes: wallet.totalSpentMinutes,
+        totalRefundedMinutes: wallet.totalRefundedMinutes,
+        updatedAt: wallet.updatedAt
+      }
+    });
+  } catch (error) {
+    console.error("Transcription minute wallet read failed:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Could not load your transcription minute balance."
+    });
+  }
+});
 
 router.get("/packages", async (req, res) => {
   try {
@@ -327,7 +356,7 @@ router.post("/", async (req, res) => {
       },
       $unset: { failureCode: 1, failureDescription: 1 }
     },
-    { new: true }
+    { returnDocument: "after" }
   );
 
   if (!updated) {
@@ -405,7 +434,7 @@ router.post("/:purchaseId/initiate", async (req, res) => {
           failureDescription: "STK initiation is being processed. Verify the result before retrying."
         }
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!claimed) {
@@ -496,7 +525,7 @@ router.post("/:purchaseId/initiate", async (req, res) => {
         },
         $unset: { failureCode: 1, failureDescription: 1 }
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!updated) {
