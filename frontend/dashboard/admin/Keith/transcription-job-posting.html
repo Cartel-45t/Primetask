@@ -81,19 +81,19 @@ button:disabled{opacity:.55;cursor:wait}
   </div>
   <div class="preview">
     <div class="metric"><span>Selected files</span><strong id="fileCount">0</strong></div>
-    <div class="metric"><span>Reward per job</span><strong id="rewardPreview">$0.00</strong></div>
-    <div class="metric total"><span>Batch payout preview</span><strong id="batchTotal">$0.00</strong></div>
+    <div class="metric"><span>Reward per job</span><strong id="rewardPreview">Pending</strong></div>
+    <div class="metric total"><span>Batch payout preview</span><strong id="batchTotal">Pending</strong></div>
   </div>
-  <p class="help">Payout preview is selected file count × reward per job. It is not a wallet debit or proof of payment.</p>
+  <p class="help">The reward preview becomes available after each audio file has been verified by the server. This is an estimate of job rewards, not a wallet debit or proof of payment.</p>
 </section>
 
 <section class="panel">
   <div class="panelhead"><h2>02 / Job details</h2><span class="small">SHARED BY THIS BATCH</span></div>
   <div class="fields">
     <div class="field">
-      <label for="rewardUsd">Reward per job (USD, whole dollars)</label>
-      <input id="rewardUsd" type="number" min="1" max="1000000" step="1" value="6" required>
-      <div class="help">Stored as integer USD cents. No currency conversion.</div>
+      <label>Automatic reward rule</label>
+      <input type="text" value="$1 under 10 min, then +$1 per 5 min" readonly>
+      <div class="help">The server calculates the reward from verified audio duration. Manual overrides are disabled.</div>
     </div>
     <div class="field">
       <label for="publishMode">Publication</label>
@@ -143,7 +143,6 @@ button:disabled{opacity:.55;cursor:wait}
   const $ = id => document.getElementById(id);
   const form = $("jobForm");
   const filesInput = $("audioFiles");
-  const rewardInput = $("rewardUsd");
   const modeInput = $("publishMode");
   const scheduleField = $("scheduleField");
   const publishInput = $("publishAt");
@@ -174,15 +173,12 @@ button:disabled{opacity:.55;cursor:wait}
 
   function refreshPreview() {
     const files = selectedFiles();
-    const reward = Number(rewardInput.value);
-    const validReward = Number.isSafeInteger(reward) && reward > 0;
     $("fileCount").textContent = String(files.length);
-    $("rewardPreview").textContent = validReward ? money(reward) : "—";
-    $("batchTotal").textContent = validReward ? money(files.length * reward) : "—";
-    $("fileMeta").innerHTML =
-      "<span>" + (files.length
-        ? files.map(file => file.name).join(" · ")
-        : "No files selected") + "</span><span>" + files.length + " / 7</span>";
+    $("rewardPreview").textContent = files.length ? "After verification" : "Pending";
+    $("batchTotal").textContent = files.length ? "After verification" : "Pending";
+    $("fileMeta").textContent =
+      (files.length ? files.map(file => file.name).join(" · ") : "No files selected") +
+      " · " + files.length + " / 7";
   }
 
   function filenameTitle(filename) {
@@ -248,7 +244,6 @@ button:disabled{opacity:.55;cursor:wait}
     }
     refreshPreview();
   });
-  rewardInput.addEventListener("input", refreshPreview);
   modeInput.addEventListener("change", () => {
     scheduleField.hidden = modeInput.value !== "schedule";
     publishInput.required = modeInput.value === "schedule";
@@ -274,16 +269,11 @@ button:disabled{opacity:.55;cursor:wait}
     if (submitBtn.disabled) return;
 
     const files = selectedFiles();
-    const rewardUsd = Number(rewardInput.value);
     const description = $("description").value.trim();
     const instructions = $("instructions").value.trim();
 
     if (!files.length || files.length > 7) {
       setMessage("Choose between one and seven audio files.", "error");
-      return;
-    }
-    if (!Number.isSafeInteger(rewardUsd) || rewardUsd < 1) {
-      setMessage("Reward must be a positive whole USD amount.", "error");
       return;
     }
     if (!description || !instructions) {
@@ -333,6 +323,23 @@ button:disabled{opacity:.55;cursor:wait}
         throw new Error("The server did not confirm every audio upload. No job creation was attempted.");
       }
 
+      const verifiedRewards = assets.map(asset => {
+        const seconds = Number(asset.durationSeconds);
+        return Number.isFinite(seconds) && seconds > 0
+          ? Math.max(1, Math.floor(seconds / 300))
+          : null;
+      });
+      if (verifiedRewards.every(value => value !== null)) {
+        $("rewardPreview").textContent = money(verifiedRewards[0]) +
+          (verifiedRewards.length > 1 ? " first job" : "");
+        $("batchTotal").textContent = money(
+          verifiedRewards.reduce((sum, value) => sum + value, 0)
+        );
+      } else {
+        $("rewardPreview").textContent = "Server calculated";
+        $("batchTotal").textContent = "Server calculated";
+      }
+
       submitBtn.textContent = "Creating " + assets.length + " job(s)…";
 
       for (const asset of assets) {
@@ -342,8 +349,7 @@ button:disabled{opacity:.55;cursor:wait}
             title,
             description,
             instructions,
-            audioPublicId: asset.publicId,
-            rewardUsd
+            audioPublicId: asset.publicId
           };
           if (publishAt) payload.publishAt = publishAt;
           if (dueAt) payload.dueAt = dueAt;
@@ -360,7 +366,7 @@ button:disabled{opacity:.55;cursor:wait}
             title: job.title || title,
             detail: "Verified duration: " +
               (job.durationMinutes ?? asset.durationMinutes ?? "pending") +
-              " minute(s) · Reward: " + money(rewardUsd) +
+              " minute(s) · Automatic reward: " + money(Number(job.reward)) +
               (publishAt ? " · Scheduled" : " · Published now")
           });
         } catch (error) {
@@ -386,8 +392,7 @@ button:disabled{opacity:.55;cursor:wait}
         );
       } else {
         setMessage(
-          successes + " job(s) created successfully. Reward exposure preview: " +
-          money(successes * rewardUsd) + ".",
+          successes + " job(s) created successfully. Rewards were calculated by the server from verified audio duration.",
           "success"
         );
       }

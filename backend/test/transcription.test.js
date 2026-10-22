@@ -149,7 +149,7 @@ function validJobPayload(overrides = {}) {
   };
 }
 
-function mockVerifiedAudio() {
+function mockVerifiedAudio(durationSeconds = 61) {
   cloudinary.api.resource = async (publicId, options) => {
     assert.equal(
       publicId,
@@ -163,24 +163,62 @@ function mockVerifiedAudio() {
       resource_type: "video",
       type: "authenticated",
       format: "mp3",
-      duration: 61
+      duration: durationSeconds
     };
   };
 }
 
-test("custom whole-dollar reward creates a job without configured reward ranges",
+test("automatic reward respects five-minute duration boundaries", async () => {
+  mockedRole = "admin";
+  setTestCloudinaryEnv();
+  TranscriptionSettings.findOne = async () => null;
+
+  let createdId = 0;
+  TranscriptionJob.create = async data => ({
+    _id: `507f1f77bcf86cd7994390${String(++createdId).padStart(2, "0")}`,
+    ...data,
+    createdAt: new Date("2026-01-01T00:00:00.000Z")
+  });
+
+  const cases = [
+    [61, 1],
+    [299, 1],
+    [300, 1],
+    [599, 1],
+    [600, 2],
+    [899, 2],
+    [900, 3],
+    [1199, 3],
+    [1200, 4]
+  ];
+
+  for (const [durationSeconds, expectedReward] of cases) {
+    mockVerifiedAudio(durationSeconds);
+
+    const { response, body } = await request(
+      "/api/admin/transcription/jobs",
+      {
+        method: "POST",
+        role: "admin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(validJobPayload())
+      }
+    );
+
+    assert.equal(response.status, 201, `${durationSeconds}s should create a job`);
+    assert.equal(
+      body.job.reward,
+      expectedReward,
+      `${durationSeconds}s should earn $${expectedReward}`
+    );
+    assert.equal(body.job.currency, "USD");
+  }
+});
+
+test("job creation rejects a manually supplied reward override",
   async () => {
     mockedRole = "admin";
     setTestCloudinaryEnv();
-    mockVerifiedAudio();
-
-    TranscriptionSettings.findOne = async () => null;
-
-    TranscriptionJob.create = async data => ({
-      _id: "507f1f77bcf86cd799439013",
-      ...data,
-      createdAt: new Date("2026-01-01T00:00:00.000Z")
-    });
 
     const { response, body } = await request(
       "/api/admin/transcription/jobs",
@@ -192,15 +230,13 @@ test("custom whole-dollar reward creates a job without configured reward ranges"
       }
     );
 
-    assert.equal(response.status, 201);
-    assert.equal(body.success, true);
-    assert.equal(body.job.reward, 6);
-    assert.equal(body.job.currency, "USD");
-    assert.equal(body.job.durationMinutes, 2);
+    assert.equal(response.status, 400);
+    assert.equal(body.success, false);
+    assert.match(body.message, /manual rewards are disabled/i);
   }
 );
 
-test("job without reward override continues using configured duration reward",
+test("job reward is automatically calculated from verified audio duration",
   async () => {
     mockedRole = "admin";
     setTestCloudinaryEnv();
@@ -236,8 +272,9 @@ test("job without reward override continues using configured duration reward",
     assert.equal(response.status, 201);
     assert.equal(body.success, true);
     assert.equal(body.job.title, "Default Audio Task");
-    assert.equal(body.job.reward, 8);
+    assert.equal(body.job.reward, 1);
     assert.equal(body.job.currency, "USD");
+    assert.equal(body.job.durationMinutes, 2);
   }
 );
 

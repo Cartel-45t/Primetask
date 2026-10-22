@@ -191,15 +191,10 @@ router.post("/jobs", async (req, res) => {
     }
   }
 
-  const hasRewardOverride =
-    rewardUsd !== undefined && rewardUsd !== null && rewardUsd !== "";
-  if (hasRewardOverride && (
-    !Number.isSafeInteger(rewardUsd) || rewardUsd < 1 ||
-    !Number.isSafeInteger(rewardUsd * 100)
-  )) {
+  if (Object.prototype.hasOwnProperty.call(req.body || {}, "rewardUsd")) {
     return res.status(400).json({
       success: false,
-      message: "Reward must be a positive whole USD amount."
+      message: "Manual rewards are disabled. The reward is calculated from verified audio duration."
     });
   }
 
@@ -265,38 +260,9 @@ router.post("/jobs", async (req, res) => {
       });
     }
 
-    let configuredRewardUsd;
-
-    if (!hasRewardOverride) {
-      if (!settings) {
-        return res.status(503).json({
-          success: false,
-          message: "Transcription settings are required when no custom reward is supplied."
-        });
-      }
-
-      const ranges = Array.isArray(settings.durationRewardRanges)
-        ? settings.durationRewardRanges
-        : [];
-
-      const matchingRanges = ranges.filter(range =>
-        durationMinutes >= range.minMinutes &&
-        durationMinutes <= range.maxMinutes
-      );
-
-      if (matchingRanges.length !== 1) {
-        return res.status(422).json({
-          success: false,
-          message: "No unique reward rule matches this audio duration. Update the admin duration and reward settings."
-        });
-      }
-
-      configuredRewardUsd = matchingRanges[0].rewardUsd;
-    }
-
-    const finalRewardUsd = hasRewardOverride
-      ? rewardUsd
-      : configuredRewardUsd;
+    // Earn $1 for audio under 10 minutes, then add $1
+    // per additional five-minute tier. Use verified Cloudinary duration.
+    const finalRewardUsd = Math.max(1, Math.floor(durationSeconds / 300));
     const rewardCents = finalRewardUsd * 100;
 
     if (
@@ -304,9 +270,9 @@ router.post("/jobs", async (req, res) => {
       finalRewardUsd < 1 ||
       !Number.isSafeInteger(rewardCents)
     ) {
-      return res.status(500).json({
+      return res.status(422).json({
         success: false,
-        message: "The matching reward rule is invalid. The job was not created."
+        message: "The verified audio duration cannot produce a valid reward."
       });
     }
 
@@ -339,8 +305,8 @@ router.post("/jobs", async (req, res) => {
     return res.status(201).json({
       success: true,
       message: publicationDate && publicationDate > new Date()
-        ? "Transcription job scheduled using verified audio duration and reward."
-        : "Transcription job created using verified audio duration and reward.",
+        ? "Transcription job scheduled using verified audio duration and automatic reward."
+        : "Transcription job created using verified audio duration and automatic reward.",
       job: {
         id: String(job._id),
         title: job.title,
