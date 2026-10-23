@@ -11,6 +11,7 @@ const PURCHASE_ID = "222222222222222222222222";
 const PACKAGE_ID = "333333333333333333333333";
 const IDEMPOTENCY_KEY = "minute-test-key-001";
 
+let membershipActive;
 let purchase;
 let createCount;
 let darajaBehavior;
@@ -152,6 +153,19 @@ const darajaMock = {
   }
 };
 
+const membershipMock = {
+  findOne(query) {
+    const eligible =
+      membershipActive &&
+      query.status === "active" &&
+      query.services === "transcription";
+
+    return {
+      lean: async () => eligible ? { services: ["transcription"] } : null
+    };
+  }
+};
+
 const originalLoad = Module._load;
 
 function loadRouteWithMocks() {
@@ -165,6 +179,10 @@ function loadRouteWithMocks() {
 
     if (request === "../models/TranscriptionMinutePackage") {
       return minutePackageMock;
+    }
+
+    if (request === "../models/Membership") {
+      return membershipMock;
     }
 
     if (request === "../models/TranscriptionMinutePurchase") {
@@ -190,6 +208,7 @@ function loadRouteWithMocks() {
 }
 
 function resetState() {
+  membershipActive = true;
   purchase = null;
   createCount = 0;
 
@@ -407,3 +426,17 @@ test("inactive or missing package is rejected without STK", async () => {
     testPackage.isActive = true;
   }
 });
+
+
+test("membership without transcription cannot create a purchase or request STK", async () => {
+  membershipActive = false;
+
+  const result = await purchaseMinutes();
+
+  assert.equal(result.status, 403);
+  assert.equal(result.body.success, false);
+  assert.equal(result.body.code, "MEMBERSHIP_REQUIRED");
+  assert.equal(createCount, 0);
+  assert.equal(darajaCalls.length, 0);
+});
+

@@ -7,6 +7,7 @@ const requireAuth = require("../middleware/requireAuth");
 const MinutePackage = require("../models/TranscriptionMinutePackage");
 const MinutePurchase = require("../models/TranscriptionMinutePurchase");
 const MinuteWallet = require("../models/TranscriptionMinuteWallet");
+const Membership = require("../models/Membership");
 const darajaService = require("../services/transcriptionDarajaService");
 
 const router = express.Router();
@@ -21,6 +22,27 @@ function normalizePhone(value) {
   if (/^254[17]\d{8}$/.test(digits)) return digits;
 
   return null;
+}
+
+async function hasTranscriptionMembership(userId) {
+  const now = new Date();
+  const membership = await Membership.findOne({
+    userId,
+    status: "active",
+    startsAt: { $lte: now },
+    expiresAt: { $gt: now },
+    services: "transcription"
+  }).lean();
+
+  return Boolean(membership);
+}
+
+function membershipRequired(res) {
+  return res.status(403).json({
+    success: false,
+    code: "MEMBERSHIP_REQUIRED",
+    message: "An active membership that includes transcription is required to purchase minutes."
+  });
 }
 
 function publicPurchase(doc) {
@@ -161,6 +183,10 @@ router.post("/", async (req, res) => {
         message: "This purchase request was already recorded. No second payment prompt was requested.",
         purchase: publicPurchase(existing)
       });
+    }
+
+    if (!(await hasTranscriptionMembership(req.user._id))) {
+      return membershipRequired(res);
     }
 
     // Block new purchase attempts while this user's previous purchase
@@ -389,6 +415,10 @@ router.post("/:purchaseId/initiate", async (req, res) => {
   }
 
   try {
+    if (!(await hasTranscriptionMembership(req.user._id))) {
+      return membershipRequired(res);
+    }
+
     const purchase = await MinutePurchase.findOne({
       _id: purchaseId,
       userId: req.user._id
