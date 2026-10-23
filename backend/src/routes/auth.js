@@ -1,8 +1,11 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("node:crypto");
+const rateLimit = require("express-rate-limit");
 
 const User = require("../models/User");
+const passwordResetEmailService = require("../services/passwordResetEmailService");
 const PlatformSetting = require("../models/PlatformSetting");
 
 const router = express.Router();
@@ -14,7 +17,8 @@ function createToken(user) {
   return jwt.sign(
     {
       sub: user._id.toString(),
-      role: user.role
+      role: user.role,
+      sv: Number(user.sessionVersion || 0)
     },
     process.env.JWT_SECRET,
     {
@@ -55,6 +59,144 @@ function publicUser(user) {
 function normalizeText(value) {
   return typeof value === "string" ? value.trim() : "";
 }
+
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many password reset requests. Try again later."
+  }
+});
+
+const resetPasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many password reset attempts. Try again later."
+  }
+});
+
+const PASSWORD_RESET_RESPONSE = {
+  success: true,
+  message: "If an account exists for that email, password reset instructions will be sent."
+};
+
+/*
+ * POST /api/auth/forgot-password
+ */
+router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
+  const email = normalizeText(req.body?.email).toLowerCase();
+
+  if (
+    !email ||
+    email.length > 254 ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  ) {
+    return res.status(200).json(PASSWORD_RESET_RESPONSE);
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(200).json(PASSWORD_RESET_RESPONSE);
+    }
+
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+    user.passwordResetTokenHash = tokenHash;
+    user.passwordResetExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save();
+
+    try {
+      await passwordResetEmailService.sendPasswordResetEmail({
+        email: user.email,
+        firstName: user.firstName,
+        token: rawToken
+      });
+    } catch (emailError) {
+      user.passwordResetTokenHash = null;
+      user.passwordResetExpiresAt = null;
+      await user.save().catch(() => {});
+      console.error("Password reset email delivery failed:", emailError.message);
+    }
+
+    return res.status(200).json(PASSWORD_RESET_RESPONSE);
+  } catch (error) {
+    console.error("Password reset request failed:", error.message);
+    return res.status(200).json(PASSWORD_RESET_RESPONSE);
+  }
+});
+
+/*
+ * POST /api/auth/reset-password
+ */
+router.post("/reset-password", resetPasswordLimiter, async (req, res) => {
+  const token = req.body?.token;
+  const password = req.body?.password;
+
+  if (
+    typeof token !== "string" ||
+    !/^[a-f0-9]{64}$/i.test(token) ||
+    typeof password !== "string" ||
+    password.length < 12 ||
+    password.length > 72
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "The reset link is invalid or expired, or the password does not meet the requirements."
+    });
+  }
+
+  try {
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    const updatedUser = await User.findOneAndUpdate(
+      {
+        passwordResetTokenHash: tokenHash,
+        passwordResetExpiresAt: { $gt: new Date() }
+      },
+      {
+        $set: { passwordHash },
+        $unset: {
+          passwordResetTokenHash: 1,
+          passwordResetExpiresAt: 1
+        },
+        $inc: { sessionVersion: 1 }
+      },
+      {
+        new: true,
+        runValidators: true
+      }
+    ).select("_id");
+
+    if (!updatedUser) {
+      return res.status(400).json({
+        success: false,
+        message: "The reset link is invalid or expired, or the password does not meet the requirements."
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Your password has been reset. Sign in using your new password."
+    });
+  } catch (error) {
+    console.error("Password reset failed:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to reset your password right now. Please try again later."
+    });
+  }
+});
 
 /*
  * POST /api/auth/register
@@ -365,7 +507,11 @@ router.get("/me", async (req, res) => {
 
     const user = await User.findById(payload.sub);
 
-    if (!user || user.status !== "active") {
+    if (
+      !user ||
+      user.status !== "active" ||
+      Number(payload.sv || 0) !== Number(user.sessionVersion || 0)
+    ) {
       return res.status(401).json({
         success: false,
         message: "Your account is unavailable."

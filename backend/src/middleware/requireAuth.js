@@ -27,7 +27,7 @@ module.exports = async function requireAuth(req, res, next) {
 
     if (audioDebug) console.log("[audio-signature-debug] MongoDB lookup started");
     const user = await User.findById(payload.sub)
-      .select("_id role status firstName lastName username email");
+      .select("_id role status firstName lastName username email sessionVersion");
     if (audioDebug) {
       console.log("[audio-signature-debug] MongoDB lookup finished", {
         elapsedMs: Date.now() - audioStartedAt,
@@ -36,7 +36,11 @@ module.exports = async function requireAuth(req, res, next) {
       });
     }
 
-    if (!user || user.status !== "active") {
+    if (
+      !user ||
+      user.status !== "active" ||
+      Number(payload.sv || 0) !== Number(user.sessionVersion || 0)
+    ) {
       return res.status(401).json({
         success: false,
         message: "Your session is invalid or your account is inactive."

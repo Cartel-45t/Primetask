@@ -11,6 +11,8 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const crypto = require("node:crypto");
+const passwordResetEmailService = require("../src/services/passwordResetEmailService");
 
 const testUri = process.env.PTW_TEST_MONGODB_URI;
 const enabled = Boolean(testUri);
@@ -258,4 +260,150 @@ test("ordinary user cannot access admin user management", {
   });
 
   assert.equal(result.response.status, 403);
+});
+
+
+test("password recovery returns a generic response for unknown emails", {
+  skip: !enabled
+}, async () => {
+  const result = await request("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email: "nobody@example.test" })
+  });
+
+  assert.equal(result.response.status, 200);
+  assert.equal(result.body.success, true);
+  assert.match(result.body.message, /if an account exists/i);
+});
+
+test("password reset is single-use and invalidates existing sessions", {
+  skip: !enabled
+}, async () => {
+  const registered = await registerUser();
+  assert.equal(registered.response.status, 201);
+
+  const login = await loginUser("test_worker");
+  assert.equal(login.response.status, 200);
+  const oldCookie = sessionCookie(login.response);
+
+  let deliveredToken;
+  const originalSender = passwordResetEmailService.sendPasswordResetEmail;
+
+  passwordResetEmailService.sendPasswordResetEmail = async payload => {
+    deliveredToken = payload.token;
+  };
+
+  try {
+    const forgot = await request("/api/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email: "WORKER@EXAMPLE.TEST" })
+    });
+
+    assert.equal(forgot.response.status, 200);
+    assert.equal(forgot.body.success, true);
+    assert.match(deliveredToken || "", /^[a-f0-9]{64}$/);
+
+    const storedUser = await User.findOne({
+      email: "worker@example.test"
+    }).select("+passwordResetTokenHash +passwordResetExpiresAt");
+
+    assert.ok(storedUser);
+    assert.notEqual(storedUser.passwordResetTokenHash, deliveredToken);
+    assert.ok(storedUser.passwordResetExpiresAt > new Date());
+
+    const newPassword = "ChangedPassword!456";
+    const reset = await request("/api/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({
+        token: deliveredToken,
+        password: newPassword
+      })
+    });
+
+    assert.equal(reset.response.status, 200);
+    assert.equal(reset.body.success, true);
+
+    const replay = await request("/api/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({
+        token: deliveredToken,
+        password: newPassword
+      })
+    });
+
+    assert.equal(replay.response.status, 400);
+
+    const oldSession = await request("/api/auth/me", {
+      headers: { Cookie: oldCookie }
+    });
+    assert.equal(oldSession.response.status, 401);
+
+    const newLogin = await loginUser("test_worker", newPassword);
+    assert.equal(newLogin.response.status, 200);
+    assert.equal(newLogin.body.success, true);
+  } finally {
+    passwordResetEmailService.sendPasswordResetEmail = originalSender;
+  }
+});
+
+test("expired password reset token is rejected without changing the password", {
+  skip: !enabled
+}, async () => {
+  const registered = await registerUser();
+  assert.equal(registered.response.status, 201);
+
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+  const user = await User.findOne({ email: "worker@example.test" });
+  assert.ok(user);
+
+  user.passwordResetTokenHash = tokenHash;
+  user.passwordResetExpiresAt = new Date(Date.now() - 60_000);
+  await user.save();
+
+  const reset = await request("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({
+      token: rawToken,
+      password: "ChangedPassword!456"
+    })
+  });
+
+  assert.equal(reset.response.status, 400);
+
+  const oldPasswordLogin = await loginUser("test_worker");
+  assert.equal(oldPasswordLogin.response.status, 200);
+});
+
+test("password recovery clears reset credentials if email delivery fails", {
+  skip: !enabled
+}, async () => {
+  const registered = await registerUser();
+  assert.equal(registered.response.status, 201);
+
+  const originalSender = passwordResetEmailService.sendPasswordResetEmail;
+  passwordResetEmailService.sendPasswordResetEmail = async () => {
+    throw new Error("Simulated email delivery failure");
+  };
+
+  try {
+    const result = await request("/api/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email: "worker@example.test" })
+    });
+
+    assert.equal(result.response.status, 200);
+    assert.equal(result.body.success, true);
+
+    const user = await User.findOne({
+      email: "worker@example.test"
+    }).select("+passwordResetTokenHash +passwordResetExpiresAt");
+
+    assert.ok(user);
+    assert.ok(!user.passwordResetTokenHash);
+    assert.ok(!user.passwordResetExpiresAt);
+  } finally {
+    passwordResetEmailService.sendPasswordResetEmail = originalSender;
+  }
 });

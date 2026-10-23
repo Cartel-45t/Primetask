@@ -92,6 +92,24 @@ const userSchema = new mongoose.Schema(
       default: false
     },
 
+    passwordResetTokenHash: {
+      type: String,
+      default: null,
+      select: false
+    },
+
+    passwordResetExpiresAt: {
+      type: Date,
+      default: null,
+      select: false
+    },
+
+    sessionVersion: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+
     lastLoginAt: {
       type: Date,
       default: null
