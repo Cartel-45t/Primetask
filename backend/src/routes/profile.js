@@ -1,9 +1,8 @@
 "use strict";
 
 const express = require("express");
-const multer = require("multer");
+const crypto = require("node:crypto");
 const cloudinary = require("cloudinary").v2;
-const { Readable } = require("stream");
 const User = require("../models/User");
 const requireAuth = require("../middleware/requireAuth");
 
@@ -19,94 +18,12 @@ const PROFILE_FIELDS =
   "firstName lastName username email phone role status emailVerified " +
   "selectedService profilePictureUrl referredBy createdAt updatedAt";
 
-const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp"]);
-
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 3 * 1024 * 1024, files: 1 },
-  fileFilter(req, file, cb) {
-    if (!ALLOWED_MIME.has(file.mimetype)) {
-      return cb(new Error("Choose a JPEG, PNG, or WebP image."));
-    }
-    cb(null, true);
-  }
-});
-
 function cloudinaryReady() {
   return Boolean(
     process.env.CLOUDINARY_CLOUD_NAME &&
     process.env.CLOUDINARY_API_KEY &&
     process.env.CLOUDINARY_API_SECRET
   );
-}
-
-function imageSignature(buffer) {
-  if (!buffer || buffer.length < 12) return null;
-
-  const jpeg =
-    buffer[0] === 0xff &&
-    buffer[1] === 0xd8 &&
-    buffer[2] === 0xff;
-
-  const png =
-    buffer.subarray(0, 8).equals(
-      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
-    );
-
-  const webp =
-    buffer.toString("ascii", 0, 4) === "RIFF" &&
-    buffer.toString("ascii", 8, 12) === "WEBP";
-
-  if (jpeg) return "image/jpeg";
-  if (png) return "image/png";
-  if (webp) return "image/webp";
-  return null;
-}
-
-function publicProfile(user) {
-  return {
-    firstName: user.firstName,
-    lastName: user.lastName,
-    username: user.username,
-    email: user.email,
-    phone: user.phone,
-    role: user.role,
-    status: user.status,
-    emailVerified: user.emailVerified,
-    selectedService: user.selectedService || null,
-    profilePictureUrl: user.profilePictureUrl || null,
-    sponsor: user.referredBy
-      ? {
-          username: user.referredBy.username,
-          firstName: user.referredBy.firstName,
-          lastName: user.referredBy.lastName
-        }
-      : null,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt
-  };
-}
-
-function uploadToCloudinary(buffer) {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: "primetask-workspace/profiles",
-        resource_type: "image",
-        allowed_formats: ["jpg", "png", "webp"],
-        transformation: [
-          { width: 512, height: 512, crop: "fill", gravity: "face" },
-          { quality: "auto", fetch_format: "auto" }
-        ]
-      },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve(result);
-      }
-    );
-
-    Readable.from(buffer).pipe(stream);
-  });
 }
 
 async function deleteCloudinaryImage(publicId) {
@@ -121,26 +38,6 @@ async function deleteCloudinaryImage(publicId) {
     // A failed cloud cleanup must not undo a successful profile update.
     console.error("Cloudinary cleanup failed:", error.message);
   }
-}
-
-function handleUploadError(error, req, res, next) {
-  if (!error) return next();
-
-  if (error instanceof multer.MulterError) {
-    const message = error.code === "LIMIT_FILE_SIZE"
-      ? "Image must be 3 MB or smaller."
-      : "Upload one image at a time.";
-    return res.status(400).json({ success: false, message });
-  }
-
-  if (error.message === "Choose a JPEG, PNG, or WebP image.") {
-    return res.status(400).json({ success: false, message: error.message });
-  }
-
-  return res.status(400).json({
-    success: false,
-    message: "Unable to process the uploaded image."
-  });
 }
 
 // GET /api/profile
@@ -168,78 +65,177 @@ router.get("/", requireAuth, async (req, res) => {
   }
 });
 
-// POST /api/profile/picture
-router.post(
-  "/picture",
-  requireAuth,
-  (req, res, next) => {
-    if (!cloudinaryReady()) {
-      return res.status(503).json({
+/*
+ * POST /api/profile/picture/signature
+ * Authorizes one image upload for the authenticated member.
+ * The Cloudinary API secret never leaves this server.
+ */
+router.post("/picture/signature", requireAuth, (req, res) => {
+  if (!cloudinaryReady()) {
+    return res.status(503).json({
+      success: false,
+      message: "Profile-picture storage is not configured on the server."
+    });
+  }
+
+  const size = Number(req.body?.size);
+  const originalName = typeof req.body?.originalName === "string"
+    ? req.body.originalName
+    : "";
+  const mimeType = typeof req.body?.type === "string"
+    ? req.body.type.toLowerCase()
+    : "";
+
+  const allowed = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+  if (!Number.isSafeInteger(size) || size < 1 || size > 3 * 1024 * 1024) {
+    return res.status(400).json({
+      success: false,
+      message: "Image must be larger than zero bytes and no more than 3 MB."
+    });
+  }
+
+  if (
+    !allowed.has(mimeType) ||
+    !/\.(jpe?g|png|webp)$/i.test(originalName)
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "Choose a JPEG, PNG, or WebP image."
+    });
+  }
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const publicId =
+    `primetask-workspace/profiles/${String(req.user._id)}_${crypto.randomUUID()}`;
+
+  const params = {
+    timestamp,
+    public_id: publicId,
+    overwrite: false,
+    allowed_formats: "jpg,png,webp"
+  };
+
+  try {
+    const signature = cloudinary.utils.api_sign_request(
+      params,
+      process.env.CLOUDINARY_API_SECRET
+    );
+
+    return res.json({
+      success: true,
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKey: process.env.CLOUDINARY_API_KEY,
+      signature,
+      params
+    });
+  } catch (error) {
+    console.error("Profile picture signing error:", error.message);
+    return res.status(502).json({
+      success: false,
+      message: "Could not authorize the image upload."
+    });
+  }
+});
+
+/*
+ * POST /api/profile/picture/complete
+ * Verify the asset through Cloudinary before changing the member profile.
+ */
+router.post("/picture/complete", requireAuth, async (req, res) => {
+  const publicId = req.body?.publicId;
+  const userId = String(req.user._id);
+  const expectedPrefix = `primetask-workspace/profiles/${userId}_`;
+
+  if (
+    typeof publicId !== "string" ||
+    !publicId.startsWith(expectedPrefix) ||
+    !new RegExp(
+      "^primetask-workspace/profiles/" +
+      userId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") +
+      "_[0-9a-f-]{36}$",
+      "i"
+    ).test(publicId)
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid profile-picture asset reference."
+    });
+  }
+
+  if (!cloudinaryReady()) {
+    return res.status(503).json({
+      success: false,
+      message: "Profile-picture storage is not configured on the server."
+    });
+  }
+
+  let accepted = false;
+
+  try {
+    const asset = await cloudinary.api.resource(publicId, {
+      resource_type: "image",
+      type: "upload"
+    });
+
+    const formats = new Set(["jpg", "jpeg", "png", "webp"]);
+    const bytes = Number(asset.bytes);
+
+    if (
+      asset.public_id !== publicId ||
+      asset.resource_type !== "image" ||
+      asset.type !== "upload" ||
+      !formats.has(String(asset.format || "").toLowerCase()) ||
+      !Number.isSafeInteger(bytes) ||
+      bytes < 1 ||
+      bytes > 3 * 1024 * 1024 ||
+      typeof asset.secure_url !== "string" ||
+      !asset.secure_url.startsWith(
+        `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/`
+      )
+    ) {
+      return res.status(422).json({
         success: false,
-        message: "Profile-picture storage is not configured on the server."
+        message: "Cloudinary image verification failed."
       });
     }
-    next();
-  },
-  upload.single("picture"),
-  handleUploadError,
-  async (req, res) => {
-    let uploaded;
 
-    try {
-      if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          message: "Choose an image to upload."
-        });
-      }
+    const user = await User.findById(userId).select("+profilePicturePublicId");
 
-      const actualType = imageSignature(req.file.buffer);
-      if (!actualType || actualType !== req.file.mimetype) {
-        return res.status(400).json({
-          success: false,
-          message: "The file content does not match a supported image type."
-        });
-      }
-
-      uploaded = await uploadToCloudinary(req.file.buffer);
-
-      const user = await User.findById(req.user._id)
-        .select("+profilePicturePublicId");
-
-      if (!user) {
-        await deleteCloudinaryImage(uploaded.public_id);
-        return res.status(404).json({
-          success: false,
-          message: "Member account not found."
-        });
-      }
-
-      const oldPublicId = user.profilePicturePublicId;
-
-      user.profilePictureUrl = uploaded.secure_url;
-      user.profilePicturePublicId = uploaded.public_id;
-      await user.save();
-
-      await deleteCloudinaryImage(oldPublicId);
-
-      return res.json({
-        success: true,
-        message: "Profile picture updated.",
-        profilePictureUrl: user.profilePictureUrl
-      });
-    } catch (error) {
-      if (uploaded && uploaded.public_id) {
-        await deleteCloudinaryImage(uploaded.public_id);
-      }
-      console.error("Profile-picture upload error:", error.message);
-      return res.status(500).json({
+    if (!user) {
+      await deleteCloudinaryImage(publicId);
+      return res.status(404).json({
         success: false,
-        message: "Unable to save your profile picture."
+        message: "Member account not found."
       });
+    }
+
+    const oldPublicId = user.profilePicturePublicId;
+    user.profilePictureUrl = asset.secure_url;
+    user.profilePicturePublicId = asset.public_id;
+    await user.save();
+    accepted = true;
+
+    await deleteCloudinaryImage(oldPublicId);
+
+    return res.json({
+      success: true,
+      message: "Profile picture updated.",
+      profilePictureUrl: user.profilePictureUrl
+    });
+  } catch (error) {
+    console.error("Profile-picture verification error:", error.message);
+    return res.status(502).json({
+      success: false,
+      message: "Unable to verify and save your profile picture."
+    });
+  } finally {
+    // If verification failed, remove the unaccepted upload.
+    if (!accepted) {
+      await deleteCloudinaryImage(publicId);
     }
   }
-);
+});
 
 // DELETE /api/profile/picture
 router.delete("/picture", requireAuth, async (req, res) => {

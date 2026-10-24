@@ -1,8 +1,7 @@
 "use strict";
 
 const express = require("express");
-const multer = require("multer");
-const { Readable } = require("node:stream");
+const crypto = require("node:crypto");
 const validateDocx = require("../services/validateDocx");
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
@@ -617,35 +616,11 @@ router.get("/my-jobs", async (req, res) => {
 
 
 /*
- * Worker submissions accept exactly one of:
- * - JSON transcriptText
- * - multipart/form-data document (.docx)
- *
- * DOCX files are validated in memory and stored as authenticated Cloudinary
- * raw assets. Temporary signed download URLs are never returned to clients.
+ * DOCX submissions upload directly from the browser to Cloudinary.
+ * The server signs one member/job-bound authenticated raw asset.
  */
-const submissionUpload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024,
-    files: 1,
-    fields: 5,
-    fieldSize: 250 * 1024
-  },
-  fileFilter(req, file, callback) {
-    const isDocxName = /\.docx$/i.test(file.originalname || "");
-    const allowedMimeTypes = new Set([
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/octet-stream"
-    ]);
-
-    if (!isDocxName || !allowedMimeTypes.has(file.mimetype)) {
-      return callback(new Error("UNSUPPORTED_DOCX_TYPE"));
-    }
-
-    callback(null, true);
-  }
-});
+const DOCUMENT_FOLDER = "primetask-workspace/transcription/documents";
+const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;
 
 function cloudinaryDocumentStorageReady() {
   return Boolean(
@@ -655,41 +630,26 @@ function cloudinaryDocumentStorageReady() {
   );
 }
 
-function uploadSubmissionDocument(buffer) {
+function configureDocumentCloudinary() {
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
   });
+}
 
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream({
-      folder: "primetask-workspace/transcription/documents",
-      resource_type: "raw",
-      type: "authenticated",
-      format: "docx",
-      use_filename: false,
-      unique_filename: true,
-      overwrite: false
-    }, (error, result) => {
-      if (error) return reject(error);
-      resolve(result);
-    });
-
-    Readable.from(buffer).pipe(stream);
-  });
+function expectedDocumentPublicId(value) {
+  return typeof value === "string" &&
+    /^primetask-workspace\/transcription\/documents\/[0-9a-f-]{36}\.docx$/i.test(value);
 }
 
 async function deleteSubmissionDocument(publicId) {
-  if (
-    typeof publicId !== "string" ||
-    !/^primetask-workspace\/transcription\/documents\/[A-Za-z0-9_./-]+$/.test(publicId) ||
-    publicId.includes("..")
-  ) {
+  if (!expectedDocumentPublicId(publicId) || !cloudinaryDocumentStorageReady()) {
     return;
   }
 
   try {
+    configureDocumentCloudinary();
     await cloudinary.uploader.destroy(publicId, {
       resource_type: "raw",
       type: "authenticated",
@@ -700,31 +660,169 @@ async function deleteSubmissionDocument(publicId) {
   }
 }
 
+async function getVerifiedSubmissionDocument(publicId, userId, jobId) {
+  configureDocumentCloudinary();
+
+  const asset = await cloudinary.api.resource(publicId, {
+    resource_type: "raw",
+    type: "authenticated"
+  });
+
+  const bytes = Number(asset.bytes);
+  const custom = asset.context?.custom || {};
+
+  if (
+    asset.public_id !== publicId ||
+    asset.resource_type !== "raw" ||
+    asset.type !== "authenticated" ||
+    String(asset.format || "").toLowerCase() !== "docx" ||
+    !Number.isSafeInteger(bytes) ||
+    bytes < 1 ||
+    bytes > MAX_DOCUMENT_BYTES ||
+    String(custom.ptw_user_id || "") !== String(userId) ||
+    String(custom.ptw_job_id || "") !== String(jobId)
+  ) {
+    throw new Error("Cloudinary document verification failed.");
+  }
+
+  const url = cloudinary.utils.private_download_url(
+    publicId,
+    "docx",
+    {
+      resource_type: "raw",
+      type: "authenticated",
+      expires_at: Math.floor(Date.now() / 1000) + 120
+    }
+  );
+
+  const parsed = new URL(url);
+  if (
+    parsed.protocol !== "https:" ||
+    !["api.cloudinary.com", "res.cloudinary.com"].includes(parsed.hostname)
+  ) {
+    throw new Error("Cloudinary returned an unexpected download URL.");
+  }
+
+  const response = await fetch(parsed.href);
+  if (!response.ok) {
+    throw new Error("Could not retrieve the uploaded DOCX from Cloudinary.");
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  if (!buffer.length || buffer.length > MAX_DOCUMENT_BYTES) {
+    throw new Error("The stored DOCX has an invalid file size.");
+  }
+
+  await validateDocx(buffer);
+  return { asset, buffer, bytes };
+}
+
+/*
+ * POST /api/transcription/jobs/:id/submissions/document-signature
+ */
+router.post(
+  "/jobs/:id/submissions/document-signature",
+  requireServiceAccess("transcription"),
+  async (req, res) => {
+    if (!isValidId(req.params.id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid job ID."
+      });
+    }
+
+    if (!cloudinaryDocumentStorageReady()) {
+      return res.status(503).json({
+        success: false,
+        message: "Document storage is not configured."
+      });
+    }
+
+    const originalName = typeof req.body?.originalName === "string"
+      ? req.body.originalName.trim()
+      : "";
+    const size = Number(req.body?.size);
+
+    if (
+      !/\.docx$/i.test(originalName) ||
+      !Number.isSafeInteger(size) ||
+      size < 1 ||
+      size > MAX_DOCUMENT_BYTES
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Choose a valid .docx document no larger than 10 MB."
+      });
+    }
+
+    try {
+      await releaseExpiredAssignments();
+
+      const job = await TranscriptionJob.findOne({
+        _id: req.params.id,
+        assignedUserId: req.user._id,
+        status: "awarded",
+        claimedAt: { $ne: null },
+        assignmentExpiresAt: { $gt: new Date() }
+      }).select("_id");
+
+      if (!job) {
+        return res.status(409).json({
+          success: false,
+          message: "You must hold an awarded job that is available for submission."
+        });
+      }
+
+      const existing = await TranscriptionSubmission.findOne({
+        jobId: job._id,
+        userId: req.user._id
+      }).select("_id status");
+
+      if (existing && existing.status !== "rejected") {
+        return res.status(409).json({
+          success: false,
+          message: "This job already has a submission that cannot be revised."
+        });
+      }
+
+      configureDocumentCloudinary();
+
+      const timestamp = Math.floor(Date.now() / 1000);
+      const publicId = `${DOCUMENT_FOLDER}/${crypto.randomUUID()}.docx`;
+      const params = {
+        timestamp,
+        public_id: publicId,
+        type: "authenticated",
+        overwrite: false,
+        allowed_formats: "docx",
+        context: `ptw_user_id=${String(req.user._id)}|ptw_job_id=${String(job._id)}`
+      };
+
+      const signature = cloudinary.utils.api_sign_request(
+        params,
+        process.env.CLOUDINARY_API_SECRET
+      );
+
+      return res.json({
+        success: true,
+        cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+        apiKey: process.env.CLOUDINARY_API_KEY,
+        signature,
+        params
+      });
+    } catch (error) {
+      console.error("DOCX signature error:", error.message);
+      return res.status(502).json({
+        success: false,
+        message: "Could not authorize the DOCX upload."
+      });
+    }
+  }
+);
+
 router.post(
   "/jobs/:id/submissions",
   requireServiceAccess("transcription"),
-  (req, res, next) => {
-    submissionUpload.single("document")(req, res, error => {
-      if (!error) return next();
-
-      if (error instanceof multer.MulterError) {
-        const message = error.code === "LIMIT_FILE_SIZE"
-          ? "DOCX documents must be 10 MB or smaller."
-          : error.code === "LIMIT_UNEXPECTED_FILE"
-            ? 'Upload one DOCX file using the "document" field.'
-            : "The document upload exceeded an allowed limit.";
-
-        return res.status(400).json({ success: false, message });
-      }
-
-      return res.status(400).json({
-        success: false,
-        message: error.message === "UNSUPPORTED_DOCX_TYPE"
-          ? "Upload a .docx Word document with a supported MIME type."
-          : "The document upload could not be processed."
-      });
-    });
-  },
   async (req, res) => {
     if (!isValidId(req.params.id)) {
       return res.status(400).json({
@@ -738,7 +836,27 @@ router.post(
       : "";
 
     const hasText = transcriptText.length > 0;
-    const hasDocument = Boolean(req.file);
+    const documentInput = req.body?.document &&
+      typeof req.body.document === "object"
+      ? req.body.document
+      : null;
+    const hasDocument = Boolean(documentInput);
+    const uploadedPublicId = hasDocument &&
+      typeof documentInput.publicId === "string"
+      ? documentInput.publicId
+      : null;
+
+    const rejectEarly = async (statusCode, message) => {
+      if (expectedDocumentPublicId(uploadedPublicId)) {
+        await deleteSubmissionDocument(uploadedPublicId);
+      }
+
+      return res.status(statusCode).json({
+        success: false,
+        message
+      });
+    };
+
     const submissionLink = typeof req.body?.submissionLink === "string"
       ? req.body.submissionLink.trim()
       : "";
@@ -748,10 +866,10 @@ router.post(
       try {
         parsedLink = new URL(submissionLink);
       } catch {
-        return res.status(400).json({
-          success: false,
-          message: "Provide a valid HTTPS submission link."
-        });
+        return rejectEarly(
+          400,
+          "Provide a valid HTTPS submission link."
+        );
       }
 
       if (
@@ -761,25 +879,25 @@ router.post(
         parsedLink.password ||
         submissionLink.length > 2048
       ) {
-        return res.status(400).json({
-          success: false,
-          message: "Submission link must be a valid HTTPS URL, no longer than 2048 characters, without embedded credentials."
-        });
+        return rejectEarly(
+          400,
+          "Submission link must be a valid HTTPS URL, no longer than 2048 characters, without embedded credentials."
+        );
       }
     }
 
     if (hasText === hasDocument) {
-      return res.status(400).json({
-        success: false,
-        message: "Provide either transcriptText or one DOCX document, not both."
-      });
+      return rejectEarly(
+        400,
+        "Provide either transcriptText or one DOCX document, not both."
+      );
     }
 
     if (hasText && transcriptText.length > 200000) {
-      return res.status(400).json({
-        success: false,
-        message: "Transcript text cannot exceed 200,000 characters."
-      });
+      return rejectEarly(
+        400,
+        "Transcript text cannot exceed 200,000 characters."
+      );
     }
 
     let documentMetadata = null;
@@ -792,24 +910,44 @@ router.post(
         });
       }
 
-      try {
-        await validateDocx(req.file.buffer);
-
-        documentMetadata = {
-          originalName: req.file.originalname
-            .replace(/[\\/\u0000-\u001f\u007f]/g, "_")
-            .slice(-255),
-          bytes: req.file.size
-        };
-      } catch (error) {
+      if (!expectedDocumentPublicId(uploadedPublicId)) {
         return res.status(400).json({
           success: false,
-          message: "The uploaded file is not a valid supported DOCX document."
+          message: "Invalid uploaded document reference."
+        });
+      }
+
+      try {
+        const originalName = typeof documentInput.originalName === "string"
+          ? documentInput.originalName
+          : "";
+
+        if (!/\.docx$/i.test(originalName) || originalName.length > 255) {
+          throw new Error("Invalid document filename.");
+        }
+
+        const verified = await getVerifiedSubmissionDocument(
+          uploadedPublicId,
+          req.user._id,
+          req.params.id
+        );
+
+        documentMetadata = {
+          originalName: originalName
+            .replace(/[\\/\u0000-\u001f\u007f]/g, "_")
+            .slice(-255),
+          bytes: verified.bytes
+        };
+      } catch (error) {
+        await deleteSubmissionDocument(uploadedPublicId);
+        console.error("DOCX verification error:", error.message);
+        return res.status(400).json({
+          success: false,
+          message: "The uploaded file is not a valid supported DOCX document for this job."
         });
       }
     }
 
-    let uploadedPublicId = null;
     let oldPublicId = null;
     let submissionSaved = false;
 
@@ -825,6 +963,7 @@ router.post(
       }).select("_id rewardCents claimedAt assignmentExpiresAt");
 
       if (!eligibleJob) {
+        if (uploadedPublicId) await deleteSubmissionDocument(uploadedPublicId);
         return res.status(409).json({
           success: false,
           message: "You must hold an awarded job that is available for submission."
@@ -837,43 +976,17 @@ router.post(
       }).select("_id status documentPublicId");
 
       if (existing && existing.status !== "rejected") {
+        if (uploadedPublicId) {
+          await deleteSubmissionDocument(uploadedPublicId);
+        }
+
         return res.status(409).json({
           success: false,
           message: "This job already has a submission that cannot be revised."
         });
       }
 
-      if (hasDocument) {
-        const uploaded = await uploadSubmissionDocument(req.file.buffer);
 
-        console.error("[DOCX Cloudinary response metadata]", {
-          resource_type: uploaded.resource_type,
-          type: uploaded.type,
-          public_id: uploaded.public_id,
-          format: uploaded.format,
-          asset_folder: uploaded.asset_folder,
-          bytes: uploaded.bytes
-        });
-
-        if (
-          uploaded.resource_type !== "raw" ||
-          uploaded.type !== "authenticated" ||
-          typeof uploaded.public_id !== "string" ||
-          !uploaded.public_id.startsWith(
-            "primetask-workspace/transcription/documents/"
-          ) ||
-          uploaded.public_id.includes("..") ||
-          uploaded.format !== "docx"
-        ) {
-          if (uploaded.public_id) {
-            await deleteSubmissionDocument(uploaded.public_id);
-          }
-
-          throw new Error("Cloudinary returned an unexpected document configuration.");
-        }
-
-        uploadedPublicId = uploaded.public_id;
-      }
 
       const content = {
         transcriptText: hasText ? transcriptText : "",
