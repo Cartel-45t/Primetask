@@ -142,8 +142,7 @@ after(async () => {
 function validJobPayload(overrides = {}) {
   return {
     title: "sample-audio",
-    description: "Transcribe the provided recording accurately.",
-    instructions: "Submit a DOCX document with speaker labels.",
+    requiredTranscript: "Clean verbatim with speaker labels.",
     audioPublicId: "primetask-workspace/transcription/audio/sample-audio",
     ...overrides
   };

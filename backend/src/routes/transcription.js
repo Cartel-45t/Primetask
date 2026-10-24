@@ -131,7 +131,8 @@ function publicJob(job) {
   return {
     id: String(job._id),
     title: job.title,
-    description: job.description,
+    description: job.description || "",
+    requiredTranscript: job.requiredTranscript || "",
     durationMinutes: job.durationMinutes,
     reward: Number((job.rewardCents / 100).toFixed(2)),
     currency: "USD",

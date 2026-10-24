@@ -4,7 +4,8 @@ const mongoose = require("mongoose");
 
 const transcriptionJobSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true, maxlength: 180 },
-  description: { type: String, required: true, trim: true, maxlength: 10000 },
+  description: { type: String, default: "", trim: true, maxlength: 10000 },
+  requiredTranscript: { type: String, default: "", trim: true, maxlength: 10000 },
   audioAssetUrl: { type: String, default: null, trim: true, maxlength: 2048 },
   audioPublicId: { type: String, default: null, trim: true, maxlength: 300 },
   durationMinutes: { type: Number, required: true, min: 1, max: 10000 },

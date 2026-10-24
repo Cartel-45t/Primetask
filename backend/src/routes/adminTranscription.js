@@ -127,18 +127,15 @@ router.get("/overview", async (req, res) => {
 router.post("/jobs", async (req, res) => {
   const {
     title,
-    description,
+    requiredTranscript,
     audioPublicId,
-    instructions,
     dueAt,
     publishAt,
     rewardUsd
   } = req.body || {};
 
-  const descriptionValue =
-    typeof description === "string" ? description.trim() : "";
-  const instructionsValue =
-    typeof instructions === "string" ? instructions.trim() : "";
+  const requiredTranscriptValue =
+    typeof requiredTranscript === "string" ? requiredTranscript.trim() : "";
   const publicId =
     typeof audioPublicId === "string" ? audioPublicId.trim() : "";
 
@@ -153,10 +150,8 @@ router.post("/jobs", async (req, res) => {
   if (
     !suppliedTitleIsValid ||
     titleValue.length > 180 ||
-    !descriptionValue ||
-    descriptionValue.length > 10000 ||
-    !instructionsValue ||
-    instructionsValue.length > 10000 ||
+    !requiredTranscriptValue ||
+    requiredTranscriptValue.length > 10000 ||
     !/^primetask-workspace\/transcription\/audio\/[A-Za-z0-9_./-]+$/.test(publicId) ||
     publicId.includes("..")
   ) {
@@ -289,12 +284,13 @@ router.post("/jobs", async (req, res) => {
 
     const job = await Job.create({
       title: finalTitle,
-      description: descriptionValue,
+      description: "",
+      requiredTranscript: requiredTranscriptValue,
       audioAssetUrl: null,
       audioPublicId: publicId,
       durationMinutes,
       rewardCents,
-      instructions: instructionsValue,
+      instructions: "",
       status: "open",
       assignedUserId: null,
       createdByAdminId: req.user._id,
@@ -355,8 +351,7 @@ router.get("/jobs", async (req, res) => {
       jobs: jobs.map(job => ({
         id: String(job._id),
         title: job.title,
-        description: job.description,
-        instructions: job.instructions,
+        requiredTranscript: job.requiredTranscript || "",
         durationMinutes: job.durationMinutes,
         reward: Number((job.rewardCents / 100).toFixed(2)),
         currency: "USD",
