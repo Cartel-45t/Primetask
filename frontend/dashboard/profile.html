@@ -445,58 +445,17 @@ pictureForm.addEventListener("submit", async event => {
   setPictureStatus("Uploading picture...");
 
   try {
-    const signatureResponse = await fetch(
-      apiRoot() + "/profile/picture/signature",
-      {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          originalName: selectedPicture.name,
-          size: selectedPicture.size,
-          type: selectedPicture.type
-        })
-      }
-    );
+    const body = new FormData();
+    body.append("picture", selectedPicture);
 
-    const signature = await signatureResponse.json().catch(() => ({}));
-    if (!signatureResponse.ok || !signature.success) {
-      throw new Error(
-        signature.message || "Could not authorize the picture upload."
-      );
-    }
-
-    const uploadBody = new FormData();
-    for (const [key, value] of Object.entries(signature.params || {})) {
-      uploadBody.append(key, String(value));
-    }
-    uploadBody.append("api_key", signature.apiKey);
-    uploadBody.append("signature", signature.signature);
-    uploadBody.append("file", selectedPicture);
-
-    const cloudinaryResponse = await fetch(
-      `https://api.cloudinary.com/v1_1/${encodeURIComponent(signature.cloudName)}/image/upload`,
-      { method: "POST", body: uploadBody }
-    );
-    const uploaded = await cloudinaryResponse.json().catch(() => ({}));
-
-    if (!cloudinaryResponse.ok || !uploaded.public_id) {
-      throw new Error(
-        uploaded.error?.message || "Cloudinary could not upload the picture."
-      );
-    }
-
-    const response = await fetch(apiRoot() + "/profile/picture/complete", {
+    const response = await fetch(apiRoot() + "/profile/picture", {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ publicId: uploaded.public_id })
+      body
     });
     const result = await response.json().catch(() => ({}));
-    if (!response.ok || !result.success) {
-      throw new Error(
-        result.message || "The uploaded picture could not be verified."
-      );
+    if (!response.ok) {
+      throw new Error(result.message || result.error || "Picture upload failed.");
     }
 
     currentUser = result.user || result.data || currentUser || {};
