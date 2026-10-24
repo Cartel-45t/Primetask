@@ -714,7 +714,6 @@ router.post("/:id/wallet-adjustment", async (req, res) => {
   const idempotencyKey = req.get("Idempotency-Key");
   const direction = req.body.direction;
   const amount = Number(req.body.amount);
-  const reason = String(req.body.reason || "").trim();
   const amountCents = Math.round(amount * 100);
 
   if (
@@ -749,12 +748,6 @@ router.post("/:id/wallet-adjustment", async (req, res) => {
     });
   }
 
-  if (reason.length < 5 || reason.length > 500) {
-    return res.status(400).json({
-      success: false,
-      message: "Provide an audit reason between 5 and 500 characters."
-    });
-  }
 
   let session;
 
@@ -861,14 +854,12 @@ router.post("/:id/wallet-adjustment", async (req, res) => {
         idempotencyKey,
         adjustmentField: "availableBalance",
         adjustmentDirection: direction,
-        adjustmentReason: reason,
         adjustmentBeforeCents: beforeCents,
         adjustmentAfterCents: afterCents,
         reference,
         description:
           "Admin " + String(req.user.username || "admin") +
-          ": " + direction + ". " + reason +
-          ". Balance " + usd(beforeCents) +
+          ": " + direction + ". Balance " + usd(beforeCents) +
           " -> " + usd(afterCents) + " USD.",
         completedAt: new Date()
       }], { session });
@@ -877,7 +868,6 @@ router.post("/:id/wallet-adjustment", async (req, res) => {
         adminId: req.user._id,
         targetUserId: user._id,
         action: "wallet." + direction,
-        reason,
         before: {
           availableBalance: usd(beforeCents),
           currency: "USD"
@@ -921,7 +911,6 @@ router.post("/:id/wallet-adjustment", async (req, res) => {
             existing.amountCents === amountCents &&
             existing.adjustmentField === "availableBalance" &&
             existing.adjustmentDirection === direction &&
-            existing.adjustmentReason === reason &&
             existing.currency === "USD" &&
             existing.status === "completed" &&
             Number.isSafeInteger(existing.adjustmentBeforeCents) &&
@@ -1020,7 +1009,6 @@ router.post("/:id/earnings-adjustment", async (req, res) => {
   const direction = req.body.direction;
   const amount = Number(req.body.amount);
   const amountCents = Math.round(amount * 100);
-  const reason = String(req.body.reason || "").trim();
 
   if (typeof key !== "string" || key.length < 8 || key.length > 100 ||
       !/^[A-Za-z0-9._:-]+$/.test(key)) {
@@ -1038,11 +1026,6 @@ router.post("/:id/earnings-adjustment", async (req, res) => {
     return res.status(400).json({
       success: false,
       message: "Enter a positive USD amount with no more than two decimal places."
-    });
-  }
-  if (reason.length < 5 || reason.length > 500) {
-    return res.status(400).json({
-      success: false, message: "Provide an audit reason between 5 and 500 characters."
     });
   }
 
@@ -1068,7 +1051,6 @@ router.post("/:id/earnings-adjustment", async (req, res) => {
           existing.adjustmentField === "totalEarnings" &&
           existing.amountCents === amountCents &&
           existing.adjustmentDirection === direction &&
-          existing.adjustmentReason === reason &&
           existing.currency === "USD" && existing.status === "completed";
 
         if (!same) {
@@ -1150,11 +1132,10 @@ router.post("/:id/earnings-adjustment", async (req, res) => {
         idempotencyKey: key,
         adjustmentField: "totalEarnings",
         adjustmentDirection: direction,
-        adjustmentReason: reason,
         adjustmentBeforeCents: before,
         adjustmentAfterCents: after,
         reference: "ADMIN-EARNINGS-" + new mongoose.Types.ObjectId().toString(),
-        description: "Admin earnings " + direction + ": " + reason,
+        description: "Admin earnings " + direction + ".",
         completedAt: new Date()
       }], { session });
 
@@ -1162,7 +1143,6 @@ router.post("/:id/earnings-adjustment", async (req, res) => {
         adminId: req.user._id,
         targetUserId: user._id,
         action: "earnings." + direction,
-        reason,
         before: { totalEarnings: usd(before), currency: "USD" },
         after: {
           totalEarnings: usd(after),
@@ -1207,7 +1187,6 @@ router.post("/:id/earnings-adjustment", async (req, res) => {
           existing.adjustmentField === "totalEarnings" &&
           existing.amountCents === amountCents &&
           existing.adjustmentDirection === direction &&
-          existing.adjustmentReason === reason &&
           existing.currency === "USD" && existing.status === "completed") {
         return res.json({
           success: true,
@@ -1269,7 +1248,6 @@ router.post("/:id/membership-award", async (req, res) => {
 
   const key = req.get("Idempotency-Key");
   const planId = req.body.planId;
-  const reason = String(req.body.reason || "").trim();
 
   if (typeof key !== "string" || key.length < 8 || key.length > 100 ||
       !/^[A-Za-z0-9._:-]+$/.test(key)) {
@@ -1279,11 +1257,6 @@ router.post("/:id/membership-award", async (req, res) => {
   }
   if (!validId(planId)) {
     return res.status(400).json({ success: false, message: "Select a valid membership plan." });
-  }
-  if (reason.length < 5 || reason.length > 500) {
-    return res.status(400).json({
-      success: false, message: "Provide an award reason between 5 and 500 characters."
-    });
   }
 
   let session;
@@ -1316,8 +1289,7 @@ router.post("/:id/membership-award", async (req, res) => {
 
       if (existing) {
         const same = String(existing.userId) === String(user._id) &&
-          String(existing.planId) === String(plan._id) &&
-          existing.grantReason === reason;
+          String(existing.planId) === String(plan._id);
 
         if (!same) {
           const error = new Error("Idempotency key already used for another award.");
@@ -1374,7 +1346,6 @@ router.post("/:id/membership-award", async (req, res) => {
         status: "active",
         purchaseId: null,
         grantSource: "admin_award",
-        grantReason: reason,
         grantedByAdminId: req.user._id,
         grantIdempotencyKey: key,
         startsAt,
@@ -1386,7 +1357,6 @@ router.post("/:id/membership-award", async (req, res) => {
         adminId: req.user._id,
         targetUserId: user._id,
         action: "membership.admin_award",
-        reason,
         before: {
           activeMembershipIds: current.map(item => String(item._id)),
           latestExpiry: baseExpiry
@@ -1434,8 +1404,7 @@ router.post("/:id/membership-award", async (req, res) => {
       }).lean().catch(() => null);
 
       if (existing && String(existing.userId) === String(req.params.id) &&
-          String(existing.planId) === String(planId) &&
-          existing.grantReason === reason) {
+          String(existing.planId) === String(planId)) {
         return res.json({
           success: true,
           message: "This membership award was already processed.",

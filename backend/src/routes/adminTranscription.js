@@ -1038,22 +1038,12 @@ router.patch("/withdrawals/:id/review", async (req, res) => {
   }
 
   const decision = String(req.body?.decision || "").trim().toLowerCase();
-  const mpesaReceipt = String(req.body?.mpesaReceipt || "")
-    .trim()
-    .toUpperCase();
   const reviewNote = String(req.body?.reviewNote || "").trim();
 
   if (!["paid", "reject"].includes(decision)) {
     return res.status(400).json({
       success: false,
       message: "Decision must be paid or reject."
-    });
-  }
-
-  if (decision === "paid" && !/^[A-Z0-9]{8,20}$/.test(mpesaReceipt)) {
-    return res.status(400).json({
-      success: false,
-      message: "Provide a valid M-Pesa receipt reference."
     });
   }
 
@@ -1081,8 +1071,7 @@ router.patch("/withdrawals/:id/review", async (req, res) => {
             status: decision === "paid" ? "paid" : "rejected",
             reviewedBy: req.user._id,
             reviewedAt: new Date(),
-            reviewNote,
-            ...(decision === "paid" ? { mpesaReceipt } : {})
+            ...(decision === "reject" ? { reviewNote } : {})
           }
         },
         { returnDocument: "after", session, runValidators: true }
