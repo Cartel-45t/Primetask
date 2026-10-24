@@ -18,6 +18,30 @@ const PROFILE_FIELDS =
   "firstName lastName username email phone role status emailVerified " +
   "selectedService profilePictureUrl referredBy createdAt updatedAt";
 
+function publicProfile(user) {
+  return {
+    firstName: user.firstName,
+    lastName: user.lastName,
+    username: user.username,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+    status: user.status,
+    emailVerified: user.emailVerified,
+    selectedService: user.selectedService || null,
+    profilePictureUrl: user.profilePictureUrl || null,
+    sponsor: user.referredBy
+      ? {
+          username: user.referredBy.username,
+          firstName: user.referredBy.firstName,
+          lastName: user.referredBy.lastName
+        }
+      : null,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
+  };
+}
+
 function cloudinaryReady() {
   return Boolean(
     process.env.CLOUDINARY_CLOUD_NAME &&
