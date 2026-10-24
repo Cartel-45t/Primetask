@@ -51,8 +51,18 @@
     withdrawals: {
       title: "Withdrawal records",
       url: "/admin/reports/withdrawals",
-      columns: ["requestId", "user", "amountUsd", "currency", "status", "phoneNumber", "mpesaReceipt", "reviewedBy", "adminNote", "createdAt"],
-      filters: { status: ["pending_review", "approved", "paid", "rejected"] }
+      columns: [
+        "requestId", "user", "amountUsd", "currency",
+        "exchangeRateKesPerUsd", "payoutAmountKes", "status",
+        "phoneNumber", "b2cInitiationState", "mpesaReceipt",
+        "b2cResultDescription", "reviewedBy", "adminNote", "createdAt"
+      ],
+      filters: {
+        status: [
+          "pending_review", "approved", "processing",
+          "reconciliation_required", "paid", "rejected"
+        ]
+      }
     },
 
     "audit-logs": {
@@ -194,8 +204,11 @@
 
         if (row?.status === "pending_review") {
           choices = [["approve", "Approve"], ["reject", "Reject"]];
-        } else if (row?.status === "approved") {
-          choices = [["paid", "Mark Paid"]];
+        } else if (
+          row?.status === "approved" &&
+          (!row?.b2cInitiationState || row.b2cInitiationState === "not_started")
+        ) {
+          choices = [["initiate-b2c", "Initiate B2C"]];
         }
 
         if (!choices.length) {
@@ -413,27 +426,20 @@
           `Reject withdrawal ${requestId} and release its reserved wallet balance?`
         )) return;
 
-      } else if (action === "paid") {
+      } else if (action === "initiate-b2c") {
         if (!window.confirm(
-          `Have you already sent ${amountLabel} to the requested phone number ` +
-          "and verified the M-Pesa transfer? This action only records the payment."
+          `Initiate one B2C payout attempt for withdrawal ${requestId}? ` +
+          `Saved payout amount: KSh ${row?.payoutAmountKes ?? "unknown"}. ` +
+          "This sends a payment request to Safaricom. If the outcome is unclear, " +
+          "the request must be reconciled and must not be retried automatically."
         )) return;
 
-        const receipt = window.prompt(
-          "Enter the verified M-Pesa receipt code:"
+      } else if (action === "paid") {
+        message(
+          "Manual completion is not available in this interface. Use verified B2C callbacks and reconciliation.",
+          "error"
         );
-
-        if (receipt === null) return;
-
-        body.mpesaReceipt = receipt.trim().toUpperCase();
-
-        if (!/^[A-Z0-9]{6,30}$/.test(body.mpesaReceipt)) {
-          message(
-            "Enter a valid M-Pesa receipt code containing 6 to 30 letters or numbers.",
-            "error"
-          );
-          return;
-        }
+        return;
 
       } else {
         message("Unsupported withdrawal action.", "error");

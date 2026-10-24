@@ -326,7 +326,7 @@ router.get("/withdrawals", async (req, res) => {
     const { page, limit, skip } = pagination(req);
     const filter = {};
 
-    if (["pending_review", "approved", "paid", "rejected"].includes(req.query.status)) {
+    if (["pending_review", "approved", "processing", "reconciliation_required", "paid", "rejected"].includes(req.query.status)) {
       filter.status = req.query.status;
     }
 
@@ -356,9 +356,15 @@ router.get("/withdrawals", async (req, res) => {
       user: row.userId || null,
       amountUsd: usd(row.amountCents),
       currency: row.currency,
+      exchangeRateKesPerUsd: row.exchangeRateKesPerUsd ?? null,
+      payoutAmountKes: row.payoutAmountKes ?? null,
       status: row.status,
       phoneNumber: row.phoneNumber,
       mpesaReceipt: row.mpesaReceipt,
+      b2cInitiationState: row.b2cInitiationState || "not_started",
+      b2cOriginatorConversationId: row.b2cOriginatorConversationId || null,
+      b2cConversationId: row.b2cConversationId || null,
+      b2cResultDescription: row.b2cResultDescription || null,
       transactionId: row.transactionId,
       reviewedBy: row.reviewedBy || null,
       reviewedAt: row.reviewedAt,

@@ -3,11 +3,13 @@ const mongoose = require("mongoose");
 const { randomInt, randomUUID } = require("crypto");
 
 const Withdrawal = require("../models/Withdrawal");
+const PlatformSetting = require("../models/PlatformSetting");
 const MpesaReceiptClaim = require("../models/MpesaReceiptClaim");
 const Wallet = require("../models/Wallet");
 const WalletTransaction = require("../models/WalletTransaction");
 const AdminAuditLog = require("../models/AdminAuditLog");
 const requireAuth = require("../middleware/requireAuth");
+const { initiateB2CPayment } = require("../services/darajaB2CService");
 
 const router = express.Router();
 router.use(requireAuth);
@@ -125,6 +127,35 @@ router.post("/", async (req, res) => {
     });
   }
 
+  let platformSettings;
+  try {
+    platformSettings = await PlatformSetting.findOne({ key: "platform" }).lean();
+  } catch (error) {
+    console.error("Withdrawal exchange-rate lookup failed:", error.message);
+    return sendServerError(res, "Could not verify the withdrawal exchange rate.");
+  }
+
+  const exchangeRateKesPerUsd = platformSettings?.exchangeRateKesPerUsd;
+  if (
+    typeof exchangeRateKesPerUsd !== "number" ||
+    !Number.isFinite(exchangeRateKesPerUsd) ||
+    exchangeRateKesPerUsd < 1 ||
+    exchangeRateKesPerUsd > 1000
+  ) {
+    return res.status(503).json({
+      success: false,
+      message: "Withdrawals are temporarily unavailable because the administrator has not configured a valid KES-per-USD exchange rate."
+    });
+  }
+
+  const payoutAmountKes = Math.round(amountCents * exchangeRateKesPerUsd / 100);
+  if (!Number.isSafeInteger(payoutAmountKes) || payoutAmountKes < 1) {
+    return res.status(400).json({
+      success: false,
+      message: "The calculated M-Pesa payout amount is invalid."
+    });
+  }
+
   const requestId = `WD-${randomUUID()}`;
   let publicReference;
   const session = await mongoose.startSession();
@@ -166,6 +197,8 @@ router.post("/", async (req, res) => {
           userId: req.user._id,
           amountCents,
           currency: "USD",
+          exchangeRateKesPerUsd,
+          payoutAmountKes,
           phoneNumber
         }],
         { session }
@@ -192,6 +225,8 @@ router.post("/", async (req, res) => {
         publicReference,
         amount: centsToUSD(amountCents),
         currency: "USD",
+        exchangeRateKesPerUsd,
+        payoutAmountKes,
         phoneNumber,
         status: withdrawal.status,
         createdAt: withdrawal.createdAt,
@@ -228,6 +263,8 @@ router.post("/", async (req, res) => {
         publicReference: result.publicReference,
         amount: result.amount,
         currency: result.currency,
+        exchangeRateKesPerUsd: result.exchangeRateKesPerUsd,
+        payoutAmountKes: result.payoutAmountKes,
         phoneNumber: result.phoneNumber,
         status: result.status,
         createdAt: result.createdAt
@@ -265,7 +302,7 @@ router.get("/mine", async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(50)
       .select(
-        "requestId publicReference amountCents currency phoneNumber status mpesaReceipt adminNote createdAt reviewedAt"
+        "requestId publicReference amountCents currency exchangeRateKesPerUsd payoutAmountKes phoneNumber status mpesaReceipt adminNote createdAt reviewedAt"
       )
       .lean();
 
@@ -301,7 +338,10 @@ router.get("/admin", async (req, res) => {
 
   try {
     const status = String(req.query.status || "pending_review");
-    const allowed = ["pending_review", "paid", "rejected"];
+    const allowed = [
+      "pending_review", "approved", "processing",
+      "reconciliation_required", "paid", "rejected"
+    ];
 
     if (!allowed.includes(status)) {
       return res.status(400).json({
@@ -363,7 +403,7 @@ router.post("/:requestId/approve", async (req, res) => {
             status: "approved",
             reviewedBy: req.user._id,
             reviewedAt: new Date(),
-            adminNote: "Approved for manual payout."
+            adminNote: "Approved. B2C initiation requires a separate admin action."
           }
         },
         {
@@ -398,7 +438,7 @@ router.post("/:requestId/approve", async (req, res) => {
         adminId: req.user._id,
         targetUserId: withdrawal.userId,
         action: "withdrawal.approved",
-        reason: "Withdrawal approved for manual payout.",
+        reason: "Withdrawal approved; no payout was initiated.",
         before: {
           status: "pending_review",
           amountCents: withdrawal.amountCents,
@@ -417,7 +457,7 @@ result = { requestId: withdrawal.requestId };
 
     return res.json({
       success: true,
-      message: "Withdrawal approved for manual payout. No payment has been sent.",
+      message: "Withdrawal approved. No payment has been sent; initiate B2C separately.",
       requestId: result.requestId
     });
   } catch (error) {
@@ -441,6 +481,263 @@ result = { requestId: withdrawal.requestId };
     );
   } finally {
     await session.endSession();
+  }
+});
+
+
+/*
+ * POST /api/wallet/withdrawals/:requestId/initiate-b2c
+ *
+ * One explicit admin attempt per withdrawal. Persist the attempt and unique
+ * originator ID before contacting Daraja. Never automatically retry.
+ */
+router.post("/:requestId/initiate-b2c", async (req, res) => {
+  if (!isAdmin(req)) {
+    return res.status(403).json({
+      success: false,
+      message: "Admin access required."
+    });
+  }
+
+  // Do not reserve an attempt while the feature is disabled.
+  if (
+    process.env.DARAJA_LIVE_ENABLED !== "true" ||
+    process.env.DARAJA_B2C_ENABLED !== "true"
+  ) {
+    return res.status(503).json({
+      success: false,
+      message: "Daraja B2C initiation is disabled. No attempt was started."
+    });
+  }
+
+  const session = await mongoose.startSession();
+  let attempt;
+
+  try {
+    await session.withTransaction(async () => {
+      const withdrawal = await Withdrawal.findOne({
+        requestId: req.params.requestId,
+        status: "approved",
+        b2cInitiationState: "not_started",
+        $or: [
+          { b2cOriginatorConversationId: null },
+          { b2cOriginatorConversationId: { $exists: false } }
+        ]
+      }).session(session);
+
+      if (!withdrawal) {
+        const error = new Error("WITHDRAWAL_NOT_INITIABLE");
+        error.code = "WITHDRAWAL_NOT_INITIABLE";
+        throw error;
+      }
+
+      if (
+        !withdrawal.transactionId ||
+        !Number.isSafeInteger(withdrawal.payoutAmountKes) ||
+        withdrawal.payoutAmountKes < 1 ||
+        !/^254[17]\d{8}$/.test(String(withdrawal.phoneNumber || ""))
+      ) {
+        throw new Error("Withdrawal payout details or linked ledger are invalid.");
+      }
+
+      const ledger = await WalletTransaction.findOne({
+        _id: withdrawal.transactionId,
+        userId: withdrawal.userId,
+        type: "withdrawal",
+        status: "pending",
+        amountCents: withdrawal.amountCents
+      }).session(session);
+
+      if (!ledger) {
+        throw new Error("Matching pending withdrawal ledger entry is missing or inconsistent.");
+      }
+
+      const originatorConversationId = `PTWB2C_${randomUUID()}`;
+      const initiatedAt = new Date();
+
+      const claimed = await Withdrawal.updateOne(
+        {
+          _id: withdrawal._id,
+          status: "approved",
+          b2cInitiationState: "not_started",
+          $or: [
+            { b2cOriginatorConversationId: null },
+            { b2cOriginatorConversationId: { $exists: false } }
+          ]
+        },
+        {
+          $set: {
+            status: "processing",
+            b2cInitiationState: "submitting",
+            b2cOriginatorConversationId: originatorConversationId,
+            b2cInitiatedAt: initiatedAt,
+            adminNote: "B2C initiation attempted; awaiting provider confirmation."
+          }
+        },
+        { session, runValidators: true }
+      );
+
+      if (claimed.modifiedCount !== 1) {
+        const error = new Error("WITHDRAWAL_NOT_INITIABLE");
+        error.code = "WITHDRAWAL_NOT_INITIABLE";
+        throw error;
+      }
+
+      await AdminAuditLog.create([{
+        adminId: req.user._id,
+        targetUserId: withdrawal.userId,
+        action: "withdrawal.b2c_initiation_started",
+        reason: "Admin initiated a single B2C attempt; provider outcome is not yet confirmed.",
+        before: {
+          status: "approved",
+          amountCents: withdrawal.amountCents,
+          currency: withdrawal.currency
+        },
+        after: {
+          status: "processing",
+          amountCents: withdrawal.amountCents,
+          currency: withdrawal.currency,
+          payoutAmountKes: withdrawal.payoutAmountKes,
+          originatorConversationId,
+          requestId: withdrawal.requestId
+        },
+        ipAddress: req.ip
+      }], { session });
+
+      attempt = {
+        requestId: withdrawal.requestId,
+        userId: withdrawal.userId,
+        originatorConversationId,
+        phoneNumber: withdrawal.phoneNumber,
+        amountKes: withdrawal.payoutAmountKes
+      };
+    });
+
+    if (!attempt) {
+      throw new Error("B2C initiation attempt was not persisted.");
+    }
+  } catch (error) {
+    if (error.code === "WITHDRAWAL_NOT_INITIABLE") {
+      const exists = await Withdrawal.exists({
+        requestId: req.params.requestId
+      });
+
+      return res.status(exists ? 409 : 404).json({
+        success: false,
+        message: exists
+          ? "This withdrawal is not eligible for a new B2C attempt. Check its status before taking action."
+          : "Withdrawal request not found."
+      });
+    }
+
+    console.error("Prepare B2C withdrawal error:", error.message);
+    return sendServerError(
+      res,
+      "Could not safely prepare the B2C attempt. Verify the withdrawal and ledger records."
+    );
+  } finally {
+    await session.endSession();
+  }
+
+  try {
+    const providerResult = await initiateB2CPayment({
+      originatorConversationId: attempt.originatorConversationId,
+      phoneNumber: attempt.phoneNumber,
+      amountKes: attempt.amountKes,
+      remarks: `PTW withdrawal ${attempt.requestId}`,
+      occasion: "Member withdrawal"
+    });
+
+    if (!providerResult.accepted) {
+      // Even a provider rejection is not automatically retried. Keep the
+      // withdrawal reserved and send it for explicit reconciliation.
+      await Withdrawal.updateOne(
+        {
+          requestId: attempt.requestId,
+          b2cOriginatorConversationId: attempt.originatorConversationId,
+          status: "processing",
+          b2cInitiationState: "submitting"
+        },
+        {
+          $set: {
+            status: "reconciliation_required",
+            b2cInitiationState: "unknown",
+            b2cConversationId: providerResult.conversationId || null,
+            b2cResultDescription: String(
+              providerResult.responseDescription ||
+              providerResult.message ||
+              "Provider did not confirm payment initiation."
+            ).slice(0, 500),
+            adminNote: "B2C outcome requires reconciliation. Do not retry automatically."
+          }
+        }
+      );
+
+      return res.status(202).json({
+        success: false,
+        reconciliationRequired: true,
+        message: "The provider did not confirm initiation. The withdrawal requires reconciliation; do not retry it.",
+        requestId: attempt.requestId
+      });
+    }
+
+    // A callback can arrive before this response is handled. Only update
+    // a still-submitting attempt; never overwrite callback success.
+    await Withdrawal.updateOne(
+      {
+        requestId: attempt.requestId,
+        b2cOriginatorConversationId: attempt.originatorConversationId,
+        status: "processing",
+        b2cInitiationState: "submitting"
+      },
+      {
+        $set: {
+          b2cInitiationState: "accepted",
+          b2cConversationId: providerResult.conversationId || null,
+          b2cResultDescription: String(
+            providerResult.responseDescription || "Provider accepted the request."
+          ).slice(0, 500)
+        }
+      }
+    );
+
+    return res.status(202).json({
+      success: true,
+      message: "B2C request submitted. Final payment status depends on the verified provider callback.",
+      requestId: attempt.requestId
+    });
+  } catch (error) {
+    // The request may have reached Safaricom even when our connection failed.
+    // Therefore this state is deliberately non-retryable by this endpoint.
+    console.error("B2C initiation outcome requires reconciliation:", error.message);
+
+    try {
+      await Withdrawal.updateOne(
+        {
+          requestId: attempt.requestId,
+          b2cOriginatorConversationId: attempt.originatorConversationId,
+          status: "processing",
+          b2cInitiationState: "submitting"
+        },
+        {
+          $set: {
+            status: "reconciliation_required",
+            b2cInitiationState: "unknown",
+            b2cResultDescription: "Initiation outcome could not be confirmed. Manual reconciliation required.",
+            adminNote: "B2C outcome unknown. Do not retry or refund until reconciled."
+          }
+        }
+      );
+    } catch (updateError) {
+      console.error("Could not persist B2C reconciliation state:", updateError.message);
+    }
+
+    return res.status(202).json({
+      success: false,
+      reconciliationRequired: true,
+      message: "The initiation outcome is unknown. Reconcile with Safaricom before any further action.",
+      requestId: attempt.requestId
+    });
   }
 });
 
@@ -479,7 +776,12 @@ router.post("/:requestId/paid", async (req, res) => {
       const withdrawal = await Withdrawal.findOneAndUpdate(
         {
           requestId: req.params.requestId,
-          status: "approved"
+          status: "approved",
+          b2cInitiationState: "not_started",
+          $or: [
+            { b2cOriginatorConversationId: null },
+            { b2cOriginatorConversationId: { $exists: false } }
+          ]
         },
         {
           $set: {

@@ -32,6 +32,26 @@ const withdrawalSchema = new mongoose.Schema(
       default: "USD",
       immutable: true
     },
+    exchangeRateKesPerUsd: {
+      type: Number,
+      min: 1,
+      max: 1000,
+      immutable: true,
+      default: null
+    },
+    payoutAmountKes: {
+      type: Number,
+      min: 1,
+      validate: {
+        validator: value =>
+          value === null ||
+          value === undefined ||
+          Number.isSafeInteger(value),
+        message: "Payout amount must be a whole KSh amount."
+      },
+      immutable: true,
+      default: null
+    },
     phoneNumber: {
       type: String,
       required: true,
@@ -40,9 +60,54 @@ const withdrawalSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending_review", "approved", "paid", "rejected"],
+      enum: [
+        "pending_review",
+        "approved",
+        "processing",
+        "reconciliation_required",
+        "paid",
+        "rejected"
+      ],
       default: "pending_review",
       index: true
+    },
+    b2cOriginatorConversationId: {
+      type: String,
+      trim: true,
+      maxlength: 100,
+      default: null
+    },
+    b2cConversationId: {
+      type: String,
+      trim: true,
+      maxlength: 150,
+      default: null
+    },
+    b2cInitiationState: {
+      type: String,
+      enum: [
+        "not_started",
+        "submitting",
+        "accepted",
+        "unknown",
+        "rejected",
+        "succeeded"
+      ],
+      default: "not_started"
+    },
+    b2cInitiatedAt: {
+      type: Date,
+      default: null
+    },
+    b2cResultCode: {
+      type: Number,
+      default: null
+    },
+    b2cResultDescription: {
+      type: String,
+      trim: true,
+      maxlength: 500,
+      default: null
     },
     transactionId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -78,6 +143,17 @@ const withdrawalSchema = new mongoose.Schema(
 );
 
 withdrawalSchema.index({ userId: 1, createdAt: -1 });
+
+withdrawalSchema.index(
+  { b2cOriginatorConversationId: 1 },
+  {
+    unique: true,
+    name: "unique_withdrawal_b2c_originator_id",
+    partialFilterExpression: {
+      b2cOriginatorConversationId: { $type: "string" }
+    }
+  }
+);
 
 withdrawalSchema.index(
   { publicReference: 1 },

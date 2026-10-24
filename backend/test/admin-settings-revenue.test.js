@@ -44,12 +44,14 @@ function makeSettingsDocument() {
     key: "platform",
     registrationEnabled: settingState.registrationEnabled,
     maintenanceMode: settingState.maintenanceMode,
+    exchangeRateKesPerUsd: settingState.exchangeRateKesPerUsd ?? null,
     updatedAt: settingState.updatedAt,
     updatedBy: settingState.updatedBy || null,
     async save() {
       settingState = {
         registrationEnabled: this.registrationEnabled,
         maintenanceMode: this.maintenanceMode,
+        exchangeRateKesPerUsd: this.exchangeRateKesPerUsd,
         updatedAt: this.updatedAt,
         updatedBy: this.updatedBy
       };
@@ -114,6 +116,7 @@ beforeEach(() => {
   settingState = {
     registrationEnabled: true,
     maintenanceMode: false,
+    exchangeRateKesPerUsd: null,
     updatedAt: new Date("2026-01-01T00:00:00.000Z")
   };
   savedSettings = 0;
@@ -196,6 +199,7 @@ test("settings endpoint returns platform defaults", async () => {
   assert.equal(body.success, true);
   assert.equal(body.data.registrationEnabled, true);
   assert.equal(body.data.maintenanceMode, false);
+  assert.equal(body.data.exchangeRateKesPerUsd, null);
 });
 
 test("settings update saves changes and records an audit entry", async () => {
@@ -230,6 +234,35 @@ test("settings update rejects non-boolean and unknown fields", async () => {
     });
 
     assert.equal(response.status, 400);
+  }
+
+  assert.equal(savedSettings, 0);
+  assert.equal(auditEntries.length, 0);
+});
+
+test("exchange rate can be saved and is included in the audit log", async () => {
+  const { response, body } = await request("/api/admin/settings", {
+    method: "PUT",
+    role: "admin",
+    body: { exchangeRateKesPerUsd: 130.25 }
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(body.success, true);
+  assert.equal(body.data.exchangeRateKesPerUsd, 130.25);
+  assert.equal(settingState.exchangeRateKesPerUsd, 130.25);
+  assert.equal(auditEntries.length, 1);
+  assert.match(auditEntries[0].reason, /exchangeRateKesPerUsd/);
+});
+
+test("exchange rate rejects values outside range or with excess precision", async () => {
+  for (const rate of [0, 1000.1, -1, "130", null, 130.12345, NaN]) {
+    const { response } = await request("/api/admin/settings", {
+      method: "PUT",
+      role: "admin",
+      body: { exchangeRateKesPerUsd: rate }
+    });
+    assert.equal(response.status, 400, `Expected rejection for rate ${String(rate)}`);
   }
 
   assert.equal(savedSettings, 0);

@@ -24,6 +24,7 @@ const {
 } = require("./services/transcriptionJobRotationWorker");
 const depositDiagnosticsRoutes = require("./routes/depositDiagnostics");
 const darajaCallbackRoutes = require("./routes/darajaCallbacks");
+const darajaB2CCallbackRoutes = require("./routes/darajaB2CCallbacks");
 const membershipRoutes = require("./routes/membership");
 const adminMembershipPlanRoutes = require("./routes/adminMembershipPlans");
 const adminMembershipReconciliationRoutes = require("./routes/adminMembershipReconciliation");
@@ -103,6 +104,7 @@ app.use("/api/admin/transcription", adminTranscriptionRoutes);
 app.use("/api/admin/transcription/config", adminTranscriptionConfigRoutes);
 app.use("/api/transcription", transcriptionRoutes);
 app.use("/api/daraja/callback", darajaCallbackRoutes);
+app.use("/api/daraja/callback/b2c", darajaB2CCallbackRoutes);
 app.use("/api/wallet/deposits", depositDiagnosticsRoutes);
 app.use("/api/wallet/deposits", depositRoutes);
 app.use("/api/wallet", walletRoutes);

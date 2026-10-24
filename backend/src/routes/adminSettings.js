@@ -19,6 +19,9 @@ function publicSettings(doc) {
   return {
     registrationEnabled: doc.registrationEnabled,
     maintenanceMode: doc.maintenanceMode,
+    exchangeRateKesPerUsd: Number.isFinite(doc.exchangeRateKesPerUsd)
+      ? doc.exchangeRateKesPerUsd
+      : null,
     updatedAt: doc.updatedAt || null
   };
 }
@@ -44,15 +47,41 @@ router.get("/", async (req, res) => {
 router.put("/", async (req, res) => {
   try {
     const body = req.body || {};
-    const allowed = ["registrationEnabled", "maintenanceMode"];
+    const allowed = [
+      "registrationEnabled",
+      "maintenanceMode",
+      "exchangeRateKesPerUsd"
+    ];
     const keys = Object.keys(body);
 
-    if (!keys.length || keys.some(key => !allowed.includes(key)) ||
-        keys.some(key => typeof body[key] !== "boolean")) {
+    if (!keys.length || keys.some(key => !allowed.includes(key))) {
       return res.status(400).json({
         success: false,
-        message: "Provide registrationEnabled and/or maintenanceMode as boolean values only."
+        message: "Only registrationEnabled, maintenanceMode, and exchangeRateKesPerUsd can be updated."
       });
+    }
+
+    for (const key of keys) {
+      if (key === "exchangeRateKesPerUsd") {
+        const rate = body[key];
+        if (
+          typeof rate !== "number" ||
+          !Number.isFinite(rate) ||
+          rate < 1 ||
+          rate > 1000 ||
+          Math.round(rate * 10000) !== rate * 10000
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: "Exchange rate must be a number from 1 to 1000 KES per USD, with at most four decimal places."
+          });
+        }
+      } else if (typeof body[key] !== "boolean") {
+        return res.status(400).json({
+          success: false,
+          message: `${key} must be a boolean value.`
+        });
+      }
     }
 
     const settings = await getOrCreateSettings();

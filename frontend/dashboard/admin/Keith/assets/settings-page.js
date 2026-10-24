@@ -94,6 +94,26 @@
       data.maintenanceMode
     );
 
+    const rateLabel = element("label", "KES per USD", "ptw-admin-field");
+    const rateHelp = element(
+      "span",
+      "Used to calculate the M-Pesa payout for new withdrawal requests. Existing requests keep their original rate.",
+      "ptw-admin-muted"
+    );
+    const rateInput = element("input");
+    rateInput.type = "number";
+    rateInput.name = "exchangeRateKesPerUsd";
+    rateInput.min = "1";
+    rateInput.max = "1000";
+    rateInput.step = "0.0001";
+    rateInput.inputMode = "decimal";
+    rateInput.placeholder = "e.g. 130";
+    rateInput.value = data.exchangeRateKesPerUsd == null
+      ? ""
+      : String(data.exchangeRateKesPerUsd);
+    rateInput.autocomplete = "off";
+    rateLabel.append(rateInput, rateHelp);
+
     const actions = element("div", null, "ptw-admin-actions");
     const save = element("button", "Save settings", "ptw-admin-button ptw-admin-button-primary");
     save.type = "button";
@@ -101,9 +121,14 @@
     const reload = element("button", "Reload saved values", "ptw-admin-button");
     reload.type = "button";
 
+    const originalRate = data.exchangeRateKesPerUsd == null
+      ? ""
+      : String(data.exchangeRateKesPerUsd);
+
     const changed = () =>
       registration.input.checked !== data.registrationEnabled ||
-      maintenance.input.checked !== data.maintenanceMode;
+      maintenance.input.checked !== data.maintenanceMode ||
+      rateInput.value.trim() !== originalRate;
 
     function updateSaveState() {
       save.disabled = !changed();
@@ -111,6 +136,7 @@
 
     registration.input.addEventListener("change", updateSaveState);
     maintenance.input.addEventListener("change", updateSaveState);
+    rateInput.addEventListener("input", updateSaveState);
 
     reload.addEventListener("click", load);
 
@@ -120,12 +146,35 @@
       setStatus("Saving settings…");
 
       try {
+        const rawRate = rateInput.value.trim();
+        const rate = rawRate === "" ? null : Number(rawRate);
+
+        if (
+          rawRate === "" ||
+          !Number.isFinite(rate) ||
+          rate < 1 ||
+          rate > 1000 ||
+          Math.round(rate * 10000) !== rate * 10000
+        ) {
+          throw new Error(
+            "Enter an exchange rate from 1 to 1000 KES per USD, with up to four decimal places."
+          );
+        }
+
+        const body = {};
+        if (registration.input.checked !== data.registrationEnabled) {
+          body.registrationEnabled = registration.input.checked;
+        }
+        if (maintenance.input.checked !== data.maintenanceMode) {
+          body.maintenanceMode = maintenance.input.checked;
+        }
+        if (rate !== data.exchangeRateKesPerUsd) {
+          body.exchangeRateKesPerUsd = rate;
+        }
+
         const result = await request("/admin/settings", {
           method: "PUT",
-          body: {
-            registrationEnabled: registration.input.checked,
-            maintenanceMode: maintenance.input.checked
-          }
+          body
         });
         render(result.data);
         setStatus(result.message || "Settings saved.", "success");
@@ -138,7 +187,7 @@
     });
 
     actions.append(save, reload);
-    card.append(registration.row, maintenance.row, actions);
+    card.append(registration.row, maintenance.row, rateLabel, actions);
 
     if (data.updatedAt) {
       card.append(element(
