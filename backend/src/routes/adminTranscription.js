@@ -293,6 +293,10 @@ router.post("/jobs", async (req, res) => {
       instructions: "",
       status: "open",
       assignedUserId: null,
+      rotationAvailableAt:
+        publicationDate && publicationDate > new Date()
+          ? publicationDate
+          : new Date(),
       createdByAdminId: req.user._id,
       ...(deadline ? { dueAt: deadline } : {}),
       ...(publicationDate ? { publishAt: publicationDate } : {})

@@ -18,7 +18,7 @@ const transcriptionJobSchema = new mongoose.Schema({
   instructions: { type: String, default: "", trim: true, maxlength: 10000 },
   status: {
     type: String,
-    enum: ["draft", "open", "awarded", "submitted", "completed", "closed"],
+    enum: ["draft", "open", "archived", "awarded", "submitted", "completed", "closed"],
     default: "draft",
     index: true
   },
@@ -29,7 +29,12 @@ const transcriptionJobSchema = new mongoose.Schema({
     index: true
   },
   claimedAt: { type: Date, default: null },
+  everClaimedAt: { type: Date, default: null, index: true },
   assignmentExpiresAt: { type: Date, default: null, index: true },
+  rotationAvailableAt: { type: Date, default: null, index: true },
+  archivedAt: { type: Date, default: null },
+  rotationRestoreAt: { type: Date, default: null, index: true },
+  rotationCount: { type: Number, default: 0, min: 0 },
   createdByAdminId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

@@ -15,6 +15,10 @@ const referralRoutes = require("./routes/referrals");
 const depositRoutes = require("./routes/deposits");
 const { startDepositRecoveryWorker } = require("./services/depositRecoveryWorker");
 const { startTranscriptionMinuteRecoveryWorker } = require("./services/transcriptionMinuteRecoveryWorker");
+const {
+  startTranscriptionJobRotationWorker,
+  stopTranscriptionJobRotationWorker
+} = require("./services/transcriptionJobRotationWorker");
 const depositDiagnosticsRoutes = require("./routes/depositDiagnostics");
 const darajaCallbackRoutes = require("./routes/darajaCallbacks");
 const membershipRoutes = require("./routes/membership");
@@ -147,6 +151,7 @@ async function startServer() {
 
     startDepositRecoveryWorker();
     startTranscriptionMinuteRecoveryWorker();
+    startTranscriptionJobRotationWorker();
 
     httpServer = app.listen(PORT, "0.0.0.0", () => {
       console.log(`PrimeTask Workspace API running on port ${PORT}.`);
@@ -163,6 +168,8 @@ async function shutdown(signal) {
   isShuttingDown = true;
 
   console.log(`${signal} received. Shutting down gracefully.`);
+
+  stopTranscriptionJobRotationWorker();
 
   const forceExit = setTimeout(() => {
     console.error("Graceful shutdown timed out.");

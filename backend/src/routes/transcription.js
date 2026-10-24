@@ -54,6 +54,7 @@ async function releaseExpiredAssignments() {
               status: "open",
               assignedUserId: null,
               claimedAt: null,
+              everClaimedAt: now,
               assignmentExpiresAt: null
             }
           },
@@ -532,6 +533,7 @@ router.post("/jobs/:id/claim", requireServiceAccess("transcription"), async (req
             status: "awarded",
             assignedUserId: req.user._id,
             claimedAt,
+            everClaimedAt: claimedAt,
             assignmentExpiresAt
           }
         },
