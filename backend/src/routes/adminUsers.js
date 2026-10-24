@@ -868,6 +868,9 @@ router.post("/:id/wallet-adjustment", async (req, res) => {
         adminId: req.user._id,
         targetUserId: user._id,
         action: "wallet." + direction,
+        reason:
+          "Admin wallet adjustment: " + direction +
+          " USD " + usd(amountCents) + " available balance.",
         before: {
           availableBalance: usd(beforeCents),
           currency: "USD"
@@ -1143,6 +1146,9 @@ router.post("/:id/earnings-adjustment", async (req, res) => {
         adminId: req.user._id,
         targetUserId: user._id,
         action: "earnings." + direction,
+        reason:
+          "Admin earnings adjustment: " + direction +
+          " USD " + usd(amountCents) + " total earnings.",
         before: { totalEarnings: usd(before), currency: "USD" },
         after: {
           totalEarnings: usd(after),
@@ -1357,6 +1363,10 @@ router.post("/:id/membership-award", async (req, res) => {
         adminId: req.user._id,
         targetUserId: user._id,
         action: "membership.admin_award",
+        reason:
+          "Admin awarded membership plan " + String(plan.key) +
+          " priced at USD " +
+          Number((plan.priceCents / 100).toFixed(2)) + ".",
         before: {
           activeMembershipIds: current.map(item => String(item._id)),
           latestExpiry: baseExpiry
