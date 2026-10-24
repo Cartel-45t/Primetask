@@ -9,6 +9,9 @@ const rateLimit = require("express-rate-limit");
 
 const authRoutes = require("./routes/auth");
 const profileRoutes = require("./routes/profile");
+const chatRoutes = require("./routes/chat");
+const notificationsRoutes = require("./routes/notifications");
+const marketingWalletRoutes = require("./routes/marketingWallet");
 const walletRoutes = require("./routes/wallet");
 const withdrawalRoutes = require("./routes/withdrawals");
 const referralRoutes = require("./routes/referrals");
@@ -89,6 +92,9 @@ const authLimiter = rateLimit({
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/notifications", notificationsRoutes);
+app.use("/api/marketing-wallet", marketingWalletRoutes);
 app.use("/api/transcription/wallet", transcriptionWalletRoutes);
 app.use("/api/transcription/minute-purchases", transcriptionMinutePurchasesRoutes);
 app.use("/api/admin/transcription/minute-purchases/reconciliation", adminTranscriptionMinuteReconciliationRoutes);
