@@ -174,6 +174,15 @@ test("valid login creates a session and /me returns the account", {
 }, async () => {
   await registerUser();
 
+  const pictureUrl =
+    "https://res.cloudinary.com/example/image/upload/test-profile.jpg";
+
+  const account = await User.findOne({ username: "test_worker" });
+  assert.ok(account, "Test account should exist");
+
+  account.profilePictureUrl = pictureUrl;
+  await account.save();
+
   const login = await loginUser("WORKER@EXAMPLE.TEST");
 
   assert.equal(login.response.status, 200);
@@ -188,6 +197,7 @@ test("valid login creates a session and /me returns the account", {
 
   assert.equal(me.response.status, 200);
   assert.equal(me.body.user.username, "test_worker");
+  assert.equal(me.body.user.profilePictureUrl, pictureUrl);
   assert.equal(Object.hasOwn(me.body.user, "passwordHash"), false);
 });
 

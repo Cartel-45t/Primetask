@@ -49,6 +49,7 @@ function publicUser(user) {
     username: user.username,
     email: user.email,
     phone: user.phone,
+    profilePictureUrl: user.profilePictureUrl || null,
     role: user.role,
     status: user.status,
     emailVerified: user.emailVerified,
