@@ -208,6 +208,144 @@ router.get("/", async (req, res) => {
 });
 
 /*
+ * PUT /api/admin/users/:id/transcription-minutes
+ * Sets the user's available transcription minute balance.
+ * Admin/founder access is enforced by the router middleware above.
+ */
+router.put("/:id/transcription-minutes", async (req, res) => {
+  if (!validId(req.params.id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid user ID."
+    });
+  }
+
+  const desired = req.body && req.body.availableMinutes;
+
+  if (
+    typeof desired !== "number" ||
+    !Number.isSafeInteger(desired) ||
+    desired < 0 ||
+    desired > 1000000000
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "Available minutes must be a whole number between 0 and 1,000,000,000."
+    });
+  }
+
+  let session = null;
+  let result = null;
+
+  try {
+    session = await mongoose.startSession();
+    await session.withTransaction(async () => {
+      const user = await User.findById(req.params.id)
+        .select("_id")
+        .session(session);
+
+      if (!user) {
+        const error = new Error("User not found.");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      let wallet = await TranscriptionMinuteWallet.findOne({
+        userId: user._id
+      }).session(session);
+
+      if (!wallet) {
+        [wallet] = await TranscriptionMinuteWallet.create([{
+          userId: user._id
+        }], { session });
+      }
+
+      const before = Number(wallet.availableMinutes || 0);
+
+      if (before === desired) {
+        result = {
+          availableMinutes: before,
+          previousAvailableMinutes: before,
+          adjustmentMinutes: 0,
+          changed: false
+        };
+        return;
+      }
+
+      const updated = await TranscriptionMinuteWallet.findOneAndUpdate(
+        {
+          _id: wallet._id,
+          userId: user._id,
+          availableMinutes: before
+        },
+        {
+          $set: { availableMinutes: desired }
+        },
+        {
+          returnDocument: "after",
+          session,
+          runValidators: true
+        }
+      );
+
+      if (!updated) {
+        const error = new Error(
+          "The minute balance changed during this update. Reload the profile and try again."
+        );
+        error.statusCode = 409;
+        throw error;
+      }
+
+      const difference = Math.abs(desired - before);
+      const direction = desired > before ? "increased" : "decreased";
+
+      await TranscriptionMinuteTransaction.create([{
+        userId: user._id,
+        walletId: updated._id,
+        type: "admin_adjustment",
+        minutes: difference,
+        reference:
+          "TRANSCRIPTION-MINUTE-ADMIN-ADJUSTMENT-" +
+          new mongoose.Types.ObjectId().toString(),
+        description:
+          "Admin " + String(req.user.username || "admin") +
+          " " + direction + " available minutes from " +
+          before + " to " + desired + ".",
+        createdByAdminId: req.user._id
+      }], { session });
+
+      result = {
+        availableMinutes: Number(updated.availableMinutes),
+        previousAvailableMinutes: before,
+        adjustmentMinutes: difference,
+        changed: true
+      };
+    });
+
+    return res.json({
+      success: true,
+      message: result.changed
+        ? "Available transcription minutes updated."
+        : "The available minute balance is already at that value.",
+      data: result
+    });
+  } catch (error) {
+    console.error("Admin transcription minute adjustment error:", error);
+
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.statusCode
+        ? error.message
+        : "Unable to update transcription minutes."
+    });
+  } finally {
+    if (session) {
+      await session.endSession();
+    }
+  }
+});
+
+/*
  * GET /api/admin/users/:id
  * Returns profile, wallet, membership history, transactions,
  * withdrawals, and administrative audit history.
