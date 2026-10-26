@@ -4,8 +4,7 @@ const TranscriptionJob = require("../models/TranscriptionJob");
 
 const INTERVAL_MS = 60 * 1000;
 const AVAILABLE_WINDOW_MS = 30 * 60 * 1000;
-const MIN_RESTORE_DELAY_MS = 6 * 60 * 60 * 1000;
-const MAX_RESTORE_DELAY_MS = 8 * 60 * 60 * 1000;
+const RESTORE_DELAY_MS = 30 * 60 * 1000;
 
 function createTranscriptionJobRotationWorker({
   Job = TranscriptionJob,
@@ -15,14 +14,14 @@ function createTranscriptionJobRotationWorker({
 } = {}) {
   let timer = null;
   let running = false;
+  let enabled = true;
+  let currentRun = null;
 
   function restoreDelayMs() {
-    const range = MAX_RESTORE_DELAY_MS - MIN_RESTORE_DELAY_MS;
-    return MIN_RESTORE_DELAY_MS +
-      Math.floor(random() * (range + 1));
+    return RESTORE_DELAY_MS;
   }
 
-  async function processJobRotation() {
+  async function performJobRotation() {
     if (running) {
       return { skipped: true, action: "none" };
     }
@@ -70,7 +69,16 @@ function createTranscriptionJobRotationWorker({
           assignedUserId: null,
           claimedAt: null,
           everClaimedAt: null,
-          rotationRestoreAt: { $lte: now }
+          rotationRestoreAt: { $lte: now },
+          $and: [
+            {
+              $or: [
+                { publishAt: null },
+                { publishAt: { $exists: false } },
+                { publishAt: { $lte: now } }
+              ]
+            }
+          ]
         })
           .sort({ rotationRestoreAt: 1, _id: 1 })
           .select("_id rotationRestoreAt")
@@ -130,7 +138,16 @@ function createTranscriptionJobRotationWorker({
             assignedUserId: null,
             claimedAt: null,
             everClaimedAt: null,
-            rotationRestoreAt: { $lte: now }
+            rotationRestoreAt: { $lte: now },
+            $and: [
+              {
+                $or: [
+                  { publishAt: null },
+                  { publishAt: { $exists: false } },
+                  { publishAt: { $lte: now } }
+                ]
+              }
+            ]
           },
           {
             $set: {
@@ -170,7 +187,73 @@ function createTranscriptionJobRotationWorker({
     }
   }
 
+  function processJobRotation() {
+    if (!enabled) {
+      return Promise.resolve({ skipped: true, action: "disabled" });
+    }
+
+    if (currentRun) return currentRun;
+
+    currentRun = performJobRotation().finally(() => {
+      currentRun = null;
+    });
+
+    return currentRun;
+  }
+
+  async function setTranscriptionJobRotationWorkerEnabled(value) {
+    if (value !== true && value !== false) {
+      throw new TypeError("Rotation worker state must be a boolean.");
+    }
+
+    if (value) {
+      enabled = true;
+      startTranscriptionJobRotationWorker();
+      return { enabled: true };
+    }
+
+    await stopTranscriptionJobRotationWorker();
+    return { enabled: false };
+  }
+
+  async function restoreRotationArchivedJobs() {
+    const result = await Job.updateMany(
+      {
+        status: "archived",
+        assignedUserId: null,
+        claimedAt: null,
+        everClaimedAt: null,
+        rotationRestoreAt: { $exists: true, $ne: null },
+        $and: [
+          {
+            $or: [
+              { publishAt: null },
+              { publishAt: { $exists: false } },
+              { publishAt: { $lte: new Date(clock()) } }
+            ]
+          }
+        ]
+      },
+      {
+        $set: {
+          status: "open",
+          rotationAvailableAt: new Date(clock())
+        },
+        $unset: {
+          archivedAt: "",
+          rotationRestoreAt: ""
+        }
+      },
+      { runValidators: true }
+    );
+
+    return {
+      restoredCount: result.modifiedCount ?? result.nModified ?? 0
+    };
+  }
+
   function startTranscriptionJobRotationWorker() {
+    enabled = true;
     if (timer) return;
 
     logger.info("Transcription job rotation worker started.");
@@ -185,17 +268,28 @@ function createTranscriptionJobRotationWorker({
     }
   }
 
-  function stopTranscriptionJobRotationWorker() {
+  async function stopTranscriptionJobRotationWorker() {
+    enabled = false;
+
     if (timer) {
       clearInterval(timer);
       timer = null;
     }
+
+    // Do not let shutdown disconnect MongoDB while a rotation is in flight.
+    if (currentRun) {
+      await currentRun;
+    }
+
+    return { enabled: false };
   }
 
   return {
     processJobRotation,
     startTranscriptionJobRotationWorker,
-    stopTranscriptionJobRotationWorker
+    stopTranscriptionJobRotationWorker,
+    setTranscriptionJobRotationWorkerEnabled,
+    restoreRotationArchivedJobs
   };
 }
 

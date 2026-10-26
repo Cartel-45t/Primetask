@@ -35,6 +35,7 @@ const adminSettingsRoutes = require("./routes/adminSettings");
 const adminRevenueRoutes = require("./routes/adminRevenue");
 const transcriptionRoutes = require("./routes/transcription");
 const adminTranscriptionRoutes = require("./routes/adminTranscription");
+const TranscriptionSettings = require("./models/TranscriptionSettings");
 const adminTranscriptionConfigRoutes = require("./routes/adminTranscriptionConfig");
 const transcriptionWalletRoutes = require("./routes/transcriptionWallet");
 const transcriptionMinutePurchasesRoutes = require("./routes/transcriptionMinutePurchases");
@@ -132,6 +133,15 @@ app.use((error, req, res, next) => {
     return next(error);
   }
 
+  // Invalid JSON sent by a client.
+  if (error.type === "entity.parse.failed") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid JSON request body."
+    });
+  }
+
+  // Request body exceeds the configured JSON size limit.
   if (error.type === "entity.too.large") {
     return res.status(413).json({
       success: false,
@@ -139,7 +149,35 @@ app.use((error, req, res, next) => {
     });
   }
 
-  console.error("Unhandled server error:", error.message);
+  // Invalid database identifiers or document validation.
+  if (error.name === "CastError") {
+    return res.status(400).json({
+      success: false,
+      message: "A supplied identifier is invalid."
+    });
+  }
+
+  if (error.name === "ValidationError") {
+    return res.status(400).json({
+      success: false,
+      message: "The supplied data failed validation."
+    });
+  }
+
+  // A unique database field already exists.
+  if (error.code === 11000) {
+    return res.status(409).json({
+      success: false,
+      message: "A record with these details already exists."
+    });
+  }
+
+  console.error("Unhandled server error:", {
+    method: req.method,
+    path: req.path,
+    name: error.name || "Error",
+    message: error.message || "Unknown error"
+  });
 
   return res.status(500).json({
     success: false,
@@ -159,7 +197,16 @@ async function startServer() {
 
     startDepositRecoveryWorker();
     startTranscriptionMinuteRecoveryWorker();
-    startTranscriptionJobRotationWorker();
+
+    const rotationSettings = await TranscriptionSettings.findOne({
+      key: "transcription"
+    }).select("rotationWorkerEnabled").lean();
+
+    if (rotationSettings?.rotationWorkerEnabled === false) {
+      console.log("Transcription job rotation worker is disabled by admin setting.");
+    } else {
+      startTranscriptionJobRotationWorker();
+    }
 
     httpServer = app.listen(PORT, "0.0.0.0", () => {
       console.log(`PrimeTask Workspace API running on port ${PORT}.`);
@@ -177,8 +224,6 @@ async function shutdown(signal) {
 
   console.log(`${signal} received. Shutting down gracefully.`);
 
-  stopTranscriptionJobRotationWorker();
-
   const forceExit = setTimeout(() => {
     console.error("Graceful shutdown timed out.");
     process.exit(1);
@@ -187,6 +232,8 @@ async function shutdown(signal) {
   forceExit.unref();
 
   try {
+    await stopTranscriptionJobRotationWorker();
+
     if (httpServer) {
       await new Promise((resolve, reject) => {
         httpServer.close(error => {

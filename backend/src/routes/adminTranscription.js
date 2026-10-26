@@ -7,6 +7,10 @@ const cloudinary = require("cloudinary").v2;
 const requireAuth = require("../middleware/requireAuth");
 const Job = require("../models/TranscriptionJob");
 const TranscriptionSettings = require("../models/TranscriptionSettings");
+const {
+  setTranscriptionJobRotationWorkerEnabled,
+  restoreRotationArchivedJobs
+} = require("../services/transcriptionJobRotationWorker");
 const Submission = require("../models/TranscriptionSubmission");
 const Wallet = require("../models/TranscriptionWallet");
 const WalletTransaction = require("../models/TranscriptionWalletTransaction");
@@ -36,6 +40,109 @@ function transactionUnavailable(error) {
     .test(error?.message || "");
 }
 
+
+router.get("/rotation-worker", async (req, res) => {
+  try {
+    const settings = await TranscriptionSettings.findOne({ key: "transcription" })
+      .select("rotationWorkerEnabled")
+      .lean();
+
+    return res.json({
+      success: true,
+      enabled: settings?.rotationWorkerEnabled !== false
+    });
+  } catch (error) {
+    console.error("Could not read transcription rotation state:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Could not load the rotation worker state."
+    });
+  }
+});
+
+router.put("/rotation-worker", async (req, res) => {
+  const enabled = req.body?.enabled;
+
+  if (typeof enabled !== "boolean") {
+    return res.status(400).json({
+      success: false,
+      message: "The enabled field must be true or false."
+    });
+  }
+
+  let activationAttempted = false;
+
+  try {
+    await TranscriptionSettings.findOneAndUpdate(
+      { key: "transcription" },
+      {
+        $set: {
+          rotationWorkerEnabled: enabled,
+          updatedBy: req.user._id
+        }
+      },
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true,
+        runValidators: true
+      }
+    );
+
+    if (enabled) {
+      activationAttempted = true;
+      await setTranscriptionJobRotationWorkerEnabled(true);
+      return res.json({
+        success: true,
+        enabled: true,
+        message: "Job rotation activated."
+      });
+    }
+
+    await setTranscriptionJobRotationWorkerEnabled(false);
+    const restoration = await restoreRotationArchivedJobs();
+
+    return res.json({
+      success: true,
+      enabled: false,
+      restoredCount: restoration.restoredCount,
+      message: `Job rotation deactivated. ${restoration.restoredCount} rotation-archived job(s) restored.`
+    });
+  } catch (error) {
+    console.error("Could not update transcription rotation state:", error.message);
+
+    if (enabled === true && activationAttempted) {
+      try {
+        await setTranscriptionJobRotationWorkerEnabled(false);
+      } catch (rollbackError) {
+        console.error(
+          "Could not stop the rotation worker after failed activation:",
+          rollbackError.message
+        );
+      }
+
+      try {
+        await TranscriptionSettings.findOneAndUpdate(
+          { key: "transcription" },
+          { $set: { rotationWorkerEnabled: false } },
+          { new: true, runValidators: true }
+        );
+      } catch (rollbackError) {
+        console.error(
+          "Could not persist the rotation activation rollback:",
+          rollbackError.message
+        );
+      }
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: enabled
+        ? "Could not activate job rotation."
+        : "Rotation is disabled, but restoring archived jobs failed. Retry deactivation to finish restoration."
+    });
+  }
+});
 
 router.get("/overview", async (req, res) => {
   try {

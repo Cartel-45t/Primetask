@@ -142,7 +142,19 @@ function createFakeModel(initialJobs = []) {
       return updateCount;
     },
     findOne,
-    findOneAndUpdate
+    findOneAndUpdate,
+    async updateMany(filter, update) {
+      const matched = jobs.filter(job => matches(job, filter));
+      for (const job of matched) {
+        for (const [key, value] of Object.entries(update.$set || {})) {
+          job[key] = value;
+        }
+        for (const key of Object.keys(update.$unset || {})) {
+          delete job[key];
+        }
+      }
+      return { modifiedCount: matched.length };
+    }
   };
 }
 
@@ -203,11 +215,11 @@ test("does not archive before 30 minutes; archives at the cutoff", async () => {
   assert.equal(model.jobs[0].rotationCount, 1);
   assert.equal(
     due.restoreAt.getTime() - (BASE + 1),
-    6 * HOUR
+    30 * MINUTE
   );
 });
 
-test("restore delay stays within the six-to-eight-hour range", async () => {
+test("restore delay is exactly 30 minutes", async () => {
   for (const random of [0, 0.5, 0.999999]) {
     const model = createFakeModel([
       makeJob("delay", {
@@ -225,9 +237,30 @@ test("restore delay stays within the six-to-eight-hour range", async () => {
     );
 
     const delay = result.restoreAt.getTime() - BASE;
-    assert.ok(delay >= 6 * HOUR, `Delay too short: ${delay}`);
-    assert.ok(delay <= 8 * HOUR, `Delay too long: ${delay}`);
+    assert.equal(delay, 30 * MINUTE);
   }
+});
+
+test("does not restore a job before its future publication time", async () => {
+  const model = createFakeModel([
+    makeJob("future-published-restore", {
+      status: "archived",
+      publishAt: new Date(BASE + MINUTE),
+      archivedAt: new Date(BASE - 8 * HOUR),
+      rotationRestoreAt: new Date(BASE - MINUTE)
+    })
+  ]);
+
+  const { worker } = makeWorker(model);
+  const result = await worker.processJobRotation();
+
+  assert.equal(result.action, "none");
+  assert.equal(model.updateCount, 0);
+  assert.equal(model.jobs[0].status, "archived");
+  assert.equal(
+    model.jobs[0].rotationRestoreAt.getTime(),
+    BASE - MINUTE
+  );
 });
 
 test("restores at most one eligible archived job per cycle", async () => {
@@ -355,4 +388,71 @@ test("does not rotate a future-published job", async () => {
 
   assert.equal(result.action, "none");
   assert.equal(model.jobs[0].status, "open");
+});
+
+
+test("disabled worker skips rotation", async () => {
+  const model = createFakeModel([
+    makeJob("must-stay-open", {
+      rotationAvailableAt: new Date(BASE - 2 * HOUR)
+    })
+  ]);
+  const { worker } = makeWorker(model);
+
+  await worker.setTranscriptionJobRotationWorkerEnabled(false);
+  const result = await worker.processJobRotation();
+
+  assert.equal(result.action, "disabled");
+  assert.equal(model.jobs[0].status, "open");
+  assert.equal(model.updateCount, 0);
+});
+
+test("deactivation restores only eligible rotation-archived jobs", async () => {
+  const model = createFakeModel([
+    makeJob("rotation-archived", {
+      status: "archived",
+      archivedAt: new Date(BASE - HOUR),
+      rotationRestoreAt: new Date(BASE + HOUR)
+    }),
+    makeJob("manual-archive", {
+      status: "archived",
+      archivedAt: new Date(BASE - HOUR)
+    }),
+    makeJob("claimed-job", {
+      status: "archived",
+      assignedUserId: "worker-1",
+      claimedAt: new Date(BASE - HOUR),
+      rotationRestoreAt: new Date(BASE + HOUR)
+    }),
+    makeJob("previously-claimed", {
+      status: "archived",
+      everClaimedAt: new Date(BASE - HOUR),
+      rotationRestoreAt: new Date(BASE + HOUR)
+    }),
+    makeJob("future-published", {
+      status: "archived",
+      publishAt: new Date(BASE + 2 * HOUR),
+      rotationRestoreAt: new Date(BASE + HOUR)
+    })
+  ]);
+  const { worker } = makeWorker(model);
+
+  const result = await worker.restoreRotationArchivedJobs();
+
+  assert.equal(result.restoredCount, 1);
+
+  const restored = model.jobs.find(job => job._id === "rotation-archived");
+  assert.equal(restored.status, "open");
+  assert.equal(restored.rotationAvailableAt.getTime(), BASE);
+  assert.equal("archivedAt" in restored, false);
+  assert.equal("rotationRestoreAt" in restored, false);
+
+  assert.equal(model.jobs.find(job => job._id === "manual-archive").status, "archived");
+  assert.equal(model.jobs.find(job => job._id === "claimed-job").status, "archived");
+  assert.equal(model.jobs.find(job => job._id === "previously-claimed").status, "archived");
+
+  const futurePublished = model.jobs.find(job => job._id === "future-published");
+  assert.equal(futurePublished.status, "archived");
+  assert.ok(futurePublished.rotationRestoreAt instanceof Date);
+  assert.equal(futurePublished.rotationRestoreAt.getTime(), BASE + HOUR);
 });

@@ -10,6 +10,7 @@ const rangeSchema = new mongoose.Schema({
 
 const schema = new mongoose.Schema({
   key: { type: String, default: "transcription", unique: true, immutable: true },
+  rotationWorkerEnabled: { type: Boolean, default: true },
   defaultAudioTitle: {
     type: String,
     default: "Transcription Task",
