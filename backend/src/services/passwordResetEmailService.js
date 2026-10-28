@@ -40,6 +40,7 @@ async function sendPasswordResetEmail({ email, firstName, token }) {
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
+    signal: AbortSignal.timeout(15000),
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json"
@@ -75,7 +76,28 @@ async function sendPasswordResetEmail({ email, firstName, token }) {
 
   if (!response.ok) {
     const responseText = await response.text().catch(() => "");
-    throw new Error(`Resend rejected the email request (HTTP ${response.status}).`);
+    let providerMessage = "";
+
+    try {
+      const details = JSON.parse(responseText);
+      providerMessage =
+        typeof details.message === "string"
+          ? details.message
+          : typeof details.error === "string"
+            ? details.error
+            : "";
+    } catch {
+      // The provider did not return JSON.
+    }
+
+    if (!providerMessage && responseText) {
+      providerMessage = responseText.slice(0, 300);
+    }
+
+    throw new Error(
+      `Resend rejected the email request (HTTP ${response.status})` +
+      (providerMessage ? `: ${providerMessage}` : ".")
+    );
   }
 
   return true;
