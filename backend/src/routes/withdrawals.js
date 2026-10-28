@@ -95,6 +95,46 @@ function sendServerError(res, message) {
  * Reserves funds and creates the withdrawal ledger entry atomically.
  * No M-Pesa payment is initiated by this endpoint.
  */
+router.get("/quote", async (req, res) => {
+  if (!validWithdrawalConfig()) {
+    return sendServerError(res, "Withdrawal service configuration is invalid.");
+  }
+
+  let settings;
+  try {
+    settings = await PlatformSetting.findOne({ key: "platform" }).lean();
+  } catch (error) {
+    console.error("Withdrawal quote lookup failed:", error.message);
+    return sendServerError(res, "Could not load the withdrawal exchange rate.");
+  }
+
+  const rate = settings?.exchangeRateKesPerUsd;
+  if (
+    typeof rate !== "number" ||
+    !Number.isFinite(rate) ||
+    rate < 1 ||
+    rate > 1000
+  ) {
+    return res.status(503).json({
+      success: false,
+      message: "A valid KES-per-USD exchange rate has not been configured."
+    });
+  }
+
+  const cents = parseAmountCents(req.query.amount);
+  const eligible = cents !== null && cents >= MIN_CENTS && cents <= MAX_CENTS;
+
+  return res.json({
+    success: true,
+    currency: "USD",
+    minimumAmount: centsToUSD(MIN_CENTS),
+    maximumAmount: centsToUSD(MAX_CENTS),
+    exchangeRateKesPerUsd: rate,
+    amount: cents === null ? null : centsToUSD(cents),
+    payoutAmountKes: eligible ? Math.round(cents * rate / 100) : null
+  });
+});
+
 router.post("/", async (req, res) => {
   if (!validWithdrawalConfig()) {
     console.error("Invalid wallet withdrawal minimum/maximum configuration.");
