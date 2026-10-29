@@ -226,7 +226,6 @@ router.post("/register", async (req, res) => {
     const selectedService = normalizeText(req.body.selectedService || "").toLowerCase();
     const allowedServices = [
       "transcription",
-      "note-taking",
       "data-entry",
       "academic-writing"
     ];

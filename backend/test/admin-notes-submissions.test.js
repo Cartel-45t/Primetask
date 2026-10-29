@@ -37,7 +37,8 @@ function resetState() {
     task: {
       _id: TID,
       title: "Lecture notes",
-      rewardCents: 275,
+      rewardCents: 300,
+      durationMinutes: 12,
       status: "submitted",
       assignedUserId: UID,
       completedAt: null
@@ -257,15 +258,15 @@ test("admin approval credits the correct USD cents and creates one ledger entry"
   });
 
   assert.equal(response.status, 200);
-  assert.equal(body.review.rewardCents, 275);
-  assert.equal(body.review.walletBalanceCents, 275);
-  assert.equal(state.wallet.availableBalanceCents, 275);
-  assert.equal(state.wallet.totalEarningsCents, 275);
+  assert.equal(body.review.rewardCents, 300);
+  assert.equal(body.review.walletBalanceCents, 300);
+  assert.equal(state.wallet.availableBalanceCents, 300);
+  assert.equal(state.wallet.totalEarningsCents, 300);
   assert.equal(state.task.status, "completed");
   assert.equal(state.submission.status, "approved");
   assert.equal(state.transactions.length, 1);
   assert.equal(state.transactions[0].type, "task_earning");
-  assert.equal(state.transactions[0].amountCents, 275);
+  assert.equal(state.transactions[0].amountCents, 300);
   assert.equal(state.transactions[0].reference, `NOTES-EARNING-${SID}`);
 });
 
@@ -280,7 +281,7 @@ test("prevents a second approval from crediting earnings again", async () => {
 
   assert.equal(first.response.status, 200);
   assert.equal(second.response.status, 409);
-  assert.equal(state.wallet.availableBalanceCents, 275);
+  assert.equal(state.wallet.availableBalanceCents, 300);
   assert.equal(state.transactions.length, 1);
 });
 

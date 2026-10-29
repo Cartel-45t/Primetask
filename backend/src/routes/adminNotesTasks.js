@@ -2,10 +2,94 @@
 
 const express = require("express");
 const mongoose = require("mongoose");
+const cloudinary = require("cloudinary").v2;
+const path = require("node:path");
 const requireAuth = require("../middleware/requireAuth");
 const NotesTask = require("../models/NotesTask");
 
 const router = express.Router();
+
+const NOTES_AUDIO_FOLDER = "primetask-workspace/note-taking/audio";
+const NOTES_AUDIO_FORMATS = ["mp3", "wav", "m4a", "ogg", "flac", "webm"];
+const NOTES_AUDIO_MAX_BYTES = 100 * 1024 * 1024;
+
+function cloudinaryReady() {
+  return Boolean(
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+  );
+}
+
+function configureCloudinary() {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  });
+}
+
+function expectedNotesAudioId(publicId) {
+  return typeof publicId === "string" &&
+    /^primetask-workspace\/note-taking\/audio\/[A-Za-z0-9_-]+$/.test(publicId);
+}
+
+function safeAudioName(value) {
+  if (typeof value !== "string" || !value.trim()) return "";
+  return path.basename(value.trim()).slice(0, 180);
+}
+
+async function verifyNotesAudio(publicId, originalName) {
+  if (!expectedNotesAudioId(publicId)) {
+    const error = new Error("Invalid Notes audio asset reference.");
+    error.status = 400;
+    throw error;
+  }
+
+  if (!cloudinaryReady()) {
+    const error = new Error("Audio storage is not configured on the server.");
+    error.status = 503;
+    throw error;
+  }
+
+  configureCloudinary();
+
+  const asset = await cloudinary.api.resource(publicId, {
+    resource_type: "video",
+    type: "authenticated",
+    media_metadata: true
+  });
+
+  const format = String(asset.format || "").toLowerCase();
+  const bytes = Number(asset.bytes);
+  const durationSeconds = Number(asset.duration);
+
+  if (
+    asset.public_id !== publicId ||
+    asset.resource_type !== "video" ||
+    asset.type !== "authenticated" ||
+    !NOTES_AUDIO_FORMATS.includes(format) ||
+    !Number.isSafeInteger(bytes) ||
+    bytes < 1 ||
+    bytes > NOTES_AUDIO_MAX_BYTES ||
+    !Number.isFinite(durationSeconds) ||
+    durationSeconds <= 0 ||
+    durationSeconds > 1440 * 60
+  ) {
+    const error = new Error("Cloudinary could not verify a valid Notes audio file and duration.");
+    error.status = 422;
+    throw error;
+  }
+
+  return {
+    publicId: asset.public_id,
+    originalName: safeAudioName(originalName) || "audio",
+    format,
+    bytes,
+    durationSeconds,
+    durationMinutes: Math.ceil(durationSeconds / 60)
+  };
+}
 
 router.use(requireAuth);
 
@@ -43,12 +127,16 @@ function cleanText(value, maxLength, field, required = false) {
   return result;
 }
 
-function safeCents(value, field) {
-  if (!Number.isSafeInteger(value) || value < 1) {
-    throw new Error(`${field} must be a positive whole number of USD cents.`);
+function safeDuration(value) {
+  if (!Number.isSafeInteger(value) || value < 1 || value > 1440) {
+    throw new Error("Duration must be a positive whole number of minutes, up to 1440.");
   }
 
   return value;
+}
+
+function rewardForDuration(durationMinutes) {
+  return Math.ceil(durationMinutes / 5) * 100;
 }
 
 function adminTask(task) {
@@ -60,8 +148,14 @@ function adminTask(task) {
     expectedNotes: task.expectedNotes,
     brief: task.brief,
     deliverables: task.deliverables,
-    taskCostCents: task.taskCostCents,
-    rewardCents: task.rewardCents,
+    durationMinutes: task.durationMinutes,
+    audioAvailable: Boolean(task.audioPublicId && task.audioDurationSeconds > 0),
+    audioOriginalName: task.audioOriginalName || "",
+    audioFormat: task.audioFormat || "",
+    audioBytes: task.audioBytes || 0,
+    audioDurationSeconds: task.audioDurationSeconds || 0,
+    pointsCost: task.durationMinutes,
+    rewardCents: rewardForDuration(task.durationMinutes),
     currency: "USD",
     status: task.status,
     assignedUserId: task.assignedUserId
@@ -101,8 +195,10 @@ router.post("/", async (req, res) => {
     const category = cleanText(body.category, 100, "Category") || "General";
     const expectedNotes = cleanText(body.expectedNotes, 5000, "Expected notes");
     const brief = cleanText(body.brief, 10000, "Brief");
-    const rewardCents = safeCents(body.rewardCents, "Reward");
-    const taskCostCents = safeCents(body.taskCostCents, "Task cost");
+    const audio = await verifyNotesAudio(body.audioPublicId, body.audioOriginalName);
+    const durationMinutes = safeDuration(audio.durationMinutes);
+    const rewardCents = rewardForDuration(durationMinutes);
+    const taskCostCents = durationMinutes;
 
     const deliverables = body.deliverables === undefined
       ? []
@@ -130,6 +226,12 @@ router.post("/", async (req, res) => {
       expectedNotes,
       brief,
       deliverables: deliverables.map(item => item.trim()),
+      audioPublicId: audio.publicId,
+      audioOriginalName: audio.originalName,
+      audioFormat: audio.format,
+      audioBytes: audio.bytes,
+      audioDurationSeconds: audio.durationSeconds,
+      durationMinutes,
       rewardCents,
       taskCostCents,
       status: "draft",
@@ -171,16 +273,32 @@ router.patch("/:id/publish", async (req, res) => {
   }
 
   try {
+    const draft = await NotesTask.findOne({
+      _id: req.params.id,
+      status: "draft",
+      durationMinutes: { $gte: 1, $lte: 1440 },
+      audioPublicId: /^primetask-workspace\/note-taking\/audio\/[A-Za-z0-9_-]+$/,
+      audioDurationSeconds: { $gt: 0 },
+      audioBytes: { $gt: 0 }
+    }).lean();
+
+    if (!draft) {
+      return res.status(409).json({
+        success: false,
+        message: "Task not found, not a draft, or missing a valid duration."
+      });
+    }
+
     const task = await NotesTask.findOneAndUpdate(
       {
-        _id: req.params.id,
+        _id: draft._id,
         status: "draft",
-        taskCostCents: { $gte: 1 },
-        rewardCents: { $gte: 1 }
+        durationMinutes: draft.durationMinutes
       },
       {
         $set: {
           status: "available",
+          rewardCents: rewardForDuration(draft.durationMinutes),
           publishedAt: new Date()
         }
       },
@@ -193,7 +311,7 @@ router.patch("/:id/publish", async (req, res) => {
     if (!task) {
       return res.status(409).json({
         success: false,
-        message: "Task not found, not a draft, or missing valid cost and reward values."
+        message: "The task changed before it could be published. Refresh and try again."
       });
     }
 

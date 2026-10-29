@@ -19,7 +19,9 @@ const mpesaReceiptClaimSchema = new mongoose.Schema(
         "membership_purchase",
         "deposit",
         "withdrawal",
-        "transcription_minute_purchase"
+        "transcription_minute_purchase",
+      "notes_points_purchase",
+        "notes_withdrawal"
       ],
       immutable: true
     },

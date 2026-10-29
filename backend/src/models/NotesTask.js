@@ -47,6 +47,41 @@ const notesTaskSchema = new mongoose.Schema({
       message: "Deliverables must contain up to 30 non-empty strings."
     }
   },
+  audioPublicId: {
+    type: String,
+    default: "",
+    trim: true,
+    maxlength: 300
+  },
+  audioOriginalName: {
+    type: String,
+    default: "",
+    trim: true,
+    maxlength: 180
+  },
+  audioFormat: {
+    type: String,
+    default: "",
+    enum: ["", "mp3", "wav", "m4a", "ogg", "flac", "webm"]
+  },
+  audioBytes: {
+    type: Number,
+    default: 0,
+    min: 0,
+    validate: Number.isSafeInteger
+  },
+  audioDurationSeconds: {
+    type: Number,
+    default: 0,
+    min: 0,
+    validate: Number.isFinite
+  },
+  durationMinutes: {
+    type: Number,
+    required: true,
+    min: 1,
+    validate: Number.isSafeInteger
+  },
   rewardCents: {
     type: Number,
     required: true,

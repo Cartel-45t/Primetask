@@ -175,7 +175,7 @@ test("unauthenticated Notes wallet requests are rejected", async () => {
   assert.equal(result.data.success, false);
 });
 
-test("wallet summary returns USD balances and initializes Notes wallet", async () => {
+test("wallet summary returns only the separate Notes wallet", async () => {
   const { userId } = await createFixture(1500);
 
   const result = await request("/api/notes/wallet", { userId });
@@ -183,169 +183,86 @@ test("wallet summary returns USD balances and initializes Notes wallet", async (
   assert.equal(result.status, 200);
   assert.equal(result.data.success, true);
   assert.equal(result.data.currency, "USD");
+
   assert.equal(result.data.wallet.availableBalanceCents, 0);
   assert.equal(result.data.wallet.availableBalance, 0);
-  assert.equal(result.data.mainWallet.availableBalanceCents, 1500);
-  assert.equal(result.data.mainWallet.availableBalance, 15);
+  assert.equal(result.data.wallet.reservedBalanceCents, 0);
+  assert.equal(result.data.wallet.totalPurchasedCents, 0);
+  assert.equal(result.data.wallet.totalSpentCents, 0);
+  assert.equal(result.data.wallet.totalEarningsCents, 0);
+
+  assert.equal(
+    Object.hasOwn(result.data, "mainWallet"),
+    false,
+    "Notes wallet response must not expose the main wallet."
+  );
 
   const notesWallet = await NotesWallet.findOne({ userId }).lean();
   assert.ok(notesWallet);
   assert.equal(notesWallet.availableBalanceCents, 0);
 });
 
-test("invalid amounts and missing idempotency keys are rejected", async () => {
+test("main-wallet transfers to Notes are permanently disabled", async () => {
   const { userId } = await createFixture(2000);
 
-  const invalidAmount = await request("/api/notes/wallet/credits", {
+  const result = await request("/api/notes/wallet/credits", {
     userId,
     method: "POST",
-    body: { amountCents: 99 },
+    body: { amountCents: 500 },
     idempotencyKey: newKey()
   });
 
-  assert.equal(invalidAmount.status, 400);
-  assert.equal(invalidAmount.data.success, false);
-
-  const missingKey = await request("/api/notes/wallet/credits", {
-    userId,
-    method: "POST",
-    body: { amountCents: 500 }
-  });
-
-  assert.equal(missingKey.status, 400);
-  assert.equal(missingKey.data.success, false);
+  assert.equal(result.status, 410);
+  assert.equal(result.data.success, false);
+  assert.equal(result.data.code, "NOTES_WALLET_TRANSFERS_DISABLED");
 
   const mainWallet = await Wallet.findOne({ userId }).lean();
   assert.equal(mainWallet.availableBalanceCents, 2000);
 
   assert.equal(await WalletTransaction.countDocuments({ userId }), 0);
   assert.equal(await NotesTransaction.countDocuments({ userId }), 0);
+  assert.equal(await NotesWallet.countDocuments({ userId }), 0);
 });
 
-test("successful transfer debits main wallet and credits Notes wallet once", async () => {
-  const { userId } = await createFixture(1000);
-  const key = newKey("notes-success");
-
-  const result = await request("/api/notes/wallet/credits", {
-    userId,
-    method: "POST",
-    body: { amountCents: 275 },
-    idempotencyKey: key
-  });
-
-  assert.equal(result.status, 201);
-  assert.equal(result.data.success, true);
-  assert.equal(result.data.duplicate, false);
-  assert.equal(result.data.currency, "USD");
-  assert.equal(result.data.transferredCents, 275);
-  assert.equal(result.data.transferredAmount, 2.75);
-  assert.equal(result.data.notesBalanceCents, 275);
-  assert.equal(result.data.notesBalance, 2.75);
-
-  const [mainWallet, notesWallet] = await Promise.all([
-    Wallet.findOne({ userId }).lean(),
-    NotesWallet.findOne({ userId }).lean()
-  ]);
-
-  assert.equal(mainWallet.availableBalanceCents, 725);
-  assert.equal(notesWallet.availableBalanceCents, 275);
-  assert.equal(notesWallet.totalPurchasedCents, 275);
-
-  const [mainLedger, notesLedger] = await Promise.all([
-    WalletTransaction.find({ userId }).lean(),
-    NotesTransaction.find({ userId }).lean()
-  ]);
-
-  assert.equal(mainLedger.length, 1);
-  assert.equal(mainLedger[0].type, "transfer_out");
-  assert.equal(mainLedger[0].amountCents, 275);
-  assert.equal(mainLedger[0].currency, "USD");
-  assert.equal(mainLedger[0].status, "completed");
-  assert.ok(mainLedger[0].reference.length <= 120);
-
-  assert.equal(notesLedger.length, 1);
-  assert.equal(notesLedger[0].type, "credit_purchase");
-  assert.equal(notesLedger[0].amountCents, 275);
-  assert.equal(notesLedger[0].reference, mainLedger[0].reference);
-});
-
-test("repeating an idempotency key does not transfer money twice", async () => {
-  const { userId } = await createFixture(1000);
-  const key = newKey("notes-repeat");
-  const body = { amountCents: 300 };
-
-  const first = await request("/api/notes/wallet/credits", {
-    userId,
-    method: "POST",
-    body,
-    idempotencyKey: key
-  });
-
-  assert.equal(first.status, 201);
-
-  const second = await request("/api/notes/wallet/credits", {
-    userId,
-    method: "POST",
-    body,
-    idempotencyKey: key
-  });
-
-  assert.equal(second.status, 200);
-  assert.equal(second.data.success, true);
-  assert.equal(second.data.duplicate, true);
-  assert.equal(second.data.transferredCents, 300);
-
-  const [mainWallet, notesWallet] = await Promise.all([
-    Wallet.findOne({ userId }).lean(),
-    NotesWallet.findOne({ userId }).lean()
-  ]);
-
-  assert.equal(mainWallet.availableBalanceCents, 700);
-  assert.equal(notesWallet.availableBalanceCents, 300);
-  assert.equal(notesWallet.totalPurchasedCents, 300);
-  assert.equal(await WalletTransaction.countDocuments({ userId }), 1);
-  assert.equal(await NotesTransaction.countDocuments({ userId }), 1);
-});
-
-test("insufficient main wallet funds leave both wallets and ledgers unchanged", async () => {
+test("rejected main-wallet transfer leaves both wallet systems unchanged", async () => {
   const { userId } = await createFixture(150);
 
   const result = await request("/api/notes/wallet/credits", {
     userId,
     method: "POST",
     body: { amountCents: 200 },
-    idempotencyKey: newKey("notes-insufficient")
+    idempotencyKey: newKey("notes-disabled")
   });
 
-  assert.equal(result.status, 400);
-  assert.equal(result.data.success, false);
-  assert.equal(result.data.code, "INSUFFICIENT_FUNDS");
+  assert.equal(result.status, 410);
+  assert.equal(result.data.code, "NOTES_WALLET_TRANSFERS_DISABLED");
 
   const mainWallet = await Wallet.findOne({ userId }).lean();
   assert.equal(mainWallet.availableBalanceCents, 150);
 
   assert.equal(await WalletTransaction.countDocuments({ userId }), 0);
   assert.equal(await NotesTransaction.countDocuments({ userId }), 0);
-
-  const notesWallet = await NotesWallet.findOne({ userId }).lean();
-  assert.equal(notesWallet, null);
+  assert.equal(await NotesWallet.countDocuments({ userId }), 0);
 });
 
-test("transaction history returns the Notes credit purchase", async () => {
+test("transaction history returns only Notes wallet transactions", async () => {
   const { userId } = await createFixture(1000);
 
-  const transfer = await request("/api/notes/wallet/credits", {
+  const notesWallet = await NotesWallet.create({ userId });
+
+  await NotesTransaction.create({
     userId,
-    method: "POST",
-    body: { amountCents: 425 },
-    idempotencyKey: newKey("notes-history")
+    walletId: notesWallet._id,
+    type: "credit_purchase",
+    amountCents: 425,
+    reference: newKey("notes-history"),
+    description: "Notes Points purchase"
   });
 
-  assert.equal(transfer.status, 201);
-
-  const history = await request("/api/notes/wallet/transactions?limit=10", {
-    userId
-  });
+  const history = await request(
+    "/api/notes/wallet/transactions?limit=10",
+    { userId }
+  );
 
   assert.equal(history.status, 200);
   assert.equal(history.data.success, true);
@@ -354,4 +271,7 @@ test("transaction history returns the Notes credit purchase", async () => {
   assert.equal(history.data.transactions[0].type, "credit_purchase");
   assert.equal(history.data.transactions[0].amountCents, 425);
   assert.equal(history.data.transactions[0].amount, 4.25);
+  assert.equal(history.data.transactions[0].description, "Notes Points purchase");
+
+  assert.equal(await WalletTransaction.countDocuments({ userId }), 0);
 });

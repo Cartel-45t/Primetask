@@ -40,6 +40,8 @@ function reviewText(value) {
   return result;
 }
 
+const NOTES_TASK_REWARD_CENTS = 300;
+
 function publicSubmission(item) {
   const member = item.userId && typeof item.userId === "object"
     ? item.userId
@@ -54,9 +56,7 @@ function publicSubmission(item) {
     taskId: task ? String(task._id) : String(item.taskId),
     taskTitle: item.taskTitle,
     taskStatus: task?.status || null,
-    rewardCents: Number.isSafeInteger(task?.rewardCents)
-      ? task.rewardCents
-      : null,
+    rewardCents: task ? NOTES_TASK_REWARD_CENTS : null,
     currency: "USD",
     member: member ? {
       id: String(member._id),
@@ -102,7 +102,7 @@ router.get("/", async (req, res) => {
       })
       .populate({
         path: "taskId",
-        select: "title status rewardCents"
+        select: "title status rewardCents durationMinutes"
       })
       .lean();
 
@@ -189,13 +189,16 @@ router.patch("/:id/review", async (req, res) => {
 
       if (action === "approve") {
         if (
-          !Number.isSafeInteger(task.rewardCents) ||
-          task.rewardCents < 1
+          !Number.isSafeInteger(task.durationMinutes) ||
+          task.durationMinutes < 1 ||
+          task.durationMinutes > 1440
         ) {
           const error = new Error("INVALID_TASK_REWARD");
           error.code = "INVALID_TASK_REWARD";
           throw error;
         }
+
+        const rewardCents = NOTES_TASK_REWARD_CENTS;
 
         await NotesWallet.updateOne(
           { userId: submission.userId },
@@ -220,8 +223,8 @@ router.patch("/:id/review", async (req, res) => {
           { userId: submission.userId },
           {
             $inc: {
-              availableBalanceCents: task.rewardCents,
-              totalEarningsCents: task.rewardCents
+              availableBalanceCents: rewardCents,
+              totalEarningsCents: rewardCents
             }
           },
           {
@@ -268,7 +271,7 @@ router.patch("/:id/review", async (req, res) => {
           userId: submission.userId,
           walletId: wallet._id,
           type: "task_earning",
-          amountCents: task.rewardCents,
+          amountCents: rewardCents,
           reference,
           description: `Earnings for approved Notes task: ${task.title}`,
           metadata: {
@@ -289,7 +292,7 @@ router.patch("/:id/review", async (req, res) => {
           action,
           submissionId: String(submission._id),
           taskId: String(task._id),
-          rewardCents: task.rewardCents,
+          rewardCents,
           walletBalanceCents: wallet.availableBalanceCents,
           status: submission.status
         };

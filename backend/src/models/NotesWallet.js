@@ -29,6 +29,9 @@ const schema = new mongoose.Schema({
   },
   totalEarningsCents: {
     type: Number, default: 0, min: 0, validate: nonNegativeCents
+  },
+  totalWithdrawalsCents: {
+    type: Number, default: 0, min: 0, validate: nonNegativeCents
   }
 }, {
   timestamps: true,

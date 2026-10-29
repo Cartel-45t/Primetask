@@ -96,7 +96,6 @@ const membershipPurchaseSchema = new mongoose.Schema(
         type: String,
         enum: [
           "transcription",
-          "note-taking",
           "data-entry",
           "academic-writing"
         ]

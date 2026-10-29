@@ -4,7 +4,6 @@ const Membership = require("../models/Membership");
 
 const ALLOWED_SERVICES = new Set([
   "transcription",
-  "note-taking",
   "data-entry",
   "academic-writing"
 ]);

@@ -2,12 +2,13 @@
 
 const express = require("express");
 const mongoose = require("mongoose");
+const cloudinary = require("cloudinary").v2;
 const crypto = require("node:crypto");
 
 const requireAuth = require("../middleware/requireAuth");
 const NotesTask = require("../models/NotesTask");
-const NotesWallet = require("../models/NotesWallet");
-const NotesTransaction = require("../models/NotesTransaction");
+const NotesPointsWallet = require("../models/NotesPointsWallet");
+const NotesPointsTransaction = require("../models/NotesPointsTransaction");
 const NotesSubmission = require("../models/NotesSubmission");
 
 const router = express.Router();
@@ -24,8 +25,10 @@ function publicTask(task) {
     expectedNotes: task.expectedNotes || "",
     brief: task.brief || "",
     deliverables: task.deliverables || [],
-    rewardCents: task.rewardCents,
-    taskCostCents: task.taskCostCents,
+    durationMinutes: task.durationMinutes,
+    pointsCost: task.durationMinutes,
+    rewardCents: Math.ceil(task.durationMinutes / 5) * 100,
+    audioAvailable: Boolean(task.audioPublicId && task.audioDurationSeconds > 0),
     currency: "USD",
     status: task.status,
     createdAt: task.createdAt
@@ -85,6 +88,248 @@ router.get("/mine", async (req, res) => {
   }
 });
 
+
+
+/*
+ * GET /api/notes/tasks/submissions
+ * Return only the authenticated member's Notes submission history.
+ */
+router.get("/submissions", async (req, res) => {
+  try {
+    const submissions = await NotesSubmission.find({
+      userId: req.user._id
+    })
+      .sort({ submittedAt: -1, _id: -1 })
+      .limit(100)
+      .populate({
+        path: "taskId",
+        select: "durationMinutes"
+      })
+      .lean();
+
+    return res.json({
+      success: true,
+      submissions: submissions.map((item) => {
+        const task = item.taskId && typeof item.taskId === "object"
+          ? item.taskId
+          : null;
+
+        const duration = task?.durationMinutes;
+        const validDuration = Number.isSafeInteger(duration) &&
+          duration >= 1 &&
+          duration <= 1440;
+
+        return {
+          id: String(item._id),
+          taskId: item.taskId?._id
+            ? String(item.taskId._id)
+            : String(item.taskId || ""),
+          taskTitle: item.taskTitle,
+          status: item.status,
+          submittedAt: item.submittedAt,
+          reviewedAt: item.reviewedAt,
+          reviewNotes: item.reviewNotes || "",
+          rewardCents: validDuration
+            ? Math.ceil(duration / 5) * 100
+            : null,
+          currency: "USD"
+        };
+      })
+    });
+  } catch (error) {
+    console.error("Member Notes submission history error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to load your Notes submission history."
+    });
+  }
+});
+
+router.get("/:id/audio", async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(404).json({
+      success: false,
+      message: "Audio is not available."
+    });
+  }
+
+  try {
+    const task = await NotesTask.findById(req.params.id).lean();
+
+    if (!task || !task.audioPublicId || !task.audioDurationSeconds) {
+      return res.status(404).json({
+        success: false,
+        message: "Audio is not available."
+      });
+    }
+
+    const role = String(req.user?.role || "").toLowerCase();
+    const isAdmin = role === "admin" || role === "founder";
+    const isPublicTask = task.status === "available";
+    const isOwnAssignment =
+      ["assigned", "submitted", "completed"].includes(task.status) &&
+      String(task.assignedUserId || "") === String(req.user?._id || "");
+
+    if (!isAdmin && !isPublicTask && !isOwnAssignment) {
+      return res.status(404).json({
+        success: false,
+        message: "Audio is not available."
+      });
+    }
+
+    const allowedFormats = new Set([
+      "mp3", "wav", "m4a", "ogg", "flac", "webm"
+    ]);
+    const format = String(task.audioFormat || "").toLowerCase();
+    const publicId = String(task.audioPublicId || "");
+    const expectedPrefix = "primetask-workspace/note-taking/audio/";
+
+    if (
+      !allowedFormats.has(format) ||
+      !publicId.startsWith(expectedPrefix) ||
+      !/^[A-Za-z0-9_-]+$/.test(publicId.slice(expectedPrefix.length))
+    ) {
+      return res.status(404).json({
+        success: false,
+        message: "Audio is not available."
+      });
+    }
+
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+      secure: true
+    });
+
+    const asset = await cloudinary.api.resource(publicId, {
+      resource_type: "video",
+      type: "authenticated"
+    });
+
+    if (
+      asset.public_id !== publicId ||
+      asset.resource_type !== "video" ||
+      asset.type !== "authenticated" ||
+      !allowedFormats.has(String(asset.format || "").toLowerCase())
+    ) {
+      return res.status(404).json({
+        success: false,
+        message: "Audio is not available."
+      });
+    }
+
+    const signedUrl = cloudinary.utils.private_download_url(
+      publicId,
+      format,
+      {
+        resource_type: "video",
+        type: "authenticated",
+        expires_at: Math.floor(Date.now() / 1000) + 60
+      }
+    );
+
+    const downloadUrl = new URL(signedUrl);
+    if (
+      downloadUrl.protocol !== "https:" ||
+      downloadUrl.hostname !== "api.cloudinary.com"
+    ) {
+      throw new Error("Unexpected Cloudinary download destination.");
+    }
+
+    const upstreamHeaders = {};
+    if (req.headers.range) {
+      upstreamHeaders.Range = req.headers.range;
+    }
+
+    const upstream = await fetch(downloadUrl, {
+      method: "GET",
+      headers: upstreamHeaders,
+      redirect: "error"
+    });
+
+    if (![200, 206, 416].includes(upstream.status)) {
+      await upstream.body?.cancel().catch(() => {});
+      return res.status(502).json({
+        success: false,
+        message: "Audio playback is temporarily unavailable."
+      });
+    }
+
+    const mimeTypes = {
+      mp3: "audio/mpeg",
+      wav: "audio/wav",
+      m4a: "audio/mp4",
+      ogg: "audio/ogg",
+      flac: "audio/flac",
+      webm: "audio/webm"
+    };
+
+    res.setHeader("Cache-Control", "private, no-store");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Accept-Ranges", "bytes");
+    res.setHeader("Content-Disposition", "inline");
+    res.setHeader("Content-Type", mimeTypes[format]);
+
+    for (const header of ["content-length", "content-range"]) {
+      const value = upstream.headers.get(header);
+      if (value) {
+        res.setHeader(
+          header.split("-").map(part =>
+            part.charAt(0).toUpperCase() + part.slice(1)
+          ).join("-"),
+          value
+        );
+      }
+    }
+
+    if (upstream.status === 416) {
+      await upstream.body?.cancel().catch(() => {});
+      return res.status(416).end();
+    }
+
+    if (!upstream.body) {
+      return res.status(502).json({
+        success: false,
+        message: "Audio playback is temporarily unavailable."
+      });
+    }
+
+    res.status(upstream.status);
+
+    const { Readable } = require("node:stream");
+    Readable.fromWeb(upstream.body)
+      .on("error", error => {
+        console.error("Notes audio stream error:", error.message);
+        if (!res.headersSent) {
+          res.status(502);
+        }
+        res.destroy(error);
+      })
+      .pipe(res);
+  } catch (error) {
+    if (error.http_code === 404 || error.statusCode === 404) {
+      return res.status(404).json({
+        success: false,
+        message: "Audio is not available."
+      });
+    }
+
+    console.error("Notes audio playback error:", error.message);
+
+    if (!res.headersSent) {
+      return res.status(502).json({
+        success: false,
+        message: "Audio playback is temporarily unavailable."
+      });
+    }
+
+    return res.destroy(error);
+  }
+});
+
 router.post("/:id/claim", async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({
@@ -102,7 +347,7 @@ router.post("/:id/claim", async (req, res) => {
       const task = await NotesTask.findOne({
         _id: req.params.id,
         status: "available",
-        taskCostCents: { $gte: 1 }
+        durationMinutes: { $gte: 1 }
       }).session(session);
 
       if (!task) {
@@ -111,9 +356,9 @@ router.post("/:id/claim", async (req, res) => {
         throw error;
       }
 
-      // Ensure every member has a Notes wallet before checking its balance.
-      // This creates a zero-balance wallet only; it never grants credits.
-      await NotesWallet.findOneAndUpdate(
+      const pointsCost = task.durationMinutes;
+
+      await NotesPointsWallet.findOneAndUpdate(
         { userId: req.user._id },
         { $setOnInsert: { userId: req.user._id } },
         {
@@ -124,15 +369,15 @@ router.post("/:id/claim", async (req, res) => {
         }
       );
 
-      const wallet = await NotesWallet.findOneAndUpdate(
+      const wallet = await NotesPointsWallet.findOneAndUpdate(
         {
           userId: req.user._id,
-          availableBalanceCents: { $gte: task.taskCostCents }
+          balancePoints: { $gte: pointsCost }
         },
         {
           $inc: {
-            availableBalanceCents: -task.taskCostCents,
-            totalSpentCents: task.taskCostCents
+            balancePoints: -pointsCost,
+            totalSpentPoints: pointsCost
           }
         },
         {
@@ -143,8 +388,8 @@ router.post("/:id/claim", async (req, res) => {
       );
 
       if (!wallet) {
-        const error = new Error("INSUFFICIENT_NOTES_CREDITS");
-        error.code = "INSUFFICIENT_NOTES_CREDITS";
+        const error = new Error("INSUFFICIENT_NOTES_POINTS");
+        error.code = "INSUFFICIENT_NOTES_POINTS";
         throw error;
       }
 
@@ -174,15 +419,16 @@ router.post("/:id/claim", async (req, res) => {
         throw error;
       }
 
-      await NotesTransaction.create([{
+      await NotesPointsTransaction.create([{
         userId: req.user._id,
         walletId: wallet._id,
-        type: "task_debit",
-        amountCents: task.taskCostCents,
-        reference: `NOTES-DEBIT-${task._id}-${crypto.randomUUID()}`,
-        description: `Notes task cost charged for: ${task.title}`,
+        type: "task_claim",
+        points: -pointsCost,
+        reference: `NOTES-POINTS-CLAIM-${task._id}-${crypto.randomUUID()}`,
+        description: `Notes Points charged for task: ${task.title}`,
         metadata: {
           taskId: String(task._id),
+          durationMinutes: task.durationMinutes,
           assignmentExpiresAt: expiresAt.toISOString(),
           refundPolicy: "No refunds for expired or abandoned assignments."
         }
@@ -196,16 +442,15 @@ router.post("/:id/claim", async (req, res) => {
       assignment: publicAssignment(claimedTask)
     });
   } catch (error) {
-    if (["TASK_UNAVAILABLE", "INSUFFICIENT_NOTES_CREDITS"].includes(error.code)) {
-      const status = error.code === "TASK_UNAVAILABLE" ? 409 : 402;
-      const message = error.code === "TASK_UNAVAILABLE"
-        ? "This task is no longer available."
-        : "Your Notes wallet has insufficient available credits.";
+    if (["TASK_UNAVAILABLE", "INSUFFICIENT_NOTES_POINTS"].includes(error.code)) {
+      const unavailable = error.code === "TASK_UNAVAILABLE";
 
-      return res.status(status).json({
+      return res.status(unavailable ? 409 : 402).json({
         success: false,
         code: error.code,
-        message
+        message: unavailable
+          ? "This task is no longer available."
+          : "Your Notes Points balance is insufficient for this task."
       });
     }
 
@@ -218,7 +463,6 @@ router.post("/:id/claim", async (req, res) => {
     await session.endSession();
   }
 });
-
 
 /*
  * POST /api/notes/tasks/:id/submissions

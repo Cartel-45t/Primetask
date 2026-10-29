@@ -103,7 +103,7 @@ async function createFixture({ balanceCents, priceCents = 2500 }) {
     priceCents,
     currency: "USD",
     durationDays: 30,
-    services: ["note-taking"],
+    services: ["data-entry"],
     commissionAmountsCents: [0, 0, 0, 0],
     commissionEnabled: false,
     active: true,

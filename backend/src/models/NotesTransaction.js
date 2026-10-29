@@ -25,7 +25,9 @@ const schema = new mongoose.Schema({
       "reservation_release",
       "refund",
       "task_earning",
-      "admin_adjustment"
+      "admin_adjustment",
+      "withdrawal",
+      "withdrawal_reversal"
     ],
     required: true,
     immutable: true

@@ -68,6 +68,16 @@ const purchaseModel = {
   }
 };
 
+const notesPointsPurchaseModel = {
+  async findOne() {
+    return null;
+  },
+
+  async updateOne() {
+    return { modifiedCount: 0 };
+  }
+};
+
 const membershipPurchaseModel = {
   async findOne(query) {
     if (
@@ -142,6 +152,9 @@ function loadRouteWithMocks() {
     }
     if (request === "../models/TranscriptionMinutePurchase") {
       return purchaseModel;
+    }
+    if (request === "../models/NotesPointsPurchase") {
+      return notesPointsPurchaseModel;
     }
     if (request === "../models/DarajaCallbackEvent") return eventModel;
     if (request === "../services/membershipDarajaVerificationService") {

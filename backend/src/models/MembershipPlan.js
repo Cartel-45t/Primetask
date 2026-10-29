@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 
 const SERVICES = [
   "transcription",
-  "note-taking",
   "data-entry",
   "academic-writing"
 ];

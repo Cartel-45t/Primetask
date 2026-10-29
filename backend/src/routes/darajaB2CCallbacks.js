@@ -5,6 +5,9 @@ const crypto = require("crypto");
 const mongoose = require("mongoose");
 
 const Withdrawal = require("../models/Withdrawal");
+const NotesWithdrawal = require("../models/NotesWithdrawal");
+const NotesWallet = require("../models/NotesWallet");
+const NotesTransaction = require("../models/NotesTransaction");
 const DarajaB2CCallbackEvent = require("../models/DarajaB2CCallbackEvent");
 const MpesaReceiptClaim = require("../models/MpesaReceiptClaim");
 const Wallet = require("../models/Wallet");
@@ -83,20 +86,33 @@ async function markReconciliation(event, originatorId, reason) {
   try {
     await session.withTransaction(async () => {
       if (originatorId) {
-        await Withdrawal.updateOne(
-          {
-            b2cOriginatorConversationId: originatorId,
-            status: { $in: ["processing", "reconciliation_required"] }
-          },
-          {
-            $set: {
-              status: "reconciliation_required",
-              b2cInitiationState: "unknown",
-              b2cResultDescription: safeText(reason, 500)
-            }
-          },
-          { session, runValidators: true }
-        );
+        const update = {
+          $set: {
+            status: "reconciliation_required",
+            b2cInitiationState: "unknown",
+            b2cResultDescription: safeText(reason, 500)
+          }
+        };
+
+        if (originatorId.startsWith("PTWNOTESB2C_")) {
+          await NotesWithdrawal.updateOne(
+            {
+              b2cOriginatorConversationId: originatorId,
+              status: { $in: ["processing", "reconciliation_required"] }
+            },
+            update,
+            { session, runValidators: true }
+          );
+        } else {
+          await Withdrawal.updateOne(
+            {
+              b2cOriginatorConversationId: originatorId,
+              status: { $in: ["processing", "reconciliation_required"] }
+            },
+            update,
+            { session, runValidators: true }
+          );
+        }
       }
 
       await DarajaB2CCallbackEvent.updateOne(
@@ -201,6 +217,91 @@ async function handleCallback(req, res, callbackType) {
 
   try {
     await session.withTransaction(async () => {
+      if (originatorId.startsWith("PTWNOTESB2C_")) {
+        const withdrawal = await NotesWithdrawal.findOne({
+          b2cOriginatorConversationId: originatorId
+        }).session(session);
+
+        if (!withdrawal) {
+          const error = new Error("WITHDRAWAL_NOT_FOUND");
+          error.code = "WITHDRAWAL_NOT_FOUND";
+          throw error;
+        }
+
+        // Repeated success callbacks must never settle the same withdrawal twice.
+        if (withdrawal.status === "paid" && withdrawal.mpesaReceipt === receipt) {
+          await DarajaB2CCallbackEvent.updateOne(
+            { _id: event._id },
+            { $set: { processingStatus: "processed" } },
+            { session }
+          );
+          return;
+        }
+
+        if (
+          !["processing", "reconciliation_required"].includes(withdrawal.status) ||
+          !["submitting", "accepted", "unknown"].includes(withdrawal.b2cInitiationState) ||
+          withdrawal.payoutAmountKes !== amount
+        ) {
+          const error = new Error("CALLBACK_WITHDRAWAL_MISMATCH");
+          error.code = "CALLBACK_WITHDRAWAL_MISMATCH";
+          throw error;
+        }
+
+        // The receipt claim is global, shared with the main wallet and other flows.
+        await MpesaReceiptClaim.create([{
+          receipt,
+          purpose: "notes_withdrawal",
+          referenceId: withdrawal.requestId,
+          amountKes: amount,
+          claimedBy: withdrawal.userId,
+          evidenceSource: "daraja_provider_confirmation",
+          evidenceReference: originatorId
+        }], { session });
+
+        // Only the Notes wallet is changed. The amount was reserved at request time.
+        const walletResult = await NotesWallet.updateOne(
+          {
+            userId: withdrawal.userId,
+            reservedBalanceCents: { $gte: withdrawal.amountCents }
+          },
+          {
+            $inc: {
+              reservedBalanceCents: -withdrawal.amountCents,
+              totalWithdrawalsCents: withdrawal.amountCents
+            }
+          },
+          { session, runValidators: true }
+        );
+
+        if (walletResult.modifiedCount !== 1) {
+          throw new Error("Notes wallet missing or reserved balance insufficient.");
+        }
+
+        const update = await NotesWithdrawal.updateOne(
+          {
+            _id: withdrawal._id,
+            status: { $in: ["processing", "reconciliation_required"] },
+            b2cOriginatorConversationId: originatorId,
+            payoutAmountKes: amount
+          },
+          {
+            $set: {
+              status: "paid",
+              b2cInitiationState: "succeeded",
+              b2cConversationId: safeText(result.ConversationID, 150) || null,
+              b2cResultCode: code,
+              b2cResultDescription: safeText(result.ResultDesc),
+              mpesaReceipt: receipt
+            }
+          },
+          { session, runValidators: true }
+        );
+
+        if (update.modifiedCount !== 1) {
+          throw new Error("Notes withdrawal state changed during callback processing.");
+        }
+      } else {
       const withdrawal = await Withdrawal.findOne({
         b2cOriginatorConversationId: originatorId
       }).session(session);
@@ -297,6 +398,7 @@ async function handleCallback(req, res, callbackType) {
 
       if (update.modifiedCount !== 1) {
         throw new Error("Withdrawal state changed during callback processing.");
+      }
       }
 
       await DarajaB2CCallbackEvent.updateOne(

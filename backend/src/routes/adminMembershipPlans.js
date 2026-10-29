@@ -10,7 +10,6 @@ const router = express.Router();
 
 const SERVICES = [
   "transcription",
-  "note-taking",
   "data-entry",
   "academic-writing"
 ];

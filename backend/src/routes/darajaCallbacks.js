@@ -3,6 +3,7 @@ const { createHash } = require("crypto");
 const Deposit = require("../models/Deposit");
 const MembershipPurchase = require("../models/MembershipPurchase");
 const MinutePurchase = require("../models/TranscriptionMinutePurchase");
+const NotesPointsPurchase = require("../models/NotesPointsPurchase");
 const DarajaCallbackEvent = require("../models/DarajaCallbackEvent");
 const { verifyAndFulfilMembershipCallback } = require("../services/membershipDarajaVerificationService");
 const {
@@ -12,6 +13,9 @@ const {
 const {
   verifyAndCreditTranscriptionMinutePurchase
 } = require("../services/transcriptionMinuteDarajaVerificationService");
+const {
+  verifyAndCreditNotesPointsPurchase
+} = require("../services/notesPointsDarajaVerificationService");
 
 const router = express.Router();
 
@@ -319,6 +323,85 @@ router.post("/stk", async (req, res) => {
         return res.status(200).json({
           ResultCode: 0,
           ResultDesc: "Callback stored; payment verification is pending"
+        });
+      }
+
+      const notesPointsPurchase = await NotesPointsPurchase.findOne({
+        checkoutRequestId
+      });
+
+      if (notesPointsPurchase) {
+        let verification = {
+          verified: false,
+          reason: resultCode === 0
+            ? "CALLBACK_REQUIRES_RECONCILIATION"
+            : "PAYMENT_NOT_SUCCESSFUL"
+        };
+
+        if (resultCode === 0) {
+          try {
+            verification = await verifyAndCreditNotesPointsPurchase({
+              purchaseId: notesPointsPurchase._id,
+              checkoutRequestId,
+              merchantRequestId,
+              resultCode,
+              metadata
+            });
+          } catch (verificationError) {
+            console.error(
+              "Notes Points payment verification failed safely:",
+              verificationError.message
+            );
+            verification = {
+              verified: false,
+              reason: verificationError.code || "VERIFICATION_ERROR"
+            };
+          }
+        }
+
+        if (verification.verified) {
+          await DarajaCallbackEvent.updateOne(
+            { eventKey },
+            { $set: { processingStatus: "processed" } }
+          );
+
+          console.info(
+            "Notes Points purchase verified:",
+            String(notesPointsPurchase._id)
+          );
+
+          return res.status(200).json({
+            ResultCode: 0,
+            ResultDesc: "Payment verified; Notes Points credited"
+          });
+        }
+
+        await Promise.all([
+          DarajaCallbackEvent.updateOne(
+            { eventKey },
+            { $set: { processingStatus: "reconciliation_required" } }
+          ),
+          NotesPointsPurchase.updateOne(
+            {
+              _id: notesPointsPurchase._id,
+              paymentStatus: { $in: ["pending", "verification_required"] }
+            },
+            {
+              $set: {
+                paymentStatus: "verification_required",
+                failureCode: String(
+                  verification.reason || "CALLBACK_REQUIRES_RECONCILIATION"
+                ).slice(0, 100),
+                failureDescription:
+                  "Safaricom payment verification is incomplete. No Points were credited; the purchase remains unresolved."
+              }
+            }
+          )
+        ]);
+
+        return res.status(200).json({
+          ResultCode: 0,
+          ResultDesc: "Callback stored; Notes Points payment requires verification"
         });
       }
 

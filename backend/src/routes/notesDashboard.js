@@ -3,6 +3,7 @@
 const express = require("express");
 const requireAuth = require("../middleware/requireAuth");
 const NotesWallet = require("../models/NotesWallet");
+const NotesPointsWallet = require("../models/NotesPointsWallet");
 const NotesTransaction = require("../models/NotesTransaction");
 const NotesTask = require("../models/NotesTask");
 
@@ -13,6 +14,16 @@ router.use(requireAuth);
 router.get("/", async (req, res) => {
   try {
     const wallet = await NotesWallet.findOneAndUpdate(
+      { userId: req.user._id },
+      { $setOnInsert: { userId: req.user._id } },
+      {
+        upsert: true,
+        returnDocument: "after",
+        setDefaultsOnInsert: true
+      }
+    );
+
+    const pointsWallet = await NotesPointsWallet.findOneAndUpdate(
       { userId: req.user._id },
       { $setOnInsert: { userId: req.user._id } },
       {
@@ -46,6 +57,8 @@ router.get("/", async (req, res) => {
         myAssignments,
         walletBalanceCents: wallet.availableBalanceCents,
         totalEarningsCents: wallet.totalEarningsCents,
+        pointsBalance: pointsWallet.balancePoints,
+        pointsCurrency: "POINTS",
         activity: transactions.map(item => ({
           type: item.type,
           amountCents: item.amountCents,

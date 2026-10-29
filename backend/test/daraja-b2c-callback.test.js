@@ -87,6 +87,30 @@ const withdrawalModel = {
   }
 };
 
+const notesWithdrawalModel = {
+  findOne() {
+    return {
+      session: async () => null
+    };
+  },
+
+  async updateOne() {
+    return { matchedCount: 0, modifiedCount: 0 };
+  }
+};
+
+const notesWalletModel = {
+  async updateOne() {
+    return { matchedCount: 0, modifiedCount: 0 };
+  }
+};
+
+const notesTransactionModel = {
+  async create() {
+    throw new Error("Unexpected NotesTransaction.create in this test.");
+  }
+};
+
 const eventModel = {
   async create(record) {
     const existing = state.events.find(
@@ -170,6 +194,9 @@ function loadRouteWithMocks() {
   Module._load = function (request, parent, isMain) {
     if (request === "mongoose") return mongooseMock;
     if (request === "../models/Withdrawal") return withdrawalModel;
+    if (request === "../models/NotesWithdrawal") return notesWithdrawalModel;
+    if (request === "../models/NotesWallet") return notesWalletModel;
+    if (request === "../models/NotesTransaction") return notesTransactionModel;
     if (request === "../models/DarajaB2CCallbackEvent") return eventModel;
     if (request === "../models/MpesaReceiptClaim") return receiptClaimModel;
     if (request === "../models/Wallet") return walletModel;
