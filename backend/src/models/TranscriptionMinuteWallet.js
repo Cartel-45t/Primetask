@@ -18,9 +18,6 @@ const schema = new mongoose.Schema({
   availableMinutes: {
     type: Number, default: 0, min: 0, validate: wholeMinutes
   },
-  reservedMinutes: {
-    type: Number, default: 0, min: 0, validate: wholeMinutes
-  },
   totalPurchasedMinutes: {
     type: Number, default: 0, min: 0, validate: wholeMinutes
   },

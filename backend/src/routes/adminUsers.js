@@ -502,7 +502,6 @@ router.get("/:id", async (req, res) => {
 
         transcriptionMinutes: {
           availableMinutes: Number(minuteWallet?.availableMinutes || 0),
-          reservedMinutes: Number(minuteWallet?.reservedMinutes || 0),
           totalPurchasedMinutes: Number(minuteWallet?.totalPurchasedMinutes || 0),
           totalSpentMinutes: Number(minuteWallet?.totalSpentMinutes || 0),
           totalRefundedMinutes: Number(minuteWallet?.totalRefundedMinutes || 0)
@@ -633,7 +632,7 @@ router.patch("/:id", async (req, res) => {
     }
 
     if ("selectedService" in updates &&
-        ![null, "", "transcription", "note-taking", "data-entry", "academic-writing"].includes(updates.selectedService)) {
+        ![null, "", "transcription", "data-entry", "academic-writing"].includes(updates.selectedService)) {
       return res.status(400).json({
         success: false,
         message: "Invalid selected service."

@@ -20,6 +20,7 @@ const schema = new mongoose.Schema({
     type: String,
     enum: [
       "purchase_credit",
+      "job_claim_debit",
       "job_reservation",
       "job_debit",
       "reservation_release",
@@ -56,6 +57,11 @@ const schema = new mongoose.Schema({
     default: null,
     immutable: true
   },
+  claimExpiresAt: {
+    type: Date,
+    default: null,
+    immutable: true
+  },
   description: {
     type: String,
     default: "",
@@ -85,30 +91,6 @@ schema.index(
       type: "purchase_credit"
     },
     name: "unique_minute_purchase_credit"
-  }
-);
-
-schema.index(
-  { jobId: 1 },
-  {
-    unique: true,
-    partialFilterExpression: {
-      jobId: { $type: "objectId" },
-      type: "job_reservation"
-    },
-    name: "unique_minute_job_reservation"
-  }
-);
-
-schema.index(
-  { jobId: 1 },
-  {
-    unique: true,
-    partialFilterExpression: {
-      jobId: { $type: "objectId" },
-      type: "job_debit"
-    },
-    name: "unique_minute_job_debit"
   }
 );
 

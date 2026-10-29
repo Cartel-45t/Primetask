@@ -76,7 +76,6 @@ router.get("/wallet", async (req, res) => {
       success: true,
       wallet: {
         availableMinutes: wallet.availableMinutes,
-        reservedMinutes: wallet.reservedMinutes,
         totalPurchasedMinutes: wallet.totalPurchasedMinutes,
         totalSpentMinutes: wallet.totalSpentMinutes,
         totalRefundedMinutes: wallet.totalRefundedMinutes,
