@@ -632,7 +632,7 @@ router.patch("/:id", async (req, res) => {
     }
 
     if ("selectedService" in updates &&
-        ![null, "", "transcription", "data-entry", "academic-writing"].includes(updates.selectedService)) {
+        ![null, "", "transcription", "note-taking", "data-entry", "academic-writing"].includes(updates.selectedService)) {
       return res.status(400).json({
         success: false,
         message: "Invalid selected service."

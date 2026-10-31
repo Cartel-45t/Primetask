@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema(
 
     selectedService: {
       type: String,
-      enum: ["transcription", "data-entry", "academic-writing"],
+      enum: ["transcription", "note-taking", "data-entry", "academic-writing"],
       default: null
     },
 
