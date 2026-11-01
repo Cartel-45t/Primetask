@@ -795,6 +795,75 @@ router.get("/submissions/:id/document", async (req, res) => {
   }
 });
 
+
+/*
+ * GET /api/admin/transcription/members/:userId/summary
+ * Lifetime submission statistics and separate transcription wallet.
+ */
+router.get("/members/:userId/summary", async (req, res) => {
+  try {
+    if (!validId(req.params.userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid member ID."
+      });
+    }
+
+    const userId = new mongoose.Types.ObjectId(req.params.userId);
+
+    const [groups, wallet] = await Promise.all([
+      Submission.aggregate([
+        { $match: { userId } },
+        {
+          $group: {
+            _id: "$status",
+            count: { $sum: 1 }
+          }
+        }
+      ]),
+      Wallet.findOne({ userId })
+        .select("availableBalanceCents totalEarningsCents currency")
+        .lean()
+    ]);
+
+    const counts = {
+      submitted: 0,
+      approved: 0,
+      rejected: 0
+    };
+
+    for (const group of groups) {
+      if (Object.prototype.hasOwnProperty.call(counts, group._id)) {
+        counts[group._id] = group.count;
+      }
+    }
+
+    return res.json({
+      success: true,
+      summary: {
+        totalSubmissions:
+          counts.submitted + counts.approved + counts.rejected,
+        approved: counts.approved,
+        rejected: counts.rejected,
+        pending: counts.submitted,
+        wallet: {
+          currency: "USD",
+          availableBalance:
+            (wallet?.availableBalanceCents || 0) / 100,
+          totalEarnings:
+            (wallet?.totalEarningsCents || 0) / 100
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Admin contributor summary error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Could not load contributor statistics."
+    });
+  }
+});
+
 /* GET /api/admin/transcription/submissions */
 router.get("/submissions", async (req, res) => {
   try {
