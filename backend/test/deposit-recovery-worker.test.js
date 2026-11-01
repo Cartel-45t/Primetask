@@ -184,4 +184,18 @@ test("queries only pending Daraja deposits with recorded checkout IDs", async ()
     calls.depositFilter.checkoutRequestId,
     { $type: "string" }
   );
+  assert.deepEqual(calls.depositFilter.$or, [
+    {
+      stkInitiatedAt: {
+        $type: "date",
+        $lte: new Date(1_800_000_000_000 - 60_000)
+      }
+    },
+    {
+      stkInitiatedAt: null,
+      updatedAt: {
+        $lte: new Date(1_800_000_000_000 - 60_000)
+      }
+    }
+  ]);
 });

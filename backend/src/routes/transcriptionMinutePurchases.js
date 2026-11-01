@@ -232,6 +232,7 @@ router.post("/", async (req, res) => {
       phoneNumber,
       paymentStatus: "verification_required",
       hasUnresolvedPayment: true,
+      stkInitiatedAt: new Date(),
       failureCode: "STK_INITIATION_IN_PROGRESS",
       failureDescription: "STK initiation is being processed. Verify the result before retrying."
     });
@@ -459,6 +460,7 @@ router.post("/:purchaseId/initiate", async (req, res) => {
         $set: {
           paymentStatus: "verification_required",
           hasUnresolvedPayment: true,
+          stkInitiatedAt: new Date(),
           failureCode: "STK_INITIATION_IN_PROGRESS",
           failureDescription: "STK initiation is being processed. Verify the result before retrying."
         }

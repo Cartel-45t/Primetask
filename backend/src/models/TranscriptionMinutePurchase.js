@@ -99,6 +99,10 @@ const schema = new mongoose.Schema({
     default: false,
     required: true
   },
+  stkInitiatedAt: {
+    type: Date,
+    default: null
+  },
   merchantRequestId: {
     type: String,
     default: null,

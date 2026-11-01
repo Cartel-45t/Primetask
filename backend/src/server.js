@@ -16,8 +16,18 @@ const walletRoutes = require("./routes/wallet");
 const withdrawalRoutes = require("./routes/withdrawals");
 const referralRoutes = require("./routes/referrals");
 const depositRoutes = require("./routes/deposits");
-const { startDepositRecoveryWorker } = require("./services/depositRecoveryWorker");
-const { startTranscriptionMinuteRecoveryWorker } = require("./services/transcriptionMinuteRecoveryWorker");
+const {
+  startDepositRecoveryWorker,
+  stopDepositRecoveryWorker
+} = require("./services/depositRecoveryWorker");
+const {
+  startTranscriptionMinuteRecoveryWorker,
+  stopTranscriptionMinuteRecoveryWorker
+} = require("./services/transcriptionMinuteRecoveryWorker");
+const {
+  startMembershipRecoveryWorker,
+  stopMembershipRecoveryWorker
+} = require("./services/membershipRecoveryWorker");
 const {
   startNotesPointsRecoveryWorker,
   stopNotesPointsRecoveryWorker
@@ -219,6 +229,7 @@ async function startServer() {
 
     startDepositRecoveryWorker();
     startTranscriptionMinuteRecoveryWorker();
+    startMembershipRecoveryWorker();
     startNotesPointsRecoveryWorker();
 
     const rotationSettings = await TranscriptionSettings.findOne({
@@ -256,6 +267,9 @@ async function shutdown(signal) {
 
   try {
     await stopTranscriptionJobRotationWorker();
+    stopDepositRecoveryWorker();
+    stopTranscriptionMinuteRecoveryWorker();
+    stopMembershipRecoveryWorker();
     stopNotesPointsRecoveryWorker();
 
     if (httpServer) {

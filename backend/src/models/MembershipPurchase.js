@@ -174,6 +174,11 @@ const membershipPurchaseSchema = new mongoose.Schema(
       maxlength: 150
     },
 
+    stkInitiatedAt: {
+      type: Date,
+      default: null
+    },
+
     mpesaReceipt: {
       type: String,
       default: null,

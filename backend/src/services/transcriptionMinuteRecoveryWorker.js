@@ -46,9 +46,12 @@ function createTranscriptionMinuteRecoveryWorker({
         paymentStatus: { $in: ["pending", "verification_required"] },
         checkoutRequestId: { $type: "string" },
         merchantRequestId: { $type: "string" },
-        updatedAt: { $lte: cutoff }
+        $or: [
+          { stkInitiatedAt: { $type: "date", $lte: cutoff } },
+          { stkInitiatedAt: null, updatedAt: { $lte: cutoff } }
+        ]
       })
-        .sort({ updatedAt: 1 })
+        .sort({ stkInitiatedAt: 1, updatedAt: 1 })
         .limit(BATCH_SIZE)
         .lean();
 

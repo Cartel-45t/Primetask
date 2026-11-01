@@ -89,6 +89,7 @@ async function createPendingDeposit({
       expectedAmountKes,
       phoneNumber,
       paymentMode,
+      stkInitiatedAt: paymentMode === "daraja" ? new Date() : null,
       status: "pending"
     });
 

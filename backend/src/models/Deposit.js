@@ -72,6 +72,11 @@ const depositSchema = new mongoose.Schema(
       required: true,
       immutable: true
     },
+    stkInitiatedAt: {
+      type: Date,
+      default: null
+    },
+
     status: {
       type: String,
       enum: ["pending", "completed", "failed", "cancelled"],

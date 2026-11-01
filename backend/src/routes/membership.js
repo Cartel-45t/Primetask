@@ -299,7 +299,8 @@ router.post("/purchases", async (req, res) => {
         commissionAmountsCentsSnapshot:
           plan.commissionAmountsCents.slice(),
         phoneNumber,
-        paymentStatus: "pending"
+        paymentStatus: "pending",
+        stkInitiatedAt: new Date()
       });
     } catch (error) {
       if (error.code === 11000) {
