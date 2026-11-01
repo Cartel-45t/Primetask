@@ -56,6 +56,7 @@ const transcriptionMinutePurchasesRoutes = require("./routes/transcriptionMinute
 const adminTranscriptionMinuteReconciliationRoutes = require("./routes/adminTranscriptionMinuteReconciliation");
 const transcriptionAssetsRoutes = require("./routes/transcriptionAssets");
 const notesWalletRoutes = require("./routes/notesWallet");
+const notesPointsTransactionsRoutes = require("./routes/notesPointsTransactions");
 const notesWithdrawalsRoutes = require("./routes/notesWithdrawals");
 const notesDashboardRoutes = require("./routes/notesDashboard");
 const notesTasksRoutes = require("./routes/notesTasks");
@@ -123,6 +124,7 @@ app.use("/api/marketing-wallet", marketingWalletRoutes);
 app.use("/api/transcription/wallet", transcriptionWalletRoutes);
 app.use("/api/transcription/minute-purchases", transcriptionMinutePurchasesRoutes);
 app.use("/api/notes/wallet", notesWalletRoutes);
+app.use("/api/notes/points-transactions", notesPointsTransactionsRoutes);
 app.use("/api/notes/withdrawals", notesWithdrawalsRoutes);
 app.use("/api/notes/dashboard", notesDashboardRoutes);
 app.use("/api/notes/tasks", notesTasksRoutes);
