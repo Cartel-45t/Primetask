@@ -173,6 +173,12 @@ router.post("/", async (req, res) => {
     });
 
     try {
+      // Record the attempt before contacting Safaricom. If the network
+      // fails after Safaricom accepts the request, we must not send
+      // another STK Push blindly.
+      purchase.stkInitiatedAt = new Date();
+      await purchase.save();
+
       const stk = await initiateStkPush({
         phoneNumber,
         amountKes: purchase.expectedAmountKes,

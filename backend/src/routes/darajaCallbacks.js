@@ -331,11 +331,45 @@ router.post("/stk", async (req, res) => {
       });
 
       if (notesPointsPurchase) {
+        // Only the recognised cancellation result releases the unresolved
+        // payment lock. Unknown nonzero result codes remain unresolved.
+        if (resultCode === 1032) {
+          await Promise.all([
+            DarajaCallbackEvent.updateOne(
+              { eventKey },
+              { $set: { processingStatus: "processed" } }
+            ),
+            NotesPointsPurchase.updateOne(
+              {
+                _id: notesPointsPurchase._id,
+                checkoutRequestId,
+                paymentStatus: { $in: ["pending", "verification_required"] },
+                hasUnresolvedPayment: true
+              },
+              {
+                $set: {
+                  paymentStatus: "cancelled",
+                  hasUnresolvedPayment: false,
+                  failureCode: "1032",
+                  failureDescription: resultDescription.slice(0, 500),
+                  lastReconciledAt: new Date()
+                }
+              }
+            )
+          ]);
+
+          return res.status(200).json({
+            ResultCode: 0,
+            ResultDesc: "Payment cancellation recorded; another payment may be initiated"
+          });
+        }
+
         let verification = {
           verified: false,
-          reason: resultCode === 0
-            ? "CALLBACK_REQUIRES_RECONCILIATION"
-            : "PAYMENT_NOT_SUCCESSFUL"
+          reason:
+            resultCode !== 0 && resultCode !== null
+              ? `UNCLASSIFIED_RESULT_CODE_${resultCode}`
+              : "CALLBACK_REQUIRES_RECONCILIATION"
         };
 
         if (resultCode === 0) {
@@ -384,7 +418,8 @@ router.post("/stk", async (req, res) => {
           NotesPointsPurchase.updateOne(
             {
               _id: notesPointsPurchase._id,
-              paymentStatus: { $in: ["pending", "verification_required"] }
+              paymentStatus: { $in: ["pending", "verification_required"] },
+              hasUnresolvedPayment: true
             },
             {
               $set: {
@@ -393,7 +428,13 @@ router.post("/stk", async (req, res) => {
                   verification.reason || "CALLBACK_REQUIRES_RECONCILIATION"
                 ).slice(0, 100),
                 failureDescription:
-                  "Safaricom payment verification is incomplete. No Points were credited; the purchase remains unresolved."
+                  resultCode !== 0 && resultCode !== null
+                    ? (
+                        "Unclassified Safaricom result code " +
+                        resultCode +
+                        ". No Points were credited; the purchase remains unresolved."
+                      )
+                    : "Safaricom payment verification is incomplete. No Points were credited; the purchase remains unresolved."
               }
             }
           )

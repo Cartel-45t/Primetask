@@ -19,6 +19,10 @@ const depositRoutes = require("./routes/deposits");
 const { startDepositRecoveryWorker } = require("./services/depositRecoveryWorker");
 const { startTranscriptionMinuteRecoveryWorker } = require("./services/transcriptionMinuteRecoveryWorker");
 const {
+  startNotesPointsRecoveryWorker,
+  stopNotesPointsRecoveryWorker
+} = require("./services/notesPointsRecoveryWorker");
+const {
   startTranscriptionJobRotationWorker,
   stopTranscriptionJobRotationWorker
 } = require("./services/transcriptionJobRotationWorker");
@@ -215,6 +219,7 @@ async function startServer() {
 
     startDepositRecoveryWorker();
     startTranscriptionMinuteRecoveryWorker();
+    startNotesPointsRecoveryWorker();
 
     const rotationSettings = await TranscriptionSettings.findOne({
       key: "transcription"
@@ -251,6 +256,7 @@ async function shutdown(signal) {
 
   try {
     await stopTranscriptionJobRotationWorker();
+    stopNotesPointsRecoveryWorker();
 
     if (httpServer) {
       await new Promise((resolve, reject) => {
