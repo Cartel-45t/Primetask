@@ -6,6 +6,7 @@ const cloudinary = require("cloudinary").v2;
 const crypto = require("node:crypto");
 
 const requireAuth = require("../middleware/requireAuth");
+const requireNotesMembership = require("../middleware/requireNotesMembership");
 const NotesTask = require("../models/NotesTask");
 const NotesPointsWallet = require("../models/NotesPointsWallet");
 const NotesPointsTransaction = require("../models/NotesPointsTransaction");
@@ -330,7 +331,7 @@ router.get("/:id/audio", async (req, res) => {
   }
 });
 
-router.post("/:id/claim", async (req, res) => {
+router.post("/:id/claim", requireNotesMembership, async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({
       success: false,
@@ -469,7 +470,7 @@ router.post("/:id/claim", async (req, res) => {
  * Accept one text submission for the member's active assignment.
  * Assignment expiry is enforced by the server, not the browser timer.
  */
-router.post("/:id/submissions", async (req, res) => {
+router.post("/:id/submissions", requireNotesMembership, async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({
       success: false,

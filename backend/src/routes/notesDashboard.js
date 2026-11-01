@@ -6,6 +6,7 @@ const NotesWallet = require("../models/NotesWallet");
 const NotesPointsWallet = require("../models/NotesPointsWallet");
 const NotesTransaction = require("../models/NotesTransaction");
 const NotesTask = require("../models/NotesTask");
+const Membership = require("../models/Membership");
 
 const router = express.Router();
 
@@ -23,15 +24,37 @@ router.get("/", async (req, res) => {
       }
     );
 
-    const pointsWallet = await NotesPointsWallet.findOneAndUpdate(
-      { userId: req.user._id },
-      { $setOnInsert: { userId: req.user._id } },
-      {
-        upsert: true,
-        returnDocument: "after",
-        setDefaultsOnInsert: true
-      }
-    );
+    const role = String(req.user.role || "").toLowerCase();
+    const isPrivileged = ["admin", "founder"].includes(role);
+    const now = new Date();
+
+    const membership = isPrivileged
+      ? true
+      : await Membership.findOne({
+          userId: req.user._id,
+          status: "active",
+          services: "note-taking",
+          startsAt: { $lte: now },
+          expiresAt: { $gt: now }
+        })
+          .select("_id")
+          .lean();
+
+    const hasNotesMembership = isPrivileged || Boolean(membership);
+
+    let pointsWallet = null;
+
+    if (hasNotesMembership) {
+      pointsWallet = await NotesPointsWallet.findOneAndUpdate(
+        { userId: req.user._id },
+        { $setOnInsert: { userId: req.user._id } },
+        {
+          upsert: true,
+          returnDocument: "after",
+          setDefaultsOnInsert: true
+        }
+      );
+    }
 
     const [availableWork, myAssignments, transactions] = await Promise.all([
       NotesTask.countDocuments({ status: "available" }),
@@ -57,8 +80,13 @@ router.get("/", async (req, res) => {
         myAssignments,
         walletBalanceCents: wallet.availableBalanceCents,
         totalEarningsCents: wallet.totalEarningsCents,
-        pointsBalance: pointsWallet.balancePoints,
-        pointsCurrency: "POINTS",
+        hasNotesMembership,
+        ...(hasNotesMembership
+          ? {
+              pointsBalance: pointsWallet.balancePoints,
+              pointsCurrency: "POINTS"
+            }
+          : {}),
         activity: transactions.map(item => ({
           type: item.type,
           amountCents: item.amountCents,

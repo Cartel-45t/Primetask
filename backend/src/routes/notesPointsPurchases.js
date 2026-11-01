@@ -3,6 +3,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const requireAuth = require("../middleware/requireAuth");
+const requireNotesMembership = require("../middleware/requireNotesMembership");
 const Package = require("../models/NotesPointsPackage");
 const Purchase = require("../models/NotesPointsPurchase");
 const PointsWallet = require("../models/NotesPointsWallet");
@@ -11,6 +12,7 @@ const { initiateStkPush } = require("../services/darajaService");
 
 const router = express.Router();
 router.use(requireAuth);
+router.use(requireNotesMembership);
 
 function publicPurchase(purchase) {
   return {
