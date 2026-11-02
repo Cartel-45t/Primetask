@@ -9,6 +9,9 @@ const MembershipPaymentReconciliation = require(
 const MpesaReceiptClaim = require("../models/MpesaReceiptClaim");
 const Deposit = require("../models/Deposit");
 const Withdrawal = require("../models/Withdrawal");
+const WalletTransaction = require("../models/WalletTransaction");
+const Membership = require("../models/Membership");
+const AdminAuditLog = require("../models/AdminAuditLog");
 
 const router = express.Router();
 
@@ -415,6 +418,200 @@ router.post("/:purchaseId/verify", async (req, res) => {
       503,
       "Verification could not be safely committed. Check MongoDB transaction support and retry after investigating."
     );
+  } finally {
+    if (session) {
+      await session.endSession().catch(() => {});
+    }
+  }
+});
+
+
+/**
+ * Reject and delete an unpaid pending Daraja membership purchase.
+ * Requires an administrator's explicit Safaricom unpaid confirmation.
+ * Callback events are deliberately preserved.
+ */
+router.post("/:purchaseId/reject-delete", async (req, res) => {
+  const purchaseId = req.params.purchaseId;
+  const reason = typeof req.body?.reason === "string"
+    ? req.body.reason.trim()
+    : "";
+
+  if (!validObjectId(purchaseId)) {
+    return errorResponse(res, 400, "Invalid membership purchase ID.");
+  }
+
+  if (reason.length < 3 || reason.length > 500) {
+    return errorResponse(res, 400, "Reason must contain 3 to 500 characters.");
+  }
+
+  if (req.body?.safaricomStatusConfirmed !== "unpaid") {
+    return errorResponse(
+      res,
+      400,
+      "Explicit confirmation that Safaricom shows the payment as unpaid is required."
+    );
+  }
+
+  let session;
+
+  try {
+    session = await mongoose.startSession();
+    let deletedReference = null;
+
+    await session.withTransaction(async () => {
+      const purchase = await MembershipPurchase.findById(purchaseId)
+        .session(session);
+
+      if (!purchase) {
+        const error = new Error("PURCHASE_NOT_FOUND");
+        error.code = "PURCHASE_NOT_FOUND";
+        throw error;
+      }
+
+      if (!PENDING_STATUSES.includes(purchase.paymentStatus)) {
+        const error = new Error("PURCHASE_NOT_PENDING");
+        error.code = "PURCHASE_NOT_PENDING";
+        throw error;
+      }
+
+      if (purchase.paymentMethod !== "daraja") {
+        const error = new Error("PAYMENT_METHOD_NOT_SUPPORTED");
+        error.code = "PAYMENT_METHOD_NOT_SUPPORTED";
+        throw error;
+      }
+
+      const hasPaymentEvidence = Boolean(
+        purchase.mpesaReceipt ||
+        purchase.verifiedAmountKes != null ||
+        purchase.verificationMethod ||
+        purchase.verifiedAt ||
+        purchase.verificationReference ||
+        purchase.membershipId ||
+        purchase.activatedAt
+      );
+
+      if (hasPaymentEvidence) {
+        const error = new Error("PAYMENT_EVIDENCE_PRESENT");
+        error.code = "PAYMENT_EVIDENCE_PRESENT";
+        throw error;
+      }
+
+      const referenceId = String(purchase._id);
+
+      const [
+        walletTransaction,
+        membership,
+        reconciliation,
+        receiptClaim
+      ] = await Promise.all([
+        WalletTransaction.findOne({
+          membershipPurchaseId: purchase._id
+        }).session(session).lean(),
+
+        Membership.findOne({
+          purchaseId: purchase._id
+        }).session(session).lean(),
+
+        MembershipPaymentReconciliation.findOne({
+          purchaseId: purchase._id
+        }).session(session).lean(),
+
+        MpesaReceiptClaim.findOne({
+          purpose: "membership_purchase",
+          referenceId
+        }).session(session).lean()
+      ]);
+
+      if (walletTransaction || membership || reconciliation || receiptClaim) {
+        const error = new Error("PURCHASE_HAS_LINKED_RECORDS");
+        error.code = "PURCHASE_HAS_LINKED_RECORDS";
+        throw error;
+      }
+
+      const before = {
+        purchaseReference: purchase.purchaseReference,
+        purchaserUserId: purchase.purchaserUserId,
+        planKey: purchase.planKey,
+        priceCents: purchase.priceCents,
+        currency: purchase.currency,
+        paymentMethod: purchase.paymentMethod,
+        paymentStatus: purchase.paymentStatus,
+        expectedAmountKes: purchase.expectedAmountKes,
+        merchantRequestId: purchase.merchantRequestId || null,
+        checkoutRequestId: purchase.checkoutRequestId || null,
+        createdAt: purchase.createdAt,
+        safaricomStatusConfirmed: "unpaid",
+        safaricomCheckedAt: new Date()
+      };
+
+      const deletion = await MembershipPurchase.deleteOne({
+        _id: purchase._id,
+        paymentMethod: "daraja",
+        paymentStatus: { $in: PENDING_STATUSES },
+        mpesaReceipt: null,
+        verifiedAmountKes: null,
+        verificationMethod: null,
+        verifiedAt: null,
+        verificationReference: null,
+        membershipId: null,
+        activatedAt: null
+      }).session(session);
+
+      if (deletion.deletedCount !== 1) {
+        const error = new Error("PURCHASE_CHANGED");
+        error.code = "PURCHASE_CHANGED";
+        throw error;
+      }
+
+      await AdminAuditLog.create([{
+        adminId: req.user._id,
+        targetUserId: purchase.purchaserUserId,
+        action: "membership_purchase_rejected_deleted",
+        reason,
+        before,
+        after: {
+          status: "deleted",
+          purchaseReference: purchase.purchaseReference
+        },
+        ipAddress: req.ip || null
+      }], { session });
+
+      deletedReference = purchase.purchaseReference;
+    });
+
+    return res.json({
+      success: true,
+      message: "Unpaid membership purchase rejected and deleted.",
+      purchaseReference: deletedReference
+    });
+
+  } catch (error) {
+    const knownErrors = {
+      PURCHASE_NOT_FOUND: [404, "Membership purchase was not found."],
+      PURCHASE_NOT_PENDING: [409, "Only pending or verification-required purchases can be deleted."],
+      PAYMENT_METHOD_NOT_SUPPORTED: [409, "Only Daraja membership purchases can be deleted through this action."],
+      PAYMENT_EVIDENCE_PRESENT: [409, "Payment or membership evidence exists. Deletion is blocked."],
+      PURCHASE_HAS_LINKED_RECORDS: [409, "Linked financial, membership, reconciliation, or receipt records exist. Deletion is blocked."],
+      PURCHASE_CHANGED: [409, "The purchase changed during deletion. No deletion was committed."]
+    };
+
+    if (knownErrors[error.code]) {
+      return errorResponse(
+        res,
+        knownErrors[error.code][0],
+        knownErrors[error.code][1]
+      );
+    }
+
+    console.error("Membership purchase rejection/deletion failed:", error.message);
+
+    return errorResponse(
+      res,
+      503,
+      "Deletion could not be safely committed. Investigate MongoDB transaction support before retrying."
+    );
+
   } finally {
     if (session) {
       await session.endSession().catch(() => {});
