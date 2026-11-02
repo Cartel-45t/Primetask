@@ -59,6 +59,12 @@ const purchaseModel = {
     if (
       String(filter._id) !== PURCHASE_ID ||
       !purchase ||
+      (filter.checkoutRequestId &&
+        filter.checkoutRequestId !== purchase.checkoutRequestId) ||
+      (filter.merchantRequestId &&
+        filter.merchantRequestId !== purchase.merchantRequestId) ||
+      (filter.hasUnresolvedPayment === true &&
+        purchase.hasUnresolvedPayment !== true) ||
       (allowedStatuses && !allowedStatuses.includes(purchase.paymentStatus))
     ) {
       return { modifiedCount: 0 };
@@ -211,6 +217,7 @@ function resetState(status = "pending") {
     merchantRequestId: "merchant-test-1",
     phoneNumber: "254712345678",
     paymentStatus: status,
+    hasUnresolvedPayment: true,
     minutes: 60,
     expectedAmountKes: 650,
     mpesaReceipt: null
@@ -303,15 +310,55 @@ test("successful callback flags purchase for reconciliation without crediting mi
   assert.equal(events[0].callbackReceipt, "TEST123456");
 });
 
-test("failed callback never verifies purchase or credits minutes", async () => {
+test("confirmed failed callback releases the minute purchase lock without crediting minutes", async () => {
+  const payload = callbackPayload(1);
+  payload.Body.stkCallback.ResultDesc = "Insufficient balance";
+
+  const response = await sendCallback(payload);
+
+  assert.equal(response.status, 200);
+  assert.equal(purchase.paymentStatus, "failed");
+  assert.equal(purchase.hasUnresolvedPayment, false);
+  assert.equal(purchase.mpesaReceipt, null);
+  assert.equal(purchase.failureCode, "1");
+  assert.equal(purchase.failureDescription, "Insufficient balance");
+  assert.equal(events.length, 1);
+  assert.equal(events[0].processingStatus, "processed");
+});
+
+test("confirmed customer cancellation releases the minute purchase lock", async () => {
   const response = await sendCallback(callbackPayload(1032));
 
   assert.equal(response.status, 200);
-  assert.equal(purchase.paymentStatus, "verification_required");
+  assert.equal(purchase.paymentStatus, "cancelled");
+  assert.equal(purchase.hasUnresolvedPayment, false);
   assert.equal(purchase.mpesaReceipt, null);
-  assert.equal(events.length, 1);
-  assert.equal(events[0].resultCode, 1032);
-  assert.equal(events[0].callbackAmountKes, null);
+  assert.equal(purchase.failureCode, "1032");
+  assert.equal(events[0].processingStatus, "processed");
+});
+
+test("minute purchase failure callback with mismatched merchant ID cannot release the lock", async () => {
+  const payload = callbackPayload(1);
+  payload.Body.stkCallback.MerchantRequestID = "different-merchant-id";
+
+  const response = await sendCallback(payload);
+
+  assert.equal(response.status, 200);
+  assert.equal(purchase.paymentStatus, "pending");
+  assert.equal(purchase.hasUnresolvedPayment, true);
+  assert.equal(events[0].processingStatus, "reconciliation_required");
+});
+
+test("late failed callback cannot downgrade a verified minute purchase", async () => {
+  purchase.paymentStatus = "verified";
+  purchase.hasUnresolvedPayment = false;
+
+  const response = await sendCallback(callbackPayload(1));
+
+  assert.equal(response.status, 200);
+  assert.equal(purchase.paymentStatus, "verified");
+  assert.equal(purchase.hasUnresolvedPayment, false);
+  assert.equal(events[0].processingStatus, "reconciliation_required");
 });
 
 test("duplicate callback is idempotent and does not duplicate stored events", async () => {

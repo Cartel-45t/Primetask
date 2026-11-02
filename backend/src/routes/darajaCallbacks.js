@@ -245,6 +245,76 @@ router.post("/stk", async (req, res) => {
       });
 
       if (minutePurchase) {
+        // A definitive non-zero Safaricom callback releases the purchase
+        // lock only when both provider request identifiers match.
+        // Callback failures never credit minutes.
+        if (resultCode !== null && resultCode !== 0) {
+          if (
+            !merchantRequestId ||
+            merchantRequestId !== minutePurchase.merchantRequestId
+          ) {
+            await DarajaCallbackEvent.updateOne(
+              { eventKey },
+              { $set: { processingStatus: "reconciliation_required" } }
+            );
+
+            return res.status(200).json({
+              ResultCode: 0,
+              ResultDesc: "Callback stored; merchant request does not match the purchase"
+            });
+          }
+
+          const isCancellation = resultCode === 1032;
+
+          const released = await MinutePurchase.updateOne(
+            {
+              _id: minutePurchase._id,
+              checkoutRequestId,
+              merchantRequestId,
+              paymentStatus: { $in: ["pending", "verification_required"] },
+              hasUnresolvedPayment: true
+            },
+            {
+              $set: {
+                paymentStatus: isCancellation ? "cancelled" : "failed",
+                hasUnresolvedPayment: false,
+                failureCode: String(resultCode).slice(0, 80),
+                failureDescription: (
+                  resultDescription ||
+                  (isCancellation
+                    ? "Safaricom confirmed customer cancellation."
+                    : "Safaricom confirmed that the payment was unsuccessful.")
+                ).slice(0, 500),
+                lastReconciledAt: new Date()
+              }
+            }
+          );
+
+          if (!released.modifiedCount) {
+            await DarajaCallbackEvent.updateOne(
+              { eventKey },
+              { $set: { processingStatus: "reconciliation_required" } }
+            );
+
+            return res.status(200).json({
+              ResultCode: 0,
+              ResultDesc: "Callback stored; purchase state was not changed"
+            });
+          }
+
+          await DarajaCallbackEvent.updateOne(
+            { eventKey },
+            { $set: { processingStatus: "processed" } }
+          );
+
+          return res.status(200).json({
+            ResultCode: 0,
+            ResultDesc: isCancellation
+              ? "Customer cancelled payment; another purchase may be initiated"
+              : "Payment failed; another purchase may be initiated"
+          });
+        }
+
         let verification = {
           verified: false,
           reason: resultCode === 0
