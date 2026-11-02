@@ -311,12 +311,107 @@ router.get("/deposits", async (req, res) => {
       checkoutRequestId: row.checkoutRequestId,
       walletTransactionId: row.walletTransactionId,
       createdAt: row.createdAt,
+      expiresAt: row.expiresAt || null,
       completedAt: row.completedAt
     }));
 
     return res.json(pageResponse(data, total, page, limit));
   } catch (error) {
     return sendError(res, error, "Deposits");
+  }
+});
+
+// POST /api/admin/reports/deposits/:requestId/reject-delete
+router.post("/deposits/:requestId/reject-delete", async (req, res) => {
+  const requestId = String(req.params.requestId || "").trim();
+  const reason = String(req.body?.reason || "").trim();
+
+  if (!/^DP-[0-9a-f-]{36}$/i.test(requestId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid deposit request ID."
+    });
+  }
+
+  if (reason.length < 3 || reason.length > 300) {
+    return res.status(400).json({
+      success: false,
+      message: "A rejection reason between 3 and 300 characters is required."
+    });
+  }
+
+  const session = await mongoose.startSession();
+
+  try {
+    let deletedDeposit = null;
+
+    await session.withTransaction(async () => {
+      const deposit = await Deposit.findOne({
+        requestId
+      }).session(session);
+
+      if (!deposit) {
+        const error = new Error("Deposit not found. It may already have expired or been deleted.");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      if (deposit.status !== "pending") {
+        const error = new Error("Only pending deposits can be rejected and deleted.");
+        error.statusCode = 409;
+        throw error;
+      }
+
+      deletedDeposit = {
+        requestId: deposit.requestId,
+        amountCents: deposit.amountCents,
+        expectedAmountKes: deposit.expectedAmountKes,
+        paymentMode: deposit.paymentMode,
+        phoneNumber: deposit.phoneNumber,
+        checkoutRequestId: deposit.checkoutRequestId,
+        status: deposit.status
+      };
+
+      const deletion = await Deposit.deleteOne({
+        _id: deposit._id,
+        status: "pending"
+      }).session(session);
+
+      if (deletion.deletedCount !== 1) {
+        const error = new Error("Deposit status changed before deletion. Refresh and review it again.");
+        error.statusCode = 409;
+        throw error;
+      }
+
+      await AdminAuditLog.create([{
+        adminId: req.user._id,
+        targetUserId: deposit.userId,
+        action: "deposit_rejected_deleted",
+        reason,
+        before: deletedDeposit,
+        after: {
+          status: "deleted",
+          requestId: deposit.requestId
+        },
+        ipAddress: req.ip || null
+      }], { session });
+    });
+
+    return res.json({
+      success: true,
+      message: `Pending deposit ${requestId} was rejected and permanently deleted.`
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    return sendError(res, error, "Deposit deletion");
+  } finally {
+    await session.endSession();
   }
 });
 

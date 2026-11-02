@@ -264,6 +264,16 @@ router.post("/", async (req, res) => {
       });
     }
 
+    // Enforce expiry immediately, without waiting for MongoDB's TTL monitor.
+    // Only accepted Daraja requests with an elapsed expiry are eligible.
+    await Deposit.deleteOne({
+      userId: req.user._id,
+      idempotencyKey,
+      paymentMode: "daraja",
+      status: "pending",
+      expiresAt: { $type: "date", $lte: new Date() }
+    });
+
     const existing = await Deposit.findOne({
       userId: req.user._id,
       idempotencyKey
@@ -433,6 +443,7 @@ router.post("/", async (req, res) => {
         $set: {
           merchantRequestId: stkResult.merchantRequestId,
           checkoutRequestId: stkResult.checkoutRequestId,
+          expiresAt: new Date(Date.now() + 180 * 1000),
           resultDescription:
             stkResult.customerMessage ||
             stkResult.responseDescription ||
@@ -519,6 +530,24 @@ router.get("/:requestId", async (req, res) => {
       requestId,
       userId: req.user._id
     }).lean();
+
+    if (
+      deposit &&
+      deposit.status === "pending" &&
+      deposit.expiresAt instanceof Date &&
+      deposit.expiresAt <= new Date()
+    ) {
+      await Deposit.deleteOne({
+        _id: deposit._id,
+        status: "pending",
+        expiresAt: { $lte: new Date() }
+      });
+
+      return res.status(404).json({
+        success: false,
+        message: "This unpaid deposit request expired and was deleted. Start a fresh payment."
+      });
+    }
 
     if (!deposit) {
       return res.status(404).json({

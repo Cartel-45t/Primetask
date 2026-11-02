@@ -24,10 +24,15 @@ function setup({ deposits = [], callback = null, verify } = {}) {
     verification: [],
     callbackUpdates: [],
     depositUpdates: [],
+    expiryFilter: null,
     logs: []
   };
 
   const Deposit = {
+    async deleteMany(filter) {
+      calls.expiryFilter = filter;
+      return { acknowledged: true, deletedCount: 2 };
+    },
     find(filter) {
       calls.depositFilter = filter;
       return makeQuery(deposits);
@@ -87,6 +92,22 @@ const callback = {
   callbackPhoneNumber: "254700000001",
   processingStatus: "reconciliation_required"
 };
+
+test("physically deletes only expired pending Daraja deposits", async () => {
+  const { worker, calls } = setup({ deposits: [] });
+
+  const result = await worker.processPendingDepositCallbacks();
+
+  assert.equal(result.expiredDeleted, 2);
+  assert.deepEqual(calls.expiryFilter, {
+    paymentMode: "daraja",
+    status: "pending",
+    expiresAt: {
+      $type: "date",
+      $lte: new Date(1_800_000_000_000)
+    }
+  });
+});
 
 test("recovers a stored successful callback through independent verification", async () => {
   const { worker, calls } = setup({

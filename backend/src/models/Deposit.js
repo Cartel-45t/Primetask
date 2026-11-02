@@ -77,6 +77,13 @@ const depositSchema = new mongoose.Schema(
       default: null
     },
 
+    // Set only after Daraja confirms that the STK request was accepted.
+    // MongoDB physically removes the record 180 seconds after this date.
+    expiresAt: {
+      type: Date,
+      default: null
+    },
+
     status: {
       type: String,
       enum: ["pending", "completed", "failed", "cancelled"],
@@ -143,6 +150,20 @@ depositSchema.index(
 depositSchema.index(
   { userId: 1, createdAt: -1, _id: -1 },
   { name: "user_deposit_history" }
+);
+
+// Only expired pending deposits are physically deleted.
+// Completed, failed, cancelled, simulated, and uncertain requests are preserved.
+depositSchema.index(
+  { expiresAt: 1 },
+  {
+    expireAfterSeconds: 0,
+    partialFilterExpression: {
+      status: "pending",
+      expiresAt: { $type: "date" }
+    },
+    name: "expire_pending_wallet_deposits"
+  }
 );
 
 depositSchema.index(

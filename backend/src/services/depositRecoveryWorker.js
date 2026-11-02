@@ -31,10 +31,39 @@ function createDepositRecoveryWorker({
       examined: 0,
       completed: 0,
       deferred: 0,
+      expiredDeleted: 0,
       errors: 0
     };
 
     try {
+      // Delete only expired, still-pending Daraja wallet deposits.
+      // Completed deposits cannot match this filter.
+      try {
+        const expiryResult = await Deposit.deleteMany({
+          paymentMode: "daraja",
+          status: "pending",
+          expiresAt: {
+            $type: "date",
+            $lte: new Date(clock())
+          }
+        });
+
+        summary.expiredDeleted = expiryResult.deletedCount || 0;
+
+        if (summary.expiredDeleted > 0) {
+          logger.info(
+            "Expired pending wallet deposits physically deleted:",
+            summary.expiredDeleted
+          );
+        }
+      } catch (expiryError) {
+        summary.errors += 1;
+        logger.error(
+          "Expired deposit cleanup failed:",
+          expiryError.message
+        );
+      }
+
       const cutoff = new Date(clock() - MINIMUM_AGE_MS);
 
       const deposits = await Deposit.find({
