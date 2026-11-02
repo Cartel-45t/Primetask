@@ -48,12 +48,19 @@ function createNotesPointsRecoveryWorker({
     );
   }
 
-  async function cancelPurchase(purchase, code, description) {
+  async function failPurchase(purchase, code, description) {
+    const isCancellation = Number(code) === TERMINAL_CANCEL_CODE;
+
     await updateUnresolved(purchase, {
-      paymentStatus: "cancelled",
+      paymentStatus: isCancellation ? "cancelled" : "failed",
       hasUnresolvedPayment: false,
       failureCode: String(code).slice(0, 100),
-      failureDescription: String(description || "Safaricom confirmed payment cancellation.").slice(0, 500)
+      failureDescription: String(
+        description ||
+        (isCancellation
+          ? "Safaricom confirmed payment cancellation."
+          : "Safaricom confirmed that the payment was unsuccessful.")
+      ).slice(0, 500)
     });
   }
 
@@ -64,6 +71,7 @@ function createNotesPointsRecoveryWorker({
         examined: 0,
         completed: 0,
         cancelled: 0,
+        failed: 0,
         deferred: 0,
         errors: 0
       };
@@ -75,6 +83,7 @@ function createNotesPointsRecoveryWorker({
       examined: 0,
       completed: 0,
       cancelled: 0,
+      failed: 0,
       deferred: 0,
       errors: 0
     };
@@ -110,10 +119,17 @@ function createNotesPointsRecoveryWorker({
             .sort({ createdAt: -1 })
             .lean();
 
-          if (callback && Number(callback.resultCode) === TERMINAL_CANCEL_CODE) {
-            await cancelPurchase(
+          if (
+            callback &&
+            Number.isInteger(Number(callback.resultCode)) &&
+            Number(callback.resultCode) !== 0
+          ) {
+            const resultCode = Number(callback.resultCode);
+            const isCancellation = resultCode === TERMINAL_CANCEL_CODE;
+
+            await failPurchase(
               purchase,
-              TERMINAL_CANCEL_CODE,
+              resultCode,
               callback.resultDescription
             );
 
@@ -122,7 +138,11 @@ function createNotesPointsRecoveryWorker({
               { $set: { processingStatus: "processed" } }
             );
 
-            summary.cancelled += 1;
+            if (isCancellation) {
+              summary.cancelled += 1;
+            } else {
+              summary.failed += 1;
+            }
             continue;
           }
 

@@ -10,6 +10,7 @@ const PURCHASE_ID = "222222222222222222222222";
 const CHECKOUT_ID = "ws_CO_TestCallback123";
 
 let purchase;
+let notesPointsPurchase;
 let membershipPurchase;
 let events;
 let server;
@@ -69,12 +70,33 @@ const purchaseModel = {
 };
 
 const notesPointsPurchaseModel = {
-  async findOne() {
-    return null;
+  async findOne(query) {
+    if (
+      query.checkoutRequestId !== CHECKOUT_ID ||
+      !notesPointsPurchase
+    ) {
+      return null;
+    }
+
+    return { ...notesPointsPurchase };
   },
 
-  async updateOne() {
-    return { modifiedCount: 0 };
+  async updateOne(filter, update) {
+    const allowedStatuses = filter.paymentStatus?.$in;
+
+    if (
+      String(filter._id) !== String(notesPointsPurchase?._id) ||
+      !notesPointsPurchase ||
+      (allowedStatuses &&
+        !allowedStatuses.includes(notesPointsPurchase.paymentStatus)) ||
+      (filter.hasUnresolvedPayment === true &&
+        notesPointsPurchase.hasUnresolvedPayment !== true)
+    ) {
+      return { modifiedCount: 0 };
+    }
+
+    Object.assign(notesPointsPurchase, update.$set || {});
+    return { modifiedCount: 1 };
   }
 };
 
@@ -160,6 +182,13 @@ function loadRouteWithMocks() {
     if (request === "../services/membershipDarajaVerificationService") {
       return membershipVerificationService;
     }
+    if (request === "../services/notesPointsDarajaVerificationService") {
+      return {
+        async verifyAndCreditNotesPointsPurchase() {
+          return { verified: false, reason: "TEST_VERIFICATION_NOT_EXPECTED" };
+        }
+      };
+    }
 
     return originalLoad.call(this, request, parent, isMain);
   };
@@ -174,6 +203,7 @@ function loadRouteWithMocks() {
 }
 
 function resetState(status = "pending") {
+  notesPointsPurchase = null;
   membershipPurchase = null;
   purchase = {
     _id: PURCHASE_ID,
@@ -209,6 +239,19 @@ function callbackPayload(resultCode = 0) {
   }
 
   return { Body: { stkCallback } };
+}
+
+function prepareNotesPointsPurchase() {
+  purchase = null;
+  notesPointsPurchase = {
+    _id: "333333333333333333333333",
+    checkoutRequestId: CHECKOUT_ID,
+    merchantRequestId: "merchant-test-1",
+    paymentStatus: "pending",
+    hasUnresolvedPayment: true,
+    failureCode: null,
+    failureDescription: ""
+  };
 }
 
 async function sendCallback(payload) {
@@ -351,4 +394,35 @@ test("membership callback does not downgrade a previously verified purchase", as
   assert.equal(membershipPurchase.mpesaReceipt, "REALRECEIPT1");
   assert.equal(events.length, 1);
   assert.equal(events[0].processingStatus, "reconciliation_required");
+});
+
+
+test("Notes Points confirmed failure releases the unresolved purchase lock", async () => {
+  prepareNotesPointsPurchase();
+
+  const payload = callbackPayload(1);
+  payload.Body.stkCallback.ResultDesc = "Insufficient balance";
+
+  const response = await sendCallback(payload);
+
+  assert.equal(response.status, 200);
+  assert.equal(notesPointsPurchase.paymentStatus, "failed");
+  assert.equal(notesPointsPurchase.hasUnresolvedPayment, false);
+  assert.equal(notesPointsPurchase.failureCode, "1");
+  assert.equal(notesPointsPurchase.failureDescription, "Insufficient balance");
+  assert.equal(events.length, 1);
+  assert.equal(events[0].processingStatus, "processed");
+});
+
+test("Notes Points customer cancellation releases the lock as cancelled", async () => {
+  prepareNotesPointsPurchase();
+
+  const response = await sendCallback(callbackPayload(1032));
+
+  assert.equal(response.status, 200);
+  assert.equal(notesPointsPurchase.paymentStatus, "cancelled");
+  assert.equal(notesPointsPurchase.hasUnresolvedPayment, false);
+  assert.equal(notesPointsPurchase.failureCode, "1032");
+  assert.equal(events.length, 1);
+  assert.equal(events[0].processingStatus, "processed");
 });

@@ -289,3 +289,25 @@ test("worker only queries existing checkout and has no STK initiation path", asy
   }]);
   assert.equal(typeof worker.processPendingPurchases, "function");
 });
+
+test("stored non-cancellation failure callback releases the lock without provider query", async () => {
+  const { worker, calls } = setup({
+    callback: {
+      ...successCallback,
+      resultCode: 1,
+      callbackAmountKes: null,
+      callbackReceipt: null,
+      callbackPhoneNumber: null,
+      resultDescription: "Insufficient balance"
+    }
+  });
+
+  const result = await worker.processPendingPurchases();
+
+  assert.equal(result.failed, 1);
+  assert.equal(calls.queries.length, 0);
+  assert.equal(calls.purchaseUpdates[0].update.$set.paymentStatus, "failed");
+  assert.equal(calls.purchaseUpdates[0].update.$set.hasUnresolvedPayment, false);
+  assert.equal(calls.purchaseUpdates[0].update.$set.failureCode, "1");
+  assert.equal(calls.callbackUpdates[0].update.$set.processingStatus, "processed");
+});

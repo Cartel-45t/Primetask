@@ -331,9 +331,12 @@ router.post("/stk", async (req, res) => {
       });
 
       if (notesPointsPurchase) {
-        // Only the recognised cancellation result releases the unresolved
-        // payment lock. Unknown nonzero result codes remain unresolved.
-        if (resultCode === 1032) {
+        // A received non-zero Safaricom callback is a final unsuccessful
+        // payment result. Release the lock, but never credit Points.
+        // A provider status query alone is not sufficient to do this.
+        if (resultCode !== null && resultCode !== 0) {
+          const isCancellation = resultCode === 1032;
+
           await Promise.all([
             DarajaCallbackEvent.updateOne(
               { eventKey },
@@ -348,10 +351,15 @@ router.post("/stk", async (req, res) => {
               },
               {
                 $set: {
-                  paymentStatus: "cancelled",
+                  paymentStatus: isCancellation ? "cancelled" : "failed",
                   hasUnresolvedPayment: false,
-                  failureCode: "1032",
-                  failureDescription: resultDescription.slice(0, 500),
+                  failureCode: String(resultCode).slice(0, 100),
+                  failureDescription: (
+                    resultDescription ||
+                    (isCancellation
+                      ? "Safaricom confirmed customer cancellation."
+                      : "Safaricom confirmed that the payment was unsuccessful.")
+                  ).slice(0, 500),
                   lastReconciledAt: new Date()
                 }
               }
@@ -360,7 +368,9 @@ router.post("/stk", async (req, res) => {
 
           return res.status(200).json({
             ResultCode: 0,
-            ResultDesc: "Payment cancellation recorded; another payment may be initiated"
+            ResultDesc: isCancellation
+              ? "Payment cancellation recorded; another payment may be initiated"
+              : "Unsuccessful payment recorded; another payment may be initiated"
           });
         }
 
