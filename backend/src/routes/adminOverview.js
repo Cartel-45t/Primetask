@@ -27,6 +27,8 @@ router.use((req, res, next) => {
 
 router.get("/", async (req, res) => {
   try {
+    const now = new Date();
+
     const [
       totalUsers,
       activeUsers,
@@ -34,6 +36,7 @@ router.get("/", async (req, res) => {
       suspendedUsers,
       adminUsers,
       activeMemberships,
+      liveMemberAccounts,
       totalMembershipPlans,
       activeMembershipPlans,
       pendingDeposits,
@@ -51,6 +54,27 @@ router.get("/", async (req, res) => {
       User.countDocuments({ status: "suspended" }),
       User.countDocuments({ role: { $in: ["admin", "founder"] } }),
       Membership.countDocuments({ status: "active" }),
+      Membership.aggregate([
+        {
+          $match: {
+            status: "active",
+            startsAt: { $type: "date", $lte: now },
+            expiresAt: { $type: "date", $gt: now }
+          }
+        },
+        { $group: { _id: "$userId" } },
+        {
+          $lookup: {
+            from: User.collection.name,
+            localField: "_id",
+            foreignField: "_id",
+            as: "user"
+          }
+        },
+        { $unwind: "$user" },
+        { $match: { "user.status": "active" } },
+        { $count: "count" }
+      ]).then(rows => Number(rows[0]?.count || 0)),
       MembershipPlan.countDocuments({}),
       MembershipPlan.countDocuments({ active: true }),
       Deposit.countDocuments({ status: "pending" }),
@@ -117,6 +141,7 @@ router.get("/", async (req, res) => {
         suspendedUsers,
         adminUsers,
         activeMemberships,
+        liveMemberAccounts,
         totalMembershipPlans,
         activeMembershipPlans,
         pendingDeposits,
