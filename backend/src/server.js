@@ -65,6 +65,8 @@ const adminNotesTasksRoutes = require("./routes/adminNotesTasks");
 const adminNotesAssetsRoutes = require("./routes/adminNotesAssets");
 const adminNotesSubmissionsRoutes = require("./routes/adminNotesSubmissions");
 const adminNotesPointsPackagesRoutes = require("./routes/adminNotesPointsPackages");
+const testimonialsRoutes = require("./routes/testimonials");
+const adminTestimonialsRoutes = require("./routes/adminTestimonials");
 
 const app = express();
 
@@ -154,6 +156,8 @@ app.use("/api/admin/users", adminUsersRoutes);
 app.use("/api/admin/settings", adminSettingsRoutes);
 app.use("/api/admin/revenue", adminRevenueRoutes);
 app.use("/api/admin/reports", require("./routes/adminNetworkReports"));
+app.use("/api/testimonials", testimonialsRoutes);
+app.use("/api/admin/testimonials", adminTestimonialsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
