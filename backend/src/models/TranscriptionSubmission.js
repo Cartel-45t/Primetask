@@ -65,6 +65,30 @@ const transcriptionSubmissionSchema = new mongoose.Schema({
       message: "Submission link must be a valid HTTPS URL without embedded credentials."
     }
   },
+  referenceTranscript: {
+    type: String,
+    default: "",
+    trim: true,
+    maxlength: 200000
+  },
+  verificationStatus: {
+    type: String,
+    enum: ["pending", "passed", "failed"],
+    default: "pending",
+    index: true
+  },
+  verificationResults: {
+    type: [{
+      check: { type: String, required: true, maxlength: 80 },
+      passed: { type: Boolean, required: true },
+      message: { type: String, required: true, maxlength: 1000 }
+    }],
+    default: []
+  },
+  verifiedAt: {
+    type: Date,
+    default: null
+  },
   documentPublicId: {
     type: String,
     default: null,
@@ -163,15 +187,11 @@ transcriptionSubmissionSchema.pre("validate", function validateSubmission() {
     }
   }
 
-  if (!hasText && !hasDocument) {
+  if (!hasText) {
     this.invalidate(
       "transcriptText",
-      "Provide transcript text or a validated DOCX document."
+      "Transcript text is required."
     );
-  }
-
-  if (this.documentPublicId && this.documentFormat !== "docx") {
-    this.invalidate("documentFormat", "Document format must be DOCX.");
   }
 
 });

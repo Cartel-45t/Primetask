@@ -815,26 +815,27 @@ router.post(
       : "";
 
     const hasText = transcriptText.length > 0;
-    const documentInput = req.body?.document &&
-      typeof req.body.document === "object"
-      ? req.body.document
-      : null;
-    const hasDocument = Boolean(documentInput);
-    const uploadedPublicId = hasDocument &&
-      typeof documentInput.publicId === "string"
-      ? documentInput.publicId
-      : null;
 
-    const rejectEarly = async (statusCode, message) => {
-      if (expectedDocumentPublicId(uploadedPublicId)) {
-        await deleteSubmissionDocument(uploadedPublicId);
-      }
-
-      return res.status(statusCode).json({
+    if (req.body?.document) {
+      return res.status(400).json({
         success: false,
-        message
+        message: "DOCX submissions are not available yet. Submit transcript text."
       });
-    };
+    }
+
+    if (!hasText) {
+      return res.status(400).json({
+        success: false,
+        message: "Transcript text is required."
+      });
+    }
+
+    if (transcriptText.length > 200000) {
+      return res.status(400).json({
+        success: false,
+        message: "Transcript text cannot exceed 200,000 characters."
+      });
+    }
 
     const submissionLink = typeof req.body?.submissionLink === "string"
       ? req.body.submissionLink.trim()
@@ -845,10 +846,10 @@ router.post(
       try {
         parsedLink = new URL(submissionLink);
       } catch {
-        return rejectEarly(
-          400,
-          "Provide a valid HTTPS submission link."
-        );
+        return res.status(400).json({
+          success: false,
+          message: "Provide a valid HTTPS submission link."
+        });
       }
 
       if (
@@ -858,77 +859,17 @@ router.post(
         parsedLink.password ||
         submissionLink.length > 2048
       ) {
-        return rejectEarly(
-          400,
-          "Submission link must be a valid HTTPS URL, no longer than 2048 characters, without embedded credentials."
-        );
-      }
-    }
-
-    if (hasText === hasDocument) {
-      return rejectEarly(
-        400,
-        "Provide either transcriptText or one DOCX document, not both."
-      );
-    }
-
-    if (hasText && transcriptText.length > 200000) {
-      return rejectEarly(
-        400,
-        "Transcript text cannot exceed 200,000 characters."
-      );
-    }
-
-    let documentMetadata = null;
-
-    if (hasDocument) {
-      if (!cloudinaryDocumentStorageReady()) {
-        return res.status(503).json({
-          success: false,
-          message: "Document storage is not configured."
-        });
-      }
-
-      if (!expectedDocumentPublicId(uploadedPublicId)) {
         return res.status(400).json({
           success: false,
-          message: "Invalid uploaded document reference."
-        });
-      }
-
-      try {
-        const originalName = typeof documentInput.originalName === "string"
-          ? documentInput.originalName
-          : "";
-
-        if (!/\.docx$/i.test(originalName) || originalName.length > 255) {
-          throw new Error("Invalid document filename.");
-        }
-
-        const verified = await getVerifiedSubmissionDocument(
-          uploadedPublicId,
-          req.user._id,
-          req.params.id
-        );
-
-        documentMetadata = {
-          originalName: originalName
-            .replace(/[\\/\u0000-\u001f\u007f]/g, "_")
-            .slice(-255),
-          bytes: verified.bytes
-        };
-      } catch (error) {
-        await deleteSubmissionDocument(uploadedPublicId);
-        console.error("DOCX verification error:", error.message);
-        return res.status(400).json({
-          success: false,
-          message: "The uploaded file is not a valid supported DOCX document for this job."
+          message: "Submission link must be a valid HTTPS URL, no longer than 2048 characters, without embedded credentials."
         });
       }
     }
+
+    const missingDocumentation = !submissionLink;
+    const submissionTime = new Date();
 
     let oldPublicId = null;
-    let submissionSaved = false;
 
     try {
       await releaseExpiredAssignments();
@@ -942,7 +883,6 @@ router.post(
       }).select("_id rewardCents claimedAt assignmentExpiresAt");
 
       if (!eligibleJob) {
-        if (uploadedPublicId) await deleteSubmissionDocument(uploadedPublicId);
         return res.status(409).json({
           success: false,
           message: "You must hold an awarded job that is available for submission."
@@ -955,10 +895,6 @@ router.post(
       }).select("_id status documentPublicId");
 
       if (existing && existing.status !== "rejected") {
-        if (uploadedPublicId) {
-          await deleteSubmissionDocument(uploadedPublicId);
-        }
-
         return res.status(409).json({
           success: false,
           message: "This job already has a submission that cannot be revised."
@@ -968,12 +904,12 @@ router.post(
 
 
       const content = {
-        transcriptText: hasText ? transcriptText : "",
+        transcriptText,
         submissionLink,
-        documentPublicId: uploadedPublicId,
-        documentOriginalName: documentMetadata?.originalName || "",
-        documentBytes: documentMetadata?.bytes || null,
-        documentFormat: hasDocument ? "docx" : null
+        documentPublicId: null,
+        documentOriginalName: "",
+        documentBytes: null,
+        documentFormat: null
       };
 
       let submissionResponse = null;
@@ -997,8 +933,11 @@ router.post(
             },
             {
               $set: {
-                status: "submitted",
-                assignmentExpiresAt: null
+                status: missingDocumentation ? "awarded" : "submitted",
+                claimedAt: missingDocumentation ? submissionTime : eligibleJob.claimedAt,
+                assignmentExpiresAt: missingDocumentation
+                  ? new Date(submissionTime.getTime() + ASSIGNMENT_WINDOW_MS)
+                  : null
               }
             },
             { returnDocument: "after", session }
@@ -1027,10 +966,18 @@ router.post(
             oldPublicId = submission.documentPublicId || null;
             submission.set({
               ...content,
-              status: "submitted",
-              reviewNote: "",
+              status: missingDocumentation ? "rejected" : "submitted",
+              reviewNote: missingDocumentation ? "No documentation" : "",
               reviewedBy: null,
-              reviewedAt: null,
+              reviewedAt: missingDocumentation ? submissionTime : null,
+              referenceTranscript: "",
+              verificationStatus: missingDocumentation ? "failed" : "pending",
+              verificationResults: missingDocumentation ? [{
+                check: "documentation_link",
+                passed: false,
+                message: "No documentation"
+              }] : [],
+              verifiedAt: null,
               walletTransactionId: null,
               revisionCount: (submission.revisionCount || 0) + 1
             });
@@ -1042,7 +989,7 @@ router.post(
               id: String(submission._id),
               jobId: String(submission.jobId),
               status: submission.status,
-              contentType: hasDocument ? "docx" : "text",
+              contentType: "text",
               revisionCount: submission.revisionCount || 0,
               reward: Number((submission.rewardCents / 100).toFixed(2)),
               currency: "USD",
@@ -1053,6 +1000,16 @@ router.post(
               jobId: claimedJob._id,
               userId: req.user._id,
               ...content,
+              status: missingDocumentation ? "rejected" : "submitted",
+              reviewNote: missingDocumentation ? "No documentation" : "",
+              reviewedAt: missingDocumentation ? submissionTime : null,
+              verificationStatus: missingDocumentation ? "failed" : "pending",
+              verificationResults: missingDocumentation ? [{
+                check: "documentation_link",
+                passed: false,
+                message: "No documentation"
+              }] : [],
+              verifiedAt: null,
               rewardCents: claimedJob.rewardCents
             }], { session });
 
@@ -1060,7 +1017,7 @@ router.post(
               id: String(created._id),
               jobId: String(created.jobId),
               status: created.status,
-              contentType: hasDocument ? "docx" : "text",
+              contentType: "text",
               revisionCount: created.revisionCount || 0,
               reward: Number((created.rewardCents / 100).toFixed(2)),
               currency: "USD",
@@ -1072,48 +1029,21 @@ router.post(
         await session.endSession();
       }
 
-      submissionSaved = true;
-
-      // Remove an old revision document only after the transaction commits.
-      if (oldPublicId && oldPublicId !== uploadedPublicId) {
+      // Remove a legacy DOCX only after its replacement is committed.
+      if (oldPublicId) {
         await deleteSubmissionDocument(oldPublicId);
       }
 
       return res.status(201).json({
         success: true,
-        message: isRevision
-          ? "Revised transcript submitted for review."
-          : hasDocument
-            ? "DOCX transcript submitted for review."
-            : "Transcript submitted for review.",
+        message: missingDocumentation
+          ? "No documentation"
+          : isRevision
+            ? "Revised transcript submitted for verification."
+            : "Transcript submitted for verification.",
         submission: submissionResponse
       });
     } catch (error) {
-      if (uploadedPublicId && !submissionSaved) {
-        // Never delete an upload if its database reference cannot be ruled out.
-        let safeToDelete = false;
-
-        try {
-          const reference = await TranscriptionSubmission.exists({
-            documentPublicId: uploadedPublicId
-          });
-          safeToDelete = !reference;
-        } catch (checkError) {
-          console.error(
-            "Could not verify transcription document references:",
-            checkError.message
-          );
-        }
-
-        if (safeToDelete) {
-          await deleteSubmissionDocument(uploadedPublicId);
-        } else {
-          console.error(
-            "Retained uploaded document because its database reference could not be ruled out."
-          );
-        }
-      }
-
       if (error.statusCode) {
         return res.status(error.statusCode).json({
           success: false,

@@ -12,6 +12,7 @@ const {
   restoreRotationArchivedJobs
 } = require("../services/transcriptionJobRotationWorker");
 const Submission = require("../models/TranscriptionSubmission");
+const verifyTranscriptionSubmission = require("../services/verifyTranscriptionSubmission");
 const Wallet = require("../models/TranscriptionWallet");
 const WalletTransaction = require("../models/TranscriptionWalletTransaction");
 const Withdrawal = require("../models/TranscriptionWithdrawal");
@@ -33,6 +34,19 @@ router.use((req, res, next) => {
 
 function validId(id) {
   return mongoose.isValidObjectId(id);
+}
+
+const ASSIGNMENT_WINDOW_MS = 60 * 60 * 1000;
+
+function isValidDocumentationLink(value) {
+  if (typeof value !== "string" || !value.trim()) return false;
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "https:" && Boolean(url.hostname) &&
+      !url.username && !url.password;
+  } catch {
+    return false;
+  }
 }
 
 function transactionUnavailable(error) {
@@ -917,7 +931,7 @@ router.get("/submissions", async (req, res) => {
 
     const submissions = await Submission.find({ status })
       .populate("userId", "username firstName lastName email")
-      .populate("jobId", "title durationMinutes rewardCents status")
+      .populate("jobId", "title durationMinutes rewardCents status requiredTranscript")
       .sort({ createdAt: 1 })
       .limit(100)
       .lean();
@@ -928,6 +942,10 @@ router.get("/submissions", async (req, res) => {
         id: String(item._id),
         transcriptText: item.transcriptText,
         submissionLink: item.submissionLink || "",
+        referenceTranscript: item.referenceTranscript || "",
+        verificationStatus: item.verificationStatus || "pending",
+        verificationResults: item.verificationResults || [],
+        verifiedAt: item.verifiedAt || null,
         documentAvailable: Boolean(
           item.documentFormat === "docx" &&
           typeof item.documentPublicId === "string" &&
@@ -955,7 +973,8 @@ router.get("/submissions", async (req, res) => {
           title: item.jobId.title,
           durationMinutes: item.jobId.durationMinutes,
           reward: item.jobId.rewardCents / 100,
-          status: item.jobId.status
+          status: item.jobId.status,
+          requiredTranscript: item.jobId.requiredTranscript || ""
         } : null
       }))
     });
@@ -965,6 +984,160 @@ router.get("/submissions", async (req, res) => {
       success: false,
       message: "Could not load transcription submissions."
     });
+  }
+});
+
+
+/*
+ * POST /api/admin/transcription/submissions/:id/verify
+ * Saves the admin reference transcript and checks submission structure.
+ */
+router.post("/submissions/:id/verify", async (req, res) => {
+  if (!validId(req.params.id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid submission ID."
+    });
+  }
+
+  const referenceTranscript = typeof req.body?.referenceTranscript === "string"
+    ? req.body.referenceTranscript.trim()
+    : "";
+
+  if (!referenceTranscript || referenceTranscript.length > 200000) {
+    return res.status(400).json({
+      success: false,
+      message: "Enter a reference transcript between 1 and 200,000 characters."
+    });
+  }
+
+  let session;
+
+  try {
+    session = await mongoose.startSession();
+    let result;
+
+    await session.withTransaction(async () => {
+      const submission = await Submission.findOne({
+        _id: req.params.id,
+        status: "submitted"
+      }).session(session);
+
+      if (!submission) {
+        const error = new Error("Submission is not awaiting verification.");
+        error.statusCode = 409;
+        throw error;
+      }
+
+      const job = await Job.findById(submission.jobId)
+        .select("title requiredTranscript status assignedUserId claimedAt assignmentExpiresAt")
+        .session(session);
+
+      if (
+        !job ||
+        job.status !== "submitted" ||
+        String(job.assignedUserId) !== String(submission.userId)
+      ) {
+        const error = new Error("The associated job is not awaiting review.");
+        error.statusCode = 409;
+        throw error;
+      }
+
+      const verification = verifyTranscriptionSubmission({
+        referenceTranscript,
+        transcriptText: submission.transcriptText,
+        requiredTranscript: job.requiredTranscript || ""
+      });
+
+      const hasDocumentation = isValidDocumentationLink(
+        submission.submissionLink
+      );
+
+      verification.checks.push({
+        check: "documentation_link",
+        passed: hasDocumentation,
+        message: hasDocumentation
+          ? "A valid HTTPS documentation link is attached."
+          : "No documentation: a valid HTTPS documentation link is required."
+      });
+
+      verification.passed = verification.checks.every(
+        check => check.passed
+      );
+
+      const verifiedAt = new Date();
+
+      submission.referenceTranscript = referenceTranscript;
+      submission.verificationResults = verification.checks;
+      submission.verifiedAt = verifiedAt;
+
+      if (verification.passed) {
+        submission.verificationStatus = "passed";
+        await submission.save({ session });
+
+        result = {
+          passed: true,
+          message: "Structural verification passed. The submission is ready for admin approval.",
+          verificationStatus: "passed",
+          checks: verification.checks
+        };
+        return;
+      }
+
+      const failureMessages = verification.checks
+        .filter(check => !check.passed)
+        .map(check => check.message);
+
+      submission.verificationStatus = "failed";
+      submission.status = "rejected";
+      submission.reviewNote = failureMessages.join(" ").slice(0, 2000);
+      submission.reviewedBy = req.user._id;
+      submission.reviewedAt = verifiedAt;
+      submission.reviewHistory.push({
+        decision: "rejected",
+        reviewNote: submission.reviewNote,
+        reviewedBy: req.user._id,
+        reviewedAt: verifiedAt
+      });
+
+      job.status = "awarded";
+      job.claimedAt = verifiedAt;
+      job.assignmentExpiresAt = new Date(
+        verifiedAt.getTime() + ASSIGNMENT_WINDOW_MS
+      );
+
+      await submission.save({ session });
+      await job.save({ session });
+
+      result = {
+        passed: false,
+        message: "Verification failed. The worker may revise and resubmit within one hour.",
+        verificationStatus: "failed",
+        checks: verification.checks
+      };
+    });
+
+    return res.json({
+      success: true,
+      ...result
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    console.error("Transcription verification error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Could not verify this transcription submission."
+    });
+  } finally {
+    if (session) {
+      await session.endSession();
+    }
   }
 });
 
@@ -1046,6 +1219,19 @@ router.patch("/submissions/:id/review", async (req, res) => {
         throw error;
       }
 
+      if (decision === "approve") {
+        if (submission.verificationStatus !== "passed") {
+          const error = new Error("Structural verification must pass before approval.");
+          error.statusCode = 409;
+          throw error;
+        }
+        if (!isValidDocumentationLink(submission.submissionLink)) {
+          const error = new Error("A valid HTTPS documentation link is required before approval.");
+          error.statusCode = 409;
+          throw error;
+        }
+      }
+
       if (decision === "reject") {
         const reviewedAt = new Date();
 
@@ -1065,6 +1251,10 @@ router.patch("/submissions/:id/review", async (req, res) => {
         // Keep the same submission record so the worker can revise it.
         // The unique job/user index remains intact.
         job.status = "awarded";
+        job.claimedAt = reviewedAt;
+        job.assignmentExpiresAt = new Date(
+          reviewedAt.getTime() + ASSIGNMENT_WINDOW_MS
+        );
         await job.save({ session });
 
         result = {
