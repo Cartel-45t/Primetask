@@ -486,6 +486,44 @@ router.get("/jobs", async (req, res) => {
   }
 });
 
+/*
+ * DELETE /api/admin/transcription/jobs/:id
+ * Removes only a completed job record. Submission, wallet, and audio records are retained.
+ */
+router.delete("/jobs/:id", async (req, res) => {
+  if (!validId(req.params.id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid job ID."
+    });
+  }
+
+  try {
+    const deleted = await Job.findOneAndDelete({
+      _id: req.params.id,
+      status: "completed"
+    });
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Completed job not found. Only completed jobs can be deleted."
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Completed job deleted. Submission, audio, and financial records were retained."
+    });
+  } catch (error) {
+    console.error("Admin transcription job deletion error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Could not delete the completed transcription job."
+    });
+  }
+});
+
 router.get("/jobs/:id/audio", async (req, res) => {
   if (!validId(req.params.id)) {
     return res.status(400).json({
