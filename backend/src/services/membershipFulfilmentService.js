@@ -7,6 +7,7 @@ const MembershipPurchase = require("../models/MembershipPurchase");
 const Commission = require("../models/Commission");
 const Wallet = require("../models/Wallet");
 const WalletTransaction = require("../models/WalletTransaction");
+const { sendCommissionEmail } = require("./achievementNotificationEmailService");
 
 function codedError(code) {
   const error = new Error(code);
@@ -25,9 +26,11 @@ async function fulfilMembershipPurchase(purchaseId, options = {}) {
 
   const session = await mongoose.startSession();
   let result;
+  let commissionNotifications = [];
 
   try {
     await session.withTransaction(async () => {
+      commissionNotifications = [];
       const purchase = await MembershipPurchase.findById(purchaseId)
         .session(session);
 
@@ -167,7 +170,7 @@ async function fulfilMembershipPurchase(purchaseId, options = {}) {
         visited.add(sponsorIdString);
 
         const sponsor = await User.findById(sponsorId)
-          .select("_id referredBy")
+          .select("_id referredBy firstName email")
           .session(session);
 
         if (!sponsor) break;
@@ -238,6 +241,13 @@ async function fulfilMembershipPurchase(purchaseId, options = {}) {
 
           commissionsCreated += 1;
           totalCommissionCents += amountCents;
+          if (sponsor.email) {
+            commissionNotifications.push({
+              email: sponsor.email,
+              firstName: sponsor.firstName,
+              amountCents
+            });
+          }
         }
 
         sponsorId = sponsor.referredBy;
@@ -282,6 +292,17 @@ async function fulfilMembershipPurchase(purchaseId, options = {}) {
         totalCommissionCents
       };
     });
+
+    for (const notification of commissionNotifications) {
+      try {
+        await sendCommissionEmail(notification);
+      } catch (emailError) {
+        console.error(
+          "Commission notification email failed:",
+          emailError.message
+        );
+      }
+    }
 
     return result;
   } finally {

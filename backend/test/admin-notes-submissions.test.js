@@ -17,6 +17,7 @@ const originalLoad = Module._load;
 const originalStartSession = mongoose.startSession;
 
 let state, router, server, baseUrl, failLedger, duplicateLedger;
+const notificationCalls = [];
 
 function resetState() {
   state = {
@@ -50,6 +51,7 @@ function resetState() {
   state.submission.save = async function () {};
   failLedger = false;
   duplicateLedger = false;
+  notificationCalls.length = 0;
 }
 
 function snapshot() {
@@ -146,7 +148,28 @@ function loadRoute() {
     "../models/NotesSubmission": submissionModel,
     "../models/NotesTask": taskModel,
     "../models/NotesWallet": walletModel,
-    "../models/NotesTransaction": transactionModel
+    "../models/NotesTransaction": transactionModel,
+    "../models/User": {
+      findById(id) {
+        assert.equal(String(id), UID);
+        return {
+          select() {
+            return {
+              lean: async () => ({
+                firstName: "Test Member",
+                email: "member@example.test"
+              })
+            };
+          }
+        };
+      }
+    },
+    "../services/achievementNotificationEmailService": {
+      async sendNotesApprovalEmail(payload) {
+        notificationCalls.push(payload);
+        return { id: "mock-email-id" };
+      }
+    }
   };
 
   Module._load = function (request, parent, isMain) {
@@ -268,11 +291,19 @@ test("admin approval credits the correct USD cents and creates one ledger entry"
   assert.equal(state.transactions[0].type, "task_earning");
   assert.equal(state.transactions[0].amountCents, 300);
   assert.equal(state.transactions[0].reference, `NOTES-EARNING-${SID}`);
+
+  assert.equal(notificationCalls.length, 1);
+  assert.deepEqual(notificationCalls[0], {
+    email: "member@example.test",
+    firstName: "Test Member",
+    amountCents: 300
+  });
 });
 
 test("founder can approve submissions", async () => {
   const { response } = await request("founder", { action: "approve" });
   assert.equal(response.status, 200);
+  assert.equal(notificationCalls.length, 1);
 });
 
 test("prevents a second approval from crediting earnings again", async () => {
@@ -299,6 +330,7 @@ test("rejection requires review notes and does not credit earnings", async () =>
   assert.equal(state.task.status, "archived");
   assert.equal(state.wallet, null);
   assert.equal(state.transactions.length, 0);
+  assert.equal(notificationCalls.length, 0);
 });
 
 test("validates submission IDs and review actions", async () => {
@@ -319,6 +351,7 @@ test("rolls back changes when earnings ledger creation fails", async () => {
   assert.equal(state.task.status, "submitted");
   assert.equal(state.submission.status, "submitted");
   assert.equal(state.transactions.length, 0);
+  assert.equal(notificationCalls.length, 0);
 });
 
 test("duplicate earning reference returns conflict and rolls back", async () => {

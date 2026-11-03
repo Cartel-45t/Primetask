@@ -2,12 +2,14 @@
 
 const express = require("express");
 const mongoose = require("mongoose");
+const User = require("../models/User");
 
 const requireAuth = require("../middleware/requireAuth");
 const NotesTask = require("../models/NotesTask");
 const NotesWallet = require("../models/NotesWallet");
 const NotesTransaction = require("../models/NotesTransaction");
 const NotesSubmission = require("../models/NotesSubmission");
+const { sendNotesApprovalEmail } = require("../services/achievementNotificationEmailService");
 
 const router = express.Router();
 
@@ -156,12 +158,15 @@ router.patch("/:id/review", async (req, res) => {
     });
   }
 
+  let notificationUserId = null;
+
   const session = await mongoose.startSession();
 
   try {
     let result = null;
 
     await session.withTransaction(async () => {
+      notificationUserId = null;
       const submission = await NotesSubmission.findOne({
         _id: req.params.id,
         status: "submitted"
@@ -282,6 +287,7 @@ router.patch("/:id/review", async (req, res) => {
         }], { session });
 
         submission.status = "approved";
+        notificationUserId = submission.userId;
         submission.reviewedAt = now;
         submission.reviewedByAdminId = req.user._id;
         submission.reviewNotes = notes;
@@ -337,6 +343,24 @@ router.patch("/:id/review", async (req, res) => {
         };
       }
     });
+
+    if (action === "approve" && notificationUserId) {
+      try {
+        const recipient = await User.findById(notificationUserId)
+          .select("firstName email")
+          .lean();
+
+        if (recipient && recipient.email) {
+          await sendNotesApprovalEmail({
+            email: recipient.email,
+            firstName: recipient.firstName,
+            amountCents: result.rewardCents
+          });
+        }
+      } catch (emailError) {
+        console.error("Notes approval notification failed:", emailError.message);
+      }
+    }
 
     return res.json({
       success: true,

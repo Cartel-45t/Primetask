@@ -3,6 +3,7 @@
 const express = require("express");
 const crypto = require("node:crypto");
 const mongoose = require("mongoose");
+const User = require("../models/User");
 const cloudinary = require("cloudinary").v2;
 const requireAuth = require("../middleware/requireAuth");
 const Job = require("../models/TranscriptionJob");
@@ -15,6 +16,7 @@ const Submission = require("../models/TranscriptionSubmission");
 const verifyTranscriptionSubmission = require("../services/verifyTranscriptionSubmission");
 const Wallet = require("../models/TranscriptionWallet");
 const WalletTransaction = require("../models/TranscriptionWalletTransaction");
+const { sendTranscriptionApprovalEmail } = require("../services/achievementNotificationEmailService");
 const Withdrawal = require("../models/TranscriptionWithdrawal");
 const MinutePurchase = require("../models/TranscriptionMinutePurchase");
 
@@ -1185,6 +1187,9 @@ router.patch("/submissions/:id/review", async (req, res) => {
     });
   }
 
+  let notificationUserId = null;
+  let notificationAmountCents = 0;
+
   let session;
 
   try {
@@ -1192,6 +1197,8 @@ router.patch("/submissions/:id/review", async (req, res) => {
     let result;
 
     await session.withTransaction(async () => {
+      notificationUserId = null;
+      notificationAmountCents = 0;
       const submission = await Submission.findOne({
         _id: req.params.id,
         status: "submitted"
@@ -1334,6 +1341,9 @@ router.patch("/submissions/:id/review", async (req, res) => {
       job.completedAt = new Date();
       await job.save({ session });
 
+      notificationUserId = submission.userId;
+      notificationAmountCents = submission.rewardCents;
+
       result = {
         decision,
         submissionId: String(submission._id),
@@ -1344,6 +1354,24 @@ router.patch("/submissions/:id/review", async (req, res) => {
         walletBalance: creditedWallet.availableBalanceCents / 100
       };
     });
+
+    if (decision === "approve" && notificationUserId) {
+      try {
+        const recipient = await User.findById(notificationUserId)
+          .select("firstName email")
+          .lean();
+
+        if (recipient && recipient.email) {
+          await sendTranscriptionApprovalEmail({
+            email: recipient.email,
+            firstName: recipient.firstName,
+            amountCents: notificationAmountCents
+          });
+        }
+      } catch (emailError) {
+        console.error("Transcription approval notification failed:", emailError.message);
+      }
+    }
 
     return res.json({
       success: true,
