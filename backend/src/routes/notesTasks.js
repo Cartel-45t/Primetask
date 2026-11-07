@@ -11,6 +11,9 @@ const NotesTask = require("../models/NotesTask");
 const NotesPointsWallet = require("../models/NotesPointsWallet");
 const NotesPointsTransaction = require("../models/NotesPointsTransaction");
 const NotesSubmission = require("../models/NotesSubmission");
+const {
+  normalizeNotesSubmission
+} = require("../services/notesSubmissionFormatter");
 
 const router = express.Router();
 const ASSIGNMENT_WINDOW_MS = 45 * 60 * 1000;
@@ -478,23 +481,18 @@ router.post("/:id/submissions", requireNotesMembership, async (req, res) => {
     });
   }
 
-  const notesText = typeof req.body?.notesText === "string"
-    ? req.body.notesText.trim()
-    : "";
+  let normalizedSubmission;
 
-  if (!notesText) {
+  try {
+    normalizedSubmission = normalizeNotesSubmission(req.body || {});
+  } catch (error) {
     return res.status(400).json({
       success: false,
-      message: "Write your notes before submitting."
+      message: error.message
     });
   }
 
-  if (notesText.length > 200000) {
-    return res.status(400).json({
-      success: false,
-      message: "Notes cannot exceed 200,000 characters."
-    });
-  }
+  const { format, sections, notesText } = normalizedSubmission;
 
   const session = await mongoose.startSession();
 
@@ -533,6 +531,8 @@ router.post("/:id/submissions", requireNotesMembership, async (req, res) => {
         userId: req.user._id,
         taskTitle: task.title,
         notesText,
+        format,
+        sections,
         status: "submitted",
         submittedAt: now
       }], { session });
@@ -573,6 +573,7 @@ router.post("/:id/submissions", requireNotesMembership, async (req, res) => {
         id: String(savedSubmission._id),
         taskId: String(savedSubmission.taskId),
         status: savedSubmission.status,
+        format: savedSubmission.format || "plain",
         submittedAt: savedSubmission.submittedAt
       }
     });

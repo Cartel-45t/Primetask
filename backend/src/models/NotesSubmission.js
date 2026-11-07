@@ -28,6 +28,15 @@ const notesSubmissionSchema = new mongoose.Schema({
     required: true,
     maxlength: 200000
   },
+  format: {
+    type: String,
+    enum: ["plain", "cornell", "charting", "outline", "qa", "comparison"],
+    default: "plain"
+  },
+  sections: {
+    type: mongoose.Schema.Types.Mixed,
+    default: () => ({})
+  },
   status: {
     type: String,
     enum: ["submitted", "approved", "rejected"],

@@ -68,6 +68,8 @@ function publicSubmission(item) {
       email: member.email || ""
     } : null,
     notesText: item.notesText,
+    format: item.format || "plain",
+    sections: item.sections || {},
     status: item.status,
     submittedAt: item.submittedAt,
     reviewedAt: item.reviewedAt,

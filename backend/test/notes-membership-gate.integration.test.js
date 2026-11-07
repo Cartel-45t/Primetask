@@ -424,6 +424,57 @@ test("active Notes member can submit notes for an active assignment", async () =
   );
 });
 
+test("active Notes member can submit structured Cornell notes", async () => {
+  const adminId = await createUser("admin");
+  const userId = await createUser("user");
+
+  await grantMembership(userId);
+
+  const task = await createTask(adminId, {
+    status: "assigned",
+    assignedUserId: userId,
+    assignmentExpiresAt: new Date(Date.now() + 30 * 60 * 1000)
+  });
+
+  const sections = {
+    cues: "What is photosynthesis?",
+    notes: "Plants use light energy to convert carbon dioxide and water into glucose and oxygen.",
+    summary: "Photosynthesis converts light energy into chemical energy."
+  };
+
+  const result = await request(
+    `/api/notes/tasks/${task._id}/submissions`,
+    {
+      userId,
+      method: "POST",
+      body: {
+        format: "cornell",
+        sections
+      }
+    }
+  );
+
+  assert.equal(result.status, 201);
+  assert.equal(result.data.success, true);
+  assert.equal(result.data.submission.status, "submitted");
+  assert.equal(result.data.submission.format, "cornell");
+
+  const updatedTask = await NotesTask.findById(task._id).lean();
+  assert.equal(updatedTask.status, "submitted");
+
+  const submission = await NotesSubmission.findOne({
+    taskId: task._id,
+    userId
+  }).lean();
+
+  assert.ok(submission);
+  assert.equal(submission.format, "cornell");
+  assert.deepEqual(submission.sections, sections);
+  assert.match(submission.notesText, /CUES \/ QUESTIONS/);
+  assert.match(submission.notesText, /DETAILED NOTES/);
+  assert.match(submission.notesText, /SUMMARY/);
+});
+
 test("admin can claim a Notes task without a Notes membership", async () => {
   const adminId = await createUser("admin");
   await createPointsWallet(adminId, 100);

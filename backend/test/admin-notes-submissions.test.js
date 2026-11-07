@@ -16,7 +16,7 @@ const WID = "bbbbbbbbbbbbbbbbbbbbbbbb";
 const originalLoad = Module._load;
 const originalStartSession = mongoose.startSession;
 
-let state, router, server, baseUrl, failLedger, duplicateLedger;
+let state, router, server, baseUrl, failLedger, duplicateLedger, listingItems;
 const notificationCalls = [];
 
 function resetState() {
@@ -51,6 +51,7 @@ function resetState() {
   state.submission.save = async function () {};
   failLedger = false;
   duplicateLedger = false;
+  listingItems = [];
   notificationCalls.length = 0;
 }
 
@@ -67,6 +68,19 @@ function snapshot() {
 }
 
 const submissionModel = {
+  find(filter) {
+    let requestedStatus = filter.status;
+    const query = {
+      sort() { return this; },
+      limit() { return this; },
+      populate() { return this; },
+      async lean() {
+        return listingItems.filter(item => item.status === requestedStatus);
+      }
+    };
+    return query;
+  },
+
   findOne(filter) {
     return {
       session: async () =>
@@ -218,6 +232,18 @@ async function request(role, body, id = SID) {
   return { response, body: await response.json() };
 }
 
+async function listRequest(role, query = "") {
+  const headers = {};
+  if (role) headers["x-test-role"] = role;
+
+  const response = await fetch(
+    `${baseUrl}/${query}`,
+    { method: "GET", headers }
+  );
+
+  return { response, body: await response.json() };
+}
+
 beforeEach(async () => {
   resetState();
   if (!router) loadRoute();
@@ -272,6 +298,78 @@ test("rejects requests without authentication", async () => {
 test("blocks ordinary members from reviewing submissions", async () => {
   const { response } = await request("user", { action: "approve" });
   assert.equal(response.status, 403);
+});
+
+test("admin listing returns structured submission data and legacy defaults", async () => {
+  listingItems = [
+    {
+      _id: SID,
+      taskId: {
+        _id: TID,
+        title: "Lecture notes",
+        status: "submitted"
+      },
+      userId: {
+        _id: UID,
+        username: "testmember",
+        firstName: "Test",
+        lastName: "Member",
+        email: "member@example.test"
+      },
+      taskTitle: "Lecture notes",
+      notesText: "Generated Cornell notes",
+      format: "cornell",
+      sections: {
+        cues: "What is photosynthesis?",
+        notes: "Plants convert light energy into chemical energy.",
+        summary: "Photosynthesis stores light energy."
+      },
+      status: "submitted",
+      submittedAt: new Date(),
+      createdAt: new Date()
+    },
+    {
+      _id: "444444444444444444444444",
+      taskId: TID,
+      userId: UID,
+      taskTitle: "Older notes",
+      notesText: "Legacy plain notes",
+      status: "submitted",
+      submittedAt: new Date(),
+      createdAt: new Date()
+    }
+  ];
+
+  const { response, body } = await listRequest("admin", "?status=submitted");
+
+  assert.equal(response.status, 200);
+  assert.equal(body.success, true);
+  assert.equal(body.submissions.length, 2);
+
+  const structured = body.submissions[0];
+  assert.equal(structured.format, "cornell");
+  assert.deepEqual(structured.sections, {
+    cues: "What is photosynthesis?",
+    notes: "Plants convert light energy into chemical energy.",
+    summary: "Photosynthesis stores light energy."
+  });
+  assert.equal(structured.member.username, "testmember");
+  assert.equal(structured.taskTitle, "Lecture notes");
+
+  const legacy = body.submissions[1];
+  assert.equal(legacy.format, "plain");
+  assert.deepEqual(legacy.sections, {});
+  assert.equal(legacy.notesText, "Legacy plain notes");
+});
+
+test("admin listing validates status filters and blocks ordinary members", async () => {
+  const invalid = await listRequest("admin", "?status=pending");
+  const forbidden = await listRequest("user", "?status=submitted");
+  const unauthenticated = await listRequest(null, "?status=submitted");
+
+  assert.equal(invalid.response.status, 400);
+  assert.equal(forbidden.response.status, 403);
+  assert.equal(unauthenticated.response.status, 401);
 });
 
 test("admin approval credits the correct USD cents and creates one ledger entry", async () => {
