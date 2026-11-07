@@ -934,8 +934,7 @@ router.get("/submissions", async (req, res) => {
     const submissions = await Submission.find({ status })
       .populate("userId", "username firstName lastName email")
       .populate("jobId", "title durationMinutes rewardCents status requiredTranscript")
-      .sort({ createdAt: 1 })
-      .limit(100)
+      .sort({ createdAt: -1, _id: -1 })
       .lean();
 
     return res.json({

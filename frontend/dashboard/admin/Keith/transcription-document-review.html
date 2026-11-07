@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/jpeg" href="../../../assets/primetask-favicon.svg">
   <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -75,14 +76,52 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 
 .empty strong{display:block;color:var(--navy);margin-bottom:4px}
 .hidden{display:none!important}
 a{color:var(--blue);overflow-wrap:anywhere}
-@media(max-width:900px){.workspace{grid-template-columns:1fr}.queue{max-height:350px}}
+/* Contributor summary and audio/transcript comparison */
+.member-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:12px}
+.member-stat{padding:12px;background:#f6f8fc;border:1px solid var(--line);border-radius:11px;min-width:0}
+.member-stat .stat-value{font-size:21px;overflow-wrap:anywhere}
+.comparison-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+.comparison-panel{min-width:0}
+.audio-player{width:100%;margin-top:10px;border-radius:10px}
+.audio-unavailable{padding:18px;background:#f6f8fc;border:1px dashed var(--line);border-radius:11px;color:var(--muted);font-size:12px}
+.comparison-panel .transcript{max-height:430px;min-height:180px}
+.reference-panel{margin-top:18px}
+.reference-toolbar{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.reference-toolbar .btn{padding:8px 11px}
+.editor-surface{min-height:300px;max-height:600px;overflow:auto;padding:16px;border:1px solid #cbd6e5;border-radius:11px;background:#fff;color:var(--ink);font:14px/1.75 system-ui,sans-serif;white-space:pre-wrap;overflow-wrap:anywhere;outline:none}
+.editor-surface:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3268cf1c}
+.editor-surface:empty:before{content:attr(data-placeholder);color:#8995a6}
+.editor-help{font-size:11px;color:var(--muted);margin:8px 0}
+.verification-box{margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:11px;background:#f8faff}
+.verification-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.verification-status{font-weight:900;color:var(--navy)}
+.verification-checks{display:grid;gap:8px;margin-top:12px}
+.verification-check{padding:10px 12px;border-radius:9px;font-size:12px;background:#fff;border:1px solid var(--line)}
+.verification-check.pass{border-left:4px solid var(--green)}
+.verification-check.fail{border-left:4px solid var(--red)}
+.verify-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+@media(max-width:600px){.editor-surface{min-height:240px}.reference-toolbar .btn{flex:1}}
+@media(max-width:1100px){.member-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:900px){.workspace{grid-template-columns:1fr}.queue{max-height:350px}.comparison-grid{grid-template-columns:1fr}}
+
 @media(max-width:600px){.shell{padding:13px}.stats{grid-template-columns:1fr;gap:9px}.stat{padding:13px}.panel{padding:13px}.meta-grid{grid-template-columns:1fr}.top{margin-bottom:23px}.review-actions .btn{flex:1}}
+
+/* PrimeTask shared logo: preserve the original image proportions. */
+.logo img, .brand-mark img, .brandmark img,
+.brand-orb img, .hero-mark img, .mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: inherit;
+}
+
 </style>
 </head>
 <body>
 <main class="shell">
 <header class="top">
-  <div class="brand"><div class="mark">PT</div><div>PRIMETASK WORKSPACE<div class="small">ADMIN OPERATIONS / QUALITY CONTROL</div></div></div>
+  <div class="brand"><div class="mark"><img src="../../../assets/primetask.jpg" alt="PrimeTask">PT<div>PRIMETASK WORKSPACE<div class="small">ADMIN OPERATIONS / QUALITY CONTROL</div></div></div>
   <button id="refresh" class="btn soft" type="button">↻ Refresh queue</button>
 </header>
 
@@ -106,7 +145,7 @@ a{color:var(--blue);overflow-wrap:anywhere}
       <input id="search" type="search" placeholder="Search member, job, or ID…" aria-label="Search submissions">
       <select id="status" aria-label="Submission status">
         <option value="submitted">Awaiting review</option>
-        <option value="approved">Approved</option>
+        <option value="approved">Approved / Completed jobs</option>
         <option value="rejected">Rejected</option>
       </select>
     </div>
@@ -129,15 +168,77 @@ a{color:var(--blue);overflow-wrap:anywhere}
         <div class="meta"><div class="meta-label">Document</div><div id="documentInfo" class="meta-value">—</div></div>
       </div>
 
+      <div class="section">
+        <div class="section-head"><h3>Contributor performance</h3><span class="muted">Lifetime account totals</span></div>
+        <div class="member-stats">
+          <div class="member-stat"><div class="stat-label">Total submissions</div><div id="memberTotal" class="stat-value">—</div></div>
+          <div class="member-stat"><div class="stat-label">Approved</div><div id="memberApproved" class="stat-value">—</div></div>
+          <div class="member-stat"><div class="stat-label">Rejected</div><div id="memberRejected" class="stat-value">—</div></div>
+          <div class="member-stat"><div class="stat-label">Available balance</div><div id="memberBalance" class="stat-value">—</div></div>
+          <div class="member-stat"><div class="stat-label">Total earnings</div><div id="memberEarnings" class="stat-value">—</div></div>
+        </div>
+        <p class="muted">Wallet figures are from the separate transcription wallet and are displayed in USD.</p>
+      </div>
+
       <div id="documentActions" class="section">
         <div class="section-head"><h3>Submitted document</h3><button id="downloadDoc" class="btn blue" type="button">↓ Download DOCX</button></div>
         <p id="documentName" class="muted">Original Word document supplied by the worker.</p>
       </div>
 
-      <div class="section">
-        <div class="section-head"><h3>Transcript text</h3><span id="textLength" class="muted"></span></div>
-        <div id="transcript" class="transcript">No transcript text supplied.</div>
+      <div class="comparison-grid section">
+        <section class="comparison-panel">
+          <div class="section-head"><h3>Original audio</h3><span class="muted">Reference recording</span></div>
+          <audio id="audioPlayer" class="audio-player" controls preload="metadata"
+            crossOrigin="use-credentials" aria-label="Original transcription audio"></audio>
+          <div id="audioUnavailable" class="audio-unavailable hidden">Original audio is not available for this job.</div>
+          <p class="muted">Listen to the recording while checking the submitted transcript.</p>
+        </section>
+        <section class="comparison-panel">
+          <div class="section-head"><h3>Submitted transcript</h3><span id="textLength" class="muted"></span></div>
+          <div id="transcript" class="transcript">No transcript text supplied.</div>
+        </section>
       </div>
+
+      <section class="section reference-panel" id="referenceSection">
+        <div class="section-head">
+          <div>
+            <h3>Admin reference transcript</h3>
+            <p class="sub">Paste or type your reference transcript here. Format, select and copy the text as needed.</p>
+          </div>
+          <span class="muted">Admin only</span>
+        </div>
+
+        <div class="reference-toolbar" role="toolbar" aria-label="Reference transcript formatting">
+          <button class="btn soft" type="button" data-command="bold"><strong>B</strong></button>
+          <button class="btn soft" type="button" data-command="italic"><em>I</em></button>
+          <button class="btn soft" type="button" data-command="underline"><u>U</u></button>
+          <button class="btn soft" type="button" data-command="formatBlock" data-value="p">Paragraph</button>
+          <button class="btn soft" type="button" id="selectReference">Select all</button>
+        </div>
+
+        <div id="referenceEditor" class="editor-surface" contenteditable="true"
+          role="textbox" aria-label="Admin reference transcript editor"
+          aria-multiline="true" spellcheck="false"
+          data-placeholder="Paste or type the reference transcript here..."></div>
+
+        <p class="editor-help">You can edit the text directly. Pasted content is inserted as plain text. Formatting controls apply to selected text.</p>
+
+        <div class="verify-actions">
+          <button id="copyWorkerTranscript" class="btn soft" type="button">Copy worker transcript</button>
+          <button id="copyReferenceTranscript" class="btn soft" type="button">Copy reference transcript</button>
+          <button id="verifySubmission" class="btn primary" type="button">Verify submission</button>
+        </div>
+
+        <div id="verificationBox" class="verification-box" aria-live="polite">
+          <div class="verification-heading">
+            <strong>Structural verification</strong>
+            <span id="verificationStatus" class="verification-status">Pending verification</span>
+          </div>
+          <div id="verificationChecks" class="verification-checks">
+            <div class="muted">Enter the reference transcript and run verification.</div>
+          </div>
+        </div>
+      </section>
 
       <div id="linkSection" class="section hidden">
         <h3>External submission link</h3><p id="submissionLink"></p>
@@ -176,6 +277,7 @@ a{color:var(--blue);overflow-wrap:anywhere}
   let selectedId = null;
   let busy = false;
   let downloading = false;
+  let summaryUserId = null;
 
   function esc(value) {
     return String(value ?? "").replace(/[&<>"']/g, c => ({
@@ -229,6 +331,66 @@ a{color:var(--blue);overflow-wrap:anywhere}
   function currentItem() {
     return submissions.find(item => item.id === selectedId) || null;
   }
+
+  function referenceText() {
+    return $("referenceEditor").innerText
+      .replace(/\\u00a0/g, " ")
+      .replace(/\\r\\n?/g, "\\n")
+      .replace(/\\n{3,}/g, "\\n\\n")
+      .trim();
+  }
+
+  async function copyText(value, label) {
+    const text = String(value || "");
+    if (!text.trim()) {
+      showMessage("There is no text available to copy.", "error");
+      return;
+    }
+
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const field = document.createElement("textarea");
+        field.value = text;
+        field.style.position = "fixed";
+        field.style.opacity = "0";
+        document.body.appendChild(field);
+        field.select();
+        const copied = document.execCommand("copy");
+        field.remove();
+        if (!copied) throw new Error("Clipboard access was blocked by the browser.");
+      }
+      showMessage(label + " copied to clipboard.", "success");
+    } catch (error) {
+      showMessage("Could not copy text: " + error.message, "error");
+    }
+  }
+
+  function renderVerification(item) {
+    const status = item.verificationStatus || "pending";
+    const labels = {
+      passed: "PASSED",
+      failed: "FAILED",
+      pending: "PENDING"
+    };
+
+    $("verificationStatus").textContent = labels[status] || status.toUpperCase();
+
+    const checks = Array.isArray(item.verificationResults)
+      ? item.verificationResults
+      : [];
+
+    $("verificationChecks").innerHTML = checks.length
+      ? checks.map(check => {
+          const passed = Boolean(check.passed);
+          return '<div class="verification-check ' + (passed ? "pass" : "fail") + '">' +
+            '<strong>' + (passed ? "✓ " : "✗ ") + esc(check.check || "Check") + '</strong>' +
+            '<div>' + esc(check.message || "") + '</div></div>';
+        }).join("")
+      : '<div class="muted">No verification results recorded yet.</div>';
+  }
+
   function renderQueue() {
     const q = $("search").value.trim().toLowerCase();
     const list = submissions.filter(item => !q || searchable(item).includes(q));
@@ -247,12 +409,80 @@ a{color:var(--blue);overflow-wrap:anywhere}
         '</button>';
     }).join("");
   }
+  async function loadMemberSummary(userId) {
+    summaryUserId = userId;
+    const fields = ["memberTotal", "memberApproved", "memberRejected", "memberBalance", "memberEarnings"];
+    fields.forEach(id => $(id).textContent = "Loading…");
+
+    try {
+      const {data} = await request(
+        "/admin/transcription/members/" + encodeURIComponent(userId) + "/summary"
+      );
+
+      if (selectedId !== currentItem()?.id || summaryUserId !== userId) return;
+      if (!data || data.success !== true || !data.summary) {
+        throw new Error("Invalid contributor summary response.");
+      }
+
+      const summary = data.summary;
+      $("memberTotal").textContent = Number(summary.totalSubmissions || 0).toLocaleString();
+      $("memberApproved").textContent = Number(summary.approved || 0).toLocaleString();
+      $("memberRejected").textContent = Number(summary.rejected || 0).toLocaleString();
+      $("memberBalance").textContent = money(summary.wallet?.availableBalance);
+      $("memberEarnings").textContent = money(summary.wallet?.totalEarnings);
+    } catch (error) {
+      if (summaryUserId !== userId) return;
+      fields.forEach(id => $(id).textContent = "Unavailable");
+      console.error("Contributor summary could not be loaded:", error.message);
+    }
+  }
+
   function renderDetail() {
     const item = currentItem();
     const hasSelection = Boolean(item);
     $("noSelection").classList.toggle("hidden",hasSelection);
     $("reviewDetail").classList.toggle("hidden",!hasSelection);
-    if (!item) return;
+    if (!item) {
+      summaryUserId = null;
+      $("audioPlayer").pause();
+      $("audioPlayer").removeAttribute("src");
+      $("audioPlayer").load();
+      $("audioPlayer").classList.add("hidden");
+      $("audioUnavailable").classList.remove("hidden");
+      return;
+    }
+
+    const userId = item.user && item.user.id;
+    if (userId && summaryUserId !== userId) {
+      loadMemberSummary(userId);
+    } else if (!userId) {
+      summaryUserId = null;
+      ["memberTotal", "memberApproved", "memberRejected", "memberBalance", "memberEarnings"]
+        .forEach(id => $(id).textContent = "Unavailable");
+    }
+
+    const audio = $("audioPlayer");
+    const audioUrl = item.job && item.job.id
+      ? API_BASE + "/admin/transcription/jobs/" + encodeURIComponent(item.job.id) + "/audio"
+      : "";
+
+    if (audio.dataset.source !== audioUrl) {
+      audio.pause();
+      audio.removeAttribute("src");
+      delete audio.dataset.source;
+
+      if (audioUrl) {
+        audio.crossOrigin = "use-credentials";
+        audio.src = audioUrl;
+        audio.dataset.source = audioUrl;
+        audio.classList.remove("hidden");
+        $("audioUnavailable").classList.add("hidden");
+        audio.load();
+      } else {
+        audio.classList.add("hidden");
+        $("audioUnavailable").classList.remove("hidden");
+      }
+    }
 
     $("jobTitle").textContent = item.job && item.job.title || "Untitled transcription job";
     $("submissionId").textContent = "Submission ID: " + item.id;
@@ -261,8 +491,11 @@ a{color:var(--blue);overflow-wrap:anywhere}
     $("memberEmail").textContent = item.user && item.user.email || "Not recorded";
     $("submittedAt").textContent = date(item.createdAt);
     $("currentStatus").textContent = item.status || "Unknown";
-    $("jobDuration").textContent = Number.isFinite(Number(item.job && item.job.durationMinutes))
-      ? Number(item.job.durationMinutes) + " minutes" : "Not recorded";
+    const durationMinutes = item.job?.durationMinutes;
+    $("jobDuration").textContent =
+      durationMinutes != null && Number.isFinite(Number(durationMinutes))
+        ? Number(durationMinutes) + " minutes"
+        : "Not recorded";
     $("documentInfo").textContent = item.documentAvailable
       ? "DOCX available" + (item.documentBytes ? " · " + (item.documentBytes/1024).toFixed(1) + " KB" : "")
       : "No DOCX attached";
@@ -272,6 +505,14 @@ a{color:var(--blue);overflow-wrap:anywhere}
     $("documentActions").classList.toggle("hidden",!item.documentAvailable);
     $("transcript").textContent = item.transcriptText || "No transcript text supplied. Review the attached document if available.";
     $("textLength").textContent = item.transcriptText ? item.transcriptText.length.toLocaleString() + " characters" : "No text";
+
+    const editor = $("referenceEditor");
+    if (editor.dataset.submissionId !== item.id) {
+      editor.textContent = item.referenceTranscript || "";
+      editor.dataset.submissionId = item.id;
+    }
+    renderVerification(item);
+
     $("linkSection").classList.toggle("hidden",!item.submissionLink);
     if (item.submissionLink) {
       const link = document.createElement("a");
@@ -284,9 +525,11 @@ a{color:var(--blue);overflow-wrap:anywhere}
     $("previousReview").classList.toggle("hidden",!item.reviewNote);
     $("previousNote").textContent = item.reviewNote || "";
     const canReview = item.status === "submitted";
+    const canApprove = canReview && item.verificationStatus === "passed";
     $("decisionSection").classList.toggle("hidden",!canReview);
-    $("approve").disabled = busy || !canReview;
+    $("approve").disabled = busy || !canApprove;
     $("reject").disabled = busy || !canReview;
+    $("verifySubmission").disabled = busy || !canReview;
     if (!canReview) $("reviewNote").value = item.reviewNote || "";
   }
   async function load() {
@@ -296,6 +539,7 @@ a{color:var(--blue);overflow-wrap:anywhere}
     clearMessage();
     $("queue").innerHTML = '<div class="empty">Loading records from the server…</div>';
     try {
+      summaryUserId = null;
       const status = $("status").value;
       const {data} = await request("/admin/transcription/submissions?status=" + encodeURIComponent(status));
       if (!data || data.success !== true || !Array.isArray(data.submissions)) {
@@ -361,9 +605,83 @@ a{color:var(--blue);overflow-wrap:anywhere}
       renderDetail();
     }
   }
+  async function verifySubmission() {
+    const item = currentItem();
+    if (!item || item.status !== "submitted" || busy) return;
+
+    const referenceTranscript = referenceText();
+    if (!referenceTranscript) {
+      showMessage("Enter the admin reference transcript before verification.", "error");
+      $("referenceEditor").focus();
+      return;
+    }
+
+    if (referenceTranscript.length > 200000) {
+      showMessage("The reference transcript exceeds the 200,000-character limit.", "error");
+      return;
+    }
+
+    busy = true;
+    $("verifySubmission").disabled = true;
+    $("approve").disabled = true;
+    $("reject").disabled = true;
+    $("refresh").disabled = true;
+    $("verifySubmission").textContent = "Verifying...";
+    clearMessage();
+
+    try {
+      const {data} = await request(
+        "/admin/transcription/submissions/" + encodeURIComponent(item.id) + "/verify",
+        {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({referenceTranscript})
+        }
+      );
+
+      if (!data || data.success !== true) {
+        throw new Error(data?.message || "Verification request failed.");
+      }
+
+      item.referenceTranscript = referenceTranscript;
+      item.verificationStatus = data.verificationStatus || (data.passed ? "passed" : "failed");
+      item.verificationResults = Array.isArray(data.checks) ? data.checks : [];
+      item.verifiedAt = new Date().toISOString();
+
+      if (!data.passed) {
+        item.status = "rejected";
+        item.reviewNote = item.verificationResults
+          .filter(check => !check.passed)
+          .map(check => check.message)
+          .join(" ")
+          .slice(0, 2000);
+      }
+
+      renderVerification(item);
+      renderQueue();
+      renderDetail();
+
+      showMessage(data.message || (data.passed
+        ? "Verification passed. Approval is now available."
+        : "Verification failed. The submission was returned for revision."), data.passed ? "success" : "error");
+    } catch (error) {
+      showMessage(error.message, "error");
+    } finally {
+      busy = false;
+      $("verifySubmission").textContent = "Verify submission";
+      $("refresh").disabled = false;
+      renderQueue();
+      renderDetail();
+    }
+  }
+
   async function decide(decision) {
     const item = currentItem();
     if (!item || item.status !== "submitted" || busy) return;
+    if (decision === "approve" && item.verificationStatus !== "passed") {
+      showMessage("Verification must pass before this submission can be approved.", "error");
+      return;
+    }
     const note = $("reviewNote").value.trim();
     if (decision === "reject" && !note) {
       showMessage("A review note is required when rejecting a submission.", "error");
@@ -416,6 +734,43 @@ a{color:var(--blue);overflow-wrap:anywhere}
     load();
   });
   $("downloadDoc").addEventListener("click",downloadDocument);
+
+  document.querySelectorAll("[data-command]").forEach(button => {
+    button.addEventListener("click", () => {
+      const editor = $("referenceEditor");
+      editor.focus();
+      const command = button.dataset.command;
+      const value = button.dataset.value || null;
+      document.execCommand(command, false, value);
+    });
+  });
+
+  $("referenceEditor").addEventListener("paste", event => {
+    event.preventDefault();
+    const text = event.clipboardData?.getData("text/plain") || "";
+    document.execCommand("insertText", false, text);
+  });
+
+  $("selectReference").addEventListener("click", () => {
+    const editor = $("referenceEditor");
+    editor.focus();
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(editor);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+
+  $("copyWorkerTranscript").addEventListener("click", () => {
+    const item = currentItem();
+    copyText(item?.transcriptText || "", "Worker transcript");
+  });
+
+  $("copyReferenceTranscript").addEventListener("click", () => {
+    copyText(referenceText(), "Reference transcript");
+  });
+
+  $("verifySubmission").addEventListener("click", verifySubmission);
   $("approve").addEventListener("click",() => decide("approve"));
   $("reject").addEventListener("click",() => decide("reject"));
   load();
