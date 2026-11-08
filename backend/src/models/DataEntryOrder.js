@@ -59,7 +59,7 @@ const dataEntryOrderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["draft", "published", "assigned", "submitted", "completed", "cancelled"],
+    enum: ["draft", "published", "assigned", "submitted", "revision_requested", "completed", "cancelled"],
     default: "draft",
     index: true
   },

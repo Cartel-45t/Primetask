@@ -33,6 +33,10 @@ const {
   stopNotesPointsRecoveryWorker
 } = require("./services/notesPointsRecoveryWorker");
 const {
+  startDataEntryBidRecoveryWorker,
+  stopDataEntryBidRecoveryWorker
+} = require("./services/dataEntryBidRecoveryWorker");
+const {
   startTranscriptionJobRotationWorker,
   stopTranscriptionJobRotationWorker
 } = require("./services/transcriptionJobRotationWorker");
@@ -60,11 +64,14 @@ const notesPointsTransactionsRoutes = require("./routes/notesPointsTransactions"
 const notesWithdrawalsRoutes = require("./routes/notesWithdrawals");
 const notesDashboardRoutes = require("./routes/notesDashboard");
 const notesTasksRoutes = require("./routes/notesTasks");
+const dataEntryRoutes = require("./routes/dataEntry");
+const dataEntryBidPurchasesRoutes = require("./routes/dataEntryBidPurchases");
 const notesPointsPurchasesRoutes = require("./routes/notesPointsPurchases");
 const adminNotesTasksRoutes = require("./routes/adminNotesTasks");
 const adminNotesAssetsRoutes = require("./routes/adminNotesAssets");
 const adminNotesSubmissionsRoutes = require("./routes/adminNotesSubmissions");
 const adminNotesPointsPackagesRoutes = require("./routes/adminNotesPointsPackages");
+const adminDataEntryBidPackagesRoutes = require("./routes/adminDataEntryBidPackages");
 const testimonialsRoutes = require("./routes/testimonials");
 const adminTestimonialsRoutes = require("./routes/adminTestimonials");
 
@@ -130,11 +137,14 @@ app.use("/api/notes/points-transactions", notesPointsTransactionsRoutes);
 app.use("/api/notes/withdrawals", notesWithdrawalsRoutes);
 app.use("/api/notes/dashboard", notesDashboardRoutes);
 app.use("/api/notes/tasks", notesTasksRoutes);
+app.use("/api/data-entry", dataEntryRoutes);
+app.use("/api/data-entry/bid-purchases", dataEntryBidPurchasesRoutes);
 app.use("/api/notes/points-purchases", notesPointsPurchasesRoutes);
 app.use("/api/admin/notes/assets", adminNotesAssetsRoutes);
 app.use("/api/admin/notes/tasks", adminNotesTasksRoutes);
 app.use("/api/admin/notes/submissions", adminNotesSubmissionsRoutes);
 app.use("/api/admin/notes/points-packages", adminNotesPointsPackagesRoutes);
+app.use("/api/admin/data-entry/bid-packages", adminDataEntryBidPackagesRoutes);
 app.use("/api/admin/transcription/minute-purchases/reconciliation", adminTranscriptionMinuteReconciliationRoutes);
 app.use("/api/admin/transcription/assets", transcriptionAssetsRoutes);
 app.use("/api/admin/transcription", adminTranscriptionRoutes);
@@ -237,6 +247,7 @@ async function startServer() {
     startTranscriptionMinuteRecoveryWorker();
     startMembershipRecoveryWorker();
     startNotesPointsRecoveryWorker();
+    startDataEntryBidRecoveryWorker();
 
     const rotationSettings = await TranscriptionSettings.findOne({
       key: "transcription"
@@ -277,6 +288,7 @@ async function shutdown(signal) {
     stopTranscriptionMinuteRecoveryWorker();
     stopMembershipRecoveryWorker();
     stopNotesPointsRecoveryWorker();
+    stopDataEntryBidRecoveryWorker();
 
     if (httpServer) {
       await new Promise((resolve, reject) => {

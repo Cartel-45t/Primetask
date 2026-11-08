@@ -21,6 +21,7 @@ const mpesaReceiptClaimSchema = new mongoose.Schema(
         "withdrawal",
         "transcription_minute_purchase",
       "notes_points_purchase",
+        "data_entry_bid_purchase",
         "notes_withdrawal"
       ],
       immutable: true

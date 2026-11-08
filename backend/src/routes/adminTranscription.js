@@ -917,6 +917,67 @@ router.get("/members/:userId/summary", async (req, res) => {
   }
 });
 
+/*
+ * Admin submission response helpers.
+ * Full transcript and verification data are returned only by the detail route.
+ */
+function serializeAdminSubmission(item, includeDetails = false) {
+  const user = item.userId && typeof item.userId === "object"
+    ? item.userId
+    : null;
+  const job = item.jobId && typeof item.jobId === "object"
+    ? item.jobId
+    : null;
+
+  const result = {
+    id: String(item._id),
+    submissionLink: item.submissionLink || "",
+    documentAvailable: Boolean(
+      item.documentFormat === "docx" &&
+      typeof item.documentPublicId === "string" &&
+      item.documentPublicId.startsWith(
+        "primetask-workspace/transcription/documents/"
+      ) &&
+      !item.documentPublicId.includes("..")
+    ),
+    documentOriginalName: item.documentOriginalName || "",
+    documentBytes: item.documentBytes || null,
+    status: item.status,
+    reviewNote: item.reviewNote || "",
+    reward: Number(item.rewardCents || 0) / 100,
+    currency: "USD",
+    createdAt: item.createdAt,
+    reviewedAt: item.reviewedAt || null,
+    revisionCount: item.revisionCount || 0,
+    user: user ? {
+      id: String(user._id),
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email
+    } : null,
+    job: job ? {
+      id: String(job._id),
+      title: job.title,
+      durationMinutes: job.durationMinutes,
+      reward: Number(job.rewardCents || 0) / 100,
+      status: job.status,
+      requiredTranscript: job.requiredTranscript || ""
+    } : null
+  };
+
+  if (includeDetails) {
+    result.transcriptText = item.transcriptText || "";
+    result.referenceTranscript = item.referenceTranscript || "";
+    result.verificationStatus = item.verificationStatus || "pending";
+    result.verificationResults = item.verificationResults || [];
+    result.verifiedAt = item.verifiedAt || null;
+    result.reviewHistory = item.reviewHistory || [];
+  }
+
+  return result;
+}
+
 /* GET /api/admin/transcription/submissions */
 router.get("/submissions", async (req, res) => {
   try {
@@ -930,53 +991,46 @@ router.get("/submissions", async (req, res) => {
       });
     }
 
-    const submissions = await Submission.find({ status })
-      .populate("userId", "username firstName lastName email")
-      .populate("jobId", "title durationMinutes rewardCents status requiredTranscript")
-      .sort({ createdAt: -1, _id: -1 })
-      .lean();
+    const requestedPage = Number.parseInt(req.query.page, 10);
+    const requestedLimit = Number.parseInt(req.query.limit, 10);
+    const page = Number.isSafeInteger(requestedPage) && requestedPage > 0
+      ? Math.min(requestedPage, 100000)
+      : 1;
+    const limit = Number.isSafeInteger(requestedLimit) && requestedLimit > 0
+      ? Math.min(requestedLimit, 50)
+      : 30;
+    const skip = (page - 1) * limit;
+
+    const filter = { status };
+    const [submissions, total] = await Promise.all([
+      Submission.find(filter)
+        .select(
+          "_id userId jobId submissionLink documentFormat documentPublicId " +
+          "documentOriginalName documentBytes status reviewNote rewardCents " +
+          "createdAt reviewedAt revisionCount"
+        )
+        .populate("userId", "username firstName lastName email")
+        .populate("jobId", "title durationMinutes rewardCents status requiredTranscript")
+        .sort({ createdAt: -1, _id: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Submission.countDocuments(filter)
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
 
     return res.json({
       success: true,
-      submissions: submissions.map(item => ({
-        id: String(item._id),
-        transcriptText: item.transcriptText,
-        submissionLink: item.submissionLink || "",
-        referenceTranscript: item.referenceTranscript || "",
-        verificationStatus: item.verificationStatus || "pending",
-        verificationResults: item.verificationResults || [],
-        verifiedAt: item.verifiedAt || null,
-        documentAvailable: Boolean(
-          item.documentFormat === "docx" &&
-          typeof item.documentPublicId === "string" &&
-          item.documentPublicId.startsWith(
-            "primetask-workspace/transcription/documents/"
-          ) &&
-          !item.documentPublicId.includes("..")
-        ),
-        documentOriginalName: item.documentOriginalName || "",
-        documentBytes: item.documentBytes || null,
-        status: item.status,
-        reviewNote: item.reviewNote,
-        reward: item.rewardCents / 100,
-        currency: "USD",
-        createdAt: item.createdAt,
-        user: item.userId ? {
-          id: String(item.userId._id),
-          username: item.userId.username,
-          firstName: item.userId.firstName,
-          lastName: item.userId.lastName,
-          email: item.userId.email
-        } : null,
-        job: item.jobId ? {
-          id: String(item.jobId._id),
-          title: item.jobId.title,
-          durationMinutes: item.jobId.durationMinutes,
-          reward: item.jobId.rewardCents / 100,
-          status: item.jobId.status,
-          requiredTranscript: item.jobId.requiredTranscript || ""
-        } : null
-      }))
+      submissions: submissions.map(item => serializeAdminSubmission(item)),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1
+      }
     });
   } catch (error) {
     console.error("Admin transcription submissions error:", error.message);
@@ -987,6 +1041,40 @@ router.get("/submissions", async (req, res) => {
   }
 });
 
+/* GET /api/admin/transcription/submissions/:id */
+router.get("/submissions/:id", async (req, res) => {
+  if (!validId(req.params.id)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid submission ID."
+    });
+  }
+
+  try {
+    const item = await Submission.findById(req.params.id)
+      .populate("userId", "username firstName lastName email")
+      .populate("jobId", "title durationMinutes rewardCents status requiredTranscript")
+      .lean();
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "Transcription submission not found."
+      });
+    }
+
+    return res.json({
+      success: true,
+      submission: serializeAdminSubmission(item, true)
+    });
+  } catch (error) {
+    console.error("Admin transcription submission detail error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Could not load transcription submission details."
+    });
+  }
+});
 
 /*
  * PATCH /api/admin/transcription/submissions/:id/review

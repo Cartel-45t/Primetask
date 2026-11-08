@@ -4,6 +4,7 @@ const Deposit = require("../models/Deposit");
 const MembershipPurchase = require("../models/MembershipPurchase");
 const MinutePurchase = require("../models/TranscriptionMinutePurchase");
 const NotesPointsPurchase = require("../models/NotesPointsPurchase");
+const DataEntryBidPurchase = require("../models/DataEntryBidPurchase");
 const DarajaCallbackEvent = require("../models/DarajaCallbackEvent");
 const { verifyAndFulfilMembershipCallback } = require("../services/membershipDarajaVerificationService");
 const {
@@ -16,6 +17,9 @@ const {
 const {
   verifyAndCreditNotesPointsPurchase
 } = require("../services/notesPointsDarajaVerificationService");
+const {
+  verifyAndCreditDataEntryBidPurchase
+} = require("../services/dataEntryBidDarajaVerificationService");
 
 const router = express.Router();
 
@@ -523,6 +527,156 @@ router.post("/stk", async (req, res) => {
         return res.status(200).json({
           ResultCode: 0,
           ResultDesc: "Callback stored; Notes Points payment requires verification"
+        });
+      }
+
+      const dataEntryBidPurchase = await DataEntryBidPurchase.findOne({
+        checkoutRequestId
+      });
+
+      if (dataEntryBidPurchase) {
+        // A failed callback may release the lock only when both provider
+        // identifiers match this exact purchase.
+        if (resultCode !== null && resultCode !== 0) {
+          if (
+            !merchantRequestId ||
+            merchantRequestId !== dataEntryBidPurchase.merchantRequestId
+          ) {
+            await DarajaCallbackEvent.updateOne(
+              { eventKey },
+              { $set: { processingStatus: "reconciliation_required" } }
+            );
+
+            return res.status(200).json({
+              ResultCode: 0,
+              ResultDesc: "Callback stored; merchant request does not match the purchase"
+            });
+          }
+
+          const isCancellation = resultCode === 1032;
+
+          const released = await DataEntryBidPurchase.updateOne(
+            {
+              _id: dataEntryBidPurchase._id,
+              checkoutRequestId,
+              merchantRequestId,
+              paymentStatus: { $in: ["pending", "verification_required"] },
+              hasUnresolvedPayment: true
+            },
+            {
+              $set: {
+                paymentStatus: isCancellation ? "cancelled" : "failed",
+                hasUnresolvedPayment: false,
+                failureCode: String(resultCode).slice(0, 100),
+                failureDescription: (
+                  resultDescription ||
+                  (isCancellation
+                    ? "Safaricom confirmed customer cancellation."
+                    : "Safaricom confirmed that the payment was unsuccessful.")
+                ).slice(0, 500),
+                lastReconciledAt: new Date()
+              }
+            }
+          );
+
+          if (!released.modifiedCount) {
+            await DarajaCallbackEvent.updateOne(
+              { eventKey },
+              { $set: { processingStatus: "reconciliation_required" } }
+            );
+
+            return res.status(200).json({
+              ResultCode: 0,
+              ResultDesc: "Callback stored; purchase state was not changed"
+            });
+          }
+
+          await DarajaCallbackEvent.updateOne(
+            { eventKey },
+            { $set: { processingStatus: "processed" } }
+          );
+
+          return res.status(200).json({
+            ResultCode: 0,
+            ResultDesc: isCancellation
+              ? "Bid purchase cancelled; another purchase may be initiated"
+              : "Bid purchase failed; another purchase may be initiated"
+          });
+        }
+
+        let verification = {
+          verified: false,
+          reason: "CALLBACK_REQUIRES_RECONCILIATION"
+        };
+
+        if (resultCode === 0) {
+          try {
+            verification = await verifyAndCreditDataEntryBidPurchase({
+              purchaseId: dataEntryBidPurchase._id,
+              checkoutRequestId,
+              merchantRequestId,
+              resultCode,
+              metadata
+            });
+          } catch (verificationError) {
+            console.error(
+              "Data Entry bid payment verification failed safely:",
+              verificationError.message
+            );
+
+            verification = {
+              verified: false,
+              reason: verificationError.code || "VERIFICATION_ERROR"
+            };
+          }
+        }
+
+        if (verification.verified) {
+          await DarajaCallbackEvent.updateOne(
+            { eventKey },
+            { $set: { processingStatus: "processed" } }
+          );
+
+          console.info(
+            "Data Entry bid purchase verified:",
+            String(dataEntryBidPurchase._id)
+          );
+
+          return res.status(200).json({
+            ResultCode: 0,
+            ResultDesc: "Payment verified; Data Entry bids credited"
+          });
+        }
+
+        await Promise.all([
+          DarajaCallbackEvent.updateOne(
+            { eventKey },
+            { $set: { processingStatus: "reconciliation_required" } }
+          ),
+          DataEntryBidPurchase.updateOne(
+            {
+              _id: dataEntryBidPurchase._id,
+              checkoutRequestId,
+              merchantRequestId,
+              paymentStatus: { $in: ["pending", "verification_required"] },
+              hasUnresolvedPayment: true
+            },
+            {
+              $set: {
+                paymentStatus: "verification_required",
+                failureCode: String(
+                  verification.reason || "CALLBACK_REQUIRES_RECONCILIATION"
+                ).slice(0, 100),
+                failureDescription:
+                  "Automatic payment verification is incomplete. No bids were credited; the purchase remains unresolved."
+              }
+            }
+          )
+        ]);
+
+        return res.status(200).json({
+          ResultCode: 0,
+          ResultDesc: "Callback stored; Data Entry bid payment requires verification"
         });
       }
 
