@@ -1039,8 +1039,8 @@ router.post(
         message: missingDocumentation
           ? "No documentation"
           : isRevision
-            ? "Revised transcript submitted for verification."
-            : "Transcript submitted for verification.",
+            ? "Revised transcript submitted for admin review."
+            : "Transcript submitted for admin review.",
         submission: submissionResponse
       });
     } catch (error) {
