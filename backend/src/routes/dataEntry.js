@@ -12,6 +12,7 @@ const requireServiceAccess = require("../middleware/requireServiceAccess");
 
 const DataEntryOrder = require("../models/DataEntryOrder");
 const DataEntryBidWallet = require("../models/DataEntryBidWallet");
+const DataEntryWallet = require("../models/DataEntryWallet");
 const DataEntryBidTransaction = require("../models/DataEntryBidTransaction");
 const DataEntrySubmission = require("../models/DataEntrySubmission");
 
@@ -59,6 +60,93 @@ async function releaseExpiredAssignments() {
  * GET /api/data-entry/jobs
  * Lists currently published jobs after releasing expired assignments.
  */
+
+/*
+ * GET /api/data-entry/dashboard
+ * Worker-only overview. Earnings are read from the separate
+ * Data Entry USD wallet, never from the bid or main PTW wallet.
+ */
+router.get("/dashboard", async (req, res) => {
+  try {
+    await releaseExpiredAssignments();
+
+    const userId = req.user._id;
+
+    const [
+      availableJobs,
+      activeJobs,
+      completedJobs,
+      wallet,
+      submissions
+    ] = await Promise.all([
+      DataEntryOrder.countDocuments({
+        status: "published"
+      }),
+
+      DataEntryOrder.countDocuments({
+        assignedUserId: userId,
+        status: {
+          $in: ["assigned", "submitted", "revision_requested"]
+        }
+      }),
+
+      DataEntryOrder.countDocuments({
+        assignedUserId: userId,
+        status: "completed"
+      }),
+
+      DataEntryWallet.findOne({ userId })
+        .select("totalEarningsCents")
+        .lean(),
+
+      DataEntrySubmission.find({ userId })
+        .select(
+          "_id orderTitle status submittedAt reviewedAt reviewNote reviewHistory"
+        )
+        .sort({ submittedAt: -1 })
+        .limit(5)
+        .lean()
+    ]);
+
+    const recentActivity = submissions.map(item => {
+      const history = Array.isArray(item.reviewHistory)
+        ? item.reviewHistory
+        : [];
+
+      const latestReview = history.length
+        ? history[history.length - 1]
+        : null;
+
+      return {
+        _id: item._id,
+        title: item.orderTitle,
+        status: item.status,
+        submittedAt: item.submittedAt,
+        reviewedAt: item.reviewedAt,
+        reviewNote: item.reviewNote || latestReview?.reviewNote || ""
+      };
+    });
+
+    return res.json({
+      success: true,
+      stats: {
+        availableJobs,
+        activeJobs,
+        completedJobs,
+        earningsCents: wallet?.totalEarningsCents || 0
+      },
+      recentActivity
+    });
+  } catch (error) {
+    console.error("Data Entry worker dashboard error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not load the Data Entry dashboard."
+    });
+  }
+});
+
 router.get("/jobs", async (req, res) => {
   try {
     await releaseExpiredAssignments();
