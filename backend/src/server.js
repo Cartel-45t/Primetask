@@ -72,6 +72,7 @@ const adminNotesAssetsRoutes = require("./routes/adminNotesAssets");
 const adminNotesSubmissionsRoutes = require("./routes/adminNotesSubmissions");
 const adminNotesPointsPackagesRoutes = require("./routes/adminNotesPointsPackages");
 const adminDataEntryBidPackagesRoutes = require("./routes/adminDataEntryBidPackages");
+const adminDataEntryRoutes = require("./routes/adminDataEntry");
 const testimonialsRoutes = require("./routes/testimonials");
 const adminTestimonialsRoutes = require("./routes/adminTestimonials");
 
@@ -144,6 +145,7 @@ app.use("/api/admin/notes/assets", adminNotesAssetsRoutes);
 app.use("/api/admin/notes/tasks", adminNotesTasksRoutes);
 app.use("/api/admin/notes/submissions", adminNotesSubmissionsRoutes);
 app.use("/api/admin/notes/points-packages", adminNotesPointsPackagesRoutes);
+app.use("/api/admin/data-entry", adminDataEntryRoutes);
 app.use("/api/admin/data-entry/bid-packages", adminDataEntryBidPackagesRoutes);
 app.use("/api/admin/transcription/minute-purchases/reconciliation", adminTranscriptionMinuteReconciliationRoutes);
 app.use("/api/admin/transcription/assets", transcriptionAssetsRoutes);
