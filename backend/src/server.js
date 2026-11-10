@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const { recordSecurityEvent } = require("./services/securityEventChainService");
 
 const authRoutes = require("./routes/auth");
 const profileRoutes = require("./routes/profile");
@@ -75,6 +76,10 @@ const adminDataEntryBidPackagesRoutes = require("./routes/adminDataEntryBidPacka
 const adminDataEntryRoutes = require("./routes/adminDataEntry");
 const testimonialsRoutes = require("./routes/testimonials");
 const adminTestimonialsRoutes = require("./routes/adminTestimonials");
+const adminSecurityRoutes = require("./routes/adminSecurity");
+const adminApiRequestsRoutes = require("./routes/adminApiRequests");
+
+const apiRequestMonitor = require("./middleware/apiRequestMonitor");
 
 const app = express();
 
@@ -105,6 +110,7 @@ app.use(
 
 app.use(express.json({ limit: "250kb" }));
 app.use(cookieParser());
+app.use(apiRequestMonitor);
 
 app.get("/api/health", (req, res) => {
   res.json({
@@ -123,6 +129,33 @@ const authLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many authentication requests. Try again later."
+  },
+  handler: async (req, res) => {
+    try {
+      await recordSecurityEvent({
+        eventType: "rate_limit_triggered",
+        severity: "warning",
+        outcome: "denied",
+        ipAddress: req.ip || null,
+        userAgent: String(req.get("user-agent") || "").slice(0, 1000) || null,
+        method: req.method,
+        path: String(req.path || "").split("?")[0].slice(0, 500),
+        statusCode: 429,
+        requestId: req.id || null,
+        message: "Authentication API rate limit exceeded."
+      });
+    } catch (error) {
+      console.error("Global authentication rate-limit event recording failed:", {
+        name: error?.name,
+        code: error?.code,
+        message: error?.message
+      });
+    }
+
+    return res.status(429).json({
+      success: false,
+      message: "Too many authentication requests. Try again later."
+    });
   }
 });
 
@@ -170,6 +203,8 @@ app.use("/api/admin/revenue", adminRevenueRoutes);
 app.use("/api/admin/reports", require("./routes/adminNetworkReports"));
 app.use("/api/testimonials", testimonialsRoutes);
 app.use("/api/admin/testimonials", adminTestimonialsRoutes);
+app.use("/api/admin/security", adminSecurityRoutes);
+app.use("/api/admin/api-requests", adminApiRequestsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

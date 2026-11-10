@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const deviceAccessService = require("../services/deviceAccessService");
 
 module.exports = async function requireAuth(req, res, next) {
   const audioDebug = req.baseUrl === "/api/admin/transcription/assets" &&
@@ -27,7 +28,7 @@ module.exports = async function requireAuth(req, res, next) {
 
     if (audioDebug) console.log("[audio-signature-debug] MongoDB lookup started");
     const user = await User.findById(payload.sub)
-      .select("_id role status firstName lastName username email sessionVersion");
+      .select("_id role status firstName lastName username email profilePictureUrl sessionVersion");
     if (audioDebug) {
       console.log("[audio-signature-debug] MongoDB lookup finished", {
         elapsedMs: Date.now() - audioStartedAt,
@@ -44,6 +45,26 @@ module.exports = async function requireAuth(req, res, next) {
       return res.status(401).json({
         success: false,
         message: "Your session is invalid or your account is inactive."
+      });
+    }
+
+    let deviceAccess;
+
+    try {
+      deviceAccess = await deviceAccessService.authorizeRequestDevice(req, user);
+    } catch (deviceError) {
+      console.error("Protected-request device verification failed.");
+      return res.status(503).json({
+        success: false,
+        message: "Device security verification is temporarily unavailable."
+      });
+    }
+
+    if (!deviceAccess.allowed) {
+      return res.status(deviceAccess.status || 403).json({
+        success: false,
+        code: deviceAccess.code || "DEVICE_ACCESS_DENIED",
+        message: deviceAccess.message || "This browser is not authorized."
       });
     }
 

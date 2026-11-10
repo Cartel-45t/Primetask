@@ -23,6 +23,14 @@ process.env.JWT_SECRET =
   "ptw-v3-integration-test-secret-only";
 
 const User = require("../src/models/User");
+const SecurityEvent = require("../src/models/SecurityEvent");
+const SecurityEventChain = require("../src/models/SecurityEventChain");
+const Device = require("../src/models/Device");
+const DeviceRegistration = require("../src/models/DeviceRegistration");
+const DeviceTransferRequest = require("../src/models/DeviceTransferRequest");
+const {
+  verifySecurityEventChain
+} = require("../src/services/securityEventChainService");
 const authRoutes = require("../src/routes/auth");
 const adminUsersRoutes = require("../src/routes/adminUsers");
 
@@ -63,16 +71,52 @@ async function registerUser(overrides = {}) {
   });
 }
 
-async function loginUser(identifier, password = "TestPassword!123") {
+async function loginUser(identifier, password = "TestPassword!123", cookie = "") {
   return request("/api/auth/login", {
     method: "POST",
+    headers: cookie ? { Cookie: cookie } : {},
     body: JSON.stringify({ identifier, password })
   });
 }
 
-function sessionCookie(response) {
-  const value = response.headers.get("set-cookie") || "";
-  return value.split(";")[0];
+function cookieHeader(response) {
+  const cookies = response.headers.getSetCookie();
+  return cookies
+    .map(value => value.split(";")[0])
+    .join("; ");
+}
+
+function deviceCookie(response) {
+  const value = response.headers.getSetCookie()
+    .find(cookie => cookie.startsWith("ptw_device="));
+  return value ? value.split(";")[0] : "";
+}
+
+async function assertSecurityEvents(expectedTypes) {
+  const events = await SecurityEvent.find({})
+    .sort({ sequence: 1 })
+    .lean();
+
+  const actualTypes = events.map(event => event.eventType);
+
+  for (const type of expectedTypes) {
+    assert.ok(
+      actualTypes.includes(type),
+      `Expected security event "${type}". Found: ${actualTypes.join(", ")}`
+    );
+  }
+
+  const verification = await verifySecurityEventChain();
+
+  assert.equal(
+    verification.valid,
+    true,
+    `Security event chain invalid: ${JSON.stringify(verification)}`
+  );
+
+  assert.equal(verification.checkedEvents, events.length);
+
+  return events;
 }
 
 before(async () => {
@@ -101,6 +145,11 @@ before(async () => {
   });
 
   await User.init();
+  await SecurityEvent.init();
+  await SecurityEventChain.init();
+  await Device.init();
+  await DeviceRegistration.init();
+  await DeviceTransferRequest.init();
 
   const app = express();
   app.use(express.json({ limit: "20kb" }));
@@ -121,6 +170,11 @@ before(async () => {
 beforeEach(async () => {
   if (enabled && mongoose.connection.readyState === 1) {
     await User.deleteMany({});
+    await SecurityEvent.deleteMany({});
+    await SecurityEventChain.deleteMany({});
+    await Device.deleteMany({});
+    await DeviceRegistration.deleteMany({});
+    await DeviceTransferRequest.deleteMany({});
   }
 });
 
@@ -188,8 +242,30 @@ test("valid login creates a session and /me returns the account", {
   assert.equal(login.response.status, 200);
   assert.equal(login.body.success, true);
 
-  const cookie = sessionCookie(login.response);
-  assert.match(cookie, /^ptw_session=/);
+  const loginEvents = await assertSecurityEvents([
+    "device_registered",
+    "login_success"
+  ]);
+  assert.equal(loginEvents.length, 2);
+  assert.equal(loginEvents[0].eventType, "device_registered");
+  assert.equal(loginEvents[1].outcome, "success");
+
+  const registeredDevice = await Device.findOne({});
+  const registrationRecord = await DeviceRegistration.findOne({
+    userId: account._id,
+    status: "active"
+  });
+
+  assert.ok(registeredDevice);
+  assert.ok(registrationRecord);
+  assert.equal(
+    registrationRecord.deviceId.toString(),
+    registeredDevice._id.toString()
+  );
+  assert.match(deviceCookie(login.response), /^ptw_device=/);
+
+  const cookie = cookieHeader(login.response);
+  assert.match(cookie, /(?:^|;\s*)ptw_session=/);
 
   const me = await request("/api/auth/me", {
     headers: { Cookie: cookie }
@@ -199,6 +275,151 @@ test("valid login creates a session and /me returns the account", {
   assert.equal(me.body.user.username, "test_worker");
   assert.equal(me.body.user.profilePictureUrl, pictureUrl);
   assert.equal(Object.hasOwn(me.body.user, "passwordHash"), false);
+});
+
+test("same registered browser can log in repeatedly", {
+  skip: !enabled
+}, async () => {
+  await registerUser();
+
+  const first = await loginUser("test_worker");
+  assert.equal(first.response.status, 200);
+
+  const second = await loginUser(
+    "test_worker",
+    "TestPassword!123",
+    cookieHeader(first.response)
+  );
+
+  assert.equal(second.response.status, 200);
+  assert.equal(
+    await DeviceRegistration.countDocuments({ status: "active" }),
+    1
+  );
+  assert.equal(await DeviceTransferRequest.countDocuments({}), 0);
+});
+
+test("a second browser is blocked and creates an admin-review transfer request", {
+  skip: !enabled
+}, async () => {
+  await registerUser();
+
+  const original = await loginUser("test_worker");
+  assert.equal(original.response.status, 200);
+
+  const secondBrowser = await loginUser("test_worker");
+  assert.equal(secondBrowser.response.status, 403);
+  assert.equal(secondBrowser.body.code, "DEVICE_TRANSFER_PENDING");
+  assert.match(deviceCookie(secondBrowser.response), /^ptw_device=/);
+
+  let transfer = await DeviceTransferRequest.findOne({
+    status: "pending"
+  });
+
+  assert.ok(transfer);
+  assert.equal(transfer.requestCount, 1);
+  assert.equal(transfer.failedAttempts, 1);
+
+  const repeatedAttempt = await loginUser(
+    "test_worker",
+    "TestPassword!123",
+    cookieHeader(secondBrowser.response)
+  );
+
+  assert.equal(repeatedAttempt.response.status, 403);
+  assert.equal(repeatedAttempt.body.code, "DEVICE_TRANSFER_PENDING");
+
+  transfer = await DeviceTransferRequest.findById(transfer._id);
+  assert.equal(transfer.requestCount, 2);
+  assert.equal(transfer.failedAttempts, 2);
+
+  const oldBrowserStillWorks = await request("/api/auth/me", {
+    headers: { Cookie: cookieHeader(original.response) }
+  });
+
+  assert.equal(oldBrowserStillWorks.response.status, 200);
+  assert.equal(
+    await DeviceRegistration.countDocuments({ status: "active" }),
+    1
+  );
+
+  await assertSecurityEvents([
+    "device_registered",
+    "login_success",
+    "device_transfer_requested",
+    "device_transfer_failed"
+  ]);
+});
+
+test("a revoked device cannot silently register a replacement browser", {
+  skip: !enabled
+}, async () => {
+  await registerUser();
+
+  const original = await loginUser("test_worker");
+  assert.equal(original.response.status, 200);
+
+  const account = await User.findOne({ username: "test_worker" });
+  assert.ok(account);
+
+  const originalRegistration = await DeviceRegistration.findOne({
+    userId: account._id,
+    status: "active"
+  });
+
+  assert.ok(originalRegistration);
+
+  originalRegistration.status = "revoked";
+  originalRegistration.revokedAt = new Date();
+  originalRegistration.revokedReason = "Test revocation";
+  await originalRegistration.save();
+
+  const replacementBrowser = await loginUser("test_worker");
+
+  assert.equal(replacementBrowser.response.status, 403);
+  assert.equal(
+    replacementBrowser.body.code,
+    "DEVICE_TRANSFER_PENDING"
+  );
+
+  const activeRegistrations = await DeviceRegistration.countDocuments({
+    userId: account._id,
+    status: "active"
+  });
+
+  assert.equal(activeRegistrations, 0);
+
+  assert.equal(
+    await DeviceRegistration.countDocuments({ userId: account._id }),
+    1
+  );
+
+  const transfer = await DeviceTransferRequest.findOne({
+    userId: account._id,
+    status: "pending"
+  });
+
+  assert.ok(transfer);
+  assert.equal(
+    transfer.oldRegistrationId.toString(),
+    originalRegistration._id.toString()
+  );
+  assert.equal(
+    transfer.oldDeviceId.toString(),
+    originalRegistration.deviceId.toString()
+  );
+  assert.equal(transfer.requestCount, 1);
+
+  const events = await assertSecurityEvents([
+    "device_registered",
+    "login_success",
+    "device_transfer_requested"
+  ]);
+
+  assert.equal(
+    events.filter(event => event.eventType === "device_registered").length,
+    1
+  );
 });
 
 test("wrong password is rejected", {
@@ -213,6 +434,10 @@ test("wrong password is rejected", {
 
   assert.equal(response.status, 401);
   assert.equal(body.success, false);
+
+  const events = await assertSecurityEvents(["login_failed"]);
+  assert.equal(events.length, 1);
+  assert.equal(events[0].outcome, "denied");
 });
 
 test("suspended account cannot log in", {
@@ -227,6 +452,10 @@ test("suspended account cannot log in", {
   const { response } = await loginUser("test_worker");
 
   assert.equal(response.status, 403);
+
+  const events = await assertSecurityEvents(["login_failed"]);
+  assert.equal(events.length, 1);
+  assert.equal(events[0].outcome, "denied");
 });
 
 test("session endpoint rejects missing and invalid cookies", {
@@ -242,19 +471,34 @@ test("session endpoint rejects missing and invalid cookies", {
   assert.equal(invalid.response.status, 401);
 });
 
-test("logout clears the session cookie", {
+test("logout records an event and clears the session cookie", {
   skip: !enabled
 }, async () => {
-  const { response, body } = await request("/api/auth/logout", {
-    method: "POST"
+  await registerUser();
+
+  const login = await loginUser("test_worker");
+  assert.equal(login.response.status, 200);
+
+  const result = await request("/api/auth/logout", {
+    method: "POST",
+    headers: { Cookie: cookieHeader(login.response) }
   });
 
-  assert.equal(response.status, 200);
-  assert.equal(body.success, true);
+  assert.equal(result.response.status, 200);
+  assert.equal(result.body.success, true);
 
-  const cookie = response.headers.get("set-cookie") || "";
+  const cookie = result.response.headers.get("set-cookie") || "";
   assert.match(cookie, /ptw_session=/);
   assert.match(cookie, /Expires=/i);
+
+  const events = await assertSecurityEvents([
+    "device_registered",
+    "login_success",
+    "logout"
+  ]);
+
+  assert.equal(events.length, 3);
+  assert.equal(events[2].outcome, "success");
 });
 
 test("ordinary user cannot access admin user management", {
@@ -266,7 +510,7 @@ test("ordinary user cannot access admin user management", {
   assert.equal(login.response.status, 200);
 
   const result = await request("/api/admin/users", {
-    headers: { Cookie: sessionCookie(login.response) }
+    headers: { Cookie: cookieHeader(login.response) }
   });
 
   assert.equal(result.response.status, 403);
@@ -284,6 +528,14 @@ test("password recovery returns a generic response for unknown emails", {
   assert.equal(result.response.status, 200);
   assert.equal(result.body.success, true);
   assert.match(result.body.message, /if an account exists/i);
+
+  const events = await assertSecurityEvents([
+    "password_reset_requested"
+  ]);
+
+  assert.equal(events.length, 1);
+  assert.equal(events[0].outcome, "pending");
+  assert.equal(events[0].userId, null);
 });
 
 test("password reset is single-use and invalidates existing sessions", {
@@ -294,7 +546,7 @@ test("password reset is single-use and invalidates existing sessions", {
 
   const login = await loginUser("test_worker");
   assert.equal(login.response.status, 200);
-  const oldCookie = sessionCookie(login.response);
+  const oldCookie = cookieHeader(login.response);
 
   let deliveredToken;
   const originalSender = passwordResetEmailService.sendPasswordResetEmail;
@@ -348,9 +600,37 @@ test("password reset is single-use and invalidates existing sessions", {
     });
     assert.equal(oldSession.response.status, 401);
 
-    const newLogin = await loginUser("test_worker", newPassword);
+    const newLogin = await loginUser(
+      "test_worker",
+      newPassword,
+      deviceCookie(login.response)
+    );
     assert.equal(newLogin.response.status, 200);
     assert.equal(newLogin.body.success, true);
+
+    const events = await assertSecurityEvents([
+      "login_success",
+      "password_reset_requested",
+      "password_reset_completed",
+      "session_revoked"
+    ]);
+
+    assert.equal(
+      events.filter(event => event.eventType === "login_success").length,
+      2
+    );
+    assert.equal(
+      events.filter(event => event.eventType === "password_reset_requested").length,
+      1
+    );
+    assert.equal(
+      events.filter(event => event.eventType === "password_reset_completed").length,
+      1
+    );
+    assert.equal(
+      events.filter(event => event.eventType === "session_revoked").length,
+      1
+    );
   } finally {
     passwordResetEmailService.sendPasswordResetEmail = originalSender;
   }
@@ -413,6 +693,13 @@ test("password recovery clears reset credentials if email delivery fails", {
     assert.ok(user);
     assert.ok(!user.passwordResetTokenHash);
     assert.ok(!user.passwordResetExpiresAt);
+
+    const events = await assertSecurityEvents([
+      "password_reset_requested"
+    ]);
+
+    assert.equal(events.length, 1);
+    assert.equal(events[0].outcome, "failed");
   } finally {
     passwordResetEmailService.sendPasswordResetEmail = originalSender;
   }

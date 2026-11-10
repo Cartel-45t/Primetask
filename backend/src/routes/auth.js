@@ -7,6 +7,9 @@ const rateLimit = require("express-rate-limit");
 const User = require("../models/User");
 const passwordResetEmailService = require("../services/passwordResetEmailService");
 const PlatformSetting = require("../models/PlatformSetting");
+const securityEventChainService = require("../services/securityEventChainService");
+const deviceAccessService = require("../services/deviceAccessService");
+const requireAuth = require("../middleware/requireAuth");
 
 const router = express.Router();
 
@@ -61,6 +64,29 @@ function normalizeText(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+async function recordAuthSecurityEvent(req, event) {
+  try {
+    await securityEventChainService.recordSecurityEvent({
+      ...event,
+      ipAddress: req.ip || null,
+      userAgent: String(req.get("user-agent") || "").slice(0, 1000) || null,
+      method: req.method,
+      path: String(req.path || "").split("?")[0].slice(0, 500),
+      requestId: req.id || null
+    });
+
+    return true;
+  } catch (error) {
+    // Diagnostic details stay in server logs and are never sent to clients.
+    console.error("Authentication security event recording failed:", {
+      name: error?.name,
+      code: error?.code,
+      message: error?.message
+    });
+    return false;
+  }
+}
+
 const forgotPasswordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 5,
@@ -69,6 +95,16 @@ const forgotPasswordLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many password reset requests. Try again later."
+  },
+  handler: async (req, res, next, options) => {
+    await recordAuthSecurityEvent(req, {
+      eventType: "rate_limit_triggered",
+      severity: "warning",
+      outcome: "denied",
+      message: "Password reset request rate limit exceeded."
+    });
+
+    return res.status(options.statusCode).json(options.message);
   }
 });
 
@@ -80,6 +116,16 @@ const resetPasswordLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many password reset attempts. Try again later."
+  },
+  handler: async (req, res, next, options) => {
+    await recordAuthSecurityEvent(req, {
+      eventType: "rate_limit_triggered",
+      severity: "warning",
+      outcome: "denied",
+      message: "Password reset attempt rate limit exceeded."
+    });
+
+    return res.status(options.statusCode).json(options.message);
   }
 });
 
@@ -106,6 +152,13 @@ router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
+      await recordAuthSecurityEvent(req, {
+        eventType: "password_reset_requested",
+        severity: "info",
+        outcome: "pending",
+        message: "Password reset requested for an unrecognized account."
+      });
+
       return res.status(200).json(PASSWORD_RESET_RESPONSE);
     }
 
@@ -116,6 +169,8 @@ router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
     user.passwordResetExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
     await user.save();
 
+    let emailDelivered = true;
+
     try {
       await passwordResetEmailService.sendPasswordResetEmail({
         email: user.email,
@@ -123,11 +178,22 @@ router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
         token: rawToken
       });
     } catch (emailError) {
+      emailDelivered = false;
       user.passwordResetTokenHash = null;
       user.passwordResetExpiresAt = null;
       await user.save().catch(() => {});
-      console.error("Password reset email delivery failed:", emailError.message);
+      console.error("Password reset email delivery failed.");
     }
+
+    await recordAuthSecurityEvent(req, {
+      eventType: "password_reset_requested",
+      severity: emailDelivered ? "info" : "warning",
+      outcome: emailDelivered ? "success" : "failed",
+      userId: user._id,
+      message: emailDelivered
+        ? "Password reset instructions sent."
+        : "Password reset email delivery failed."
+    });
 
     return res.status(200).json(PASSWORD_RESET_RESPONSE);
   } catch (error) {
@@ -185,6 +251,22 @@ router.post("/reset-password", resetPasswordLimiter, async (req, res) => {
         message: "The reset link is invalid or expired, or the password does not meet the requirements."
       });
     }
+
+    await recordAuthSecurityEvent(req, {
+      eventType: "password_reset_completed",
+      severity: "warning",
+      outcome: "success",
+      userId: updatedUser._id,
+      message: "Password reset completed successfully."
+    });
+
+    await recordAuthSecurityEvent(req, {
+      eventType: "session_revoked",
+      severity: "info",
+      outcome: "success",
+      userId: updatedUser._id,
+      message: "Existing sessions invalidated after password reset."
+    });
 
     return res.status(200).json({
       success: true,
@@ -402,6 +484,13 @@ router.post("/login", async (req, res) => {
     }).select("+passwordHash");
 
     if (!user) {
+      await recordAuthSecurityEvent(req, {
+        eventType: "login_failed",
+        severity: "warning",
+        outcome: "denied",
+        message: "Login rejected."
+      });
+
       return res.status(401).json({
         success: false,
         message: "Invalid login details."
@@ -414,6 +503,14 @@ router.post("/login", async (req, res) => {
     );
 
     if (!passwordMatches) {
+      await recordAuthSecurityEvent(req, {
+        eventType: "login_failed",
+        severity: "warning",
+        outcome: "denied",
+        userId: user._id,
+        message: "Login rejected."
+      });
+
       return res.status(401).json({
         success: false,
         message: "Invalid login details."
@@ -425,14 +522,65 @@ router.post("/login", async (req, res) => {
         ? "This account has been suspended."
         : "This account is inactive and requires activation.";
 
+      await recordAuthSecurityEvent(req, {
+        eventType: "login_failed",
+        severity: "warning",
+        outcome: "denied",
+        userId: user._id,
+        message: "Login rejected because the account is not active."
+      });
+
       return res.status(403).json({
         success: false,
         message
       });
     }
 
+    let deviceAccess;
+
+    try {
+      deviceAccess = await deviceAccessService.authorizeLoginDevice(
+        req,
+        res,
+        user
+      );
+    } catch (deviceError) {
+      console.error("Device authorization failed:", {
+        name: deviceError?.name,
+        code: deviceError?.code,
+        message: deviceError?.message
+      });
+      return res.status(503).json({
+        success: false,
+        message: "Device security verification is temporarily unavailable."
+      });
+    }
+
+    if (!deviceAccess.allowed) {
+      return res.status(deviceAccess.status || 403).json({
+        success: false,
+        code: deviceAccess.code || "DEVICE_ACCESS_DENIED",
+        message: deviceAccess.message || "This browser is not authorized."
+      });
+    }
+
     user.lastLoginAt = new Date();
     await user.save();
+
+    const eventRecorded = await recordAuthSecurityEvent(req, {
+      eventType: "login_success",
+      severity: "info",
+      outcome: "success",
+      userId: user._id,
+      message: "User login successful."
+    });
+
+    if (!eventRecorded) {
+      return res.status(503).json({
+        success: false,
+        message: "Sign-in is temporarily unavailable. Please try again."
+      });
+    }
 
     const token = createToken(user);
 
@@ -457,7 +605,28 @@ router.post("/login", async (req, res) => {
 /*
  * POST /api/auth/logout
  */
-router.post("/logout", (req, res) => {
+router.post("/logout", async (req, res) => {
+  const token = req.cookies?.[COOKIE_NAME];
+
+  if (token) {
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET, {
+        issuer: "primetask-workspace",
+        audience: "primetask-workspace-users"
+      });
+
+      await recordAuthSecurityEvent(req, {
+        eventType: "logout",
+        severity: "info",
+        outcome: "success",
+        userId: payload.sub,
+        message: "User signed out."
+      });
+    } catch {
+      // Invalid or expired sessions must still be cleared.
+    }
+  }
+
   res.clearCookie(COOKIE_NAME, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -474,54 +643,11 @@ router.post("/logout", (req, res) => {
 /*
  * GET /api/auth/me
  */
-router.get("/me", async (req, res) => {
+router.get("/me", requireAuth, async (req, res) => {
   try {
-    const token = req.cookies[COOKIE_NAME];
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "You are not signed in."
-      });
-    }
-
-    let payload;
-
-    try {
-      payload = jwt.verify(token, process.env.JWT_SECRET, {
-        issuer: "primetask-workspace",
-        audience: "primetask-workspace-users"
-      });
-    } catch {
-      res.clearCookie(COOKIE_NAME, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        path: "/"
-      });
-
-      return res.status(401).json({
-        success: false,
-        message: "Your session has expired. Please sign in again."
-      });
-    }
-
-    const user = await User.findById(payload.sub);
-
-    if (
-      !user ||
-      user.status !== "active" ||
-      Number(payload.sv || 0) !== Number(user.sessionVersion || 0)
-    ) {
-      return res.status(401).json({
-        success: false,
-        message: "Your account is unavailable."
-      });
-    }
-
     return res.json({
       success: true,
-      user: publicUser(user)
+      user: publicUser(req.user)
     });
   } catch (error) {
     console.error("Session check error:", error.message);
