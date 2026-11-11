@@ -5,7 +5,10 @@ const crypto = require("node:crypto");
 const rateLimit = require("express-rate-limit");
 
 const User = require("../models/User");
+const EmailVerification = require("../models/EmailVerification");
+const EmailVerificationThrottle = require("../models/EmailVerificationThrottle");
 const passwordResetEmailService = require("../services/passwordResetEmailService");
+const emailVerificationService = require("../services/emailVerificationService");
 const PlatformSetting = require("../models/PlatformSetting");
 const securityEventChainService = require("../services/securityEventChainService");
 const deviceAccessService = require("../services/deviceAccessService");
@@ -213,7 +216,7 @@ router.post("/reset-password", resetPasswordLimiter, async (req, res) => {
     typeof token !== "string" ||
     !/^[a-f0-9]{64}$/i.test(token) ||
     typeof password !== "string" ||
-    password.length < 12 ||
+    password.length < 6 ||
     password.length > 72
   ) {
     return res.status(400).json({
@@ -280,6 +283,455 @@ router.post("/reset-password", resetPasswordLimiter, async (req, res) => {
     });
   }
 });
+
+
+/*
+ * POST /api/auth/verify-email
+ */
+router.post(
+  "/verify-email",
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: "draft-8",
+    legacyHeaders: false
+  }),
+  async (req, res) => {
+    try {
+      const email = normalizeText(req.body?.email).toLowerCase();
+      const code = normalizeText(req.body?.code || req.body?.otp);
+
+      if (
+        !email ||
+        email.length > 254 ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+        !/^\d{6}$/.test(code)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Enter a valid email address and six-digit verification code."
+        });
+      }
+
+      const user = await User.findOne({ email });
+
+      if (!user || user.emailVerificationRequired !== true) {
+        return res.status(400).json({
+          success: false,
+          message: "The verification request is invalid or has expired."
+        });
+      }
+
+      if (user.emailVerified === true) {
+        return res.status(400).json({
+          success: false,
+          message: "This email address is already verified. The code cannot be reused."
+        });
+      }
+
+      const verification = await EmailVerification.findOne({
+        userId: user._id,
+        email
+      }).select("+codeHash +pendingCodeHash");
+
+      const now = new Date();
+
+      if (!verification) {
+        return res.status(400).json({
+          success: false,
+          message: "The verification code is invalid or expired. Request a new code."
+        });
+      }
+
+      if (verification.attempts >= emailVerificationService.MAX_ATTEMPTS) {
+        return res.status(429).json({
+          success: false,
+          message: "Too many incorrect attempts. Request a new verification code."
+        });
+      }
+
+      const activeCodeExpiry =
+        verification.activeExpiresAt || verification.expiresAt;
+
+      const activeCodeValid =
+        activeCodeExpiry > now &&
+        emailVerificationService.verifyCodeHash({
+          userId: user._id,
+          email,
+          code,
+          storedHash: verification.codeHash
+        });
+
+      const pendingCodeValid =
+        Boolean(verification.pendingCodeHash) &&
+        Boolean(verification.pendingExpiresAt) &&
+        verification.pendingExpiresAt > now &&
+        emailVerificationService.verifyCodeHash({
+          userId: user._id,
+          email,
+          code,
+          storedHash: verification.pendingCodeHash
+        });
+
+      if (!activeCodeValid && !pendingCodeValid) {
+        await EmailVerification.updateOne(
+          {
+            _id: verification._id,
+            attempts: { $lt: emailVerificationService.MAX_ATTEMPTS }
+          },
+          { $inc: { attempts: 1 } }
+        );
+
+        return res.status(400).json({
+          success: false,
+          message: "The verification code is incorrect."
+        });
+      }
+
+      const matchedCodeFilter = pendingCodeValid
+        ? {
+            pendingCodeHash: verification.pendingCodeHash,
+            pendingExpiresAt: { $gt: now }
+          }
+        : {
+            codeHash: verification.codeHash,
+            $or: [
+              { activeExpiresAt: { $gt: now } },
+              {
+                activeExpiresAt: { $exists: false },
+                expiresAt: { $gt: now }
+              }
+            ]
+          };
+
+      const session = await User.db.startSession();
+      try {
+        await session.withTransaction(async () => {
+          const consumed = await EmailVerification.findOneAndDelete({
+            _id: verification._id,
+            userId: user._id,
+            email,
+            ...matchedCodeFilter,
+            attempts: { $lt: emailVerificationService.MAX_ATTEMPTS }
+          }).session(session);
+
+          if (!consumed) {
+            const error = new Error("Verification record expired or was already consumed.");
+            error.code = "OTP_RECORD_UNAVAILABLE";
+            throw error;
+          }
+
+          const updatedUser = await User.findOneAndUpdate(
+            {
+              _id: user._id,
+              email: verification.email,
+              emailVerificationRequired: true,
+              emailVerified: false
+            },
+            { $set: { emailVerified: true } },
+            {
+              returnDocument: "after",
+              runValidators: true,
+              session
+            }
+          );
+
+          if (!updatedUser) {
+            const error = new Error("Account is no longer eligible for verification.");
+            error.code = "ACCOUNT_NOT_VERIFIABLE";
+            throw error;
+          }
+        });
+      } catch (error) {
+        if (error.code === "OTP_RECORD_UNAVAILABLE") {
+          return res.status(400).json({
+            success: false,
+            message: "The verification code is invalid or expired. Request a new code."
+          });
+        }
+
+        if (error.code === "ACCOUNT_NOT_VERIFIABLE") {
+          return res.status(409).json({
+            success: false,
+            message: "Unable to complete email verification. The account may already be verified."
+          });
+        }
+
+        throw error;
+      } finally {
+        await session.endSession();
+      }
+
+      await recordAuthSecurityEvent(req, {
+        eventType: "email_verified",
+        severity: "info",
+        outcome: "success",
+        userId: user._id,
+        message: "Registration email address verified."
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Email verified successfully. You can now sign in."
+      });
+    } catch (error) {
+      console.error("Email verification failed:", error.message);
+      return res.status(500).json({
+        success: false,
+        message: "Unable to verify your email right now. Please try again."
+      });
+    }
+  }
+);
+
+/*
+ * POST /api/auth/resend-verification
+ */
+router.post(
+  "/resend-verification",
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 8,
+    standardHeaders: "draft-8",
+    legacyHeaders: false
+  }),
+  async (req, res) => {
+    const genericResponse = {
+      success: true,
+      message: "If the account requires verification, a new code will be sent when eligible."
+    };
+
+    try {
+      const email = normalizeText(req.body?.email).toLowerCase();
+
+      if (
+        !email ||
+        email.length > 254 ||
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+      ) {
+        return res.status(200).json(genericResponse);
+      }
+
+      const user = await User.findOne({
+        email,
+        emailVerificationRequired: true,
+        emailVerified: false
+      });
+
+      if (!user) return res.status(200).json(genericResponse);
+
+      const now = new Date();
+      const cooldownCutoff = new Date(
+        now.getTime() - emailVerificationService.RESEND_COOLDOWN_MS
+      );
+      const windowCutoff = new Date(
+        now.getTime() - emailVerificationService.RESEND_WINDOW_MS
+      );
+
+      try {
+        await EmailVerificationThrottle.findOneAndUpdate(
+          { userId: user._id },
+          {
+            $setOnInsert: {
+              windowStartedAt: now,
+              resendCount: 0,
+              lastSentAt: new Date(0)
+            }
+          },
+          {
+            upsert: true,
+            returnDocument: "after",
+            runValidators: true
+          }
+        );
+      } catch (seedError) {
+        if (seedError.code !== 11000) throw seedError;
+      }
+
+      const reservation = await EmailVerificationThrottle.findOneAndUpdate(
+        {
+          userId: user._id,
+          $expr: {
+            $and: [
+              { $lte: ["$lastSentAt", cooldownCutoff] },
+              {
+                $or: [
+                  { $lte: ["$windowStartedAt", windowCutoff] },
+                  {
+                    $lt: [
+                      "$resendCount",
+                      emailVerificationService.MAX_RESENDS_PER_WINDOW
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        [
+          {
+            $set: {
+              windowStartedAt: {
+                $cond: [
+                  { $lte: ["$windowStartedAt", windowCutoff] },
+                  now,
+                  "$windowStartedAt"
+                ]
+              },
+              resendCount: {
+                $cond: [
+                  { $lte: ["$windowStartedAt", windowCutoff] },
+                  1,
+                  { $add: [{ $ifNull: ["$resendCount", 0] }, 1] }
+                ]
+              },
+              lastSentAt: now
+            }
+          }
+        ],
+        { returnDocument: "after" }
+      );
+
+      if (!reservation) return res.status(200).json(genericResponse);
+
+      const previousVerification = await EmailVerification.findOne({
+        userId: user._id
+      }).select("_id expiresAt activeExpiresAt").lean();
+
+      const code = emailVerificationService.generateVerificationCode();
+      const codeHash = emailVerificationService.hashVerificationCode({
+        userId: user._id,
+        email: user.email,
+        code
+      });
+      const expiresAt = new Date(
+        now.getTime() + emailVerificationService.OTP_LIFETIME_MS
+      );
+
+      const verification = await EmailVerification.findOneAndUpdate(
+        { userId: user._id },
+        {
+          $set: {
+            email: user.email,
+            pendingCodeHash: codeHash,
+            pendingExpiresAt: expiresAt,
+            expiresAt,
+            ...(previousVerification
+              ? {
+                  activeExpiresAt:
+                    previousVerification.activeExpiresAt ||
+                    previousVerification.expiresAt
+                }
+              : {})
+          },
+          $setOnInsert: {
+            codeHash,
+            attempts: 0,
+            sentAt: now,
+            resendWindowStartedAt: now,
+            resendCount: 0
+          }
+        },
+        {
+          upsert: true,
+          returnDocument: "after",
+          runValidators: true,
+          setDefaultsOnInsert: true
+        }
+      );
+
+      try {
+        await emailVerificationService.sendVerificationEmail({
+          email: user.email,
+          firstName: user.firstName,
+          code
+        });
+      } catch (emailError) {
+        if (previousVerification) {
+          await EmailVerification.updateOne(
+            {
+              _id: verification._id,
+              pendingCodeHash: codeHash
+            },
+            {
+              $set: {
+                expiresAt:
+                  previousVerification.activeExpiresAt ||
+                  previousVerification.expiresAt
+              },
+              $unset: {
+                pendingCodeHash: 1,
+                pendingExpiresAt: 1,
+                activeExpiresAt: 1
+              }
+            }
+          ).catch(() => {});
+        } else {
+          await EmailVerification.deleteOne({
+            _id: verification._id,
+            pendingCodeHash: codeHash
+          }).catch(() => {});
+        }
+
+        await EmailVerificationThrottle.updateOne(
+          { userId: user._id },
+          { $set: { lastSentAt: new Date(0) } }
+        ).catch(() => {});
+
+        console.error("Verification resend delivery failed:", {
+          name: emailError?.name,
+          message: emailError?.message
+        });
+
+        return res.status(200).json(genericResponse);
+      }
+
+      const promoted = await EmailVerification.findOneAndUpdate(
+        {
+          _id: verification._id,
+          pendingCodeHash: codeHash,
+          pendingExpiresAt: expiresAt
+        },
+        {
+          $set: {
+            codeHash,
+            expiresAt,
+            attempts: 0,
+            sentAt: now
+          },
+          $unset: {
+            pendingCodeHash: 1,
+            pendingExpiresAt: 1,
+            activeExpiresAt: 1
+          }
+        },
+        {
+          returnDocument: "after",
+          runValidators: true
+        }
+      );
+
+      if (!promoted) {
+        console.error(
+          "Verification email was delivered but pending OTP promotion did not complete."
+        );
+      }
+
+      await recordAuthSecurityEvent(req, {
+        eventType: "email_verification_sent",
+        severity: "info",
+        outcome: "success",
+        userId: user._id,
+        message: "Registration verification code resent."
+      });
+
+      return res.status(200).json(genericResponse);
+    } catch (error) {
+      console.error("Verification resend failed:", error.message);
+      return res.status(200).json(genericResponse);
+    }
+  }
+);
 
 /*
  * POST /api/auth/register
@@ -366,10 +818,10 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    if (password.length < 12 || password.length > 72) {
+    if (password.length < 6 || password.length > 72) {
       return res.status(400).json({
         success: false,
-        message: "Password must contain 12–72 characters."
+        message: "Password must contain 6–72 characters."
       });
     }
 
@@ -423,13 +875,90 @@ router.post("/register", async (req, res) => {
       email,
       phone,
       passwordHash,
+      emailVerificationRequired: true,
+      emailVerified: false,
       selectedService: selectedService || null,
       referredBy: sponsor ? sponsor._id : null
     });
 
+    const verificationCode =
+      emailVerificationService.generateVerificationCode();
+    const now = new Date();
+
+    await EmailVerification.findOneAndUpdate(
+      { userId: user._id },
+      {
+        $set: {
+          email: user.email,
+          codeHash: emailVerificationService.hashVerificationCode({
+            userId: user._id,
+            email: user.email,
+            code: verificationCode
+          }),
+          expiresAt: new Date(
+            now.getTime() + emailVerificationService.OTP_LIFETIME_MS
+          ),
+          attempts: 0,
+          sentAt: now,
+          resendWindowStartedAt: now,
+          resendCount: 0
+        }
+      },
+      { upsert: true, new: true, runValidators: true }
+    );
+
+    await EmailVerificationThrottle.findOneAndUpdate(
+      { userId: user._id },
+      {
+        $setOnInsert: {
+          windowStartedAt: now,
+          resendCount: 0,
+          lastSentAt: now
+        }
+      },
+      { upsert: true, returnDocument: "after", runValidators: true }
+    );
+
+    try {
+      await emailVerificationService.sendVerificationEmail({
+        email: user.email,
+        firstName: user.firstName,
+        code: verificationCode
+      });
+    } catch (emailError) {
+      await EmailVerificationThrottle.updateOne(
+        { userId: user._id },
+        { $set: { lastSentAt: new Date(0) } }
+      ).catch((throttleError) => {
+        console.error("Unable to release initial verification cooldown:", throttleError.message);
+      });
+
+      console.error("Registration verification email delivery failed:", {
+        name: emailError?.name,
+        message: emailError?.message
+      });
+
+      return res.status(503).json({
+        success: false,
+        code: "VERIFICATION_EMAIL_FAILED",
+        email: user.email,
+        message: "Your account was created, but the verification email could not be delivered. Request a new code to try again."
+      });
+    }
+
+    await recordAuthSecurityEvent(req, {
+      eventType: "email_verification_sent",
+      severity: "info",
+      outcome: "success",
+      userId: user._id,
+      message: "Registration verification code sent."
+    });
+
     return res.status(201).json({
       success: true,
-      message: "Your account has been created. You can now sign in.",
+      verificationRequired: true,
+      email: user.email,
+      message: "Account created. Enter the verification code sent to your email.",
       user: publicUser(user)
     });
   } catch (error) {
@@ -535,6 +1064,27 @@ router.post("/login", async (req, res) => {
         message
       });
     }
+
+      if (
+        user.emailVerificationRequired === true &&
+        user.emailVerified !== true
+      ) {
+        await recordAuthSecurityEvent(req, {
+          eventType: "login_failed",
+          severity: "warning",
+          outcome: "denied",
+          userId: user._id,
+          message: "Login rejected because registration email is not verified."
+        });
+
+        return res.status(403).json({
+          success: false,
+          code: "EMAIL_NOT_VERIFIED",
+          message: "Verify your email address before signing in.",
+          verificationUrl: "/auth/verify-email.html"
+        });
+      }
+
 
     let deviceAccess;
 

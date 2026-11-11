@@ -17,12 +17,21 @@ const passwordResetEmailService = require("../src/services/passwordResetEmailSer
 const testUri = process.env.PTW_TEST_MONGODB_URI;
 const enabled = Boolean(testUri);
 
+const emailVerificationService = require("../src/services/emailVerificationService");
+let deliveredOtp = null;
+const originalVerificationSender = emailVerificationService.sendVerificationEmail;
+emailVerificationService.sendVerificationEmail = async ({ code }) => {
+  deliveredOtp = code;
+  return true;
+};
+
 // Never sign integration-test tokens with the production secret.
 process.env.JWT_SECRET =
   process.env.PTW_TEST_JWT_SECRET ||
   "ptw-v3-integration-test-secret-only";
 
 const User = require("../src/models/User");
+const EmailVerification = require("../src/models/EmailVerification");
 const SecurityEvent = require("../src/models/SecurityEvent");
 const SecurityEventChain = require("../src/models/SecurityEventChain");
 const Device = require("../src/models/Device");
@@ -51,11 +60,15 @@ function registration(overrides = {}) {
   };
 }
 
+let requestIpCounter = 1;
+let currentTestIp = "198.51.100.1";
+
 async function request(path, options = {}) {
   const response = await fetch(baseUrl + path, {
     ...options,
     headers: {
       ...(options.body ? { "Content-Type": "application/json" } : {}),
+      "X-Forwarded-For": currentTestIp,
       ...options.headers
     }
   });
@@ -69,6 +82,22 @@ async function registerUser(overrides = {}) {
     method: "POST",
     body: JSON.stringify(registration(overrides))
   });
+}
+
+async function registerAndVerify(overrides = {}) {
+  const details = registration(overrides);
+  const registered = await registerUser(overrides);
+  assert.equal(registered.response.status, 201);
+  assert.match(deliveredOtp || "", /^\d{6}$/);
+
+  const verified = await request("/api/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ email: details.email, code: deliveredOtp })
+  });
+
+  assert.equal(verified.response.status, 200);
+  assert.equal(verified.body.success, true);
+  return registered;
 }
 
 async function loginUser(identifier, password = "TestPassword!123", cookie = "") {
@@ -116,7 +145,7 @@ async function assertSecurityEvents(expectedTypes) {
 
   assert.equal(verification.checkedEvents, events.length);
 
-  return events;
+  return events.filter(event => expectedTypes.includes(event.eventType));
 }
 
 before(async () => {
@@ -145,6 +174,7 @@ before(async () => {
   });
 
   await User.init();
+  await EmailVerification.init();
   await SecurityEvent.init();
   await SecurityEventChain.init();
   await Device.init();
@@ -152,6 +182,7 @@ before(async () => {
   await DeviceTransferRequest.init();
 
   const app = express();
+  app.set("trust proxy", 1);
   app.use(express.json({ limit: "20kb" }));
   app.use(cookieParser());
   app.use("/api/auth", authRoutes);
@@ -168,8 +199,13 @@ before(async () => {
 });
 
 beforeEach(async () => {
+  requestIpCounter = requestIpCounter >= 254 ? 1 : requestIpCounter + 1;
+  currentTestIp = `198.51.100.${requestIpCounter}`;
+
   if (enabled && mongoose.connection.readyState === 1) {
     await User.deleteMany({});
+    await EmailVerification.deleteMany({});
+    deliveredOtp = null;
     await SecurityEvent.deleteMany({});
     await SecurityEventChain.deleteMany({});
     await Device.deleteMany({});
@@ -179,6 +215,7 @@ beforeEach(async () => {
 });
 
 after(async () => {
+  emailVerificationService.sendVerificationEmail = originalVerificationSender;
   if (server) {
     await new Promise(resolve => server.close(resolve));
   }
@@ -197,6 +234,80 @@ test("registration creates a user without exposing the password hash", {
   assert.equal(body.success, true);
   assert.equal(body.user.username, "test_worker");
   assert.equal(Object.hasOwn(body.user, "passwordHash"), false);
+});
+
+test("unverified registration cannot log in or register a device", {
+  skip: !enabled
+}, async () => {
+  const registered = await registerUser();
+  assert.equal(registered.response.status, 201);
+  assert.equal(registered.body.verificationRequired, true);
+
+  const account = await User.findOne({ username: "test_worker" });
+  assert.ok(account);
+  assert.equal(account.emailVerified, false);
+  assert.equal(account.emailVerificationRequired, true);
+
+  const login = await loginUser("test_worker");
+  assert.equal(login.response.status, 403);
+  assert.equal(login.body.code, "EMAIL_NOT_VERIFIED");
+
+  assert.equal(await Device.countDocuments({}), 0);
+  assert.equal(await DeviceRegistration.countDocuments({}), 0);
+  assert.equal(await DeviceTransferRequest.countDocuments({}), 0);
+  assert.equal(login.response.headers.getSetCookie().some(
+    value => value.startsWith("ptw_session=")
+  ), false);
+});
+
+test("valid email OTP verifies the account and cannot be reused", {
+  skip: !enabled
+}, async () => {
+  const registered = await registerUser();
+  assert.equal(registered.response.status, 201);
+
+  const code = deliveredOtp;
+  assert.match(code || "", /^\d{6}$/);
+
+  const verified = await request("/api/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ email: "worker@example.test", code })
+  });
+
+  assert.equal(verified.response.status, 200);
+  assert.equal(verified.body.success, true);
+
+  const account = await User.findOne({ username: "test_worker" });
+  assert.equal(account.emailVerified, true);
+
+  const replay = await request("/api/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ email: "worker@example.test", code })
+  });
+
+  assert.equal(replay.response.status, 400);
+
+  const login = await loginUser("test_worker");
+  assert.equal(login.response.status, 200);
+});
+
+test("incorrect email OTP is rejected", {
+  skip: !enabled
+}, async () => {
+  await registerUser();
+
+  const result = await request("/api/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify({
+      email: "worker@example.test",
+      code: deliveredOtp === "000000" ? "000001" : "000000"
+    })
+  });
+
+  assert.equal(result.response.status, 400);
+
+  const account = await User.findOne({ username: "test_worker" });
+  assert.equal(account.emailVerified, false);
 });
 
 test("duplicate email or username is rejected", {
@@ -226,7 +337,7 @@ test("invalid registration input is rejected", {
 test("valid login creates a session and /me returns the account", {
   skip: !enabled
 }, async () => {
-  await registerUser();
+  await registerAndVerify();
 
   const pictureUrl =
     "https://res.cloudinary.com/example/image/upload/test-profile.jpg";
@@ -280,7 +391,7 @@ test("valid login creates a session and /me returns the account", {
 test("same registered browser can log in repeatedly", {
   skip: !enabled
 }, async () => {
-  await registerUser();
+  await registerAndVerify();
 
   const first = await loginUser("test_worker");
   assert.equal(first.response.status, 200);
@@ -302,7 +413,7 @@ test("same registered browser can log in repeatedly", {
 test("a second browser is blocked and creates an admin-review transfer request", {
   skip: !enabled
 }, async () => {
-  await registerUser();
+  await registerAndVerify();
 
   const original = await loginUser("test_worker");
   assert.equal(original.response.status, 200);
@@ -354,7 +465,7 @@ test("a second browser is blocked and creates an admin-review transfer request",
 test("a revoked device cannot silently register a replacement browser", {
   skip: !enabled
 }, async () => {
-  await registerUser();
+  await registerAndVerify();
 
   const original = await loginUser("test_worker");
   assert.equal(original.response.status, 200);
@@ -474,7 +585,7 @@ test("session endpoint rejects missing and invalid cookies", {
 test("logout records an event and clears the session cookie", {
   skip: !enabled
 }, async () => {
-  await registerUser();
+  await registerAndVerify();
 
   const login = await loginUser("test_worker");
   assert.equal(login.response.status, 200);
@@ -504,7 +615,7 @@ test("logout records an event and clears the session cookie", {
 test("ordinary user cannot access admin user management", {
   skip: !enabled
 }, async () => {
-  await registerUser();
+  await registerAndVerify();
 
   const login = await loginUser("test_worker");
   assert.equal(login.response.status, 200);
@@ -541,7 +652,7 @@ test("password recovery returns a generic response for unknown emails", {
 test("password reset is single-use and invalidates existing sessions", {
   skip: !enabled
 }, async () => {
-  const registered = await registerUser();
+  const registered = await registerAndVerify();
   assert.equal(registered.response.status, 201);
 
   const login = await loginUser("test_worker");
@@ -639,7 +750,7 @@ test("password reset is single-use and invalidates existing sessions", {
 test("expired password reset token is rejected without changing the password", {
   skip: !enabled
 }, async () => {
-  const registered = await registerUser();
+  const registered = await registerAndVerify();
   assert.equal(registered.response.status, 201);
 
   const rawToken = crypto.randomBytes(32).toString("hex");

@@ -22,6 +22,8 @@ const securityEventSchema = new mongoose.Schema(
         "device_access_denied",
         "password_reset_requested",
         "password_reset_completed",
+        "email_verification_sent",
+        "email_verified",
         "rate_limit_triggered",
         "suspicious_request",
         "admin_security_action"

@@ -92,6 +92,11 @@ const userSchema = new mongoose.Schema(
       default: false
     },
 
+    emailVerificationRequired: {
+      type: Boolean,
+      default: false
+    },
+
     passwordResetTokenHash: {
       type: String,
       default: null,
