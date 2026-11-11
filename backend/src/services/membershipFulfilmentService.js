@@ -80,7 +80,7 @@ async function fulfilMembershipPurchase(purchaseId, options = {}) {
       }
 
       const purchaser = await User.findById(purchase.purchaserUserId)
-        .select("_id referredBy")
+        .select("_id referredBy firstName lastName")
         .session(session);
 
       if (!purchaser) throw codedError("PURCHASER_NOT_FOUND");
@@ -245,7 +245,9 @@ async function fulfilMembershipPurchase(purchaseId, options = {}) {
             commissionNotifications.push({
               email: sponsor.email,
               firstName: sponsor.firstName,
-              amountCents
+              amountCents,
+              downlineName: `${purchaser.firstName} ${purchaser.lastName}`.trim(),
+              level
             });
           }
         }
