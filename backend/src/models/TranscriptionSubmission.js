@@ -110,6 +110,16 @@ const transcriptionSubmissionSchema = new mongoose.Schema({
     enum: ["docx", null],
     default: null
   },
+  availableMinutesAtSubmission: {
+    type: Number,
+    default: null,
+    min: 0,
+    validate: value => value == null || Number.isSafeInteger(value)
+  },
+  minuteBalanceCapturedAt: {
+    type: Date,
+    default: null
+  },
   revisionCount: {
     type: Number,
     default: 0,

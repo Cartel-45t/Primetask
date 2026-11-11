@@ -951,6 +951,17 @@ router.post(
             throw error;
           }
 
+          // Capture the authenticated worker's wallet balance on the server.
+          const minuteWallet = await TranscriptionMinuteWallet.findOne({
+            userId: req.user._id
+          }).select("availableMinutes").session(session).lean();
+
+          const availableMinutesAtSubmission =
+            Number.isSafeInteger(minuteWallet?.availableMinutes) &&
+            minuteWallet.availableMinutes >= 0
+              ? minuteWallet.availableMinutes
+              : 0;
+
           const submission = await TranscriptionSubmission.findOne({
             jobId: claimedJob._id,
             userId: req.user._id
@@ -979,6 +990,8 @@ router.post(
               }] : [],
               verifiedAt: null,
               walletTransactionId: null,
+              availableMinutesAtSubmission,
+              minuteBalanceCapturedAt: submissionTime,
               revisionCount: (submission.revisionCount || 0) + 1
             });
 
@@ -1010,7 +1023,9 @@ router.post(
                 message: "No documentation"
               }] : [],
               verifiedAt: null,
-              rewardCents: claimedJob.rewardCents
+              rewardCents: claimedJob.rewardCents,
+              availableMinutesAtSubmission,
+              minuteBalanceCapturedAt: submissionTime
             }], { session });
 
             submissionResponse = {

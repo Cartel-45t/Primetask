@@ -949,6 +949,12 @@ function serializeAdminSubmission(item, includeDetails = false) {
     createdAt: item.createdAt,
     reviewedAt: item.reviewedAt || null,
     revisionCount: item.revisionCount || 0,
+    availableMinutesAtSubmission:
+      Number.isSafeInteger(item.availableMinutesAtSubmission) &&
+      item.availableMinutesAtSubmission >= 0
+        ? item.availableMinutesAtSubmission
+        : null,
+    minuteBalanceCapturedAt: item.minuteBalanceCapturedAt || null,
     user: user ? {
       id: String(user._id),
       username: user.username,
@@ -1007,7 +1013,8 @@ router.get("/submissions", async (req, res) => {
         .select(
           "_id userId jobId submissionLink documentFormat documentPublicId " +
           "documentOriginalName documentBytes status reviewNote rewardCents " +
-          "createdAt reviewedAt revisionCount"
+          "createdAt reviewedAt revisionCount availableMinutesAtSubmission " +
+          "minuteBalanceCapturedAt"
         )
         .populate("userId", "username firstName lastName email")
         .populate("jobId", "title durationMinutes rewardCents status requiredTranscript")
