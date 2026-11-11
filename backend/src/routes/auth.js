@@ -589,7 +589,10 @@ router.post(
             }
           }
         ],
-        { returnDocument: "after" }
+        {
+          returnDocument: "after",
+          updatePipeline: true
+        }
       );
 
       if (!reservation) return res.status(200).json(genericResponse);

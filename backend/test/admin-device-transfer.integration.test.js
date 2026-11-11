@@ -66,6 +66,13 @@ async function createRegisteredBrowser(user, label) {
     deviceKeyHash: credential.hash,
     status: "active",
     deviceLabel: label,
+    manufacturer: "Samsung",
+    deviceModel: "Galaxy A15",
+    platform: "Android",
+    osVersion: "14",
+    browser: "Chrome",
+    browserVersion: "129.0",
+    deviceType: "Mobile",
     registeredAt: new Date(),
     lastSeenAt: new Date(),
     lastKnownIp: "127.0.0.1",
@@ -133,6 +140,13 @@ async function createTransferFixture() {
     deviceKeyHash: proposedCredential.hash,
     status: "active",
     deviceLabel: "Proposed member browser",
+    manufacturer: "TECNO",
+    deviceModel: "Spark 20",
+    platform: "Android",
+    osVersion: "13",
+    browser: "Chrome",
+    browserVersion: "128.0",
+    deviceType: "Mobile",
     registeredAt: new Date(),
     lastSeenAt: new Date(),
     lastKnownIp: "127.0.0.1",
@@ -604,6 +618,34 @@ test("pending transfer listing returns safe device details without credential ha
 
   assert.equal(
     Object.hasOwn(listed.proposedDeviceId, "deviceKeyHash"),
+    false
+  );
+
+  assert.equal(listed.oldDeviceId.manufacturer, "Samsung");
+  assert.equal(listed.oldDeviceId.deviceModel, "Galaxy A15");
+  assert.equal(listed.oldDeviceId.platform, "Android");
+  assert.equal(listed.oldDeviceId.osVersion, "14");
+  assert.equal(listed.oldDeviceId.browser, "Chrome");
+  assert.equal(listed.oldDeviceId.browserVersion, "129.0");
+  assert.equal(listed.oldDeviceId.deviceType, "Mobile");
+
+  assert.equal(listed.proposedDeviceId.manufacturer, "TECNO");
+  assert.equal(listed.proposedDeviceId.deviceModel, "Spark 20");
+  assert.equal(listed.proposedDeviceId.platform, "Android");
+  assert.equal(listed.proposedDeviceId.osVersion, "13");
+  assert.equal(listed.proposedDeviceId.browser, "Chrome");
+  assert.equal(listed.proposedDeviceId.browserVersion, "128.0");
+  assert.equal(listed.proposedDeviceId.deviceType, "Mobile");
+
+  const serialized = JSON.stringify(body);
+
+  assert.equal(serialized.includes("deviceKeyHash"), false);
+  assert.equal(
+    serialized.includes(fixture.oldBrowser.credential.credential),
+    false
+  );
+  assert.equal(
+    serialized.includes(fixture.proposedBrowser.credential.credential),
     false
   );
 });

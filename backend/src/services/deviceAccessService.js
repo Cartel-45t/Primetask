@@ -6,6 +6,8 @@ const Device = require("../models/Device");
 const DeviceRegistration = require("../models/DeviceRegistration");
 const DeviceTransferRequest = require("../models/DeviceTransferRequest");
 
+const { identifyDevice } = require("./deviceIdentityService");
+
 const securityChain = require("./securityEventChainService");
 const {
   DEVICE_COOKIE_NAME,
@@ -15,10 +17,57 @@ const {
 } = require("./deviceCredentialService");
 
 function requestMetadata(req) {
+  const userAgent = String(req.get("user-agent") || "").slice(0, 1000) || null;
+
+  const identity = identifyDevice(userAgent, {
+    model: req.get("sec-ch-ua-model"),
+    platform: req.get("sec-ch-ua-platform"),
+    platformVersion: req.get("sec-ch-ua-platform-version"),
+    mobile: req.get("sec-ch-ua-mobile"),
+    brands: req.get("sec-ch-ua"),
+    fullVersionList: req.get("sec-ch-ua-full-version-list")
+  });
+
   return {
     ipAddress: req.ip || null,
-    userAgent: String(req.get("user-agent") || "").slice(0, 1000) || null
+    userAgent,
+    identity
   };
+}
+
+function deviceIdentityFields(identity) {
+  if (!identity) return {};
+
+  const fields = {
+    deviceLabel: identity.label,
+    manufacturer: identity.manufacturer,
+    deviceModel: identity.model,
+    platform: identity.platform,
+    osVersion: identity.osVersion,
+    browser: identity.browser,
+    browserVersion: identity.browserVersion,
+    deviceType: identity.deviceType
+  };
+
+  const unknownValues = new Set([
+    "unknown",
+    "unknown platform",
+    "unknown browser",
+    "unknown device",
+    "unknown android manufacturer"
+  ]);
+
+  return Object.fromEntries(
+    Object.entries(fields).filter(([key, value]) => {
+      if (value === null || value === undefined || value === "") return false;
+      if (key === "deviceType" && value === "Unknown") return false;
+
+      return !(
+        typeof value === "string" &&
+        unknownValues.has(value.trim().toLowerCase())
+      );
+    })
+  );
 }
 
 async function authorizeLoginDevice(req, res, user) {
@@ -109,7 +158,8 @@ async function authorizeLoginDevice(req, res, user) {
             $set: {
               lastSeenAt: now,
               lastKnownIp: metadata.ipAddress,
-              lastUserAgent: metadata.userAgent
+              lastUserAgent: metadata.userAgent,
+              ...deviceIdentityFields(metadata.identity)
             }
           },
           { session }
@@ -132,7 +182,8 @@ async function authorizeLoginDevice(req, res, user) {
           registeredAt: now,
           lastSeenAt: now,
           lastKnownIp: metadata.ipAddress,
-          lastUserAgent: metadata.userAgent
+          lastUserAgent: metadata.userAgent,
+          ...deviceIdentityFields(metadata.identity)
         });
 
         await device.save({ session });
@@ -421,7 +472,8 @@ async function authorizeRequestDevice(req, user) {
           $set: {
             lastSeenAt: now,
             lastKnownIp: metadata.ipAddress,
-            lastUserAgent: metadata.userAgent
+            lastUserAgent: metadata.userAgent,
+            ...deviceIdentityFields(metadata.identity)
           }
         },
         { session }

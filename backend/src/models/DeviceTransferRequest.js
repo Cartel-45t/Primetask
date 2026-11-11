@@ -42,6 +42,31 @@ const transferRequestSchema = new mongoose.Schema(
       default: null
     },
 
+    adminIpReference: {
+      type: String,
+      trim: true,
+      maxlength: 100,
+      default: null
+    },
+
+    ipReferenceUpdatedAt: {
+      type: Date,
+      default: null
+    },
+
+    ipReferenceUpdatedByAdminId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
+    },
+
+    ipReferenceReason: {
+      type: String,
+      trim: true,
+      maxlength: 500,
+      default: null
+    },
+
     requestUserAgent: {
       type: String,
       trim: true,

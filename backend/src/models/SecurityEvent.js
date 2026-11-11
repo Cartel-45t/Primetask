@@ -17,6 +17,7 @@ const securityEventSchema = new mongoose.Schema(
         "device_transfer_failed",
         "device_transfer_completed",
         "device_transfer_rejected",
+        "device_transfer_ip_reference_updated",
         "device_banned",
         "device_unbanned",
         "device_access_denied",

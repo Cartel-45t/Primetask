@@ -72,6 +72,13 @@ async function createDevice(label) {
     deviceKeyHash: credential.hash,
     status: "active",
     deviceLabel: label,
+    manufacturer: "Xiaomi",
+    deviceModel: "Redmi 15C",
+    platform: "Android",
+    osVersion: "15",
+    browser: "Chrome",
+    browserVersion: "130.0",
+    deviceType: "Mobile",
     registeredAt: new Date(),
     lastSeenAt: new Date(),
     lastKnownIp: "127.0.0.1",
@@ -505,10 +512,25 @@ test("device inventory never exposes browser credential hashes", {
   assert.equal(serialized.includes("deviceKeyHash"), false);
   assert.equal(serialized.includes(fixture.sharedBrowser.credential.hash), false);
 
-  assert.ok(
-    body.data.devices.some(
-      item => item._id.toString() === fixture.sharedBrowser.device._id.toString()
-    )
+  const listedDevice = body.data.devices.find(
+    item => item._id.toString() === fixture.sharedBrowser.device._id.toString()
+  );
+
+  assert.ok(listedDevice, "Shared device must appear in inventory");
+
+  assert.equal(listedDevice.manufacturer, "Xiaomi");
+  assert.equal(listedDevice.deviceModel, "Redmi 15C");
+  assert.equal(listedDevice.platform, "Android");
+  assert.equal(listedDevice.osVersion, "15");
+  assert.equal(listedDevice.browser, "Chrome");
+  assert.equal(listedDevice.browserVersion, "130.0");
+  assert.equal(listedDevice.deviceType, "Mobile");
+
+  assert.equal(serialized.includes("deviceKeyHash"), false);
+  assert.equal(
+    serialized.includes(fixture.sharedBrowser.credential.credential),
+    false,
+    "Raw device credentials must never appear in inventory responses"
   );
 });
 

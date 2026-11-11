@@ -28,6 +28,54 @@ const deviceSchema = new mongoose.Schema(
       default: null
     },
 
+    manufacturer: {
+      type: String,
+      trim: true,
+      maxlength: 80,
+      default: null
+    },
+
+    deviceModel: {
+      type: String,
+      trim: true,
+      maxlength: 120,
+      default: null
+    },
+
+    platform: {
+      type: String,
+      trim: true,
+      maxlength: 50,
+      default: null
+    },
+
+    osVersion: {
+      type: String,
+      trim: true,
+      maxlength: 80,
+      default: null
+    },
+
+    browser: {
+      type: String,
+      trim: true,
+      maxlength: 80,
+      default: null
+    },
+
+    browserVersion: {
+      type: String,
+      trim: true,
+      maxlength: 80,
+      default: null
+    },
+
+    deviceType: {
+      type: String,
+      enum: ["Mobile", "Tablet", "Desktop", "Unknown"],
+      default: "Unknown"
+    },
+
     registeredAt: {
       type: Date,
       default: Date.now,

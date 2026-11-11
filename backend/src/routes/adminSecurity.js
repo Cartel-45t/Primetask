@@ -2,6 +2,7 @@
 
 const express = require("express");
 const mongoose = require("mongoose");
+const net = require("node:net");
 
 const requireAuth = require("../middleware/requireAuth");
 const securityChain = require("../services/securityEventChainService");
@@ -101,8 +102,8 @@ router.get("/devices/transfers", async (req, res) => {
       .sort({ createdAt: 1 })
       .limit(limit)
       .populate("userId", "firstName lastName username email role status")
-      .populate("oldDeviceId", "status deviceLabel registeredAt lastSeenAt lastKnownIp lastUserAgent")
-      .populate("proposedDeviceId", "status deviceLabel registeredAt lastSeenAt lastKnownIp lastUserAgent")
+      .populate("oldDeviceId", "status deviceLabel manufacturer deviceModel platform osVersion browser browserVersion deviceType registeredAt lastSeenAt lastKnownIp lastUserAgent")
+      .populate("proposedDeviceId", "status deviceLabel manufacturer deviceModel platform osVersion browser browserVersion deviceType registeredAt lastSeenAt lastKnownIp lastUserAgent")
       .lean();
 
     return res.json({
@@ -118,6 +119,120 @@ router.get("/devices/transfers", async (req, res) => {
       success: false,
       message: "Device transfer requests are temporarily unavailable."
     });
+  }
+});
+
+router.patch("/devices/transfers/:requestId/ip-reference", async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.requestId)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid transfer request ID."
+    });
+  }
+
+  if (typeof req.body?.ipReference !== "string") {
+    return res.status(400).json({
+      success: false,
+      message: "Provide an IPv4 or IPv6 address. Send an empty string to clear the reference."
+    });
+  }
+
+  const ipReference = req.body.ipReference.trim();
+  const reason = validateReason(req.body?.reason, 500);
+
+  if (ipReference.length > 100 || (ipReference && net.isIP(ipReference) === 0)) {
+    return res.status(400).json({
+      success: false,
+      message: "Enter a valid IPv4 or IPv6 address, up to 100 characters."
+    });
+  }
+
+  if (!reason) {
+    return res.status(400).json({
+      success: false,
+      message: "Provide an update reason between 5 and 500 characters."
+    });
+  }
+
+  let session;
+
+  try {
+    session = await mongoose.startSession();
+
+    let updated;
+
+    await session.withTransaction(async () => {
+      const transfer = await DeviceTransferRequest.findById(
+        req.params.requestId
+      ).session(session);
+
+      if (!transfer) {
+        throw reviewError(404, "Transfer request was not found.");
+      }
+
+      if (transfer.status !== "pending") {
+        throw reviewError(409, "Only pending transfer requests can be edited.");
+      }
+
+      const now = new Date();
+
+      transfer.adminIpReference = ipReference || null;
+      transfer.ipReferenceUpdatedAt = now;
+      transfer.ipReferenceUpdatedByAdminId = req.user._id;
+      transfer.ipReferenceReason = reason;
+
+      await transfer.save({ session });
+
+      await securityChain.recordSecurityEvent({
+        eventType: "device_transfer_ip_reference_updated",
+        severity: "warning",
+        outcome: "success",
+        userId: transfer.userId,
+        actorUserId: req.user._id,
+        targetUserId: transfer.userId,
+        deviceId: transfer.proposedDeviceId,
+        ...requestMetadata(req),
+        message: `Administrator ${ipReference ? "updated" : "cleared"} the IP reference for a pending browser transfer. Reason: ${reason}`
+      }, { session });
+
+      updated = {
+        requestId: transfer._id,
+        adminIpReference: transfer.adminIpReference,
+        updatedAt: now,
+        updatedByAdminId: req.user._id
+      };
+    });
+
+    return res.json({
+      success: true,
+      message: "IP reference saved. It does not authorize the browser transfer.",
+      data: updated
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    console.error("Transfer IP reference update failed:", error.message);
+
+    return res.status(503).json({
+      success: false,
+      message: "The IP reference could not be saved."
+    });
+  } finally {
+    if (session) {
+      try {
+        await session.endSession();
+      } catch (cleanupError) {
+        console.error(
+          "IP reference session cleanup failed:",
+          cleanupError.message
+        );
+      }
+    }
   }
 });
 
@@ -424,7 +539,7 @@ router.get("/devices", async (req, res) => {
       : 50;
 
     const devices = await Device.find({})
-      .select("status deviceLabel registeredAt lastSeenAt lastKnownIp lastUserAgent bannedAt banReason reviewedByAdminId")
+      .select("status deviceLabel manufacturer deviceModel platform osVersion browser browserVersion deviceType registeredAt lastSeenAt lastKnownIp lastUserAgent bannedAt banReason reviewedByAdminId")
       .sort({ lastSeenAt: -1, _id: -1 })
       .limit(limit)
       .populate("reviewedByAdminId", "firstName lastName username")
