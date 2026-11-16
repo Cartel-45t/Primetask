@@ -847,7 +847,7 @@ router.post("/register", async (req, res) => {
 
       sponsor = await User.findOne({
         username: sponsorUsername,
-        status: "active"
+        status: { $in: ["active", "inactive"] }
       }).select("_id username");
 
       if (!sponsor) {
