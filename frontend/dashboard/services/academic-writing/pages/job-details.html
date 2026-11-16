@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101a2d">
+<title>Job Details | PrimeTask Academic Writing</title>
+<script src="../../../../assets/js/config.js"></script>
+<style>
+:root{--bg:#0b1220;--panel:#111d32;--panel2:#172640;--line:#263954;--text:#edf3fc;--muted:#9aabc2;--blue:#2878ed;--orange:#f28b32;--green:#27b879}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.sidebar{position:fixed;z-index:50;inset:0 auto 0 0;width:265px;background:#101b30;border-right:1px solid var(--line);padding:22px 16px;transform:translateX(-100%);transition:transform .22s;overflow:auto}
+.sidebar.open{transform:translateX(0)}
+.brand{font-size:19px;font-weight:800;padding:5px 10px 24px}
+.brand small{display:block;color:var(--orange);font-size:12px;margin-top:4px}
+.nav-label{font-size:10px;color:#71849f;text-transform:uppercase;letter-spacing:1.5px;padding:15px 11px 7px}
+.nav a{display:flex;gap:12px;padding:12px 13px;margin:4px 0;border-radius:10px;color:#bdcbe0;font-weight:600}
+.nav a.active,.nav a:hover{background:#1b3152;color:white}
+.nav a.active{border-left:3px solid var(--orange)}
+.nav-icon{width:22px;text-align:center;color:#8eacd2}
+.overlay{display:none;position:fixed;inset:0;background:#020711b8;z-index:40}
+.overlay.show{display:block}
+.main{min-height:100vh}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:13px 18px;background:#0e192bf2;border-bottom:1px solid var(--line)}
+.hamburger{width:42px;height:42px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:white;font-size:22px}
+.top-title{font-weight:800}.top-sub{font-size:11px;color:var(--muted)}
+.spacer{flex:1}
+.avatar{width:36px;height:36px;border-radius:50%;background:#203b61;display:grid;place-items:center;font-weight:800}
+.content{max-width:1100px;margin:auto;padding:25px 20px 55px}
+h1{font-size:25px;margin:0 0 6px}h2{font-size:19px;margin:0 0 14px}h3{font-size:16px;margin:0 0 9px}
+.muted{color:var(--muted)}.small{font-size:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:19px;margin-bottom:15px}
+.job-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.pill{display:inline-block;padding:5px 10px;border-radius:30px;background:#203a5c;color:#cfe2ff;font-size:11px;font-weight:700}
+.budget{font-size:25px;font-weight:800;margin-top:12px}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:17px 0}
+.metric{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:14px}
+.metric strong{display:block;font-size:21px}.metric span{font-size:12px;color:var(--muted)}
+.section{margin-top:24px}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.detail{background:#0c1729;border:1px solid var(--line);border-radius:10px;padding:13px}
+.detail strong{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.field{display:block;font-size:13px;color:#cbd8e9}
+.field input,.field textarea{display:block;width:100%;margin-top:6px;background:#0c1729;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px 12px;outline:none}
+.field textarea{min-height:105px;resize:vertical}
+.field input:focus,.field textarea:focus{border-color:var(--blue)}
+.wide{grid-column:1/-1}
+.checkline{display:flex;align-items:flex-start;gap:9px;font-size:13px}
+.checkline input{margin-top:5px}
+.notice{background:#1c2c43;border-left:3px solid var(--orange);padding:13px;border-radius:7px;font-size:13px;color:#d5e1f1}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:9px;padding:11px 15px;background:#1a2a43;color:#eaf2ff;font-weight:700}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:white}
+.btn.orange{background:var(--orange);border-color:var(--orange);color:#17120d}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.status{min-height:22px;margin:10px 0;color:var(--muted);font-size:13px}
+.error{color:#ff858b}.success{color:#62dda9}
+@media(min-width:1000px){.sidebar{transform:translateX(0)}.main{margin-left:265px}.overlay{display:none!important}}
+@media(max-width:600px){.content{padding:19px 13px 40px}.metrics{grid-template-columns:1fr 1fr}.detail-grid,.formgrid{grid-template-columns:1fr}.wide{grid-column:auto}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="brand">PrimeTask Workspace<small>ACADEMIC WRITING</small></div>
+  <div class="nav-label">Workspace</div>
+  <nav class="nav">
+    <a href="../index.html#overview"><span class="nav-icon">▦</span>Dashboard</a>
+    <a href="jobs.html" class="active"><span class="nav-icon">▤</span>Browse jobs</a>
+    <a href="applications.html"><span class="nav-icon">▣</span>My applications</a>
+    <a href="wallet.html"><span class="nav-icon">◈</span>Bid wallet</a>
+  </nav>
+  <div class="nav-label">Account</div>
+  <nav class="nav">
+    <a href="wallet.html"><span class="nav-icon">＋</span>Buy bid packages</a>
+    <a href="/dashboard"><span class="nav-icon">⌂</span>Main dashboard</a>
+    <a href="/dashboard/services"><span class="nav-icon">▦</span>All services</a>
+  </nav>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <button class="hamburger" id="menuButton" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <div><div class="top-title">Academic Writing</div><div class="top-sub">Job details and application</div></div>
+  <div class="spacer"></div><div class="avatar">PT</div>
+</header>
+
+<div class="content">
+  <div class="actions" style="margin:0 0 16px">
+    <a class="btn" href="jobs.html">← Back to jobs</a>
+  </div>
+  <div id="status" class="status">Loading job details…</div>
+  <div id="jobContent"></div>
+</div>
+</main>
+
+<script>
+"use strict";
+(()=>{
+ const $=id=>document.getElementById(id);
+ const root=()=>window.PTW_API_BASE||"";
+ const params=new URLSearchParams(location.search);
+ const jobId=params.get("id");
+ let job=null,availableBids=0,submitting=false;
+
+ function esc(value){
+   const node=document.createElement("div");
+   node.textContent=String(value??"");
+   return node.innerHTML;
+ }
+ function money(cents){return "$"+(Number(cents||0)/100).toFixed(2)}
+ function date(value){
+   if(!value)return "Not specified";
+   const d=new Date(value);
+   return Number.isNaN(d.getTime())?"Not specified":d.toLocaleString();
+ }
+ function say(message,type=""){
+   $("status").textContent=message;
+   $("status").className="status "+type;
+ }
+ async function api(path,options={}){
+   if(!root())throw Error("API URL is not configured.");
+   const response=await fetch(root()+path,{
+     ...options,credentials:"include",
+     headers:{Accept:"application/json",...(options.body?{"Content-Type":"application/json"}:{}),...(options.headers||{})}
+   });
+   if(response.status===401){location.href="/auth/login";throw Error("Please sign in.")}
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw Error(data.message||"Request failed.");
+   return data;
+ }
+ function list(values){
+   return Array.isArray(values)&&values.length?values.map(esc).join(", "):"Not specified";
+ }
+ async function load(){
+   if(!jobId)throw Error("No job ID was supplied. Return to Browse Jobs and select a job.");
+   const data=await api("/academic-writing/jobs/"+encodeURIComponent(jobId));
+   job=data.job;
+   availableBids=Number(data.availableBids)||0;
+   if(!job)throw Error("Job not found or no longer available.");
+   $("jobContent").innerHTML=`
+    <section class="card">
+      <div class="job-heading">
+        <div>
+          <span class="pill">${esc(job.serviceCategory||"Academic Writing")}</span>
+          <h1 style="margin-top:12px">${esc(job.title)}</h1>
+          <p class="muted">${esc(job.discipline)} · ${esc(job.subject)} · ${esc(job.academicLevel)}</p>
+        </div>
+        <div>
+          <div class="muted small">Published job budget</div>
+          <div class="budget">${money(job.budgetMinCents)} – ${money(job.budgetMaxCents)}</div>
+        </div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><strong>${Number(job.requiredBids)||0}</strong><span>Bids required to apply</span></div>
+        <div class="metric"><strong>${availableBids}</strong><span>Your available bids</span></div>
+        <div class="metric"><strong>${Number(data.applicants)||0}</strong><span>Applicants</span></div>
+      </div>
+      <div class="detail-grid">
+        <div class="detail"><strong>Application closes</strong>${date(job.applicationClosesAt)}</div>
+        <div class="detail"><strong>Project deadline</strong>${date(job.deadline)}</div>
+        <div class="detail"><strong>Word count</strong>${job.wordCount?esc(job.wordCount):"Not specified"}</div>
+        <div class="detail"><strong>Referencing style</strong>${esc(job.referencingStyle||"Not specified")}</div>
+        <div class="detail"><strong>Successful applicants</strong>${esc(job.successfulApplicants||1)}</div>
+        <div class="detail"><strong>Current awards</strong>${esc(job.awardedCount||0)}</div>
+      </div>
+    </section>
+
+    <section class="card section">
+      <h2>Project description</h2>
+      <p>${esc(job.description)}</p>
+      <h3 class="section">Scope of work</h3>
+      <p>${esc(job.scope||"No additional scope provided.")}</p>
+      <div class="detail-grid section">
+        <div class="detail"><strong>Required skills</strong>${list(job.skills)}</div>
+        <div class="detail"><strong>Qualifications</strong>${list(job.qualifications)}</div>
+        <div class="detail"><strong>Deliverables</strong>${list(job.deliverables)}</div>
+        <div class="detail"><strong>Additional instructions</strong>${esc(job.instructions||"No additional instructions.")}</div>
+      </div>
+    </section>
+
+    <section class="card section" id="application">
+      <h2>Submit your proposal</h2>
+      <p class="muted small">Provide accurate information. The client will use your proposal to assess your suitability for the project.</p>
+      <form id="applyForm" class="formgrid">
+        <label class="field">Your proposed price (USD)
+          <input name="price" type="number" min="${Number(job.budgetMinCents)/100}" max="${Number(job.budgetMaxCents)/100}" step="0.01" placeholder="0.00" required>
+        </label>
+        <label class="field">Delivery time (days)
+          <input name="days" type="number" min="1" step="1" placeholder="Number of days" required>
+        </label>
+        <label class="field wide">Cover letter (minimum 50 characters)
+          <textarea name="cover" minlength="50" maxlength="5000" required placeholder="Introduce yourself and explain why you are suitable for this project."></textarea>
+        </label>
+        <label class="field">Qualifications (minimum 10 characters)
+          <textarea name="qualifications" minlength="10" maxlength="3000" required placeholder="Describe your relevant academic qualifications."></textarea>
+        </label>
+        <label class="field">Academic experience (minimum 10 characters)
+          <textarea name="experience" minlength="10" maxlength="3000" required placeholder="Describe your relevant experience."></textarea>
+        </label>
+        <label class="field wide">Skills (comma separated)
+          <input name="skills" maxlength="1000" required placeholder="Research, academic writing, referencing…">
+        </label>
+        <label class="field wide">Work approach (minimum 20 characters)
+          <textarea name="approach" minlength="20" maxlength="5000" required placeholder="Explain how you intend to complete the project."></textarea>
+        </label>
+        <label class="checkline wide"><input type="checkbox" name="available" required> I confirm that I am available to complete the project within the proposed delivery time.</label>
+        <label class="checkline wide"><input type="checkbox" name="terms" required> I have read and agree to the job requirements and deliverables.</label>
+        <div class="wide">
+          <div class="notice">
+            Applying costs <strong>${Number(job.requiredBids)||0} bids</strong>.
+            Your current balance is <strong>${availableBids} bids</strong>.
+            Bids are consumed when the application is submitted. They are not refunded for unsuccessful or withdrawn applications.
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="submitButton" type="submit" ${availableBids<Number(job.requiredBids)?"disabled":""}>Confirm and submit application</button>
+            ${availableBids<Number(job.requiredBids)?'<a class="btn orange" href="wallet.html">Buy more bids</a>':""}
+          </div>
+        </div>
+      </form>
+    </section>
+   `;
+   $("applyForm").addEventListener("submit",submitApplication);
+ }
+ async function submitApplication(event){
+   event.preventDefault();
+   if(submitting)return;
+   const form=event.currentTarget;
+   if(!form.reportValidity())return;
+   const formData=new FormData(form);
+   const price=Number(formData.get("price"));
+   const days=Number(formData.get("days"));
+   if(!Number.isFinite(price)||price*100<Number(job.budgetMinCents)||price*100>Number(job.budgetMaxCents)){
+     say("Your proposed price must be within the published job budget.","error");
+     return;
+   }
+   if(!Number.isInteger(days)||days<1){
+     say("Enter a valid delivery time in whole days.","error");
+     return;
+   }
+   const bidCost=Number(job.requiredBids)||0;
+   if(availableBids<bidCost){
+     say("You do not have enough bids. Purchase a package before applying.","error");
+     return;
+   }
+   if(!confirm(`You are applying for "${job.title}". This will spend ${bidCost} bids. Continue?`))return;
+   submitting=true;
+   $("submitButton").disabled=true;
+   say("Submitting your application…");
+   try{
+     const result=await api("/academic-writing/applications",{
+       method:"POST",
+       body:JSON.stringify({
+         jobId:job._id,
+         proposedPriceCents:Math.round(price*100),
+         deliveryDays:days,
+         coverLetter:formData.get("cover"),
+         qualifications:formData.get("qualifications"),
+         experience:formData.get("experience"),
+         skills:String(formData.get("skills")).split(",").map(x=>x.trim()).filter(Boolean),
+         workApproach:formData.get("approach"),
+         availabilityConfirmed:formData.has("available"),
+         requirementsAccepted:formData.has("terms")
+       })
+     });
+     say(result.message||"Application submitted successfully.","success");
+     $("jobContent").innerHTML=`
+       <section class="card">
+         <h2>Application submitted</h2>
+         <p>${esc(result.message||"Your application has been submitted successfully.")}</p>
+         <div class="actions">
+           <a class="btn primary" href="applications.html">View my applications</a>
+           <a class="btn" href="jobs.html">Browse more jobs</a>
+         </div>
+       </section>`;
+   }catch(error){
+     say(error.message,"error");
+     submitting=false;
+     $("submitButton").disabled=availableBids<Number(job.requiredBids);
+   }
+ }
+ $("menuButton").addEventListener("click",()=>{
+   const open=!$("sidebar").classList.contains("open");
+   $("sidebar").classList.toggle("open",open);
+   $("overlay").classList.toggle("show",open);
+   $("menuButton").setAttribute("aria-expanded",String(open));
+ });
+ $("overlay").addEventListener("click",()=>{
+   $("sidebar").classList.remove("open");
+   $("overlay").classList.remove("show");
+   $("menuButton").setAttribute("aria-expanded","false");
+ });
+ load().catch(error=>say(error.message,"error"));
+})();
+</script>
+</body>
+</html>

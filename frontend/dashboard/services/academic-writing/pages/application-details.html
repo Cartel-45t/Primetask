@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101a2d">
+<title>Application Details | PrimeTask Academic Writing</title>
+<script src="../../../../assets/js/config.js"></script>
+<style>
+:root{--bg:#0b1220;--panel:#111d32;--line:#263954;--text:#edf3fc;--muted:#9aabc2;--blue:#2878ed;--orange:#f28b32;--green:#27b879;--red:#e45c66}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+.sidebar{position:fixed;z-index:50;inset:0 auto 0 0;width:265px;background:#101b30;border-right:1px solid var(--line);padding:22px 16px;transform:translateX(-100%);transition:transform .22s;overflow:auto}
+.sidebar.open{transform:translateX(0)}
+.brand{font-size:19px;font-weight:800;padding:5px 10px 24px}
+.brand small{display:block;color:var(--orange);font-size:12px;margin-top:4px}
+.nav-label{font-size:10px;color:#71849f;text-transform:uppercase;letter-spacing:1.5px;padding:15px 11px 7px}
+.nav a{display:flex;gap:12px;padding:12px 13px;margin:4px 0;border-radius:10px;color:#bdcbe0;font-weight:600}
+.nav a.active,.nav a:hover{background:#1b3152;color:white}
+.nav a.active{border-left:3px solid var(--orange)}
+.nav-icon{width:22px;text-align:center;color:#8eacd2}
+.overlay{display:none;position:fixed;inset:0;background:#020711b8;z-index:40}
+.overlay.show{display:block}
+.main{min-height:100vh}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:13px 18px;background:#0e192bf2;border-bottom:1px solid var(--line)}
+.hamburger{width:42px;height:42px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:white;font-size:22px}
+.top-title{font-weight:800}.top-sub{font-size:11px;color:var(--muted)}
+.spacer{flex:1}
+.avatar{width:36px;height:36px;border-radius:50%;background:#203b61;display:grid;place-items:center;font-weight:800}
+.content{max-width:1000px;margin:auto;padding:25px 20px 55px}
+h1{font-size:25px;margin:0 0 5px}h2{font-size:18px;margin:0 0 13px}
+.muted{color:var(--muted)}.small{font-size:12px}
+.header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:9px;padding:10px 14px;background:#1a2a43;color:#eaf2ff;font-weight:700}
+.btn.primary{background:var(--blue);border-color:var(--blue)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:19px;margin:17px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.detail{background:#14233a;border:1px solid var(--line);border-radius:10px;padding:13px}
+.detail span{display:block;color:var(--muted);font-size:12px}
+.detail strong{display:block;margin-top:5px;overflow-wrap:anywhere}
+.pill{display:inline-block;padding:5px 11px;border-radius:30px;background:#203a5c;color:#cfe2ff;font-size:11px;font-weight:700;text-transform:capitalize}
+.pill.success{background:#123c30;color:#79e5b5}
+.pill.warning{background:#46351b;color:#ffd18a}
+.pill.danger{background:#48242b;color:#ff9ba1}
+.prose{white-space:pre-wrap;overflow-wrap:anywhere;color:#d8e4f4}
+.status{min-height:22px;margin:10px 0;color:var(--muted);font-size:13px}
+.error{color:#ff858b}
+.empty{padding:35px;text-align:center;color:var(--muted)}
+@media(min-width:1000px){.sidebar{transform:translateX(0)}.main{margin-left:265px}.overlay{display:none!important}}
+@media(max-width:600px){.content{padding:19px 13px 40px}.grid{grid-template-columns:1fr}.header{align-items:flex-start;flex-direction:column}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">PrimeTask Workspace<small>ACADEMIC WRITING</small></div>
+  <div class="nav-label">Workspace</div>
+  <nav class="nav">
+    <a href="../index.html#overview"><span class="nav-icon">▦</span>Dashboard</a>
+    <a href="jobs.html"><span class="nav-icon">▤</span>Browse jobs</a>
+    <a href="applications.html" class="active"><span class="nav-icon">▣</span>My applications</a>
+    <a href="wallet.html"><span class="nav-icon">◈</span>Bid wallet</a>
+  </nav>
+  <div class="nav-label">Account</div>
+  <nav class="nav">
+    <a href="wallet.html#packages"><span class="nav-icon">＋</span>Buy bid packages</a>
+    <a href="/dashboard"><span class="nav-icon">⌂</span>Main dashboard</a>
+    <a href="/dashboard/services"><span class="nav-icon">▦</span>All services</a>
+  </nav>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <button class="hamburger" id="menuButton" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <div><div class="top-title">Academic Writing</div><div class="top-sub">Application record</div></div>
+  <div class="spacer"></div><div class="avatar">PT</div>
+</header>
+
+<div class="content">
+  <div class="header">
+    <div>
+      <h1>Application details</h1>
+      <div class="muted">Review your submitted proposal and its current status.</div>
+    </div>
+    <a href="applications.html" class="btn">← My applications</a>
+  </div>
+
+  <div id="status" class="status">Loading application…</div>
+  <div id="applicationContent">
+    <div class="panel empty">Retrieving your application record…</div>
+  </div>
+</div>
+</main>
+
+<script>
+"use strict";
+(()=>{
+ const $=id=>document.getElementById(id);
+ const root=()=>window.PTW_API_BASE||"";
+
+ function esc(value){
+   const node=document.createElement("div");
+   node.textContent=String(value??"");
+   return node.innerHTML;
+ }
+ function money(cents){
+   return "$"+(Number(cents||0)/100).toFixed(2);
+ }
+ function date(value){
+   if(!value)return "Not available";
+   const d=new Date(value);
+   return Number.isNaN(d.getTime())?"Not available":d.toLocaleString();
+ }
+ function badge(status){
+   const value=String(status||"unknown");
+   let cls="";
+   if(value==="awarded")cls="success";
+   else if(value==="unsuccessful"||value==="rejected")cls="danger";
+   else if(["submitted","under_review","shortlisted","pending"].includes(value))cls="warning";
+   return `<span class="pill ${cls}">${esc(value.replaceAll("_"," "))}</span>`;
+ }
+ function say(message,error=false){
+   $("status").textContent=message;
+   $("status").className="status "+(error?"error":"");
+ }
+ async function api(path){
+   if(!root())throw Error("API URL is not configured.");
+   const response=await fetch(root()+path,{
+     credentials:"include",
+     headers:{Accept:"application/json"}
+   });
+   if(response.status===401){
+     location.href="/auth/login";
+     throw Error("Please sign in.");
+   }
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw Error(data.message||"Unable to retrieve application.");
+   return data;
+ }
+ function block(title,value){
+   return `<section class="panel"><h2>${title}</h2><div class="prose">${esc(value||"Not provided")}</div></section>`;
+ }
+ function render(item){
+   const job=item.jobId||{};
+   const status=String(item.status||"unknown");
+   $("applicationContent").innerHTML=`
+     <section class="panel">
+       <div class="small muted">APPLICATION STATUS</div>
+       <div style="margin:8px 0 14px">${badge(status)}</div>
+       <h2>${esc(job.title||"Academic Writing Job")}</h2>
+       <div class="muted small">${esc(job.discipline||"")} ${job.subject?"· "+esc(job.subject):""}</div>
+       <div class="grid" style="margin-top:17px">
+         <div class="detail"><span>Proposed price</span><strong>${money(item.proposedPriceCents)}</strong></div>
+         <div class="detail"><span>Bids spent</span><strong>${esc(item.bidCost??job.requiredBids??"Not available")}</strong></div>
+         <div class="detail"><span>Submitted</span><strong>${date(item.submittedAt)}</strong></div>
+         <div class="detail"><span>Delivery time proposed</span><strong>${item.deliveryDays?esc(item.deliveryDays)+" days":"Not specified"}</strong></div>
+       </div>
+     </section>
+     ${block("Your cover letter",item.coverLetter)}
+     ${block("Qualifications",item.qualifications)}
+     ${block("Relevant experience",item.experience)}
+     ${block("Skills",Array.isArray(item.skills)?item.skills.join(", "):item.skills)}
+     ${block("Your work approach",item.workApproach)}
+     <section class="panel">
+       <h2>Job information</h2>
+       <div class="grid">
+         <div class="detail"><span>Academic level</span><strong>${esc(job.academicLevel||"Not specified")}</strong></div>
+         <div class="detail"><span>Service category</span><strong>${esc(job.serviceCategory||"Not specified")}</strong></div>
+         <div class="detail"><span>Job budget</span><strong>${money(job.budgetMinCents)} – ${money(job.budgetMaxCents)}</strong></div>
+         <div class="detail"><span>Job deadline</span><strong>${date(job.deadline)}</strong></div>
+       </div>
+       ${job.description?`<div style="margin-top:17px"><h2>Job description</h2><div class="prose">${esc(job.description)}</div></div>`:""}
+       ${job.requirements?`<div style="margin-top:17px"><h2>Requirements</h2><div class="prose">${esc(job.requirements)}</div></div>`:""}
+     </section>
+     <section class="panel">
+       <h2>Review information</h2>
+       <div class="detail"><span>Admin decision / feedback</span><strong>${esc(item.adminFeedback||item.reviewNote||item.rejectionReason||"No review feedback has been provided.")}</strong></div>
+       <p class="muted small">Application status and review information are displayed from the available application record.</p>
+     </section>
+   `;
+ }
+ async function load(){
+   const id=new URLSearchParams(location.search).get("id");
+   if(!id){
+     say("Application ID is missing.",true);
+     $("applicationContent").innerHTML='<div class="panel empty">No application was selected. Open an application from My Applications.</div>';
+     return;
+   }
+   try{
+     const data=await api("/academic-writing/applications");
+     const applications=data.applications||[];
+     const item=applications.find(entry=>String(entry._id)===id);
+     if(!item){
+       say("Application not found in your account.",true);
+       $("applicationContent").innerHTML='<div class="panel empty">This application could not be found in your application history.</div>';
+       return;
+     }
+     render(item);
+     say("Application details loaded.");
+   }catch(error){
+     say(error.message,true);
+     $("applicationContent").innerHTML=`<div class="panel empty">${esc(error.message)}</div>`;
+   }
+ }
+ $("menuButton").addEventListener("click",()=>{
+   const open=!$("sidebar").classList.contains("open");
+   $("sidebar").classList.toggle("open",open);
+   $("overlay").classList.toggle("show",open);
+   $("menuButton").setAttribute("aria-expanded",String(open));
+ });
+ $("overlay").addEventListener("click",()=>{
+   $("sidebar").classList.remove("open");
+   $("overlay").classList.remove("show");
+   $("menuButton").setAttribute("aria-expanded","false");
+ });
+ load();
+})();
+</script>
+</body>
+</html>

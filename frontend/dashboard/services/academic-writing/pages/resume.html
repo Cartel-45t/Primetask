@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101a2d">
+<title>My Resume | PrimeTask Academic Writing</title>
+<script src="../../../../assets/js/config.js"></script>
+<style>
+:root{--bg:#0b1220;--panel:#111d32;--panel2:#172640;--line:#263954;--text:#edf3fc;--muted:#9aabc2;--blue:#2878ed;--orange:#f28b32}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.sidebar{position:fixed;z-index:50;inset:0 auto 0 0;width:265px;background:#101b30;border-right:1px solid var(--line);padding:22px 16px;transform:translateX(-100%);transition:transform .22s;overflow:auto}
+.sidebar.open{transform:translateX(0)}
+.brand{font-size:19px;font-weight:800;padding:5px 10px 24px}
+.brand small{display:block;color:var(--orange);font-size:12px;margin-top:4px}
+.nav-label{font-size:10px;color:#71849f;text-transform:uppercase;letter-spacing:1.5px;padding:15px 11px 7px}
+.nav a{display:flex;gap:12px;padding:12px 13px;margin:4px 0;border-radius:10px;color:#bdcbe0;font-weight:600}
+.nav a.active,.nav a:hover{background:#1b3152;color:white}
+.nav a.active{border-left:3px solid var(--orange)}
+.nav-icon{width:22px;text-align:center;color:#8eacd2}
+.overlay{display:none;position:fixed;inset:0;background:#020711b8;z-index:40}
+.overlay.show{display:block}
+.main{min-height:100vh}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:13px 18px;background:#0e192bf2;border-bottom:1px solid var(--line)}
+.hamburger{width:42px;height:42px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:white;font-size:22px}
+.top-title{font-weight:800}
+.top-sub{font-size:11px;color:var(--muted)}
+.spacer{flex:1}
+.avatar{width:36px;height:36px;border-radius:50%;background:#203b61;display:grid;place-items:center;font-weight:800}
+.content{max-width:1050px;margin:auto;padding:25px 20px 55px}
+h1{font-size:25px;margin:0 0 5px}
+h2{font-size:18px;margin:0 0 7px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.header{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:9px;padding:11px 16px;background:#1a2a43;color:#eaf2ff;font-weight:700}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:white}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:19px;margin-bottom:15px}
+.section-head{margin-bottom:15px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.field{margin-bottom:16px}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+input,textarea{display:block;width:100%;background:#0c1729;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:12px;outline:none}
+input:focus,textarea:focus{border-color:var(--blue)}
+textarea{min-height:115px;resize:vertical}
+.hint{font-size:11px;color:var(--muted);margin-top:5px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.status{min-height:23px;margin:12px 0;font-size:13px;color:var(--muted)}
+.error{color:#ff858b}.success{color:#62dda9}
+.completion{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px;margin-bottom:17px}
+.track{height:8px;background:#253752;border-radius:20px;overflow:hidden;margin-top:9px}
+.track span{display:block;height:100%;width:0;background:var(--blue);transition:width .2s}
+.actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+@media(min-width:1000px){.sidebar{transform:translateX(0)}.main{margin-left:265px}.overlay{display:none!important}}
+@media(max-width:650px){.content{padding:19px 13px 40px}.two{grid-template-columns:1fr}.header{display:block}.header .btn{margin-top:12px}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">PrimeTask Workspace<small>ACADEMIC WRITING</small></div>
+  <div class="nav-label">Workspace</div>
+  <nav class="nav">
+    <a href="../index.html#overview"><span class="nav-icon">▦</span>Dashboard</a>
+    <a href="jobs.html"><span class="nav-icon">▤</span>Browse jobs</a>
+    <a href="applications.html"><span class="nav-icon">▣</span>My applications</a>
+    <a href="wallet.html"><span class="nav-icon">◈</span>Bid wallet</a>
+  </nav>
+  <div class="nav-label">My account</div>
+  <nav class="nav">
+    <a href="resume.html" class="active"><span class="nav-icon">▤</span>My resume</a>
+    <a href="wallet.html"><span class="nav-icon">＋</span>Buy bid packages</a>
+    <a href="/dashboard"><span class="nav-icon">⌂</span>Main dashboard</a>
+    <a href="/dashboard/services"><span class="nav-icon">▦</span>All services</a>
+  </nav>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <button class="hamburger" id="menuButton" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <div><div class="top-title">Academic Writing</div><div class="top-sub">Your professional resume</div></div>
+  <div class="spacer"></div>
+  <div class="avatar">PT</div>
+</header>
+
+<div class="content">
+  <div class="header">
+    <div>
+      <h1>My Academic Writing Resume</h1>
+      <div class="muted">Build your professional profile to support your job applications.</div>
+    </div>
+    <a class="btn" href="applications.html">My applications</a>
+  </div>
+
+  <div class="completion">
+    <strong id="completionLabel">Resume completion: 0%</strong>
+    <div class="muted small">Complete the sections below to present your experience and expertise to the job administrator.</div>
+    <div class="track"><span id="completionBar"></span></div>
+  </div>
+
+  <div id="status" class="status" role="status">Loading your resume…</div>
+
+  <form id="resumeForm">
+    <section class="card">
+      <div class="section-head">
+        <h2>Professional introduction</h2>
+        <div class="muted small">Introduce yourself and the kind of academic work you handle.</div>
+      </div>
+      <div class="field">
+        <label for="headline">Professional headline</label>
+        <input id="headline" maxlength="120" placeholder="e.g. Academic Researcher and Essay Writer">
+        <div class="hint">Maximum 120 characters.</div>
+      </div>
+      <div class="field">
+        <label for="bio">Professional bio</label>
+        <textarea id="bio" maxlength="2000" placeholder="Write a short professional introduction, your strengths and the value you bring to academic projects."></textarea>
+        <div class="hint">Maximum 2,000 characters.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>Education and qualifications</h2>
+        <div class="muted small">Describe your academic background, qualifications, institutions and relevant training.</div>
+      </div>
+      <div class="field">
+        <label for="qualifications">Academic qualifications</label>
+        <textarea id="qualifications" maxlength="4000" placeholder="List your degrees, diplomas, certificates, institutions and fields of study."></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>Professional experience</h2>
+        <div class="muted small">Explain your relevant writing, research and professional experience.</div>
+      </div>
+      <div class="field">
+        <label for="experience">Work experience</label>
+        <textarea id="experience" maxlength="4000" placeholder="Describe previous roles, projects, years of experience and responsibilities."></textarea>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>Skills and specializations</h2>
+        <div class="muted small">Separate each entry with a comma or put each entry on a new line.</div>
+      </div>
+      <div class="two">
+        <div class="field">
+          <label for="skills">Professional skills</label>
+          <textarea id="skills" placeholder="Academic writing&#10;Research&#10;Referencing&#10;Editing"></textarea>
+          <div class="hint">Maximum 30 skills, 80 characters each.</div>
+        </div>
+        <div class="field">
+          <label for="specializations">Areas of specialization</label>
+          <textarea id="specializations" placeholder="Business management&#10;Psychology&#10;Education"></textarea>
+          <div class="hint">Maximum 20 specializations, 100 characters each.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>Portfolio</h2>
+        <div class="muted small">Add links to relevant writing samples or professional work. Only share material you have permission to show.</div>
+      </div>
+      <div class="field">
+        <label for="portfolio">Portfolio links</label>
+        <textarea id="portfolio" placeholder="https://example.com/sample-one&#10;https://example.com/sample-two"></textarea>
+        <div class="hint">Enter one link per line. Maximum 10 links.</div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="btn primary" id="saveButton" type="submit">Save resume</button>
+    </div>
+  </form>
+</div>
+</main>
+
+<script>
+"use strict";
+(()=>{
+  const $=id=>document.getElementById(id);
+  const form=$("resumeForm");
+  const fields=["headline","bio","qualifications","experience"];
+  let loading=false;
+
+  function say(message,type=""){
+    $("status").textContent=message;
+    $("status").className="status "+type;
+  }
+
+  function apiBase(){
+    return window.PTW_API_BASE||"";
+  }
+
+  async function request(path,options={}){
+    if(!apiBase())throw Error("API URL is not configured.");
+    const response=await fetch(apiBase()+path,{
+      credentials:"include",
+      headers:{Accept:"application/json",...(options.body?{"Content-Type":"application/json"}:{}),...(options.headers||{})},
+      ...options
+    });
+    if(response.status===401){
+      location.href="/auth/login";
+      throw Error("Please sign in.");
+    }
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw Error(data.message||"The request could not be completed.");
+    return data;
+  }
+
+  function splitList(value){
+    return String(value||"").split(/[\n,]/).map(item=>item.trim()).filter(Boolean);
+  }
+
+  function setList(id,items){
+    $(id).value=Array.isArray(items)?items.join("\n"):"";
+  }
+
+  function getList(id){
+    return splitList($(id).value);
+  }
+
+  function updateCompletion(){
+    const checks=[
+      $("headline").value.trim(),
+      $("bio").value.trim(),
+      $("qualifications").value.trim(),
+      $("experience").value.trim(),
+      getList("skills").length,
+      getList("specializations").length,
+      getList("portfolio").length
+    ];
+    const completed=checks.filter(Boolean).length;
+    const percent=Math.round(completed/checks.length*100);
+    $("completionLabel").textContent="Resume completion: "+percent+"%";
+    $("completionBar").style.width=percent+"%";
+  }
+
+  function populate(profile){
+    $("headline").value=profile.headline||"";
+    $("bio").value=profile.bio||"";
+    $("qualifications").value=profile.qualifications||"";
+    $("experience").value=profile.experience||"";
+    setList("skills",profile.skills);
+    setList("specializations",profile.specializations);
+    setList("portfolio",profile.portfolio);
+    updateCompletion();
+  }
+
+  async function loadResume(){
+    loading=true;
+    try{
+      const data=await request("/academic-writing/profile");
+      populate(data.profile||data.resume||{});
+      say("Your resume is ready to edit.");
+    }catch(error){
+      say(error.message||"Unable to load your resume.","error");
+    }finally{
+      loading=false;
+    }
+  }
+
+  form.addEventListener("input",updateCompletion);
+
+  form.addEventListener("submit",async event=>{
+    event.preventDefault();
+    if(loading)return;
+
+    const payload={
+      headline:$("headline").value.trim(),
+      bio:$("bio").value.trim(),
+      qualifications:$("qualifications").value.trim(),
+      experience:$("experience").value.trim(),
+      skills:getList("skills"),
+      specializations:getList("specializations"),
+      portfolio:getList("portfolio")
+    };
+
+    if(payload.skills.length>30)return say("You can add a maximum of 30 skills.","error");
+    if(payload.specializations.length>20)return say("You can add a maximum of 20 specializations.","error");
+    if(payload.portfolio.length>10)return say("You can add a maximum of 10 portfolio links.","error");
+    if(payload.skills.some(item=>item.length>80))return say("Each skill must be 80 characters or fewer.","error");
+    if(payload.specializations.some(item=>item.length>100))return say("Each specialization must be 100 characters or fewer.","error");
+    if(payload.portfolio.some(item=>item.length>500))return say("Each portfolio entry must be 500 characters or fewer.","error");
+
+    const button=$("saveButton");
+    button.disabled=true;
+    button.textContent="Saving…";
+    say("Saving your resume…");
+
+    try{
+      const data=await request("/academic-writing/profile",{
+        method:"PATCH",
+        body:JSON.stringify(payload)
+      });
+      populate(data.profile||data.resume||payload);
+      say("Resume saved successfully.","success");
+    }catch(error){
+      say(error.message||"Unable to save your resume.","error");
+    }finally{
+      button.disabled=false;
+      button.textContent="Save resume";
+    }
+  });
+
+  const sidebar=$("sidebar"),overlay=$("overlay"),menu=$("menuButton");
+  menu.addEventListener("click",()=>{
+    const open=!sidebar.classList.contains("open");
+    sidebar.classList.toggle("open",open);
+    overlay.classList.toggle("show",open);
+    menu.setAttribute("aria-expanded",String(open));
+  });
+  overlay.addEventListener("click",()=>{
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+    menu.setAttribute("aria-expanded","false");
+  });
+
+  loadResume();
+})();
+</script>
+</body>
+</html>

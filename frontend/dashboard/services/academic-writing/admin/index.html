@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#071426">
+<title>Academic Writing Admin | PrimeTask Workspace</title>
+<style>
+:root{color-scheme:dark;--bg:#071426;--panel:#0d1d33;--line:#243752;--text:#eef4fb;--muted:#9aacbf;--blue:#60a5fa;--orange:#fb923c;--red:#fca5a5;--green:#86efac}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px Inter,system-ui,sans-serif}
+button,input,select,textarea{font:inherit}
+button,a{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.layout{display:grid;grid-template-columns:235px minmax(0,1fr);min-height:100vh}
+.side{padding:22px 14px;background:#04101f;border-right:1px solid var(--line)}
+.brand{font-weight:850;padding:8px 9px 22px;font-size:16px}
+.brand small{display:block;color:var(--muted);font-size:11px;font-weight:500;margin-top:5px}
+.nav{display:grid;gap:5px}
+.nav a{padding:11px;border-radius:9px;color:#c7d4e5}
+.nav a:hover,.nav a.active{background:#163153;color:#fff}
+.nav-label{font-size:10px;color:#71849b;font-weight:800;letter-spacing:1.2px;padding:18px 10px 7px}
+.main{padding:27px;max-width:1500px;width:100%;margin:auto}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.eyebrow{font-size:10px;color:var(--orange);font-weight:850;letter-spacing:1.4px}
+h1{font-size:27px;margin:5px 0}
+h2{font-size:19px;margin:20px 0 12px}
+h3{font-size:15px;margin:0 0 10px}
+.muted{color:var(--muted);line-height:1.55}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid #355171;background:#122946;color:#fff;padding:9px 13px;border-radius:8px;font-weight:750}
+.btn.primary{background:#1d4f91;border-color:#3678c9}
+.btn.orange{background:#8b451c;border-color:#c66a2c}
+.btn.danger{background:#54252b;border-color:#8e414b}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:16px 0}
+.metric,.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px}
+.metric strong{display:block;font-size:24px;margin-bottom:5px}
+.metric span{font-size:11px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:11px}
+.card p{line-height:1.55}
+.pill{display:inline-block;padding:4px 9px;background:#142a45;border-radius:20px;font-size:10px;color:#bcd4f2}
+.status{min-height:22px;color:var(--muted);margin:12px 0}
+.error{color:var(--red)}
+.success{color:var(--green)}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{display:grid;gap:6px;color:#c7d4e5;font-size:12px}
+.field.wide{grid-column:1/-1}
+input,select,textarea{padding:11px;border:1px solid #344b67;border-radius:8px;background:#071426;color:var(--text);width:100%;min-width:0}
+textarea{min-height:100px;resize:vertical}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:720px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;color:var(--muted);background:#0a192c}
+td{font-size:12px}
+.notice{padding:12px;border-left:3px solid var(--orange);background:#142337;margin:14px 0;color:#dbe7f4;font-size:12px;line-height:1.6}
+.hidden{display:none!important}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.actions .btn{padding:7px 9px;font-size:11px}
+.empty{padding:22px;text-align:center;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px}
+@media(max-width:760px){
+.layout{grid-template-columns:1fr}
+.side{padding:12px;border-right:0;border-bottom:1px solid var(--line)}
+.brand{padding:4px 7px 12px}
+.nav{display:flex;overflow:auto}
+.nav a{white-space:nowrap;font-size:12px}
+.nav-label{display:none}
+.main{padding:19px 13px}
+.formgrid{grid-template-columns:1fr}
+.field.wide{grid-column:auto}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="side">
+<div class="brand">PrimeTask Workspace<small>Academic Writing · Administration</small></div>
+<nav class="nav" id="nav">
+<div class="nav-label">WORKSPACE</div>
+<a href="#overview" data-view="overview" class="active">Overview</a>
+<a href="#jobs" data-view="jobs">Manage jobs</a>
+<a href="#create" data-view="create">Create a job</a>
+<a href="#applications" data-view="applications">Applications</a>
+<div class="nav-label">BID MANAGEMENT</div>
+<a href="#packages" data-view="packages">Bid packages</a>
+<a href="#wallets" data-view="wallets">Bid wallets</a>
+<a href="#transactions" data-view="transactions">Transactions</a>
+<a href="/dashboard">Main dashboard</a>
+</nav>
+</aside>
+
+<main class="main">
+<header class="head">
+<div>
+<div class="eyebrow">PRIMETASK WORKSPACE · ADMINISTRATION</div>
+<h1 id="pageTitle">Academic Writing Overview</h1>
+<p class="muted">Manage jobs, applications and bid credits.</p>
+</div>
+<button class="btn" id="refresh">Refresh</button>
+</header>
+
+<div id="status" class="status" role="status" aria-live="polite"></div>
+<div id="view"></div>
+
+<p class="notice">Business rules: users purchase bids and spend them to apply for jobs. No commissions. Job budgets and proposed prices are displayed in USD. Bid package purchases use KSh. Earnings and withdrawals are not enabled.</p>
+</main>
+</div>
+
+<script src="../../../../assets/js/config.js"></script>
+<script>
+"use strict";
+(()=>{
+const $=id=>document.getElementById(id);
+const view=$("view"),status=$("status");
+const base=()=>window.PTW_API_BASE||"";
+const admin="/admin/academic-writing";
+let currentJobs=[];
+
+function say(message,kind=""){
+ status.textContent=message;
+ status.className="status "+kind;
+}
+function esc(value){
+ const d=document.createElement("div");
+ d.textContent=String(value??"");
+ return d.innerHTML;
+}
+function money(cents){
+ return "$"+(Number(cents||0)/100).toFixed(2);
+}
+function date(value){
+ if(!value)return "Not set";
+ const d=new Date(value);
+ return Number.isNaN(d.getTime())?"Invalid date":d.toLocaleString();
+}
+async function api(path,options={}){
+ if(!base())throw Error("API URL is not configured.");
+ const response=await fetch(base()+path,{
+  ...options,
+  credentials:"include",
+  headers:{
+   Accept:"application/json",
+   ...(options.body?{"Content-Type":"application/json"}:{}),
+   ...(options.headers||{})
+  }
+ });
+ if(response.status===401){
+  location.replace("/auth/login");
+  throw Error("Sign in required.");
+ }
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw Error(data.message||"Request failed.");
+ return data;
+}
+function card(title,content){
+ return `<article class="card"><h3>${esc(title)}</h3>${content}</article>`;
+}
+function metric(value,label){
+ return `<div class="metric"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`;
+}
+function empty(message){
+ return `<div class="empty">${esc(message)}</div>`;
+}
+function setActive(key){
+ document.querySelectorAll("#nav a[data-view]").forEach(a=>{
+  a.classList.toggle("active",a.dataset.view===key);
+ });
+}
+function setTitle(key){
+ const names={
+  overview:"Academic Writing Overview",
+  jobs:"Manage Academic Writing Jobs",
+  create:"Create Academic Writing Job",
+  applications:"Review Applications",
+  packages:"Bid Packages",
+  wallets:"Bid Wallets",
+  transactions:"Bid Transactions"
+ };
+ $("pageTitle").textContent=names[key]||names.overview;
+}
+
+async function overview(){
+ const d=await api(admin+"/overview");
+ const jobs=d.jobs||{},apps=d.applications||{},bids=d.bids||{};
+ view.innerHTML=`
+ <div class="metrics">
+ ${metric(Object.values(jobs).reduce((a,b)=>a+Number(b||0),0),"Total jobs")}
+ ${metric(jobs.published||0,"Published jobs")}
+ ${metric(jobs.draft||0,"Draft jobs")}
+ ${metric(jobs.paused||0,"Paused jobs")}
+ ${metric(jobs.closed||0,"Closed jobs")}
+ ${metric(Object.values(apps).reduce((a,b)=>a+Number(b||0),0),"Total applications")}
+ ${metric(apps.submitted||0,"New applications")}
+ ${metric(apps.shortlisted||0,"Shortlisted")}
+ ${metric(apps.awarded||0,"Awarded applications")}
+ ${metric(bids.available||0,"Available bids in wallets")}
+ ${metric(bids.sold||0,"Total bids purchased")}
+ ${metric(bids.used||0,"Total bids spent")}
+ </div>
+ <div class="grid">
+ ${card("Job management",'<p class="muted">Create new opportunities, edit drafts and published jobs, and control publication status.</p><a class="btn primary" href="#jobs">Manage jobs</a>')}
+ ${card("Application review",'<p class="muted">Review proposals, shortlist applicants, mark unsuccessful applications and award projects.</p><a class="btn primary" href="#applications">Review applications</a>')}
+ ${card("Bid management",'<p class="muted">Control bid packages, wallet adjustments and transaction records.</p><a class="btn primary" href="#packages">Manage bid packages</a>')}
+ </div>
+ <div class="notice">${esc(d.note||"No commissions. Earnings and withdrawals are not enabled.")}</div>`;
+}
+
+function jobRows(jobs){
+ if(!jobs.length)return `<tr><td colspan="7">No jobs found.</td></tr>`;
+ return jobs.map(j=>`
+ <tr>
+ <td><strong>${esc(j.title)}</strong><br><span class="muted">${esc(j.discipline)} · ${esc(j.subject)}</span></td>
+ <td><span class="pill">${esc(j.status)}</span></td>
+ <td>${money(j.budgetMinCents)} – ${money(j.budgetMaxCents)}</td>
+ <td>${Number(j.requiredBids||0)}</td>
+ <td>${Number(j.awardedCount||0)} / ${Number(j.successfulApplicants||1)}</td>
+ <td>${date(j.applicationClosesAt)}</td>
+ <td><div class="actions">
+ <button class="btn" data-edit="${esc(j._id)}">Edit</button>
+ ${j.status==="draft"||j.status==="paused"?`<button class="btn primary" data-status="${esc(j._id)}" data-next="published">Publish</button>`:""}
+ ${j.status==="published"?`<button class="btn" data-status="${esc(j._id)}" data-next="paused">Pause</button>`:""}
+ ${["published","paused"].includes(j.status)?`<button class="btn danger" data-status="${esc(j._id)}" data-next="closed">Close</button>`:""}
+ ${!["archived","closed"].includes(j.status)?`<button class="btn" data-status="${esc(j._id)}" data-next="archived">Archive</button>`:""}
+ </div></td>
+ </tr>`).join("");
+}
+
+async function jobs(){
+ const d=await api(admin+"/jobs");
+ currentJobs=d.jobs||[];
+ view.innerHTML=`
+ <div class="row">
+ <button class="btn primary" onclick="location.hash='create'">+ Create new job</button>
+ <span class="muted">${currentJobs.length} jobs loaded</span>
+ </div>
+ <div class="tablewrap" style="margin-top:14px">
+ <table><thead><tr><th>Job</th><th>Status</th><th>Budget (USD)</th><th>Bid cost</th><th>Awards</th><th>Application closes</th><th>Actions</th></tr></thead>
+ <tbody>${jobRows(currentJobs)}</tbody></table></div>`;
+}
+
+function jobForm(job={}){
+ const editing=Boolean(job._id);
+ const value=(key,fallback="")=>job[key]??fallback;
+ view.innerHTML=`
+ <div class="card">
+ <h3>${editing?"Edit job":"New job details"}</h3>
+ <p class="muted">${editing?"Update the selected job.":"New jobs are saved as drafts and must be published separately."}</p>
+ <form id="jobForm" class="formgrid">
+ <label class="field wide">Job title<input name="title" maxlength="180" required value="${esc(value("title"))}"></label>
+ <label class="field wide">Description<textarea name="description" maxlength="12000" required>${esc(value("description"))}</textarea></label>
+ <label class="field">Discipline<input name="discipline" maxlength="100" required value="${esc(value("discipline"))}"></label>
+ <label class="field">Subject<input name="subject" maxlength="100" required value="${esc(value("subject"))}"></label>
+ <label class="field">Academic level<input name="academicLevel" maxlength="80" required value="${esc(value("academicLevel"))}"></label>
+ <label class="field">Service category<input name="serviceCategory" maxlength="80" required value="${esc(value("serviceCategory"))}"></label>
+ <label class="field">Skills (comma separated)<textarea name="skills">${esc((value("skills",[])||[]).join(", "))}</textarea></label>
+ <label class="field">Qualifications (comma separated)<textarea name="qualifications">${esc((value("qualifications",[])||[]).join(", "))}</textarea></label>
+ <label class="field wide">Scope of work<textarea name="scope" maxlength="5000">${esc(value("scope"))}</textarea></label>
+ <label class="field">Word count (optional)<input name="wordCount" type="number" min="1" step="1" value="${esc(value("wordCount",""))}"></label>
+ <label class="field">Referencing style<input name="referencingStyle" maxlength="80" value="${esc(value("referencingStyle"))}"></label>
+ <label class="field wide">Deliverables (comma separated)<textarea name="deliverables">${esc((value("deliverables",[])||[]).join(", "))}</textarea></label>
+ <label class="field">Minimum budget (USD)<input name="budgetMin" type="number" min="0.01" step="0.01" required value="${editing?Number(value("budgetMinCents",1))/100:""}"></label>
+ <label class="field">Maximum budget (USD)<input name="budgetMax" type="number" min="0.01" step="0.01" required value="${editing?Number(value("budgetMaxCents",1))/100:""}"></label>
+ <label class="field">Required bids to apply<input name="requiredBids" type="number" min="1" max="1000" step="1" required value="${esc(value("requiredBids",1))}"></label>
+ <label class="field">Successful applicants limit<input name="successfulApplicants" type="number" min="1" max="50" step="1" required value="${esc(value("successfulApplicants",1))}"></label>
+ <label class="field">Application closing date/time<input name="applicationClosesAt" type="datetime-local" required value="${editing?localDate(value("applicationClosesAt")):""}"></label>
+ <label class="field">Project deadline<input name="deadline" type="datetime-local" required value="${editing?localDate(value("deadline")):""}"></label>
+ <label class="field wide">Additional instructions<textarea name="instructions" maxlength="5000">${esc(value("instructions"))}</textarea></label>
+ <div class="field wide">
+ <div class="row">
+ <button class="btn primary" type="submit">${editing?"Save changes":"Save as draft"}</button>
+ <button class="btn" type="button" id="cancelForm">Cancel</button>
+ </div>
+ </div>
+ </form></div>`;
+ $("cancelForm").onclick=()=>location.hash="jobs";
+ $("jobForm").onsubmit=async e=>{
+  e.preventDefault();
+  const f=new FormData(e.currentTarget);
+  const list=name=>String(f.get(name)||"").split(",").map(x=>x.trim()).filter(Boolean);
+  const payload={
+   title:f.get("title"),description:f.get("description"),
+   discipline:f.get("discipline"),subject:f.get("subject"),
+   academicLevel:f.get("academicLevel"),serviceCategory:f.get("serviceCategory"),
+   skills:list("skills"),qualifications:list("qualifications"),
+   scope:f.get("scope"),wordCount:f.get("wordCount")?Number(f.get("wordCount")):null,
+   referencingStyle:f.get("referencingStyle"),deliverables:list("deliverables"),
+   budgetMinCents:Math.round(Number(f.get("budgetMin"))*100),
+   budgetMaxCents:Math.round(Number(f.get("budgetMax"))*100),
+   requiredBids:Number(f.get("requiredBids")),
+   successfulApplicants:Number(f.get("successfulApplicants")),
+   applicationClosesAt:new Date(f.get("applicationClosesAt")).toISOString(),
+   deadline:new Date(f.get("deadline")).toISOString(),
+   instructions:f.get("instructions")
+  };
+  if(payload.budgetMaxCents<payload.budgetMinCents){say("Maximum budget must be at least the minimum.","error");return;}
+  if(new Date(payload.deadline)<=new Date(payload.applicationClosesAt)){say("Project deadline must be after application closing.","error");return;}
+  try{
+   say(editing?"Saving job changes…":"Creating job…");
+   await api(admin+"/jobs"+(editing?"/"+encodeURIComponent(job._id):""),{
+    method:editing?"PATCH":"POST",body:JSON.stringify(payload)
+   });
+   say(editing?"Job updated.":"Job created as draft.","success");
+   location.hash="jobs";
+  }catch(err){say(err.message,"error");}
+ };
+}
+function localDate(value){
+ if(!value)return "";
+ const d=new Date(value);
+ if(Number.isNaN(d.getTime()))return "";
+ const offset=d.getTimezoneOffset();
+ return new Date(d.getTime()-offset*60000).toISOString().slice(0,16);
+}
+
+async function applications(){
+ const d=await api(admin+"/applications");
+ const apps=d.applications||[];
+ view.innerHTML=`
+ <div class="row">
+ <label class="field">Filter status
+ <select id="appFilter"><option value="">All applications</option>
+ ${["submitted","under_review","shortlisted","awarded","unsuccessful","withdrawn"].map(s=>`<option value="${s}">${s}</option>`).join("")}
+ </select></label>
+ <span class="muted">${apps.length} applications loaded</span>
+ </div>
+ <div class="tablewrap" style="margin-top:14px"><table>
+ <thead><tr><th>Applicant</th><th>Job</th><th>Proposed price</th><th>Bid cost</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead>
+ <tbody>${apps.map(a=>`<tr data-app-status="${esc(a.status)}">
+ <td>${esc([a.userId?.firstName,a.userId?.lastName].filter(Boolean).join(" ")||a.userId?.username||"Applicant")}<br><span class="muted">${esc(a.userId?.email||"")}</span></td>
+ <td>${esc(a.jobId?.title||"Job")}</td><td>${money(a.proposedPriceCents)}</td><td>${Number(a.bidCost||0)}</td>
+ <td><span class="pill">${esc(a.status)}</span></td><td>${date(a.submittedAt)}</td>
+ <td><div class="actions">
+ ${["submitted","under_review","shortlisted"].includes(a.status)?`
+ <button class="btn" data-app="${esc(a._id)}" data-app-next="under_review">Review</button>
+ <button class="btn" data-app="${esc(a._id)}" data-app-next="shortlisted">Shortlist</button>
+ <button class="btn primary" data-award="${esc(a._id)}">Award</button>
+ <button class="btn danger" data-app="${esc(a._id)}" data-app-next="unsuccessful">Unsuccessful</button>`:"—"}
+ </div></td></tr>`).join("")||'<tr><td colspan="7">No applications found.</td></tr>'}
+ </tbody></table></div>`;
+ $("appFilter").onchange=()=>{
+  view.querySelectorAll("tbody tr[data-app-status]").forEach(row=>{
+   row.classList.toggle("hidden",Boolean($("appFilter").value)&&row.dataset.appStatus!==$("appFilter").value);
+  });
+ };
+}
+
+async function packages(){
+ const d=await api(admin+"/bid-packages");
+ const packs=d.packages||[];
+ view.innerHTML=`
+ <div class="card"><h3>Create bid package</h3>
+ <form id="packageForm" class="formgrid">
+ <label class="field">Package name<input name="name" maxlength="120" required></label>
+ <label class="field">Number of bids<input name="bids" type="number" min="1" step="1" required></label>
+ <label class="field">Price (KSh)<input name="priceKes" type="number" min="1" step="1" required></label>
+ <label class="field">Description<input name="description" maxlength="500"></label>
+ <label class="field">Active<select name="isActive"><option value="true">Active</option><option value="false">Inactive</option></select></label>
+ <div class="field"><button class="btn primary">Create package</button></div>
+ </form></div>
+ <h2>Existing packages</h2><div class="grid">
+ ${packs.map(p=>card(p.name,`<p><strong>${Number(p.bids)} bids · KSh ${Number(p.priceKes).toLocaleString()}</strong></p><p class="muted">${esc(p.description)}</p><p><span class="pill">${p.isActive?"Active":"Inactive"}</span></p><div class="actions"><button class="btn" data-package="${esc(p._id)}">Edit package</button></div>`)).join("")||empty("No bid packages created.")}
+ </div>`;
+ $("packageForm").onsubmit=async e=>{
+  e.preventDefault();const f=new FormData(e.currentTarget);
+  try{
+   await api(admin+"/bid-packages",{method:"POST",body:JSON.stringify({
+    name:f.get("name"),description:f.get("description"),
+    bids:Number(f.get("bids")),priceKes:Number(f.get("priceKes")),
+    isActive:f.get("isActive")==="true"
+   })});
+   say("Bid package created.","success");packages();
+  }catch(err){say(err.message,"error");}
+ };
+}
+
+async function wallets(){
+ view.innerHTML=`
+ <div class="card"><h3>Adjust a member's bid wallet</h3>
+ <p class="muted">Enter the member's MongoDB user ID. Positive bids add credits; negative bids deduct credits. Every adjustment requires an audit reason.</p>
+ <form id="walletForm" class="formgrid">
+ <label class="field wide">Member user ID<input name="userId" required placeholder="MongoDB user ID"></label>
+ <label class="field">Bid adjustment<input name="bids" type="number" step="1" min="-100000" max="100000" required placeholder="e.g. 10 or -5"></label>
+ <label class="field">Audit reason<input name="reason" minlength="8" maxlength="500" required></label>
+ <div class="field wide"><button class="btn primary">Apply wallet adjustment</button></div>
+ </form></div>`;
+ $("walletForm").onsubmit=async e=>{
+  e.preventDefault();const f=new FormData(e.currentTarget);
+  const bids=Number(f.get("bids"));
+  if(!bids){say("Adjustment cannot be zero.","error");return;}
+  if(!confirm(`${bids>0?"Add":"Deduct"} ${Math.abs(bids)} bids from this member?`))return;
+  try{
+   const result=await api(admin+"/bid-wallets/"+encodeURIComponent(f.get("userId"))+"/adjust",{
+    method:"POST",body:JSON.stringify({bids,reason:f.get("reason")})
+   });
+   say("Wallet updated. New balance: "+result.wallet.balanceBids+" bids.","success");
+   e.currentTarget.reset();
+  }catch(err){say(err.message,"error");}
+ };
+}
+
+async function transactions(){
+ const d=await api(admin+"/bid-transactions");
+ const rows=d.transactions||[];
+ view.innerHTML=`
+ <div class="row"><span class="muted">${rows.length} latest transactions</span></div>
+ <div class="tablewrap" style="margin-top:14px"><table>
+ <thead><tr><th>Date</th><th>Member</th><th>Type</th><th>Bids</th><th>Previous</th><th>New balance</th><th>Description</th><th>Reference</th></tr></thead>
+ <tbody>${rows.map(t=>`<tr>
+ <td>${date(t.createdAt)}</td>
+ <td>${esc(t.userId?.username||[t.userId?.firstName,t.userId?.lastName].filter(Boolean).join(" ")||"Member")}<br>${esc(t.userId?.email||"")}</td>
+ <td>${esc(t.type)}</td><td>${Number(t.bids||0)}</td>
+ <td>${Number(t.previousBalance||0)}</td><td>${Number(t.newBalance||0)}</td>
+ <td>${esc(t.description)}</td><td>${esc(t.reference)}</td>
+ </tr>`).join("")||'<tr><td colspan="8">No transactions found.</td></tr>'}
+ </tbody></table></div>`;
+}
+
+async function render(){
+ const key=location.hash.slice(1)||"overview";
+ setActive(key);setTitle(key);say("Loading…");
+ try{
+  if(key==="jobs")await jobs();
+  else if(key==="create")jobForm();
+  else if(key==="applications")await applications();
+  else if(key==="packages")await packages();
+  else if(key==="wallets")await wallets();
+  else if(key==="transactions")await transactions();
+  else await overview();
+  say("");
+ }catch(err){
+  say(err.message,"error");
+  view.innerHTML=`<div class="card error">${esc(err.message)}</div>`;
+ }
+}
+
+$("nav").addEventListener("click",e=>{
+ const a=e.target.closest("a[data-view]");
+ if(!a)return;
+ e.preventDefault();location.hash=a.dataset.view;
+});
+window.addEventListener("hashchange",render);
+$("refresh").onclick=render;
+
+view.addEventListener("click",async e=>{
+ const edit=e.target.closest("[data-edit]");
+ const change=e.target.closest("[data-status]");
+ const app=e.target.closest("[data-app]");
+ const award=e.target.closest("[data-award]");
+ const pack=e.target.closest("[data-package]");
+ try{
+  if(edit){
+   const job=currentJobs.find(j=>String(j._id)===edit.dataset.edit);
+   if(job)jobForm(job);
+  }
+  if(change){
+   const next=change.dataset.next;
+   if(!confirm(`Change this job status to ${next}?`))return;
+   await api(admin+"/jobs/"+encodeURIComponent(change.dataset.status)+"/status",{
+    method:"PATCH",body:JSON.stringify({status:next})
+   });
+   say("Job status updated.","success");await jobs();
+  }
+  if(app){
+   const next=app.dataset.appNext;
+   const note=prompt("Optional review note:")||"";
+   await api(admin+"/applications/"+encodeURIComponent(app.dataset.app)+"/status",{
+    method:"PATCH",body:JSON.stringify({status:next,note})
+   });
+   say("Application status updated.","success");await applications();
+  }
+  if(award){
+   if(!confirm("Award this application? This will count toward the job's successful applicant limit."))return;
+   await api(admin+"/applications/"+encodeURIComponent(award.dataset.award)+"/award",{
+    method:"POST",body:JSON.stringify({})
+   });
+   say("Application awarded.","success");await applications();
+  }
+  if(pack){
+   const item=await api(admin+"/bid-packages");
+   const p=(item.packages||[]).find(x=>String(x._id)===pack.dataset.package);
+   if(!p)return;
+   const name=prompt("Package name:",p.name);if(name===null)return;
+   const bids=prompt("Number of bids:",p.bids);if(bids===null)return;
+   const priceKes=prompt("Price in KSh:",p.priceKes);if(priceKes===null)return;
+   const description=prompt("Description:",p.description||"");if(description===null)return;
+   const active=confirm("Keep this package active? Cancel means inactive.");
+   await api(admin+"/bid-packages/"+encodeURIComponent(p._id),{
+    method:"PATCH",body:JSON.stringify({name,bids:Number(bids),priceKes:Number(priceKes),description,isActive:active})
+   });
+   say("Bid package updated.","success");await packages();
+  }
+ }catch(err){say(err.message,"error");}
+});
+
+render();
+})();
+</script>
+</body>
+</html>

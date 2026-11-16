@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101a2d">
+<title>Bid Wallet | PrimeTask Academic Writing</title>
+<script src="../../../../assets/js/config.js"></script>
+<style>
+:root{--bg:#0b1220;--panel:#111d32;--panel2:#172640;--line:#263954;--text:#edf3fc;--muted:#9aabc2;--blue:#2878ed;--orange:#f28b32;--green:#27b879;--red:#e45c66}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit}
+button{cursor:pointer}
+.sidebar{position:fixed;z-index:50;inset:0 auto 0 0;width:265px;background:#101b30;border-right:1px solid var(--line);padding:22px 16px;transform:translateX(-100%);transition:transform .22s;overflow:auto}
+.sidebar.open{transform:translateX(0)}
+.brand{font-size:19px;font-weight:800;padding:5px 10px 24px}
+.brand small{display:block;color:var(--orange);font-size:12px;margin-top:4px}
+.nav-label{font-size:10px;color:#71849f;text-transform:uppercase;letter-spacing:1.5px;padding:15px 11px 7px}
+.nav a{display:flex;gap:12px;padding:12px 13px;margin:4px 0;border-radius:10px;color:#bdcbe0;font-weight:600}
+.nav a.active,.nav a:hover{background:#1b3152;color:white}
+.nav a.active{border-left:3px solid var(--orange)}
+.nav-icon{width:22px;text-align:center;color:#8eacd2}
+.overlay{display:none;position:fixed;inset:0;background:#020711b8;z-index:40}
+.overlay.show{display:block}
+.main{min-height:100vh}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:13px 18px;background:#0e192bf2;border-bottom:1px solid var(--line)}
+.hamburger{width:42px;height:42px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:white;font-size:22px}
+.top-title{font-weight:800}.top-sub{font-size:11px;color:var(--muted)}
+.spacer{flex:1}
+.avatar{width:36px;height:36px;border-radius:50%;background:#203b61;display:grid;place-items:center;font-weight:800}
+.content{max-width:1200px;margin:auto;padding:25px 20px 55px}
+h1{font-size:25px;margin:0 0 5px}h2{font-size:18px;margin:0 0 15px}
+.muted{color:var(--muted)}.small{font-size:12px}
+.header{margin-bottom:20px}
+.balance-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:20px 0}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:17px}
+.metric strong{display:block;font-size:27px;margin:5px 0}
+.metric span{font-size:12px;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:19px;margin:18px 0}
+.packages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.package{border:1px solid var(--line);background:#14233a;border-radius:12px;padding:17px;display:flex;flex-direction:column;gap:9px}
+.package.selected{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.package .bids{font-size:25px;font-weight:800}
+.package .price{font-size:20px;font-weight:800;color:#ffb36c}
+.package button{margin-top:auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:9px;padding:10px 14px;background:#1a2a43;color:#eaf2ff;font-weight:700}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:white}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.field{display:flex;flex-direction:column;gap:7px;margin:14px 0}
+label{font-size:13px;color:#cbd8e9;font-weight:700}
+input{width:100%;max-width:420px;background:#0c1729;color:white;border:1px solid var(--line);border-radius:9px;padding:12px}
+.purchase-row{display:flex;align-items:end;gap:15px;flex-wrap:wrap}
+.status{min-height:22px;margin:10px 0;color:var(--muted);font-size:13px}
+.error{color:#ff858b}.success{color:#72e0ad}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+table{width:100%;min-width:650px;border-collapse:collapse;background:var(--panel)}
+th,td{text-align:left;padding:13px;border-bottom:1px solid var(--line);font-size:13px}
+th{background:#172640;color:#c8d7eb}
+.pill{display:inline-block;padding:5px 10px;border-radius:30px;background:#203a5c;color:#cfe2ff;font-size:11px;font-weight:700;text-transform:capitalize}
+.pill.success{background:#123c30;color:#79e5b5}
+.pill.warning{background:#46351b;color:#ffd18a}
+.pill.danger{background:#48242b;color:#ff9ba1}
+.empty{padding:25px;text-align:center;color:var(--muted)}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+@media(min-width:1000px){.sidebar{transform:translateX(0)}.main{margin-left:265px}.overlay{display:none!important}}
+@media(max-width:800px){.packages{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){.content{padding:19px 13px 40px}.balance-grid{grid-template-columns:1fr}.packages{grid-template-columns:1fr}.metric{padding:13px}}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">PrimeTask Workspace<small>ACADEMIC WRITING</small></div>
+  <div class="nav-label">Workspace</div>
+  <nav class="nav">
+    <a href="../index.html#overview"><span class="nav-icon">▦</span>Dashboard</a>
+    <a href="jobs.html"><span class="nav-icon">▤</span>Browse jobs</a>
+    <a href="applications.html"><span class="nav-icon">▣</span>My applications</a>
+    <a href="wallet.html" class="active"><span class="nav-icon">◈</span>Bid wallet</a>
+  </nav>
+  <div class="nav-label">Account</div>
+  <nav class="nav">
+    <a href="#packages"><span class="nav-icon">＋</span>Buy bid packages</a>
+    <a href="/dashboard"><span class="nav-icon">⌂</span>Main dashboard</a>
+    <a href="/dashboard/services"><span class="nav-icon">▦</span>All services</a>
+  </nav>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <button class="hamburger" id="menuButton" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <div><div class="top-title">Academic Writing</div><div class="top-sub">Bid wallet and purchases</div></div>
+  <div class="spacer"></div><div class="avatar">PT</div>
+</header>
+
+<div class="content">
+  <div class="header">
+    <h1>Bid wallet</h1>
+    <div class="muted">Purchase bids and track how you use them when applying for jobs.</div>
+  </div>
+
+  <div id="status" class="status">Loading wallet…</div>
+
+  <div class="balance-grid">
+    <div class="metric"><span>Available bids</span><strong id="available">--</strong><span>Ready to use on applications</span></div>
+    <div class="metric"><span>Total purchased</span><strong id="purchased">--</strong><span>Bids credited to your wallet</span></div>
+    <div class="metric"><span>Total spent</span><strong id="spent">--</strong><span>Bids used for applications</span></div>
+  </div>
+
+  <section class="panel" id="packages">
+    <h2>Buy bid packages</h2>
+    <p class="muted small">Select a package. Package prices are displayed in Kenyan shillings.</p>
+    <div id="packagesList" class="packages">
+      <div class="empty">Loading packages…</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Complete M-Pesa purchase</h2>
+    <div class="muted small">Choose a package above, then enter the M-Pesa number to use for payment.</div>
+    <div class="purchase-row">
+      <div class="field">
+        <label for="phone">M-Pesa phone number</label>
+        <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="2547XXXXXXXX">
+      </div>
+      <button class="btn primary" id="purchaseButton" disabled>Continue to payment</button>
+    </div>
+    <div id="purchaseStatus" class="status"></div>
+    <div class="note">Only submit a purchase once. Wait for the payment result before trying again.</div>
+  </section>
+
+  <section class="panel">
+    <h2>Bid transaction history</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Date</th><th>Type</th><th>Bids</th><th>Previous balance</th><th>New balance</th><th>Description</th></tr></thead>
+        <tbody id="transactions"><tr><td colspan="6" class="empty">Loading transactions…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+</main>
+
+<script>
+"use strict";
+(()=>{
+ const $=id=>document.getElementById(id);
+ const root=()=>window.PTW_API_BASE||"";
+ let selectedPackage=null;
+ let packages=[];
+
+ function esc(value){
+   const node=document.createElement("div");
+   node.textContent=String(value??"");
+   return node.innerHTML;
+ }
+ function date(value){
+   if(!value)return "Not available";
+   const d=new Date(value);
+   return Number.isNaN(d.getTime())?"Not available":d.toLocaleString();
+ }
+ function say(id,message,type=""){
+   $(id).textContent=message;
+   $(id).className="status "+type;
+ }
+ async function api(path,options={}){
+   if(!root())throw Error("API URL is not configured.");
+   const response=await fetch(root()+path,{
+     ...options,
+     credentials:"include",
+     headers:{
+       Accept:"application/json",
+       ...(options.body?{"Content-Type":"application/json"}:{}),
+       ...(options.headers||{})
+     }
+   });
+   if(response.status===401){location.href="/auth/login";throw Error("Please sign in.")}
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw Error(data.message||"Request failed.");
+   return data;
+ }
+ function pickPackage(item){
+   selectedPackage=item;
+   $("purchaseButton").disabled=false;
+   document.querySelectorAll(".package").forEach(el=>{
+     el.classList.toggle("selected",el.dataset.id===String(item._id));
+   });
+ }
+ function renderPackages(){
+   $("packagesList").innerHTML=packages.map(item=>`
+     <div class="package" data-id="${esc(item._id)}">
+       <div class="bids">${esc(item.bidCount??item.bids??0)} bids</div>
+       <div class="price">KSh ${Number(item.priceKes||0).toLocaleString()}</div>
+       ${item.description?`<div class="muted small">${esc(item.description)}</div>`:""}
+       <button class="btn" type="button" data-select="${esc(item._id)}">Select package</button>
+     </div>
+   `).join("")||'<div class="empty">No bid packages are currently available.</div>';
+   $("packagesList").querySelectorAll("[data-select]").forEach(button=>{
+     button.addEventListener("click",()=>{
+       const item=packages.find(p=>String(p._id)===button.dataset.select);
+       if(item)pickPackage(item);
+     });
+   });
+ }
+ function renderTransactions(items){
+    $("transactions").innerHTML=items.map(item=>{
+      return `<tr>
+        <td>${date(item.createdAt||item.date)}</td>
+        <td>${esc(String(item.type||"transaction").replaceAll("_"," "))}</td>
+        <td>${Number(item.bids||0)>0?"+":""}${esc(item.bids||0)}</td>
+        <td>${esc(item.previousBalance??0)}</td>
+        <td>${esc(item.newBalance??0)}</td>
+        <td>${esc(item.description||item.reference||"—")}</td>
+      </tr>`;
+    }).join("")||'<tr><td colspan="6" class="empty">No bid transactions yet.</td></tr>';
+ }
+ async function load(){
+   say("status","Loading wallet and packages…");
+   try{
+     const [walletData,packageData]=await Promise.all([
+       api("/academic-writing/bid-wallet"),
+       api("/academic-writing/bid-packages")
+     ]);
+     const wallet=walletData.wallet||walletData;
+     $("available").textContent=wallet.balanceBids??0;
+     $("purchased").textContent=wallet.totalPurchasedBids??0;
+     $("spent").textContent=wallet.totalSpentBids??0;
+     packages=packageData.packages||[];
+     renderPackages();
+     const transactions=walletData.transactions||wallet.transactions||[];
+     renderTransactions(transactions);
+     say("status","Wallet information loaded.");
+   }catch(error){
+     say("status",error.message,"error");
+     $("packagesList").innerHTML=`<div class="empty">${esc(error.message)}</div>`;
+     $("transactions").innerHTML=`<tr><td colspan="6" class="empty">${esc(error.message)}</td></tr>`;
+   }
+ }
+ function normalizePhone(value){
+   let phone=value.replace(/[\s+()-]/g,"");
+   if(phone.startsWith("0"))phone="254"+phone.slice(1);
+   if(phone.startsWith("7")||phone.startsWith("1"))phone="254"+phone;
+   return /^254[17]\d{8}$/.test(phone)?phone:null;
+ }
+ async function purchase(){
+   if(!selectedPackage){say("purchaseStatus","Select a bid package first.","error");return}
+   const phone=normalizePhone($("phone").value.trim());
+   if(!phone){say("purchaseStatus","Enter a valid Kenyan M-Pesa number, for example 254712345678.","error");return}
+   const button=$("purchaseButton");
+   button.disabled=true;
+   button.textContent="Submitting…";
+   say("purchaseStatus","Submitting your purchase request…");
+   try{
+     const result=await api("/academic-writing/bid-purchases",{
+       method:"POST",
+       headers:{"Idempotency-Key":crypto.randomUUID()},
+       body:JSON.stringify({packageId:selectedPackage._id,phoneNumber:phone})
+     });
+     say("purchaseStatus",result.message||"Purchase request submitted. Follow the payment instructions on your phone.","success");
+     await load();
+   }catch(error){
+     say("purchaseStatus",error.message,"error");
+   }finally{
+     button.disabled=!selectedPackage;
+     button.textContent="Continue to payment";
+   }
+ }
+ $("purchaseButton").addEventListener("click",purchase);
+ $("menuButton").addEventListener("click",()=>{
+   const open=!$("sidebar").classList.contains("open");
+   $("sidebar").classList.toggle("open",open);
+   $("overlay").classList.toggle("show",open);
+   $("menuButton").setAttribute("aria-expanded",String(open));
+ });
+ $("overlay").addEventListener("click",()=>{
+   $("sidebar").classList.remove("open");
+   $("overlay").classList.remove("show");
+   $("menuButton").setAttribute("aria-expanded","false");
+ });
+ load();
+})();
+</script>
+</body>
+</html>

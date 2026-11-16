@@ -5,6 +5,7 @@ const MembershipPurchase = require("../models/MembershipPurchase");
 const MinutePurchase = require("../models/TranscriptionMinutePurchase");
 const NotesPointsPurchase = require("../models/NotesPointsPurchase");
 const DataEntryBidPurchase = require("../models/DataEntryBidPurchase");
+const AcademicBidPurchase = require("../models/AcademicBidPurchase");
 const DarajaCallbackEvent = require("../models/DarajaCallbackEvent");
 const { verifyAndFulfilMembershipCallback } = require("../services/membershipDarajaVerificationService");
 const {
@@ -20,6 +21,9 @@ const {
 const {
   verifyAndCreditDataEntryBidPurchase
 } = require("../services/dataEntryBidDarajaVerificationService");
+const {
+  verifyAndCreditAcademicBidPurchase
+} = require("../services/academicBidDarajaVerificationService");
 
 const router = express.Router();
 
@@ -678,6 +682,45 @@ router.post("/stk", async (req, res) => {
           ResultCode: 0,
           ResultDesc: "Callback stored; Data Entry bid payment requires verification"
         });
+      }
+
+      const academicBidPurchase = await AcademicBidPurchase.findOne({ checkoutRequestId });
+
+      if (academicBidPurchase) {
+        if (resultCode !== null && resultCode !== 0) {
+          if (merchantRequestId !== academicBidPurchase.merchantRequestId) {
+            await DarajaCallbackEvent.updateOne({ eventKey }, { $set: { processingStatus: "reconciliation_required" } });
+            return res.status(200).json({ ResultCode: 0, ResultDesc: "Callback stored; merchant request does not match" });
+          }
+          const isCancellation = resultCode === 1032;
+          const released = await AcademicBidPurchase.updateOne(
+            { _id: academicBidPurchase._id, checkoutRequestId, merchantRequestId, paymentStatus: { $in: ["pending", "verification_required"] }, hasUnresolvedPayment: true },
+            { $set: { paymentStatus: isCancellation ? "cancelled" : "failed", hasUnresolvedPayment: false, failureCode: String(resultCode).slice(0, 100) } }
+          );
+          await DarajaCallbackEvent.updateOne({ eventKey }, { $set: { processingStatus: released.modifiedCount ? "processed" : "reconciliation_required" } });
+          return res.status(200).json({ ResultCode: 0, ResultDesc: "Academic Writing bid payment failure recorded" });
+        }
+
+        let verification = { verified: false, reason: "CALLBACK_REQUIRES_RECONCILIATION" };
+        if (resultCode === 0) {
+          try {
+            verification = await verifyAndCreditAcademicBidPurchase({ purchaseId: academicBidPurchase._id, checkoutRequestId, merchantRequestId, resultCode, metadata });
+          } catch (verificationError) {
+            verification = { verified: false, reason: verificationError.code || "VERIFICATION_ERROR" };
+          }
+        }
+        if (verification.verified) {
+          await DarajaCallbackEvent.updateOne({ eventKey }, { $set: { processingStatus: "processed" } });
+          return res.status(200).json({ ResultCode: 0, ResultDesc: "Academic Writing bid payment verified" });
+        }
+        await Promise.all([
+          DarajaCallbackEvent.updateOne({ eventKey }, { $set: { processingStatus: "reconciliation_required" } }),
+          AcademicBidPurchase.updateOne(
+            { _id: academicBidPurchase._id, checkoutRequestId, merchantRequestId, paymentStatus: { $in: ["pending", "verification_required"] }, hasUnresolvedPayment: true },
+            { $set: { paymentStatus: "verification_required", failureCode: String(verification.reason || "CALLBACK_REQUIRES_RECONCILIATION").slice(0, 100) } }
+          )
+        ]);
+        return res.status(200).json({ ResultCode: 0, ResultDesc: "Academic Writing payment stored for verification; no bids credited" });
       }
 
       await DarajaCallbackEvent.updateOne(

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101a2d">
+<title>Academic Writing | PrimeTask Workspace</title>
+<script src="../../../../assets/js/config.js"></script>
+<style>
+:root{
+  --bg:#0b1220;--panel:#111d32;--panel2:#172640;--line:#263954;
+  --text:#edf3fc;--muted:#9aabc2;--blue:#2878ed;--orange:#f28b32;
+  --green:#27b879;--red:#e45c66;--radius:15px
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button,a{ -webkit-tap-highlight-color:transparent}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.layout{min-height:100vh}
+.sidebar{
+ position:fixed;z-index:50;inset:0 auto 0 0;width:265px;
+ background:#101b30;border-right:1px solid var(--line);
+ padding:22px 16px;transform:translateX(-100%);
+ transition:transform .22s ease;overflow-y:auto
+}
+.sidebar.open{transform:translateX(0)}
+.brand{font-size:19px;font-weight:800;padding:5px 10px 24px}
+.brand small{display:block;color:var(--orange);font-size:12px;font-weight:600;margin-top:4px}
+.nav-label{font-size:10px;color:#71849f;text-transform:uppercase;letter-spacing:1.5px;padding:15px 11px 7px}
+.nav a{display:flex;align-items:center;gap:12px;padding:12px 13px;margin:4px 0;border-radius:10px;color:#bdcbe0;font-weight:600}
+.nav a:hover,.nav a.active{background:#1b3152;color:white}
+.nav a.active{border-left:3px solid var(--orange)}
+.nav-icon{width:22px;text-align:center;color:#8eacd2;font-size:17px}
+.sidebar-bottom{border-top:1px solid var(--line);margin-top:25px;padding-top:15px}
+.overlay{display:none;position:fixed;inset:0;background:#020711b8;z-index:40}
+.overlay.show{display:block}
+.main{min-height:100vh}
+.topbar{
+ position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;
+ padding:13px 18px;background:#0e192bF2;border-bottom:1px solid var(--line);
+ backdrop-filter:blur(12px)
+}
+.hamburger{width:42px;height:42px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:white;font-size:22px}
+.top-title{font-weight:800;font-size:16px}
+.top-sub{font-size:11px;color:var(--muted)}
+.top-spacer{flex:1}
+.avatar{width:36px;height:36px;border-radius:50%;background:#203b61;display:grid;place-items:center;font-weight:800;color:#dceaff}
+.content{max-width:1250px;margin:auto;padding:25px 20px 55px}
+.welcome{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:22px}
+h1{font-size:25px;margin:0 0 5px}
+h2{font-size:19px;margin:27px 0 13px}
+h3{font-size:16px;margin:0 0 9px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.status{min-height:22px;margin:0 0 12px;color:var(--muted);font-size:13px}
+.status.error{color:#ff858b}.status.success{color:#62dda9}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.metric,.card,.panel{
+ background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:17px
+}
+.metric strong{display:block;font-size:27px;line-height:1.3;margin-bottom:5px}
+.metric span{font-size:12px;color:var(--muted)}
+.metric .accent{color:var(--orange)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card p{margin:7px 0}
+.card h3{font-size:16px}
+.card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);border-radius:9px;padding:10px 14px;background:#1a2a43;color:#eaf2ff;font-weight:700}
+.btn:hover{filter:brightness(1.15)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:white}
+.btn.orange{background:var(--orange);border-color:var(--orange);color:#17120d}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:9px;margin-bottom:15px}
+input,select,textarea{
+ width:100%;min-width:0;background:#0c1729;color:var(--text);
+ border:1px solid var(--line);border-radius:9px;padding:11px 12px;outline:none
+}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+textarea{min-height:100px;resize:vertical}
+label.field{display:block;font-size:13px;color:#cbd8e9}
+.field input,.field textarea,.field select{margin-top:6px}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.wide{grid-column:1/-1}
+.checkline{display:flex;align-items:center;gap:8px;font-size:13px}
+.checkline input{width:auto}
+.notice{background:#1c2c43;border-left:3px solid var(--orange);padding:12px;border-radius:7px;font-size:13px;color:#d5e1f1}
+.pill{display:inline-block;padding:4px 9px;border-radius:30px;background:#203a5c;color:#cfe2ff;font-size:11px;font-weight:700}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:650px;background:var(--panel)}
+th,td{text-align:left;padding:12px 13px;border-bottom:1px solid var(--line);font-size:13px}
+th{background:#172640;color:#c8d7eb}
+td{color:#e0e9f6}
+.empty{padding:22px;text-align:center;color:var(--muted)}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:13px}
+@media(min-width:1000px){
+ .sidebar{transform:translateX(0)}
+ .main{margin-left:265px}
+ .overlay{display:none!important}
+}
+@media(max-width:800px){
+ .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .filters{grid-template-columns:1fr 1fr}
+ .filters input:first-child{grid-column:1/-1}
+ .filters button{grid-column:1/-1}
+}
+@media(max-width:520px){
+ .content{padding:19px 13px 40px}
+ .topbar{padding:10px 13px}
+ .welcome{display:block}
+ .welcome .btn{margin-top:12px}
+ .grid,.formgrid{grid-template-columns:1fr}
+ .wide{grid-column:auto}
+ .metrics{gap:9px}
+ .metric{padding:13px}
+ .metric strong{font-size:23px}
+ .filters{grid-template-columns:1fr}
+ .filters input:first-child,.filters button{grid-column:auto}
+ h1{font-size:22px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">PrimeTask Workspace<small>ACADEMIC WRITING</small></div>
+    <div class="nav-label">Workspace</div>
+    <nav class="nav" id="nav">
+      <a href="#overview" data-view="overview" class="active"><span class="nav-icon">▦</span>Dashboard</a>
+      <a href="#jobs" data-view="jobs"><span class="nav-icon">▤</span>Browse jobs</a>
+      <a href="#applications" data-view="applications"><span class="nav-icon">▣</span>My applications</a>
+      <a href="#wallet" data-view="wallet"><span class="nav-icon">◈</span>Bid wallet</a>
+    </nav>
+    <div class="nav-label">Account</div>
+    <nav class="nav">
+      <a href="#wallet" data-view="wallet"><span class="nav-icon">＋</span>Buy bid packages</a>
+      <a href="/dashboard"><span class="nav-icon">⌂</span>Main dashboard</a>
+      <a href="/dashboard/services"><span class="nav-icon">▦</span>All services</a>
+    </nav>
+    <div class="sidebar-bottom small muted">PrimeTask Workspace<br>Creating Opportunities and delivering excellence</div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="hamburger" id="menuButton" aria-label="Open navigation" aria-expanded="false">☰</button>
+      <div>
+        <div class="top-title">Academic Writing</div>
+        <div class="top-sub">Jobs, applications and bid wallet</div>
+      </div>
+      <div class="top-spacer"></div>
+      <div class="avatar">PT</div>
+    </header>
+
+    <div class="content">
+      <div class="welcome">
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <div class="muted">Find academic writing opportunities and apply using your bids.</div>
+        </div>
+        <a class="btn orange" href="#jobs">Browse available jobs ↗</a>
+      </div>
+      <div id="status" class="status" role="status"></div>
+      <section id="view"><div class="panel">Loading your dashboard…</div></section>
+    </div>
+  </main>
+</div>
+
+<script>
+"use strict";
+(()=>{
+ const $=id=>document.getElementById(id);
+ const root=()=>window.PTW_API_BASE||"";
+ const view=$("view"),status=$("status");
+ let wallet={balanceBids:0};
+
+ function say(message,kind=""){
+   status.textContent=message;
+   status.className="status "+kind;
+ }
+ function esc(value){
+   const node=document.createElement("div");
+   node.textContent=String(value??"");
+   return node.innerHTML;
+ }
+ function money(cents){
+   return "$"+(Number(cents||0)/100).toFixed(2);
+ }
+ function date(value){
+   if(!value)return "Not specified";
+   const d=new Date(value);
+   return Number.isNaN(d.getTime())?"Not specified":d.toLocaleString();
+ }
+ function closeMenu(){
+   $("sidebar").classList.remove("open");
+   $("overlay").classList.remove("show");
+   $("menuButton").setAttribute("aria-expanded","false");
+ }
+ function toggleMenu(){
+   const open=!$("sidebar").classList.contains("open");
+   $("sidebar").classList.toggle("open",open);
+   $("overlay").classList.toggle("show",open);
+   $("menuButton").setAttribute("aria-expanded",String(open));
+ }
+ async function api(path,options={}){
+   if(!root())throw Error("API URL is not configured. Check the PTW configuration script.");
+   const response=await fetch(root()+path,{
+     ...options,
+     credentials:"include",
+     headers:{
+       Accept:"application/json",
+       ...(options.body?{"Content-Type":"application/json"}:{}),
+       ...(options.headers||{})
+     }
+   });
+   if(response.status===401){
+     location.replace("/auth/login");
+     throw Error("Sign in required.");
+   }
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw Error(data.message||"Request failed.");
+   return data;
+ }
+ function card(title,content,actions=""){
+   return `<article class="card"><h3>${esc(title)}</h3>${content}${actions?`<div class="card-actions">${actions}</div>`:""}</article>`;
+ }
+ function jobCard(job){
+   const description=job.description||"";
+   return card(job.title,
+     `<p class="muted small">${esc(job.discipline)} · ${esc(job.subject)} · ${esc(job.academicLevel)}</p>
+      <p>${esc(description.slice(0,190))}${description.length>190?"…":""}</p>
+      <p><strong>${money(job.budgetMinCents)} – ${money(job.budgetMaxCents)}</strong></p>
+      <p class="muted small">${Number(job.requiredBids)||0} bids required · Deadline: ${date(job.deadline)}</p>`,
+     `<button class="btn primary" data-job="${esc(job._id)}">View details / apply</button>`
+   );
+ }
+ async function loadOverview(){
+   const [w,a,j]=await Promise.all([
+     api("/academic-writing/bid-wallet"),
+     api("/academic-writing/applications"),
+     api("/academic-writing/jobs?limit=10")
+   ]);
+   wallet=w.wallet||{balanceBids:0};
+   const apps=a.applications||[];
+   const counts={};
+   apps.forEach(item=>counts[item.status]=(counts[item.status]||0)+1);
+   view.innerHTML=`
+     <div class="metrics">
+       <div class="metric"><strong class="accent">${wallet.balanceBids||0}</strong><span>Available bids</span></div>
+       <div class="metric"><strong>${wallet.totalPurchasedBids||0}</strong><span>Bids purchased</span></div>
+       <div class="metric"><strong>${wallet.totalSpentBids||0}</strong><span>Bids used</span></div>
+       <div class="metric"><strong>${apps.length}</strong><span>Total applications</span></div>
+       <div class="metric"><strong>${counts.submitted||0}</strong><span>Pending review</span></div>
+       <div class="metric"><strong>${counts.shortlisted||0}</strong><span>Shortlisted</span></div>
+       <div class="metric"><strong>${counts.awarded||0}</strong><span>Awarded</span></div>
+       <div class="metric"><strong>${counts.unsuccessful||0}</strong><span>Unsuccessful</span></div>
+     </div>
+     <div class="section-head"><h2>Recently published jobs</h2><a class="btn" href="#jobs">View all jobs</a></div>
+     <div class="grid">${(j.jobs||[]).slice(0,4).map(jobCard).join("")||'<div class="card empty">No open jobs currently.</div>'}</div>
+     <div class="notice" style="margin-top:18px">Applications use bids from your bid wallet. Bids are consumed when an application is submitted. Unsuccessful or withdrawn applications do not receive bid refunds.</div>
+   `;
+ }
+ async function loadJobs(){
+   const search=$("search")?.value.trim()||"";
+   const discipline=$("discipline")?.value.trim()||"";
+   const subject=$("subject")?.value.trim()||"";
+   const academicLevel=$("academicLevel")?.value.trim()||"";
+   const query=new URLSearchParams();
+   if(search)query.set("q",search);
+   if(discipline)query.set("discipline",discipline);
+   if(subject)query.set("subject",subject);
+   if(academicLevel)query.set("academicLevel",academicLevel);
+   query.set("page","1");
+   const data=await api("/academic-writing/jobs?"+query.toString());
+   view.innerHTML=`
+     <div class="filters">
+       <input id="search" placeholder="Search jobs" value="${esc(search)}">
+       <input id="discipline" placeholder="Discipline" value="${esc(discipline)}">
+       <input id="subject" placeholder="Subject" value="${esc(subject)}">
+       <input id="academicLevel" placeholder="Academic level" value="${esc(academicLevel)}">
+       <button class="btn primary" id="filter">Search jobs</button>
+     </div>
+     <p class="muted small">${data.pagination?.total||0} published open jobs</p>
+     <div class="grid">${(data.jobs||[]).map(jobCard).join("")||'<div class="card empty">No open jobs match these filters.</div>'}</div>
+   `;
+ }
+ async function details(id){
+   const data=await api("/academic-writing/jobs/"+encodeURIComponent(id));
+   const job=data.job;
+   if(!job)throw Error("Job details could not be loaded.");
+   view.innerHTML=card(job.title,`
+     <p class="muted small">${esc(job.discipline)} · ${esc(job.subject)} · ${esc(job.academicLevel)} · ${esc(job.serviceCategory)}</p>
+     <p>${esc(job.description)}</p>
+     <p><strong>Budget:</strong> ${money(job.budgetMinCents)} – ${money(job.budgetMaxCents)}</p>
+     <p><strong>Application cost:</strong> ${job.requiredBids} bids · <strong>Your balance:</strong> ${data.availableBids} bids</p>
+     <p><strong>Scope:</strong> ${esc(job.scope)} ${job.wordCount?`· ${job.wordCount} words`:""}</p>
+     <p><strong>Skills:</strong> ${esc((job.skills||[]).join(", "))}</p>
+     <p><strong>Qualifications:</strong> ${esc((job.qualifications||[]).join(", "))}</p>
+     <p><strong>Deliverables:</strong> ${esc((job.deliverables||[]).join(", "))}</p>
+     <p><strong>Referencing:</strong> ${esc(job.referencingStyle)} · <strong>Applicants:</strong> ${data.applicants}</p>
+     <p><strong>Apply by:</strong> ${date(job.applicationClosesAt)} · <strong>Project deadline:</strong> ${date(job.deadline)}</p>
+     ${job.instructions?`<p><strong>Instructions:</strong> ${esc(job.instructions)}</p>`:""}
+     <form id="applyForm" class="formgrid">
+       <label class="field">Proposed price (USD)
+         <input name="price" type="number" min="${Number(job.budgetMinCents)/100}" max="${Number(job.budgetMaxCents)/100}" step="0.01" required>
+       </label>
+       <label class="field">Delivery time (days)
+         <input name="days" type="number" min="1" step="1" required>
+       </label>
+       <label class="field wide">Cover letter (at least 50 characters)
+         <textarea name="cover" minlength="50" required></textarea>
+       </label>
+       <label class="field">Qualifications
+         <textarea name="qualifications" minlength="10" required></textarea>
+       </label>
+       <label class="field">Academic experience
+         <textarea name="experience" minlength="10" required></textarea>
+       </label>
+       <label class="field">Skills (comma separated)
+         <input name="skills" required>
+       </label>
+       <label class="field wide">Work approach (at least 20 characters)
+         <textarea name="approach" minlength="20" required></textarea>
+       </label>
+       <label class="checkline"><input type="checkbox" name="available" required> I confirm my availability</label>
+       <label class="checkline"><input type="checkbox" name="terms" required> I accept the job requirements</label>
+       <div class="wide">
+         <div class="notice">This application costs exactly ${job.requiredBids} bids. Your current balance is ${data.availableBids}. Bids are not refunded for unsuccessful or withdrawn applications.</div>
+         <div class="card-actions">
+           <button class="btn primary" type="submit" ${data.availableBids<job.requiredBids?"disabled":""}>Confirm and apply</button>
+           ${data.availableBids<job.requiredBids?'<a class="btn orange" href="#wallet">Buy bids</a>':""}
+           <button class="btn" type="button" id="backJobs">Back to jobs</button>
+         </div>
+       </div>
+     </form>
+   `);
+   $("applyForm").addEventListener("submit",async event=>{
+     event.preventDefault();
+     const form=event.currentTarget;
+     if(!form.reportValidity())return;
+     if(!confirm(`Submit this application and spend ${job.requiredBids} bids?`))return;
+     const fields=new FormData(form);
+     try{
+       say("Submitting your application…");
+       const result=await api("/academic-writing/applications",{
+         method:"POST",
+         body:JSON.stringify({
+           jobId:job._id,
+           proposedPriceCents:Math.round(Number(fields.get("price"))*100),
+           deliveryDays:Number(fields.get("days")),
+           coverLetter:fields.get("cover"),
+           qualifications:fields.get("qualifications"),
+           experience:fields.get("experience"),
+           skills:String(fields.get("skills")).split(",").map(x=>x.trim()).filter(Boolean),
+           workApproach:fields.get("approach"),
+           availabilityConfirmed:fields.has("available"),
+           requirementsAccepted:fields.has("terms")
+         })
+       });
+       say(result.message||"Application submitted.","success");
+       location.hash="applications";
+     }catch(error){say(error.message,"error")}
+   });
+ }
+ async function loadApplications(){
+   const data=await api("/academic-writing/applications");
+   const applications=data.applications||[];
+   view.innerHTML=`
+     <div class="section-head"><h2>My applications</h2><span class="pill">${applications.length} total</span></div>
+     <div class="tablewrap"><table>
+       <thead><tr><th>Job</th><th>Proposed price</th><th>Bid cost</th><th>Status</th><th>Submitted</th></tr></thead>
+       <tbody>${applications.map(item=>`
+         <tr>
+           <td>${esc(item.jobId?.title||"Job")}</td>
+           <td>${money(item.proposedPriceCents)}</td>
+           <td>${esc(item.bidCost)}</td>
+           <td><span class="pill">${esc(item.status)}</span></td>
+           <td>${date(item.submittedAt)}</td>
+         </tr>`).join("")||'<tr><td colspan="5" class="empty">You have not submitted any applications yet.</td></tr>'}
+       </tbody>
+     </table></div>
+   `;
+ }
+ async function loadWallet(){
+   const [walletData,packageData]=await Promise.all([
+     api("/academic-writing/bid-wallet"),
+     api("/academic-writing/bid-packages")
+   ]);
+   wallet=walletData.wallet||{balanceBids:0};
+   const packages=packageData.packages||[];
+   const transactions=walletData.transactions||[];
+   view.innerHTML=`
+     <div class="metrics">
+       <div class="metric"><strong class="accent">${wallet.balanceBids||0}</strong><span>Available bids</span></div>
+       <div class="metric"><strong>${wallet.totalPurchasedBids||0}</strong><span>Total purchased</span></div>
+       <div class="metric"><strong>${wallet.totalSpentBids||0}</strong><span>Total consumed</span></div>
+       <div class="metric"><strong>${wallet.totalAdjustedBids||0}</strong><span>Net adjustments</span></div>
+     </div>
+     <h2>Purchase bid packages</h2>
+     <p class="muted small">Choose a package and pay using M-Pesa. Package prices are displayed in Kenyan shillings.</p>
+     <div class="grid">${packages.map(item=>card(item.name,`
+       <p><strong>${item.bids} bids</strong></p>
+       <p class="accent"><strong>KSh ${Number(item.priceKes).toLocaleString()}</strong></p>
+       <p class="muted small">${esc(item.description)}</p>
+     `,`<button class="btn primary buy" data-id="${esc(item._id)}">Select package</button>`)).join("")||'<div class="card empty">No active bid packages are currently available.</div>'}</div>
+     <form id="purchase" class="panel formgrid" style="margin-top:18px">
+       <h3 class="wide">M-Pesa payment request</h3>
+       <label class="field">M-Pesa phone number (254XXXXXXXXX)
+         <input name="phone" inputmode="numeric" placeholder="2547XXXXXXXX" pattern="254[17][0-9]{8}" required>
+       </label>
+       <label class="field">Selected package
+         <select name="package" required>
+           <option value="">Choose a package</option>
+           ${packages.map(item=>`<option value="${esc(item._id)}">${esc(item.name)} · ${item.bids} bids · KSh ${item.priceKes}</option>`).join("")}
+         </select>
+       </label>
+       <div class="wide"><button class="btn primary" type="submit" ${packages.length?"":"disabled"}>Request M-Pesa payment</button></div>
+     </form>
+     <h2>Bid transaction history</h2>
+     <div class="tablewrap"><table>
+       <thead><tr><th>Date</th><th>Type</th><th>Bids</th><th>Before</th><th>After</th><th>Description</th></tr></thead>
+       <tbody>${transactions.map(item=>`
+         <tr>
+           <td>${date(item.createdAt)}</td><td>${esc(item.type)}</td>
+           <td>${esc(item.bids)}</td><td>${esc(item.previousBalance)}</td>
+           <td>${esc(item.newBalance)}</td><td>${esc(item.description)}</td>
+         </tr>`).join("")||'<tr><td colspan="6" class="empty">No bid transactions yet.</td></tr>'}
+       </tbody>
+     </table></div>
+   `;
+   $("purchase").addEventListener("submit",async event=>{
+     event.preventDefault();
+     const form=new FormData(event.currentTarget);
+     const phone=String(form.get("phone")||"").trim();
+     const packageId=form.get("package");
+     if(!/^254[17][0-9]{8}$/.test(phone)){
+       say("Enter a valid M-Pesa number in 254XXXXXXXXX format.","error");
+       return;
+     }
+     if(!packageId){say("Select a bid package first.","error");return}
+     try{
+       say("Sending payment request…");
+       const key=window.crypto?.randomUUID?crypto.randomUUID():String(Date.now())+"-"+Math.random().toString(36).slice(2);
+       const result=await api("/academic-writing/bid-purchases",{
+         method:"POST",
+         headers:{"Idempotency-Key":key},
+         body:JSON.stringify({packageId,phoneNumber:phone})
+       });
+       say(result.message||"Payment request submitted. Follow the M-Pesa prompt.","success");
+     }catch(error){say(error.message,"error")}
+   });
+   view.querySelectorAll(".buy").forEach(button=>{
+     button.addEventListener("click",()=>{
+       $("purchase").elements.package.value=button.dataset.id;
+       $("purchase").scrollIntoView({behavior:"smooth",block:"center"});
+     });
+   });
+ }
+ async function render(){
+   const key=location.hash.slice(1)||"overview";
+   const titles={overview:"Dashboard",jobs:"Browse jobs",applications:"My applications",wallet:"Bid wallet"};
+   document.querySelectorAll('#nav a[data-view]').forEach(link=>{
+     link.classList.toggle("active",link.dataset.view===key);
+   });
+   $("pageTitle").textContent=titles[key]||"Dashboard";
+   closeMenu();
+   say("Loading…");
+   try{
+     if(key==="jobs")await loadJobs();
+     else if(key==="applications")await loadApplications();
+     else if(key==="wallet")await loadWallet();
+     else await loadOverview();
+     say("");
+   }catch(error){
+     say(error.message,"error");
+     view.innerHTML=`<div class="card"><h3>Unable to load this page</h3><p class="muted">${esc(error.message)}</p><button class="btn" id="retry">Try again</button></div>`;
+   }
+ }
+ $("menuButton").addEventListener("click",toggleMenu);
+ $("overlay").addEventListener("click",closeMenu);
+ $("nav").addEventListener("click",event=>{
+   const link=event.target.closest("a[data-view]");
+   if(link)closeMenu();
+ });
+ window.addEventListener("hashchange",render);
+ view.addEventListener("click",event=>{
+   const jobButton=event.target.closest("[data-job]");
+   if(jobButton)details(jobButton.dataset.job).catch(error=>say(error.message,"error"));
+   if(event.target.id==="filter")loadJobs().catch(error=>say(error.message,"error"));
+   if(event.target.id==="backJobs")location.hash="jobs";
+   if(event.target.id==="retry")render();
+ });
+ render();
+})();
+</script>
+</body>
+</html>

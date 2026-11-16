@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101a2d">
+<title>My Applications | PrimeTask Academic Writing</title>
+<script src="../../../../assets/js/config.js"></script>
+<style>
+:root{--bg:#0b1220;--panel:#111d32;--panel2:#172640;--line:#263954;--text:#edf3fc;--muted:#9aabc2;--blue:#2878ed;--orange:#f28b32;--green:#27b879;--red:#e45c66}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+button,select{font:inherit}
+button{cursor:pointer}
+.sidebar{position:fixed;z-index:50;inset:0 auto 0 0;width:265px;background:#101b30;border-right:1px solid var(--line);padding:22px 16px;transform:translateX(-100%);transition:transform .22s;overflow:auto}
+.sidebar.open{transform:translateX(0)}
+.brand{font-size:19px;font-weight:800;padding:5px 10px 24px}
+.brand small{display:block;color:var(--orange);font-size:12px;margin-top:4px}
+.nav-label{font-size:10px;color:#71849f;text-transform:uppercase;letter-spacing:1.5px;padding:15px 11px 7px}
+.nav a{display:flex;gap:12px;padding:12px 13px;margin:4px 0;border-radius:10px;color:#bdcbe0;font-weight:600}
+.nav a.active,.nav a:hover{background:#1b3152;color:white}
+.nav a.active{border-left:3px solid var(--orange)}
+.nav-icon{width:22px;text-align:center;color:#8eacd2}
+.overlay{display:none;position:fixed;inset:0;background:#020711b8;z-index:40}
+.overlay.show{display:block}
+.main{min-height:100vh}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:13px 18px;background:#0e192bf2;border-bottom:1px solid var(--line)}
+.hamburger{width:42px;height:42px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:white;font-size:22px}
+.top-title{font-weight:800}.top-sub{font-size:11px;color:var(--muted)}
+.spacer{flex:1}
+.avatar{width:36px;height:36px;border-radius:50%;background:#203b61;display:grid;place-items:center;font-weight:800}
+.content{max-width:1200px;margin:auto;padding:25px 20px 55px}
+h1{font-size:25px;margin:0 0 5px}h2{font-size:19px;margin:0}
+.muted{color:var(--muted)}.small{font-size:12px}
+.header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:9px;padding:10px 14px;background:#1a2a43;color:#eaf2ff;font-weight:700}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:white}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px}
+.metric strong{display:block;font-size:25px}.metric span{font-size:12px;color:var(--muted)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin:17px 0}
+select{background:#0c1729;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px 12px}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:13px}
+table{width:100%;min-width:760px;border-collapse:collapse;background:var(--panel)}
+th,td{text-align:left;padding:13px;border-bottom:1px solid var(--line);font-size:13px}
+th{background:#172640;color:#c8d7eb}
+td{color:#e0e9f6}
+.pill{display:inline-block;padding:5px 10px;border-radius:30px;background:#203a5c;color:#cfe2ff;font-size:11px;font-weight:700;text-transform:capitalize}
+.pill.success{background:#123c30;color:#79e5b5}
+.pill.warning{background:#46351b;color:#ffd18a}
+.pill.danger{background:#48242b;color:#ff9ba1}
+.empty{padding:35px;text-align:center;color:var(--muted);background:var(--panel)}
+.status{min-height:22px;margin:10px 0;color:var(--muted);font-size:13px}
+.error{color:#ff858b}
+@media(min-width:1000px){.sidebar{transform:translateX(0)}.main{margin-left:265px}.overlay{display:none!important}}
+@media(max-width:800px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:550px){.content{padding:19px 13px 40px}.header{align-items:flex-start;flex-direction:column}h1{font-size:22px}.metrics{gap:9px}.metric{padding:12px}.metric strong{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">PrimeTask Workspace<small>ACADEMIC WRITING</small></div>
+  <div class="nav-label">Workspace</div>
+  <nav class="nav">
+    <a href="../index.html#overview"><span class="nav-icon">▦</span>Dashboard</a>
+    <a href="jobs.html"><span class="nav-icon">▤</span>Browse jobs</a>
+    <a href="applications.html" class="active"><span class="nav-icon">▣</span>My applications</a>
+    <a href="wallet.html"><span class="nav-icon">◈</span>Bid wallet</a>
+  </nav>
+  <div class="nav-label">Account</div>
+  <nav class="nav">
+    <a href="wallet.html"><span class="nav-icon">＋</span>Buy bid packages</a>
+    <a href="/dashboard"><span class="nav-icon">⌂</span>Main dashboard</a>
+    <a href="/dashboard/services"><span class="nav-icon">▦</span>All services</a>
+  </nav>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <button class="hamburger" id="menuButton" aria-label="Open navigation" aria-expanded="false">☰</button>
+  <div><div class="top-title">Academic Writing</div><div class="top-sub">Your submitted proposals</div></div>
+  <div class="spacer"></div><div class="avatar">PT</div>
+</header>
+
+<div class="content">
+  <div class="header">
+    <div>
+      <h1>My applications</h1>
+      <div class="muted">Monitor the progress of your job applications.</div>
+    </div>
+    <a href="jobs.html" class="btn primary">Browse jobs</a>
+  </div>
+
+  <div id="status" class="status">Loading applications…</div>
+
+  <div class="metrics">
+    <div class="metric"><strong id="total">--</strong><span>Total applications</span></div>
+    <div class="metric"><strong id="submitted">--</strong><span>Submitted / pending</span></div>
+    <div class="metric"><strong id="shortlisted">--</strong><span>Shortlisted</span></div>
+    <div class="metric"><strong id="awarded">--</strong><span>Awarded</span></div>
+  </div>
+
+  <div class="filters">
+    <select id="statusFilter">
+      <option value="">All statuses</option>
+      <option value="submitted">Submitted</option>
+      <option value="under_review">Under review</option>
+      <option value="shortlisted">Shortlisted</option>
+      <option value="awarded">Awarded</option>
+      <option value="unsuccessful">Unsuccessful</option>
+    </select>
+    <button class="btn" id="refresh">Refresh applications</button>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Job title</th>
+          <th>Proposed price</th>
+          <th>Bids spent</th>
+          <th>Status</th>
+          <th>Submitted</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody id="applicationRows">
+        <tr><td colspan="6" class="empty">Loading applications…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</main>
+
+<script>
+"use strict";
+(()=>{
+ const $=id=>document.getElementById(id);
+ const root=()=>window.PTW_API_BASE||"";
+ let applications=[];
+
+ function esc(value){
+   const node=document.createElement("div");
+   node.textContent=String(value??"");
+   return node.innerHTML;
+ }
+ function money(cents){return "$"+(Number(cents||0)/100).toFixed(2)}
+ function date(value){
+   if(!value)return "Not available";
+   const d=new Date(value);
+   return Number.isNaN(d.getTime())?"Not available":d.toLocaleString();
+ }
+ function say(message,error=false){
+   $("status").textContent=message;
+   $("status").className="status "+(error?"error":"");
+ }
+ function badge(status){
+   const value=String(status||"unknown");
+   let cls="";
+   if(value==="awarded")cls="success";
+   else if(value==="unsuccessful")cls="danger";
+   else if(value==="shortlisted"||value==="under_review")cls="warning";
+   return `<span class="pill ${cls}">${esc(value.replaceAll("_"," "))}</span>`;
+ }
+ async function api(path){
+   if(!root())throw Error("API URL is not configured.");
+   const response=await fetch(root()+path,{credentials:"include",headers:{Accept:"application/json"}});
+   if(response.status===401){location.href="/auth/login";throw Error("Please sign in.")}
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw Error(data.message||"Unable to load applications.");
+   return data;
+ }
+ function render(){
+   const filter=$("statusFilter").value;
+   const rows=applications.filter(item=>!filter||item.status===filter);
+   $("applicationRows").innerHTML=rows.map(item=>`
+     <tr>
+       <td><strong>${esc(item.jobId?.title||"Job")}</strong><div class="muted small">${esc(item.jobId?.discipline||"")}</div></td>
+       <td>${money(item.proposedPriceCents)}</td>
+       <td>${esc(item.bidCost??0)}</td>
+       <td>${badge(item.status)}</td>
+       <td>${date(item.submittedAt)}</td>
+       <td>${item.jobId?`<a class="btn" href="application-details.html?id=${encodeURIComponent(item._id)}">View application</a>`:"—"}</td>
+     </tr>
+   `).join("")||'<tr><td colspan="6" class="empty">No applications match this filter.</td></tr>';
+ }
+ async function load(){
+   say("Loading your applications…");
+   try{
+     const data=await api("/academic-writing/applications");
+     applications=data.applications||[];
+     $("total").textContent=applications.length;
+     $("submitted").textContent=applications.filter(x=>["submitted","under_review"].includes(x.status)).length;
+     $("shortlisted").textContent=applications.filter(x=>x.status==="shortlisted").length;
+     $("awarded").textContent=applications.filter(x=>x.status==="awarded").length;
+     render();
+     say(`${applications.length} applications loaded.`);
+   }catch(error){
+     $("applicationRows").innerHTML=`<tr><td colspan="6" class="empty">${esc(error.message)}</td></tr>`;
+     say(error.message,true);
+   }
+ }
+ $("statusFilter").addEventListener("change",render);
+ $("refresh").addEventListener("click",load);
+ $("menuButton").addEventListener("click",()=>{
+   const open=!$("sidebar").classList.contains("open");
+   $("sidebar").classList.toggle("open",open);
+   $("overlay").classList.toggle("show",open);
+   $("menuButton").setAttribute("aria-expanded",String(open));
+ });
+ $("overlay").addEventListener("click",()=>{
+   $("sidebar").classList.remove("open");
+   $("overlay").classList.remove("show");
+   $("menuButton").setAttribute("aria-expanded","false");
+ });
+ load();
+})();
+</script>
+</body>
+</html>
