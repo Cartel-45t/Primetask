@@ -170,7 +170,7 @@ async function findOrCreateConversation({
           }
         },
         {
-          new: true,
+          returnDocument: 'after',
           upsert: true,
           runValidators: true,
           session
@@ -573,7 +573,7 @@ async function qualifyStreakDay(conversationId, dayKey) {
         },
         {
           upsert: true,
-          new: true,
+          returnDocument: 'after',
           runValidators: true,
           session
         }

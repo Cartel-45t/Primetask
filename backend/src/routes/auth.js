@@ -243,7 +243,7 @@ router.post("/reset-password", resetPasswordLimiter, async (req, res) => {
         $inc: { sessionVersion: 1 }
       },
       {
-        new: true,
+        returnDocument: 'after',
         runValidators: true
       }
     ).select("_id");
@@ -907,7 +907,7 @@ router.post("/register", async (req, res) => {
           resendCount: 0
         }
       },
-      { upsert: true, new: true, runValidators: true }
+      { upsert: true, returnDocument: 'after', runValidators: true }
     );
 
     await EmailVerificationThrottle.findOneAndUpdate(

@@ -134,7 +134,7 @@ router.patch("/profile", async (req, res, next) => {
         $setOnInsert: { userId: req.user._id }
       },
       {
-        new: true,
+        returnDocument: 'after',
         upsert: true,
         runValidators: true,
         setDefaultsOnInsert: true
@@ -206,7 +206,7 @@ router.post("/applications", async (req, res, next) => {
       const wallet = await BidWallet.findOneAndUpdate(
         { userId: req.user._id, balanceBids: { $gte: job.requiredBids } },
         { $inc: { balanceBids: -job.requiredBids, totalSpentBids: job.requiredBids } },
-        { new: true, session, runValidators: true }
+        { returnDocument: 'after', session, runValidators: true }
       );
       if (!wallet) throw new Error("INSUFFICIENT_BIDS");
       const previousBalance = wallet.balanceBids + job.requiredBids;

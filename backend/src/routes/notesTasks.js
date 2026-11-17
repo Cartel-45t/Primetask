@@ -367,7 +367,7 @@ router.post("/:id/claim", requireNotesMembership, async (req, res) => {
         { $setOnInsert: { userId: req.user._id } },
         {
           upsert: true,
-          new: true,
+          returnDocument: 'after',
           session,
           setDefaultsOnInsert: true
         }
@@ -385,7 +385,7 @@ router.post("/:id/claim", requireNotesMembership, async (req, res) => {
           }
         },
         {
-          new: true,
+          returnDocument: 'after',
           session,
           runValidators: true
         }
@@ -411,7 +411,7 @@ router.post("/:id/claim", requireNotesMembership, async (req, res) => {
           }
         },
         {
-          new: true,
+          returnDocument: 'after',
           session,
           runValidators: true
         }
@@ -551,7 +551,7 @@ router.post("/:id/submissions", requireNotesMembership, async (req, res) => {
           }
         },
         {
-          new: true,
+          returnDocument: 'after',
           session,
           runValidators: true
         }

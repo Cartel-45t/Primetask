@@ -97,7 +97,7 @@ router.put("/rotation-worker", async (req, res) => {
         }
       },
       {
-        new: true,
+        returnDocument: 'after',
         upsert: true,
         setDefaultsOnInsert: true,
         runValidators: true
@@ -140,7 +140,7 @@ router.put("/rotation-worker", async (req, res) => {
         await TranscriptionSettings.findOneAndUpdate(
           { key: "transcription" },
           { $set: { rotationWorkerEnabled: false } },
-          { new: true, runValidators: true }
+          { returnDocument: 'after', runValidators: true }
         );
       } catch (rollbackError) {
         console.error(

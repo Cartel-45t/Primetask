@@ -224,7 +224,7 @@ router.post("/jobs/:id/claim", async (req, res) => {
         },
         {
           upsert: true,
-          new: true,
+          returnDocument: 'after',
           session,
           setDefaultsOnInsert: true
         }
@@ -242,7 +242,7 @@ router.post("/jobs/:id/claim", async (req, res) => {
           }
         },
         {
-          new: true,
+          returnDocument: 'after',
           session,
           runValidators: true
         }
@@ -274,7 +274,7 @@ router.post("/jobs/:id/claim", async (req, res) => {
           }
         },
         {
-          new: true,
+          returnDocument: 'after',
           session,
           runValidators: true
         }
@@ -854,7 +854,7 @@ router.post("/jobs/:id/submissions", async (req, res) => {
             }
           },
           {
-            new: true,
+            returnDocument: 'after',
             session,
             runValidators: true
           }
