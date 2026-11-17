@@ -92,6 +92,22 @@ const userSchema = new mongoose.Schema(
       default: false
     },
 
+    marketingEmailOptIn: {
+      type: Boolean,
+      default: false,
+      index: true
+    },
+
+    marketingEmailOptInAt: {
+      type: Date,
+      default: null
+    },
+
+    bulkEmailUnsubscribedAt: {
+      type: Date,
+      default: null
+    },
+
     emailVerificationRequired: {
       type: Boolean,
       default: false
