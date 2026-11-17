@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#030407">
+  <meta name="description" content="Preview opted-in members and manage administrator bulk email campaigns.">
+  <title>Bulk Email Sender | PrimeTask Administration</title>
+  <link rel="stylesheet" href="/dashboard/admin/Keith/assets/admin-navigation.css">
+  <style>
+    :root {
+      color-scheme: dark;
+      --page: #030407;
+      --panel: rgba(7, 18, 37, .94);
+      --panel-soft: rgba(12, 27, 49, .78);
+      --line: #294665;
+      --text: #f5f7fc;
+      --muted: #aabbd1;
+      --blue: #7db8ff;
+      --red: #fca5a5;
+      --green: #86efac;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--page);
+      color: var(--text);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: radial-gradient(ellipse at 18% 10%, rgba(37, 99, 235, .15), transparent 42%), var(--page);
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+
+    .page { width: min(100% - 32px, 1040px); margin: 0 auto; padding: 34px 0 72px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 26px; }
+    .eyebrow { color: var(--blue); font-size: 11px; font-weight: 750; letter-spacing: 1.6px; text-transform: uppercase; }
+    h1 { margin: 10px 0 8px; font-size: clamp(30px, 5vw, 44px); letter-spacing: -1.4px; }
+    .intro { max-width: 720px; margin: 0; color: var(--muted); line-height: 1.65; }
+    .header-link { flex: 0 0 auto; margin-top: 12px; color: #a9ceff; font-size: 13px; }
+
+    .notice { margin: 0 0 18px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 11px; background: var(--panel-soft); color: var(--muted); line-height: 1.55; }
+    .notice[hidden] { display: none; }
+    .notice[data-kind="error"] { border-color: #7f3438; color: var(--red); background: #32181d; }
+    .notice[data-kind="success"] { border-color: #276044; color: var(--green); background: #10271d; }
+    .notice[data-kind="warning"] { border-color: #795b2b; color: #fcd68a; background: #2a2113; }
+
+    .layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    .column { display: grid; gap: 18px; min-width: 0; }
+    .card { min-width: 0; padding: clamp(18px, 3vw, 25px); background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 20px 55px #0004; }
+    .card h2 { margin: 0 0 8px; font-size: 18px; }
+    .card-copy { margin: 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .field { display: grid; gap: 7px; margin: 16px 0; }
+    .field label, .field-label { font-size: 13px; font-weight: 700; }
+    .field-help { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    input[type="text"], textarea, select {
+      width: 100%; min-height: 43px; padding: 10px 12px; color: var(--text);
+      background: #07101e; border: 1px solid #38516e; border-radius: 9px; outline: none;
+    }
+    textarea { min-height: 155px; resize: vertical; line-height: 1.55; }
+    input:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+    .counter { justify-self: end; color: #8fa8c7; font-size: 11px; }
+    .check-row { display: flex; align-items: flex-start; gap: 10px; margin: 18px 0 4px; color: #d4deec; font-size: 13px; line-height: 1.5; }
+    .check-row input { width: 18px; height: 18px; margin: 1px 0 0; flex: 0 0 auto; accent-color: #3b82f6; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .button { min-height: 42px; padding: 10px 15px; color: #e7f2ff; background: #10233d; border: 1px solid #38516e; border-radius: 9px; font-weight: 700; }
+    .button:hover:not(:disabled) { background: #17345a; border-color: #5a83b2; }
+    .button-primary { color: #06101e; background: #93c5fd; border-color: #93c5fd; }
+    .button-primary:hover:not(:disabled) { color: #06101e; background: #bfdbfe; border-color: #bfdbfe; }
+    .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+    .metric { min-width: 0; padding: 13px; background: #0b1a2d; border: 1px solid #213b59; border-radius: 11px; }
+    .metric span { display: block; color: var(--muted); font-size: 11px; line-height: 1.4; }
+    .metric strong { display: block; margin-top: 7px; font-size: clamp(20px, 4vw, 27px); overflow-wrap: anywhere; }
+    .preview-meta { margin: 13px 0 0; color: #90a6c1; font-size: 11px; line-height: 1.5; }
+    .confirm-box { display: grid; gap: 7px; margin-top: 16px; padding: 13px; background: #0a1422; border: 1px solid #263c57; border-radius: 10px; }
+    .confirm-box label { font-size: 12px; font-weight: 700; }
+    .campaign-list { display: grid; gap: 10px; }
+    .empty { padding: 15px; color: var(--muted); background: #0a1422; border: 1px dashed #38516e; border-radius: 10px; font-size: 13px; line-height: 1.55; }
+    .campaign { padding: 14px; background: #0a1422; border: 1px solid #263c57; border-radius: 11px; }
+    .campaign-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .campaign h3 { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+    .badge { display: inline-block; flex: 0 0 auto; padding: 4px 8px; color: #c5e4ff; background: #15345a; border: 1px solid #315b85; border-radius: 999px; font-size: 10px; font-weight: 750; text-transform: capitalize; }
+    .campaign-meta { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .campaign-error { margin: 8px 0 0; color: var(--red); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+    .footer-note { margin: 14px 0 0; color: #8398b2; font-size: 11px; line-height: 1.55; }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .header { display: block; }
+      .header-link { display: inline-block; margin-top: 14px; }
+    }
+    @media (max-width: 440px) {
+      .page { width: min(100% - 22px, 1040px); padding-top: 24px; }
+      .metrics { grid-template-columns: 1fr; }
+      .metric { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .metric strong { margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div>
+        <div class="eyebrow">PrimeTask Administration</div>
+        <h1>Bulk Email Sender</h1>
+        <p class="intro">Preview the eligible audience, compose an update, then queue it for members who opted in. Unsubscribed and non-consenting addresses must remain excluded.</p>
+      </div>
+      <a class="header-link" href="/dashboard/admin/Keith/announcements">Platform announcements</a>
+    </header>
+
+    <div id="globalNotice" class="notice" role="status" aria-live="polite" hidden></div>
+
+    <div class="layout">
+      <div class="column">
+        <section class="card" aria-labelledby="audienceHeading">
+          <h2 id="audienceHeading">1. Choose an audience</h2>
+          <p class="card-copy">The preview is calculated by the server using account status and current email consent.</p>
+          <div class="field">
+            <label for="audience">Member status</label>
+            <select id="audience" name="audience">
+              <option value="active">Active members</option>
+              <option value="inactive">Inactive members</option>
+              <option value="all">All member statuses</option>
+            </select>
+          </div>
+          <div class="actions">
+            <button id="previewButton" class="button button-primary" type="button">Preview recipients</button>
+          </div>
+          <div id="previewResult" aria-live="polite" hidden>
+            <div class="metrics">
+              <div class="metric"><span>Eligible recipients</span><strong id="eligibleCount">—</strong></div>
+              <div class="metric"><span>Excluded / opted out</span><strong id="excludedCount">—</strong></div>
+              <div class="metric"><span>Audience</span><strong id="previewAudience">—</strong></div>
+            </div>
+            <p id="previewMeta" class="preview-meta"></p>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="composeHeading">
+          <h2 id="composeHeading">2. Compose campaign</h2>
+          <p class="card-copy">Sending stays locked until a current preview exists for the selected audience.</p>
+          <form id="campaignForm" novalidate>
+            <div class="field">
+              <label for="subject">Email subject</label>
+              <input id="subject" name="subject" type="text" maxlength="160" autocomplete="off" required>
+              <span class="counter"><span id="subjectCount">0</span>/160</span>
+            </div>
+            <div class="field">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" maxlength="12000" required></textarea>
+              <span class="field-help">Plain text only. The email includes the required PrimeTask identity, consent context, postal footer, and unsubscribe option.</span>
+              <span class="counter"><span id="messageCount">0</span>/12000</span>
+            </div>
+            <label class="check-row" for="confirmConsent">
+              <input id="confirmConsent" type="checkbox">
+              <span>I confirm this is an appropriate service update for members who explicitly opted in. I will not add unconsented addresses.</span>
+            </label>
+            <div class="confirm-box">
+              <label for="typedConfirmation">Type <strong>SEND</strong> to enable queueing</label>
+              <input id="typedConfirmation" type="text" autocomplete="off" spellcheck="false" aria-describedby="sendHelp">
+              <span id="sendHelp" class="field-help">Queueing requires a fresh matching preview, the consent confirmation, and exact typed confirmation.</span>
+            </div>
+            <div class="actions">
+              <button id="sendButton" class="button button-primary" type="submit" disabled>Queue campaign</button>
+              <button id="clearButton" class="button" type="reset">Clear draft</button>
+            </div>
+          </form>
+          <p class="footer-note">Queueing is not a live delivery test. Provider credentials and sender configuration are managed on the backend.</p>
+        </section>
+      </div>
+
+      <div class="column">
+        <section class="card" aria-labelledby="campaignsHeading">
+          <h2 id="campaignsHeading">Campaign activity</h2>
+          <p class="card-copy">Recent queue and delivery progress. This list refreshes periodically while a campaign is running.</p>
+          <div class="actions" style="margin:0 0 14px">
+            <button id="refreshCampaigns" class="button" type="button">Refresh activity</button>
+          </div>
+          <div id="campaignList" class="campaign-list" aria-live="polite">
+            <div class="empty">Loading campaign activity…</div>
+          </div>
+        </section>
+        <section class="card" aria-labelledby="safetyHeading">
+          <h2 id="safetyHeading">Delivery safeguards</h2>
+          <p class="card-copy">The interface does not send directly to email addresses. The server must independently enforce opt-in, unsubscribe, deduplication, confirmation freshness, and provider delivery safeguards.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="/assets/js/config.js"></script>
+  <script src="/dashboard/admin/Keith/assets/admin-navigation.js"></script>
+  <script>
+    "use strict";
+
+    (() => {
+      const $ = id => document.getElementById(id);
+      const API_BASE = String(window.PTW_API_BASE || "").replace(/\/+$/, "");
+      const PREVIEW_TTL_MS = 5 * 60 * 1000;
+      const POLL_INTERVAL_MS = 10000;
+      const ACTIVE_STATES = new Set(["queued", "sending", "processing", "pending"]);
+      let preview = null;
+      let busy = false;
+      let pollTimer = null;
+
+      function setNotice(message, kind = "info") {
+        const node = $("globalNotice");
+        node.textContent = message;
+        node.dataset.kind = kind;
+        node.hidden = !message;
+      }
+
+      function formatCount(value) {
+        const number = Number(value);
+        return Number.isFinite(number) && number >= 0 ? Math.floor(number).toLocaleString() : "—";
+      }
+
+      function formatDate(value) {
+        if (!value) return "—";
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString();
+      }
+
+      function campaignStatus(campaign) {
+        return String(campaign.status || campaign.state || "unknown").toLowerCase();
+      }
+
+      function currentPreview() {
+        return Boolean(
+          preview &&
+          preview.audience === $("audience").value &&
+          Date.now() - preview.createdAt < PREVIEW_TTL_MS
+        );
+      }
+
+      function updateSendState() {
+        const validText = $("subject").value.trim().length > 0 && $("message").value.trim().length > 0;
+        $("sendButton").disabled = busy || !validText || !currentPreview() ||
+          !$("confirmConsent").checked || $("typedConfirmation").value.trim() !== "SEND";
+      }
+
+      async function request(path, options = {}) {
+        if (!API_BASE) throw new Error("API URL is not configured. Check the PTW_API_BASE setup.");
+        let response;
+        try {
+          response = await fetch(API_BASE + path, {
+            ...options,
+            credentials: "include",
+            headers: {
+              Accept: "application/json",
+              ...(options.body ? { "Content-Type": "application/json" } : {}),
+              ...(options.headers || {})
+            }
+          });
+        } catch {
+          throw new Error("The API could not be reached. Check your connection and try again.");
+        }
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || data.success === false) {
+          if (response.status === 401) throw new Error("Your admin session is missing or expired. Sign in again.");
+          if (response.status === 403) throw new Error("Administrator access is required for this page.");
+          if (response.status === 404) throw new Error("Bulk email service is not available on this backend yet.");
+          throw new Error(data.message || `Request failed (${response.status}).`);
+        }
+        return data;
+      }
+
+      function renderPreview(data, selectedAudience) {
+        const detail = data.preview || data;
+        const eligible = detail.eligibleCount ?? detail.recipientCount ?? detail.count ?? detail.eligible;
+        if (!Number.isFinite(Number(eligible)) || Number(eligible) < 0) {
+          throw new Error("The preview response did not include a valid eligible recipient count.");
+        }
+        const responseAudience = detail.audience || selectedAudience;
+        if (responseAudience !== selectedAudience) throw new Error("The server preview audience did not match your selection. Preview again.");
+        const previewId = detail.previewId || detail.token || detail.previewToken;
+        if (!previewId) throw new Error("The server did not return a preview confirmation token. Queueing is disabled until the API provides one.");
+
+        preview = { id: previewId, audience: selectedAudience, createdAt: Date.now() };
+        $("eligibleCount").textContent = formatCount(eligible);
+        $("excludedCount").textContent = formatCount(detail.excludedCount ?? detail.optedOutCount ?? detail.excluded ?? 0);
+        $("previewAudience").textContent = selectedAudience[0].toUpperCase() + selectedAudience.slice(1);
+        $("previewMeta").textContent = `Preview created ${new Date(preview.createdAt).toLocaleTimeString()}. It expires in five minutes; changing the audience requires a new preview.`;
+        $("previewResult").hidden = false;
+        updateSendState();
+      }
+
+      async function loadPreview() {
+        if (busy) return;
+        busy = true;
+        preview = null;
+        $("previewButton").disabled = true;
+        $("previewButton").textContent = "Loading preview…";
+        $("previewResult").hidden = true;
+        updateSendState();
+        setNotice("");
+        const audience = $("audience").value;
+        try {
+          const query = new URLSearchParams({ audience });
+          const data = await request(`/admin/bulk-email/preview?${query}`);
+          renderPreview(data, audience);
+          setNotice("Recipient preview loaded. Queueing remains subject to backend consent and unsubscribe checks.", "success");
+        } catch (error) {
+          setNotice(error.message, "error");
+        } finally {
+          busy = false;
+          $("previewButton").disabled = false;
+          $("previewButton").textContent = "Preview recipients";
+          updateSendState();
+        }
+      }
+
+      function appendText(parent, tag, text, className) {
+        const node = document.createElement(tag);
+        node.textContent = text;
+        if (className) node.className = className;
+        parent.append(node);
+        return node;
+      }
+
+      function renderCampaigns(campaigns) {
+        const list = $("campaignList");
+        list.replaceChildren();
+        if (!campaigns.length) {
+          appendText(list, "div", "No campaigns found.", "empty");
+          return;
+        }
+        campaigns.forEach(campaign => {
+          const card = document.createElement("article");
+          card.className = "campaign";
+          const top = document.createElement("div");
+          top.className = "campaign-top";
+          appendText(top, "h3", campaign.subject || "Untitled campaign");
+          appendText(top, "span", campaignStatus(campaign), "badge");
+          card.append(top);
+          const audience = campaign.audience || "—";
+          const created = formatDate(campaign.createdAt || campaign.queuedAt);
+          const metrics = `Audience: ${audience} · Recipients: ${formatCount(campaign.recipientCount)} · Sent: ${formatCount(campaign.sentCount)} · Failed: ${formatCount(campaign.failedCount)} · Skipped: ${formatCount(campaign.skippedCount)}`;
+          appendText(card, "p", metrics, "campaign-meta");
+          appendText(card, "p", `Created ${created}${campaign.finishedAt ? ` · Finished ${formatDate(campaign.finishedAt)}` : ""}`, "campaign-meta");
+          if (campaign.error || campaign.lastError) appendText(card, "p", campaign.error || campaign.lastError, "campaign-error");
+          list.append(card);
+        });
+      }
+
+      async function loadCampaigns({ quiet = false } = {}) {
+        if (!quiet) {
+          $("refreshCampaigns").disabled = true;
+          $("refreshCampaigns").textContent = "Refreshing…";
+        }
+        try {
+          const data = await request("/admin/bulk-email/campaigns");
+          const campaigns = Array.isArray(data.campaigns) ? data.campaigns : Array.isArray(data.items) ? data.items : null;
+          if (!campaigns) throw new Error("The campaign activity response was not in the expected format.");
+          renderCampaigns(campaigns);
+          if (campaigns.some(item => ACTIVE_STATES.has(campaignStatus(item)))) startPolling();
+          else stopPolling();
+        } catch (error) {
+          if (!quiet) {
+            $("campaignList").replaceChildren();
+            appendText($("campaignList"), "div", error.message, "empty");
+            if (error.message.includes("not available")) setNotice(error.message, "warning");
+          }
+        } finally {
+          if (!quiet) {
+            $("refreshCampaigns").disabled = false;
+            $("refreshCampaigns").textContent = "Refresh activity";
+          }
+        }
+      }
+
+      function startPolling() {
+        if (pollTimer) return;
+        pollTimer = window.setInterval(() => loadCampaigns({ quiet: true }), POLL_INTERVAL_MS);
+      }
+
+      function stopPolling() {
+        if (!pollTimer) return;
+        window.clearInterval(pollTimer);
+        pollTimer = null;
+      }
+
+      async function queueCampaign(event) {
+        event.preventDefault();
+        if (busy || !currentPreview()) {
+          setNotice("Create a fresh preview for the selected audience before queueing.", "warning");
+          updateSendState();
+          return;
+        }
+        if (!$("confirmConsent").checked || $("typedConfirmation").value.trim() !== "SEND") return;
+        const subject = $("subject").value.trim();
+        const message = $("message").value.trim();
+        if (!subject || !message) {
+          setNotice("Enter both a subject and a message.", "error");
+          return;
+        }
+        const count = $("eligibleCount").textContent;
+        if (!window.confirm(`Queue “${subject}” for the ${preview.audience} audience? The preview shows ${count} eligible recipient(s).`)) return;
+
+        busy = true;
+        updateSendState();
+        $("sendButton").textContent = "Queueing…";
+        setNotice("");
+        try {
+          const data = await request("/admin/bulk-email/send", {
+            method: "POST",
+            body: JSON.stringify({
+              audience: preview.audience,
+              previewId: preview.id,
+              subject,
+              message,
+              confirmation: "SEND"
+            })
+          });
+          const campaign = data.campaign || data;
+          if (!campaign.campaignId && !campaign.id) throw new Error("The server did not confirm the queued campaign ID. Check campaign activity before retrying to avoid duplicate sends.");
+          preview = null;
+          $("campaignForm").reset();
+          updateCounters();
+          updateSendState();
+          setNotice(`Campaign queued successfully${campaign.campaignId || campaign.id ? ` (ID: ${campaign.campaignId || campaign.id})` : ""}. Delivery progress will appear in Campaign activity.`, "success");
+          await loadCampaigns();
+        } catch (error) {
+          setNotice(error.message, "error");
+        } finally {
+          busy = false;
+          $("sendButton").textContent = "Queue campaign";
+          updateSendState();
+        }
+      }
+
+      function updateCounters() {
+        $("subjectCount").textContent = String($("subject").value.length);
+        $("messageCount").textContent = String($("message").value.length);
+      }
+
+      $("previewButton").addEventListener("click", loadPreview);
+      $("refreshCampaigns").addEventListener("click", () => loadCampaigns());
+      $("campaignForm").addEventListener("submit", queueCampaign);
+      $("audience").addEventListener("change", () => {
+        preview = null;
+        $("previewResult").hidden = true;
+        updateSendState();
+      });
+      ["subject", "message"].forEach(id => $(id).addEventListener("input", () => {
+        updateCounters();
+        updateSendState();
+      }));
+      ["confirmConsent", "typedConfirmation"].forEach(id => $(id).addEventListener("input", updateSendState));
+      $("confirmConsent").addEventListener("change", updateSendState);
+      $("campaignForm").addEventListener("reset", () => {
+        window.setTimeout(() => {
+          updateCounters();
+          updateSendState();
+        }, 0);
+      });
+      window.addEventListener("beforeunload", stopPolling);
+
+      updateCounters();
+      updateSendState();
+      loadCampaigns();
+    })();
+  </script>
+</body>
+</html>

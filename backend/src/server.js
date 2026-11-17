@@ -81,6 +81,7 @@ const testimonialsRoutes = require("./routes/testimonials");
 const adminTestimonialsRoutes = require("./routes/adminTestimonials");
 const adminSecurityRoutes = require("./routes/adminSecurity");
 const adminApiRequestsRoutes = require("./routes/adminApiRequests");
+const adminBulkEmailRoutes = require("./routes/adminBulkEmail");
 
 const apiRequestMonitor = require("./middleware/apiRequestMonitor");
 
@@ -212,6 +213,8 @@ app.use("/api/testimonials", testimonialsRoutes);
 app.use("/api/admin/testimonials", adminTestimonialsRoutes);
 app.use("/api/admin/security", adminSecurityRoutes);
 app.use("/api/admin/api-requests", adminApiRequestsRoutes);
+app.use("/api/admin/bulk-email/unsubscribe", adminBulkEmailRoutes.unsubscribe);
+app.use("/api/admin/bulk-email", adminBulkEmailRoutes.router);
 
 app.use((req, res) => {
   res.status(404).json({
@@ -292,6 +295,7 @@ async function startServer() {
     startMembershipRecoveryWorker();
     startNotesPointsRecoveryWorker();
     startDataEntryBidRecoveryWorker();
+    adminBulkEmailRoutes.startBulkEmailQueue();
 
     const rotationSettings = await TranscriptionSettings.findOne({
       key: "transcription"
@@ -333,6 +337,7 @@ async function shutdown(signal) {
     stopMembershipRecoveryWorker();
     stopNotesPointsRecoveryWorker();
     stopDataEntryBidRecoveryWorker();
+    await adminBulkEmailRoutes.stopBulkEmailQueue();
 
     if (httpServer) {
       await new Promise((resolve, reject) => {
