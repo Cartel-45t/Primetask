@@ -110,9 +110,18 @@ app.disable("x-powered-by");
 
 app.use(helmet());
 
+const allowedFrontendOrigins = (
+  process.env.FRONTEND_ORIGINS ||
+  process.env.FRONTEND_ORIGIN ||
+  "http://127.0.0.1:8080"
+)
+  .split(",")
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_ORIGIN || "http://127.0.0.1:8080",
+    origin: allowedFrontendOrigins,
     credentials: true
   })
 );
